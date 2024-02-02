@@ -21,14 +21,14 @@ public class SerializerRangeException extends SerializerException {
     }
 
     private static String[] getMessages(int min, int actual, int max) {
-        return new String[] {
+        return new String[]{
                 "Given integer needs to be between " + min + " and " + max,
                 forValue(actual)
         };
     }
 
     private static String[] getMessages(double min, double actual, double max) {
-        return new String[] {
+        return new String[]{
                 "Given integer needs to be between " + min + " and " + max,
                 forValue(actual)
         };

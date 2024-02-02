@@ -27,12 +27,12 @@ public class JarInstancer extends JarSearcher {
                 emptyConstructor = validClass.getConstructor();
             } catch (NoSuchMethodException e) {
                 debug.log(LogLevel.ERROR,
-                        "Found an class implementing " + clazz.getSimpleName() + " class which didn't have empty constructor!",
-                        "Please add empty constructor for class " + validClass.getSimpleName());
+                    "Found an class implementing " + clazz.getSimpleName() + " class which didn't have empty constructor!",
+                    "Please add empty constructor for class " + validClass.getSimpleName());
                 continue;
             }
             try {
-                //noinspection unchecked
+                // noinspection unchecked
                 T instance = (T) emptyConstructor.newInstance();
                 instances.add(instance);
 

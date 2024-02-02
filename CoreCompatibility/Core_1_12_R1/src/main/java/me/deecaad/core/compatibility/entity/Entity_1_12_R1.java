@@ -28,19 +28,19 @@ public class Entity_1_12_R1 implements EntityCompatibility {
     static {
         if (ReflectionUtil.getMCVersion() != 12) {
             me.deecaad.core.MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + Entity_1_12_R1.class + " when not using Minecraft 12",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + Entity_1_12_R1.class + " when not using Minecraft 12",
+                new InternalError());
         }
     }
 
     @Override
     public HitBox getHitBox(Entity entity) {
-        if (entity.isInvulnerable() || !entity.getType().isAlive() || entity.isDead()) return null;
+        if (entity.isInvulnerable() || !entity.getType().isAlive() || entity.isDead())
+            return null;
 
         HitBox hitBox = new HitBox(entity.getLocation().toVector(), getLastLocation(entity))
-                .grow(entity.getWidth(), entity.getHeight());
+            .grow(entity.getWidth(), entity.getHeight());
         hitBox.setLivingEntity((LivingEntity) entity);
 
         if (entity instanceof ComplexLivingEntity) {

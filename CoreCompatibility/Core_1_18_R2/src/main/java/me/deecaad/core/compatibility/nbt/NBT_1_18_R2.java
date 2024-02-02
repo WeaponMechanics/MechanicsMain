@@ -28,10 +28,9 @@ public class NBT_1_18_R2 extends NBT_Persistent {
     static {
         if (ReflectionUtil.getMCVersion() != 18) {
             MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + NBT_1_18_R2.class + " when not using Minecraft 18",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + NBT_1_18_R2.class + " when not using Minecraft 18",
+                new InternalError());
         }
     }
 
@@ -51,20 +50,17 @@ public class NBT_1_18_R2 extends NBT_Persistent {
         toItem.setItemMeta(getBukkitStack(nms).getItemMeta());
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public net.minecraft.world.item.ItemStack getNMSStack(@NotNull ItemStack bukkitStack) {
         return CraftItemStack.asNMSCopy(bukkitStack);
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public ItemStack getBukkitStack(@NotNull Object nmsStack) {
         return CraftItemStack.asBukkitCopy((net.minecraft.world.item.ItemStack) nmsStack);
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public String getNBTDebug(@NotNull ItemStack bukkitStack) {
         CompoundTag nbt = getNMSStack(bukkitStack).getTag();
         return nbt == null ? "null" : new TagColorVisitor().visit(nbt);
@@ -120,8 +116,8 @@ public class NBT_1_18_R2 extends NBT_Persistent {
                 String color = "&" + VALUE_COLORS.charAt((i + colorOffset) % VALUE_COLORS.length());
 
                 builder.append(color).append(handleEscape(key))
-                        .append("&f&l: ").append(color)
-                        .append(new TagColorVisitor(value instanceof CompoundTag ? indents + 1 : indents, colorOffset + i).visit(value));
+                    .append("&f&l: ").append(color)
+                    .append(new TagColorVisitor(value instanceof CompoundTag ? indents + 1 : indents, colorOffset + i).visit(value));
             }
 
             builder.append(braceColor).append("}\n");

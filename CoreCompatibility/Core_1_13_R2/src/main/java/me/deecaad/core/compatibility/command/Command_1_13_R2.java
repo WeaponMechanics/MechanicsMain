@@ -64,7 +64,7 @@ public class Command_1_13_R2 implements CommandCompatibility {
     public void generateFile(File file) {
         try {
             Files.asCharSink(file, StandardCharsets.UTF_8).write(new GsonBuilder().setPrettyPrinting().create()
-                    .toJson(ArgumentRegistry.a(getCommandDispatcher(), getCommandDispatcher().getRoot())));
+                .toJson(ArgumentRegistry.a(getCommandDispatcher(), getCommandDispatcher().getRoot())));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -295,7 +295,7 @@ public class Command_1_13_R2 implements CommandCompatibility {
     @Override
     public SuggestionProvider<Object> lootKey() {
         throw new IllegalStateException("Unavailable in 1.13");
-        //return (context, builder) -> ICompletionProvider.a(SERVER.getLootTableRegistry().a(), builder);
+        // return (context, builder) -> ICompletionProvider.a(SERVER.getLootTableRegistry().a(), builder);
     }
 
     private static NamespacedKey fromResourceLocation(MinecraftKey key) {
@@ -346,7 +346,7 @@ public class Command_1_13_R2 implements CommandCompatibility {
         Predicate<ShapeDetectorBlock> predicate = ArgumentBlockPredicate.a(cast(context), key);
         return (Block block) -> {
             return predicate.test(new ShapeDetectorBlock(cast(context).getSource().getWorld(),
-                    new BlockPosition(block.getX(), block.getY(), block.getZ()), true));
+                new BlockPosition(block.getX(), block.getY(), block.getZ()), true));
         };
     }
 
@@ -389,8 +389,8 @@ public class Command_1_13_R2 implements CommandCompatibility {
 
         CommandListenerWrapper source = (CommandListenerWrapper) context.getSource();
         return selector.b(source).stream()
-                .map(Entity::getBukkitEntity)
-                .collect(Collectors.toList());
+            .map(Entity::getBukkitEntity)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -417,8 +417,8 @@ public class Command_1_13_R2 implements CommandCompatibility {
 
         CommandListenerWrapper source = (CommandListenerWrapper) context.getSource();
         return selector.d(source).stream()
-                .map(EntityPlayer::getBukkitEntity)
-                .collect(Collectors.toList());
+            .map(EntityPlayer::getBukkitEntity)
+            .collect(Collectors.toList());
     }
 
     @Override

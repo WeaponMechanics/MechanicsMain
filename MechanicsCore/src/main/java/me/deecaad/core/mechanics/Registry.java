@@ -19,10 +19,9 @@ public final class Registry<T extends Keyable> implements Keyable {
     }
 
     /**
-     * Returns the name of this registry. Serves no functionality outside a
-     * user-friendly identifier. The name should be based off of the type this
-     * registry holds. For example, <code>"Mechanic"</code> for a registry of
-     * mechanics.
+     * Returns the name of this registry. Serves no functionality outside a user-friendly identifier.
+     * The name should be based off of the type this registry holds. For example,
+     * <code>"Mechanic"</code> for a registry of mechanics.
      *
      * @return The non-null name of this registry.
      */
@@ -32,16 +31,15 @@ public final class Registry<T extends Keyable> implements Keyable {
     }
 
     /**
-     * Adds the given serializer to this registry. Keys are not case-sensitive,
-     * so be careful to avoid duplicate keys.
+     * Adds the given serializer to this registry. Keys are not case-sensitive, so be careful to avoid
+     * duplicate keys.
      *
      * @param item The non-null item to add.
      * @return A non-null reference to this (builder-pattern).
      * @throws IllegalArgumentException If a duplicate key is found.
      */
     @Contract("_ -> this")
-    @NotNull
-    public Registry<T> add(@NotNull T item) {
+    @NotNull public Registry<T> add(@NotNull T item) {
         String key = toKey(item.getKey());
         T existing = registry.get(key);
 
@@ -75,8 +73,8 @@ public final class Registry<T extends Keyable> implements Keyable {
 
     /**
      * Returns the options available in the registry. This can be passed to a
-     * {@link me.deecaad.core.file.SerializerOptionsException} to tell the
-     * admin which options are registered and available for usage.
+     * {@link me.deecaad.core.file.SerializerOptionsException} to tell the admin which options are
+     * registered and available for usage.
      *
      * @return The non-null set of options.
      */
@@ -92,9 +90,8 @@ public final class Registry<T extends Keyable> implements Keyable {
     }
 
     /**
-     * Keys are use lowercase english letters, and do not include spaces or
-     * underscores. This method converts a normal string into a key for a
-     * registry.
+     * Keys are use lowercase english letters, and do not include spaces or underscores. This method
+     * converts a normal string into a key for a registry.
      *
      * @param key The non-null string to convert.
      * @return The non-null converted key.

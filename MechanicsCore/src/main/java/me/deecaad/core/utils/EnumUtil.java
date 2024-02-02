@@ -7,11 +7,11 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 
 /**
- * This final utility class outlines static methods that operate on or return
- * enums. This class keeps a cache of enums to save CPU processes at the
- * expense of increase memory usage.
+ * This final utility class outlines static methods that operate on or return enums. This class
+ * keeps a cache of enums to save CPU processes at the expense of increase memory usage.
  *
- * <p>The methods in this class are designed to be threadsafe.
+ * <p>
+ * The methods in this class are designed to be threadsafe.
  */
 public final class EnumUtil {
 
@@ -55,14 +55,13 @@ public final class EnumUtil {
     }
 
     /**
-     * Returns an immutable list of enum values that match the input. If
-     * the <code>input</code> starts with a <code>$</code>, all enum values that
-     * contain the input are added to the list.
+     * Returns an immutable list of enum values that match the input. If the <code>input</code> starts
+     * with a <code>$</code>, all enum values that contain the input are added to the list.
      *
-     * <p>Otherwise, this method returns an immutable list of 0 or 1 enums values.
+     * <p>
+     * Otherwise, this method returns an immutable list of 0 or 1 enums values.
      *
-     * @param input The input matcher. If the input starts with a $, it matches
-     *              multiple enum values.
+     * @param input The input matcher. If the input starts with a $, it matches multiple enum values.
      * @return A non-null, immutable list of all parsed enum values.
      * @see Collections#unmodifiableList(List)
      * @see Collections#singletonList(Object)
@@ -88,15 +87,13 @@ public final class EnumUtil {
     }
 
     /**
-     * Returns an {@link Enum} of the given {@link Class} type as an
-     * {@link Optional}. The resulting {@link Optional} will be empty if no
-     * {@link Enum} with the <code>name</code> exists.
+     * Returns an {@link Enum} of the given {@link Class} type as an {@link Optional}. The resulting
+     * {@link Optional} will be empty if no {@link Enum} with the <code>name</code> exists.
      *
      * @param clazz The enum's non-null class type.
-     * @param name  The name of the enum to grab. This string should be trimmed
-     *              ({@link String#trim()}) and uppercase
-     *              ({@link String#toUpperCase()}).
-     * @param <T>   The generic type of the enum.
+     * @param name The name of the enum to grab. This string should be trimmed ({@link String#trim()})
+     *        and uppercase ({@link String#toUpperCase()}).
+     * @param <T> The generic type of the enum.
      * @return An optional of the enum found, or an empty optional.
      */
     public static <T extends Enum<T>> @NotNull Optional<T> getIfPresent(@NotNull Class<T> clazz, @NotNull String name) {
@@ -108,10 +105,9 @@ public final class EnumUtil {
      * Returns an {@link Enum} of the given {@link Class}, or returns null.
      *
      * @param clazz The enum's non-null class type.
-     * @param name  The name of the enum to grab. This string should be trimmed
-     *              ({@link String#trim()}) and uppercase
-     *              ({@link String#toUpperCase()}).
-     * @param <T>   The generic type of the enum.
+     * @param name The name of the enum to grab. This string should be trimmed ({@link String#trim()})
+     *        and uppercase ({@link String#toUpperCase()}).
+     * @param <T> The generic type of the enum.
      * @return The enum found, or null.
      */
     public static <T extends Enum<T>> @Nullable T getOrNull(@NotNull Class<T> clazz, @NotNull String name) {
@@ -119,11 +115,10 @@ public final class EnumUtil {
     }
 
     /**
-     * Returns an immutable set of the name of every {@link Enum} associated
-     * with the given enum class.
+     * Returns an immutable set of the name of every {@link Enum} associated with the given enum class.
      *
      * @param clazz Class to grab the enum from.
-     * @param <T>   The enum type.
+     * @param <T> The enum type.
      * @return immutable set of all enums.
      * @see Collections#unmodifiableMap(Map)
      */
@@ -133,12 +128,12 @@ public final class EnumUtil {
     }
 
     /**
-     * Returns an immutable collection of the {@link WeakReference} to every
-     * {@link Enum} associated with the given enum class. The references will
-     * only return null if garbage collections has unloaded the enums.
+     * Returns an immutable collection of the {@link WeakReference} to every {@link Enum} associated
+     * with the given enum class. The references will only return null if garbage collections has
+     * unloaded the enums.
      *
      * @param clazz Class to grab the enum from.
-     * @param <T>   The enum type.
+     * @param <T> The enum type.
      * @return An immutable set of all enums.
      * @see Collections#unmodifiableMap(Map)
      */

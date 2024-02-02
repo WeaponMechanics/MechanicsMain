@@ -13,9 +13,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * This final utility class outlines static methods involving the visible
- * distance around a player, as well as methods to send packets to players
- * so long as the packet's location is within the player's viewing distance.
+ * This final utility class outlines static methods involving the visible distance around a player,
+ * as well as methods to send packets to players so long as the packet's location is within the
+ * player's viewing distance.
  */
 public final class DistanceUtil {
 
@@ -24,9 +24,9 @@ public final class DistanceUtil {
     }
 
     /**
-     * Returns the default viewing distance of worlds, defined by the vanilla
-     * minecraft server's <code>server.properties</code> file. Generally, this
-     * method should not be used. Use instead: {@link #getRange(World)}
+     * Returns the default viewing distance of worlds, defined by the vanilla minecraft server's
+     * <code>server.properties</code> file. Generally, this method should not be used. Use instead:
+     * {@link #getRange(World)}
      *
      * @return The non-negative viewing distance, in blocks.
      */
@@ -44,7 +44,8 @@ public final class DistanceUtil {
     public static int getRange(@NotNull World world) {
 
         // world.getRange() only exists in 1.14+
-        if (ReflectionUtil.getMCVersion() < 14) return getRange();
+        if (ReflectionUtil.getMCVersion() < 14)
+            return getRange();
 
         try {
             return world.getViewDistance() << 4;
@@ -64,8 +65,8 @@ public final class DistanceUtil {
     /**
      * Returns the entities withing range
      *
-     * @param min    How far away from the origin must the player be
-     * @param max    How close to the origin must the player be
+     * @param min How far away from the origin must the player be
+     * @param max How close to the origin must the player be
      * @param origin The coordinates that from where entities are taken
      * @return The entities withing range of view distance from origin
      */
@@ -95,14 +96,14 @@ public final class DistanceUtil {
             Location pos = player.getLocation();
 
             if (pos.getX() > x1max && pos.getX() < x2max
-                    && pos.getY() > y1max && pos.getY() < y2max
-                    && pos.getZ() > z1max && pos.getZ() < z2max) {
+                && pos.getY() > y1max && pos.getY() < y2max
+                && pos.getZ() > z1max && pos.getZ() < z2max) {
 
                 // Minimum range exclusion check, if applicable
                 if (min != -1) {
                     if (pos.getX() > x1min && pos.getX() < x2min
-                            && pos.getY() > y1min && pos.getY() < y2min
-                            && pos.getZ() > z1min && pos.getZ() < z2min) {
+                        && pos.getY() > y1min && pos.getY() < y2min
+                        && pos.getZ() > z1min && pos.getZ() < z2min) {
                         continue;
                     }
                 }
@@ -115,24 +116,28 @@ public final class DistanceUtil {
     }
 
     /**
-     * Sends the given packet to all players who can see the given
-     * {@link Location}. The distance that a player can see is defined by
-     * {@link #getRange(World)}.
+     * Sends the given packet to all players who can see the given {@link Location}. The distance that a
+     * player can see is defined by {@link #getRange(World)}.
      *
-     * <p>Note that sending packets with too long of a range can cause client
-     * sided performance issues. This has been a problem for a long time in the
-     * notchian server, so <a href="https://spigotmc.org/">Spigot</a> added
-     * entity tracking range, limiting how far the server would send clients
-     * packets. It is a good practice to limit how far away you send your
-     * packet.
-     * <blockquote><pre><code>
+     * <p>
+     * Note that sending packets with too long of a range can cause client sided performance issues.
+     * This has been a problem for a long time in the notchian server, so
+     * <a href="https://spigotmc.org/">Spigot</a> added entity tracking range, limiting how far the
+     * server would send clients packets. It is a good practice to limit how far away you send your
+     * packet. <blockquote>
+     * 
+     * <pre>
+     * <code>
      *     Location origin = /* not shown *&#47;;
      *     Object packet = /* not shown *&#47;;
      *     int distance = Math.min(DistanceUtils.getRange(), 50);
      *     DistanceUtils.sendPacket(origin, packet, distance)
-     * </code></pre></blockquote>
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
      *
-     * @param origin  The coordinates that the packet is being spawned at.
+     * @param origin The coordinates that the packet is being spawned at.
      * @param packets The packets to send to players in view.
      */
     public static void sendPacket(@NotNull Location origin, Object... packets) {

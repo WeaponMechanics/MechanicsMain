@@ -47,10 +47,9 @@ public class FakeEntity_1_19_R3 extends FakeEntity {
     static {
         if (ReflectionUtil.getMCVersion() != 19) {
             me.deecaad.core.MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + FakeEntity_1_19_R3.class + " when not using Minecraft 19",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + FakeEntity_1_19_R3.class + " when not using Minecraft 19",
+                new InternalError());
         }
     }
 
@@ -87,8 +86,8 @@ public class FakeEntity_1_19_R3 extends FakeEntity {
                     FallingBlockEntity temp = new FallingBlockEntity(net.minecraft.world.entity.EntityType.FALLING_BLOCK, world.getHandle());
                     temp.setPosRaw(x, y, z);
                     block = (data.getClass() == Material.class
-                            ? ((CraftBlockData) ((Material) data).createBlockData()).getState()
-                            : ((CraftBlockState) data).getHandle());
+                        ? ((CraftBlockData) ((Material) data).createBlockData()).getState()
+                        : ((CraftBlockState) data).getHandle());
                     yield temp;
                 }
                 case FIREWORK -> new FireworkRocketEntity(world.getHandle(), item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data), x, y, z, true);
@@ -185,7 +184,8 @@ public class FakeEntity_1_19_R3 extends FakeEntity {
 
         sendPackets(packet, head);
 
-        if (type == EntityType.ARMOR_STAND) updateMeta();
+        if (type == EntityType.ARMOR_STAND)
+            updateMeta();
     }
 
     @Override
@@ -207,8 +207,8 @@ public class FakeEntity_1_19_R3 extends FakeEntity {
     @Override
     public void show() {
         Packet<?> spawn = type.isAlive()
-                ? new ClientboundAddEntityPacket(entity)
-                : new ClientboundAddEntityPacket(entity, type == EntityType.FALLING_BLOCK ? Block.getId(block) : 0);
+            ? new ClientboundAddEntityPacket(entity)
+            : new ClientboundAddEntityPacket(entity, type == EntityType.FALLING_BLOCK ? Block.getId(block) : 0);
 
         ClientboundSetEntityDataPacket meta = new ClientboundSetEntityDataPacket(cache, getEntityData(entity.getEntityData(), false));
         ClientboundRotateHeadPacket head = new ClientboundRotateHeadPacket(entity, convertYaw(getYaw()));
@@ -227,7 +227,8 @@ public class FakeEntity_1_19_R3 extends FakeEntity {
             connection.send(head);
             connection.send(velocity);
             connection.send(look);
-            if (equipment != null) connection.send(equipment);
+            if (equipment != null)
+                connection.send(equipment);
 
             connections.add(connection);
         }
@@ -235,19 +236,21 @@ public class FakeEntity_1_19_R3 extends FakeEntity {
 
     @Override
     public void show(@NotNull Player player) {
-        if (!player.isOnline()) return;
+        if (!player.isOnline())
+            return;
 
         ServerGamePacketListenerImpl connection = ((CraftPlayer) player).getHandle().connection;
 
         connection.send(type.isAlive()
-                ? new ClientboundAddEntityPacket(entity) // TODO CHECK THIS... used to be "addmob", changed in 1.19?
-                : new ClientboundAddEntityPacket(entity, type == EntityType.FALLING_BLOCK ? Block.getId(block) : 0));
+            ? new ClientboundAddEntityPacket(entity) // TODO CHECK THIS... used to be "addmob", changed in 1.19?
+            : new ClientboundAddEntityPacket(entity, type == EntityType.FALLING_BLOCK ? Block.getId(block) : 0));
         connection.send(new ClientboundSetEntityDataPacket(cache, getEntityData(entity.getEntityData(), true)));
         connection.send(new Rot(cache, convertYaw(getYaw()), convertPitch(getPitch()), false));
         connection.send(new ClientboundSetEntityMotionPacket(cache, new Vec3(motion.getX(), motion.getY(), motion.getZ())));
         connection.send(new ClientboundRotateHeadPacket(entity, convertYaw(getYaw())));
         ClientboundSetEquipmentPacket equipment = getEquipmentPacket();
-        if (equipment != null) connection.send(equipment);
+        if (equipment != null)
+            connection.send(equipment);
 
         // Inject the player's packet connection into this listener, so we can
         // show the player position/velocity/rotation changes
@@ -256,7 +259,8 @@ public class FakeEntity_1_19_R3 extends FakeEntity {
 
     @Override
     public void updateMeta() {
-        if (type == EntityType.ARMOR_STAND) ((ArmorStand) entity).setHeadPose(new Rotations(getPitch(), 0, 0));
+        if (type == EntityType.ARMOR_STAND)
+            ((ArmorStand) entity).setHeadPose(new Rotations(getPitch(), 0, 0));
 
         sendPackets(new ClientboundSetEntityDataPacket(cache, getEntityData(entity.getEntityData(), false)));
     }
@@ -269,7 +273,8 @@ public class FakeEntity_1_19_R3 extends FakeEntity {
 
     @Override
     public void remove(@NotNull Player player) {
-        if (!player.isOnline()) return;
+        if (!player.isOnline())
+            return;
         ServerGamePacketListenerImpl connection = ((CraftPlayer) player).getHandle().connection;
         connection.send(new ClientboundRemoveEntitiesPacket(cache));
 
@@ -281,7 +286,8 @@ public class FakeEntity_1_19_R3 extends FakeEntity {
 
     @Override
     public void playEffect(@NotNull EntityEffect effect) {
-        if (!effect.getApplicable().isAssignableFrom(type.getEntityClass())) return;
+        if (!effect.getApplicable().isAssignableFrom(type.getEntityClass()))
+            return;
         sendPackets(new ClientboundEntityEventPacket(entity, effect.getData()));
     }
 
@@ -306,11 +312,13 @@ public class FakeEntity_1_19_R3 extends FakeEntity {
     @Override
     public void updateEquipment() {
         ClientboundSetEquipmentPacket packet = getEquipmentPacket();
-        if (packet != null) sendPackets(packet);
+        if (packet != null)
+            sendPackets(packet);
     }
 
     private ClientboundSetEquipmentPacket getEquipmentPacket() {
-        if (!type.isAlive()) return null;
+        if (!type.isAlive())
+            return null;
         LivingEntity livingEntity = (LivingEntity) entity;
 
         List<Pair<EquipmentSlot, ItemStack>> equipmentList = new ArrayList<>(6);

@@ -30,10 +30,9 @@ public class Entity_1_18_R2 implements EntityCompatibility {
     static {
         if (ReflectionUtil.getMCVersion() != 18) {
             MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + Entity_1_18_R2.class + " when not using Minecraft 18",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + Entity_1_18_R2.class + " when not using Minecraft 18",
+                new InternalError());
         }
     }
 

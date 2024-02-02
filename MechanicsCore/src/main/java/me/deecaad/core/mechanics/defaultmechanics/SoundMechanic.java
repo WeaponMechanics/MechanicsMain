@@ -100,8 +100,7 @@ public class SoundMechanic extends PlayerEffectMechanic {
         // When listeners != null, only targeted Players will be able to hear
         // this sound. In this case, we have to loop through every player and
         // manually play the sound packet for them.
-        OUTER:
-        for (Iterator<CastData> it = listeners.getTargets(center); it.hasNext(); ) {
+        OUTER : for (Iterator<CastData> it = listeners.getTargets(center); it.hasNext();) {
             CastData target = it.next();
             if (!(target.getTarget() instanceof Player player))
                 continue;
@@ -124,8 +123,7 @@ public class SoundMechanic extends PlayerEffectMechanic {
         return "https://cjcrafter.gitbook.io/mechanics/mechanics/sound";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         Sound sound = data.of("Sound").assertExists().getEnum(Sound.class);
         float volume = (float) data.of("Volume").assertPositive().getDouble(1.0);

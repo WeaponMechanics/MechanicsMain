@@ -51,8 +51,7 @@ public class MessageMechanic extends Mechanic {
         return "https://cjcrafter.gitbook.io/mechanics/mechanics/message";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         String message = data.of("Message").assertExists().getAdventure();
         return applyParentArgs(data, new MessageMechanic(message));

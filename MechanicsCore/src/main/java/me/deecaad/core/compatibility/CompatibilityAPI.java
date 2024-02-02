@@ -44,11 +44,11 @@ public final class CompatibilityAPI {
             // minecraft, like 1.18.1, 1.8.8, etc.
             if (compatibility == null) {
                 MechanicsCore.debug.error("Unsupported server version: " + Bukkit.getVersion() + " (" + Bukkit.getBukkitVersion() + ")",
-                        "Remember that MechanicsCore supports all major versions 1.9.4+, HOWEVER it doesn't support outdated versions",
-                        "For example, 1.18.1 is NOT a support version, but 1.18.2 IS a supported version",
-                        "If you are running a brand new version of Minecraft, ask DeeCaaD or CJCrafter to update the plugin",
-                        "",
-                        "!!! CRITICAL ERROR !!!");
+                    "Remember that MechanicsCore supports all major versions 1.9.4+, HOWEVER it doesn't support outdated versions",
+                    "For example, 1.18.1 is NOT a support version, but 1.18.2 IS a supported version",
+                    "If you are running a brand new version of Minecraft, ask DeeCaaD or CJCrafter to update the plugin",
+                    "",
+                    "!!! CRITICAL ERROR !!!");
             }
 
             // * ----- World Guard ----- * //
@@ -56,7 +56,8 @@ public final class CompatibilityAPI {
                 // Check if WorldGuard is there
                 Class.forName("com.sk89q.worldguard.bukkit.WorldGuardPlugin");
 
-                // Kinda hacky way to use reflections on own code, but when V6 module and V7 module was both added into lib of MechanicsCompatibility
+                // Kinda hacky way to use reflections on own code, but when V6 module and V7 module was both added
+                // into lib of MechanicsCompatibility
                 // I couldn't compile the code because of odd BukkitAdapter thing
                 if (CompatibilityAPI.getVersion() < 1.13) {
                     // V6
@@ -79,6 +80,7 @@ public final class CompatibilityAPI {
     /**
      *
      * Example return values:
+     * 
      * <pre>{@code
      * v1_8_R2 -> 1.082
      * v1_11_R1 -> 1.111

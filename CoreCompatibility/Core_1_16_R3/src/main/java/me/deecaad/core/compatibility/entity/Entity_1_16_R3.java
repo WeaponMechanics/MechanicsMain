@@ -30,10 +30,9 @@ public class Entity_1_16_R3 implements EntityCompatibility {
     static {
         if (ReflectionUtil.getMCVersion() != 16) {
             me.deecaad.core.MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + Entity_1_16_R3.class + " when not using Minecraft 16",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + Entity_1_16_R3.class + " when not using Minecraft 16",
+                new InternalError());
         }
     }
 

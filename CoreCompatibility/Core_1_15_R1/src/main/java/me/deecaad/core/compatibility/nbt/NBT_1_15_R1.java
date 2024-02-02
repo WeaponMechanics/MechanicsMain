@@ -21,10 +21,9 @@ public class NBT_1_15_R1 extends NBT_Persistent {
     static {
         if (ReflectionUtil.getMCVersion() != 15) {
             me.deecaad.core.MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + NBT_1_15_R1.class + " when not using Minecraft 15",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + NBT_1_15_R1.class + " when not using Minecraft 15",
+                new InternalError());
         }
     }
 
@@ -44,20 +43,17 @@ public class NBT_1_15_R1 extends NBT_Persistent {
         toItem.setItemMeta(CraftItemStack.asBukkitCopy(nms).getItemMeta());
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public net.minecraft.server.v1_15_R1.ItemStack getNMSStack(@NotNull ItemStack bukkitStack) {
         return CraftItemStack.asNMSCopy(bukkitStack);
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public ItemStack getBukkitStack(@NotNull Object nmsStack) {
         return CraftItemStack.asBukkitCopy((net.minecraft.server.v1_15_R1.ItemStack) nmsStack);
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public String getNBTDebug(@NotNull ItemStack bukkitStack) {
         NBTTagCompound nbt = getNMSStack(bukkitStack).getTag();
         if (nbt == null)

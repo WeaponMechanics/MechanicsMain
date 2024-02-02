@@ -40,11 +40,12 @@ public class Column {
         this.z = z;
     }
 
-
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Column column = (Column) o;
         return x == column.x && z == column.z && Objects.equals(world, column.world);
     }

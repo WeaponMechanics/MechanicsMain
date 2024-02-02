@@ -13,8 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Iterator;
 
 /**
- * Strictly speaking, a random assortment of points is not a shape. But the
- * shape targeter targets a list of points, not a shape, so this is fine.
+ * Strictly speaking, a random assortment of points is not a shape. But the shape targeter targets a
+ * list of points, not a shape, so this is fine.
  */
 public class ScatterTargeter extends ShapeTargeter {
 
@@ -101,8 +101,7 @@ public class ScatterTargeter extends ShapeTargeter {
         return "Scatter";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Targeter serialize(@NotNull SerializeData data) throws SerializerException {
         int points = data.of("Points").assertExists().getInt();
         double horizontalRange = data.of("Horizontal_Range").getDouble(5.0);

@@ -39,8 +39,7 @@ public class GeyserCondition extends Condition {
         return "https://cjcrafter.gitbook.io/mechanics/integrations/geysermc#geyser-condition";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         return applyParentArgs(data, new GeyserCondition());
     }

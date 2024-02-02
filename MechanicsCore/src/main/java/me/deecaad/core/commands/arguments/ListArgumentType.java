@@ -82,7 +82,6 @@ public abstract class ListArgumentType<T> extends CommandArgumentType<List<T>> {
 
     public abstract T parse(String str) throws CommandSyntaxException;
 
-
     public static ListArgumentType<Integer> integers(Integer... examples) {
         return new ListArgumentType<>(Arrays.asList(examples), false) {
             @Override
@@ -117,11 +116,10 @@ public abstract class ListArgumentType<T> extends CommandArgumentType<List<T>> {
                     return EnumUtil.getIfPresent(clazz, str).orElseThrow(() -> new IllegalArgumentException(str));
                 } catch (IllegalArgumentException ex) {
                     throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherParseException()
-                            .create("Unknown: " + str + ", Did you mean: " + StringUtil.debugDidYouMean(str, clazz));
+                        .create("Unknown: " + str + ", Did you mean: " + StringUtil.debugDidYouMean(str, clazz));
                 }
             }
         };
     }
-
 
 }

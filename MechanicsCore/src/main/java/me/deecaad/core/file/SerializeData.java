@@ -17,14 +17,14 @@ import java.util.stream.Stream;
 import static me.deecaad.core.file.InlineSerializer.UNIQUE_IDENTIFIER;
 
 /**
- * {@link SerializeData} wraps a {@link ConfigurationSection} and a key along
- * with useful "validation methods". These methods will throw a
- * {@link SerializerException} if the server admin input an incorrect value.
- * This allows us, the developers, to quickly and easily check if the config is
- * valid (Without long if/else if/else chains, or otherwise). Uses a builder
- * pattern for nice one-liners.
+ * {@link SerializeData} wraps a {@link ConfigurationSection} and a key along with useful
+ * "validation methods". These methods will throw a {@link SerializerException} if the server admin
+ * input an incorrect value. This allows us, the developers, to quickly and easily check if the
+ * config is valid (Without long if/else if/else chains, or otherwise). Uses a builder pattern for
+ * nice one-liners.
  *
- * <p>For example, to get a positive integer from config, we can use
+ * <p>
+ * For example, to get a positive integer from config, we can use
  * <code>SerializeData#of("your.key").assertExists().assertPositive().getInt()</code>.
  */
 public class SerializeData {
@@ -35,28 +35,25 @@ public class SerializeData {
     public final ConfigLike config;
 
     /**
-     * Wiki link to be used in exception messages in order to better assist
-     * users in solving their issues.
+     * Wiki link to be used in exception messages in order to better assist users in solving their
+     * issues.
      */
     public @Nullable String wikiLink;
 
     /**
-     * The fully serialized configuration to be used in case a
-     * nested-serializer uses the path-to feature. This should not be read
-     * directly, instead let {@link SerializeData.ConfigAccessor#serialize(Serializer)}
-     * check it automatically.
+     * The fully serialized configuration to be used in case a nested-serializer uses the path-to
+     * feature. This should not be read directly, instead let
+     * {@link SerializeData.ConfigAccessor#serialize(Serializer)} check it automatically.
      */
     public Configuration pathToConfig;
 
     /**
-     * If this is true, developers are using {@link #step(Serializer)}. This is
-     * an advanced path-to feature which allows developers to get values from
-     * config NOT STORED in the serialized object, but still under the
-     * configuration section of the serializer. When this is true, we pull
-     * values from 'pathToConfig' instead of 'config'
+     * If this is true, developers are using {@link #step(Serializer)}. This is an advanced path-to
+     * feature which allows developers to get values from config NOT STORED in the serialized object,
+     * but still under the configuration section of the serializer. When this is true, we pull values
+     * from 'pathToConfig' instead of 'config'
      */
     private boolean usingStep;
-
 
     public SerializeData(@NotNull String serializer, @NotNull File file, String key, @NotNull ConfigLike config) {
         this.serializer = serializer;
@@ -93,15 +90,13 @@ public class SerializeData {
         wikiLink = serializer.getWikiLink();
     }
 
-    @NotNull
-    private SerializeData copyMutables(@NotNull SerializeData from) {
+    @NotNull private SerializeData copyMutables(@NotNull SerializeData from) {
         this.wikiLink = from.wikiLink;
         this.usingStep = from.usingStep;
         return this;
     }
 
-    @NotNull
-    private static String getSimpleName(@NotNull Serializer<?> serializer) {
+    @NotNull private static String getSimpleName(@NotNull Serializer<?> serializer) {
         return serializer.getName();
     }
 
@@ -116,16 +111,14 @@ public class SerializeData {
     }
 
     /**
-     * Helper method to "move" into a new configuration section. The given
-     * relative key should <i>always</i> point towards a
-     * {@link ConfigurationSection}
+     * Helper method to "move" into a new configuration section. The given relative key should
+     * <i>always</i> point towards a {@link ConfigurationSection}
      *
      * @param relative The non-null, non-empty key relative to this.key.
      * @return The non-null serialize data.
      * @throws IllegalArgumentException If no configuration section exists at the location.
      */
-    @NotNull
-    public SerializeData move(@NotNull String relative) {
+    @NotNull public SerializeData move(@NotNull String relative) {
         return new SerializeData(serializer, this, relative).copyMutables(this);
     }
 
@@ -135,25 +128,23 @@ public class SerializeData {
      * @param serializer The non-null serializer that supports path-to.
      * @return The non-null serialize data.
      * @throws SerializerException If no path-to config is defined.
-     * @throws InternalError       If the serializer has no default constructor.
+     * @throws InternalError If the serializer has no default constructor.
      */
-    @NotNull
-    public <T extends Serializer<T>> SerializeData step(@NotNull Class<T> serializer) throws SerializerException {
+    @NotNull public <T extends Serializer<T>> SerializeData step(@NotNull Class<T> serializer) throws SerializerException {
         return step(ReflectionUtil.newInstance(serializer));
     }
 
     /**
      * Helper method to "step" into a new configuration section. Uses the
-     * {@link Serializer#getKeyword()} to step into the section. Supports
-     * using the {@link Serializer#canUsePathTo()} to step into other
-     * files instead of just nested configuration sections.
+     * {@link Serializer#getKeyword()} to step into the section. Supports using the
+     * {@link Serializer#canUsePathTo()} to step into other files instead of just nested configuration
+     * sections.
      *
      * @param serializer The non-null serializer that supports path-to.
      * @return The non-null serialize data.
      * @throws SerializerException If no path-to config is defined.
      */
-    @NotNull
-    public SerializeData step(@NotNull Serializer<?> serializer) throws SerializerException {
+    @NotNull public SerializeData step(@NotNull Serializer<?> serializer) throws SerializerException {
         if (serializer.getKeyword() == null || !serializer.canUsePathTo())
             throw new IllegalArgumentException(serializer + " does not support path-to");
 
@@ -177,8 +168,7 @@ public class SerializeData {
         return move(relative);
     }
 
-    @NotNull
-    public ConfigListAccessor ofList() {
+    @NotNull public ConfigListAccessor ofList() {
         String[] split = key.split("\\.");
         StringBuilder key = new StringBuilder();
 
@@ -205,22 +195,19 @@ public class SerializeData {
     }
 
     /**
-     * Creates a {@link ConfigAccessor} which accesses the data (stored in
-     * config) at <code>this.key + "." + relative</code>. The returned accessor
-     * can be used to validate arguments.
+     * Creates a {@link ConfigAccessor} which accesses the data (stored in config) at
+     * <code>this.key + "." + relative</code>. The returned accessor can be used to validate arguments.
      *
      * @param relative The non-null, non-empty key relative to this.key.
      * @return The non-null config accessor.
      */
-    @NotNull
-    public ConfigAccessor of(@NotNull String relative) {
+    @NotNull public ConfigAccessor of(@NotNull String relative) {
         return new ConfigAccessor(relative);
     }
 
     /**
-     * Creates a {@link ConfigListAccessor} which accesses the data (stored in
-     * config) at <code>this.key + ".' + relative</code>. The returned accessor
-     * can be used to validate arguments.
+     * Creates a {@link ConfigListAccessor} which accesses the data (stored in config) at
+     * <code>this.key + ".' + relative</code>. The returned accessor can be used to validate arguments.
      *
      * @param relative The non-null, non-empty key relative to this.key.
      * @return The non-null config list accessor.
@@ -230,9 +217,8 @@ public class SerializeData {
     }
 
     /**
-     * Returns <code>true</code> if the given relative config key exists.
-     * Otherwise, this method will return false. Usually, you should use
-     * {@link ConfigAccessor#assertExists()}.
+     * Returns <code>true</code> if the given relative config key exists. Otherwise, this method will
+     * return false. Usually, you should use {@link ConfigAccessor#assertExists()}.
      *
      * @param relative The non-null relative key.
      * @return <code>true</code> if the key exists.
@@ -242,20 +228,19 @@ public class SerializeData {
     }
 
     /**
-     * When there is no method in {@link ConfigAccessor} to match a specific
-     * configuration error, you may check for it manually and use this method
-     * to throw a "general" exception.
+     * When there is no method in {@link ConfigAccessor} to match a specific configuration error, you
+     * may check for it manually and use this method to throw a "general" exception.
      *
-     * <p>Make sure to keep messages clear and concise. There is no limit to
-     * how many messages you may give to the player, but make sure that each
-     * message is <i>important</i> and contains <i>useful</i> information.
+     * <p>
+     * Make sure to keep messages clear and concise. There is no limit to how many messages you may give
+     * to the player, but make sure that each message is <i>important</i> and contains <i>useful</i>
+     * information.
      *
      * @param relative The nullable relative key.
      * @param messages The non-empty list of messages to include.
      * @return The non-null constructed exception.
      */
-    @NotNull
-    public SerializerException exception(@Nullable String relative, String... messages) {
+    @NotNull public SerializerException exception(@Nullable String relative, String... messages) {
         if (messages.length == 0)
             throw new IllegalArgumentException("Hey you! Yeah you! Don't be lazy, add messages!");
 
@@ -267,17 +252,15 @@ public class SerializeData {
     }
 
     /**
-     * When there is no method in {@link ConfigListAccessor} to match a
-     * specific configuration error, you may check for it manually and use this
-     * method to throw a "general" exception.
+     * When there is no method in {@link ConfigListAccessor} to match a specific configuration error,
+     * you may check for it manually and use this method to throw a "general" exception.
      *
      * @param relative The nullable relative key.
-     * @param index    The index (NOT index + 1) of the element that had the error.
+     * @param index The index (NOT index + 1) of the element that had the error.
      * @param messages The non-empty list of messages to include
      * @return The non-null constructed exception.
      */
-    @NotNull
-    public SerializerException listException(@Nullable String relative, int index, String... messages) {
+    @NotNull public SerializerException listException(@Nullable String relative, int index, String... messages) {
         if (messages.length == 0)
             throw new IllegalArgumentException("Hey you! Yeah you! Don't be lazy, add messages!");
 
@@ -289,14 +272,13 @@ public class SerializeData {
     }
 
     /**
-     * Adds the wiki link, if the wiki link is not null, to the list of
-     * messages. This is used for exceptions.
+     * Adds the wiki link, if the wiki link is not null, to the list of messages. This is used for
+     * exceptions.
      *
      * @param messages The non-null array of messages to append to.
      * @return The list (with 1 more element, if the link was added).
      */
-    @NotNull
-    private String[] appendWikiLink(@NotNull String[] messages) {
+    @NotNull private String[] appendWikiLink(@NotNull String[] messages) {
         if (wikiLink == null || Arrays.stream(messages).anyMatch(str -> str.startsWith("Wiki: ")))
             return messages;
 
@@ -306,15 +288,13 @@ public class SerializeData {
         return copy;
     }
 
-    @NotNull
-    private String getWikiMessage() {
+    @NotNull private String getWikiMessage() {
         return "Wiki: " + wikiLink;
     }
 
-
     /**
-     * Wraps a configuration KEY (which points to a list of values) to some
-     * helper functions to facilitate data serialization. The
+     * Wraps a configuration KEY (which points to a list of values) to some helper functions to
+     * facilitate data serialization. The
      */
     public class ConfigListAccessor {
 
@@ -328,13 +308,11 @@ public class SerializeData {
             this.relative = relative;
         }
 
-        @NotNull
-        public ConfigListAccessor addArgument(Class<?> clazz, boolean required) {
+        @NotNull public ConfigListAccessor addArgument(Class<?> clazz, boolean required) {
             return this.addArgument(clazz, required, false);
         }
 
-        @NotNull
-        public ConfigListAccessor addArgument(Class<?> clazz, boolean required, boolean skipCheck) {
+        @NotNull public ConfigListAccessor addArgument(Class<?> clazz, boolean required, boolean skipCheck) {
 
             // Ensure that all required arguments are in order. For example,
             // true~true~false is fine, but true~false~true is impossible to
@@ -350,53 +328,47 @@ public class SerializeData {
             return this;
         }
 
-        @NotNull
-        public ConfigListAccessor assertArgumentPositive() {
+        @NotNull public ConfigListAccessor assertArgumentPositive() {
             arguments.getLast().positive = true;
             return this;
         }
 
-        @NotNull
-        public ConfigListAccessor assertArgumentRange(double min, double max) {
+        @NotNull public ConfigListAccessor assertArgumentRange(double min, double max) {
             arguments.getLast().min = min;
             arguments.getLast().max = max;
             return this;
         }
 
         /**
-         * Asserts that this key exists in the configuration. This method
-         * ensures that the user explicitly defined a value for the key.
+         * Asserts that this key exists in the configuration. This method ensures that the user explicitly
+         * defined a value for the key.
          *
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the key is not explicitly defined.
          */
-        @NotNull
-        public ConfigListAccessor assertExists() throws SerializerException {
+        @NotNull public ConfigListAccessor assertExists() throws SerializerException {
             if (!has(relative))
                 throw new SerializerMissingKeyException(serializer, relative, getLocation())
-                        .addMessage(wikiLink != null, getWikiMessage());
+                    .addMessage(wikiLink != null, getWikiMessage());
 
             return this;
         }
 
         /**
-         * If the <code>exists = true</code>, then this method will call
-         * {@link #assertExists()}. This is useful for when an argument is only
-         * required when another argument is present.
+         * If the <code>exists = true</code>, then this method will call {@link #assertExists()}. This is
+         * useful for when an argument is only required when another argument is present.
          *
          * @param exists true to assert if the argument exists.
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the key is not explicitly defined.
          */
-        @NotNull
-        public ConfigListAccessor assertExists(boolean exists) throws SerializerException {
+        @NotNull public ConfigListAccessor assertExists(boolean exists) throws SerializerException {
             if (exists)
                 return assertExists();
             return this;
         }
 
-        @NotNull
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @NotNull @SuppressWarnings({"unchecked", "rawtypes"})
         public ConfigListAccessor assertList() throws SerializerException {
             if (arguments.isEmpty())
                 throw new IllegalStateException("Need to set arguments before assertions");
@@ -411,7 +383,7 @@ public class SerializeData {
 
             if (!(value instanceof List<?> list))
                 throw new SerializerTypeException(serializer, List.class, value.getClass(), value, getLocation())
-                        .addMessage(wikiLink != null, getWikiMessage());
+                    .addMessage(wikiLink != null, getWikiMessage());
 
             // Use assertExists for required keys
             if (list.isEmpty())
@@ -424,7 +396,8 @@ public class SerializeData {
                 StringBuilder format = new StringBuilder("<");
                 arguments.forEach(arg -> {
                     format.append(arg.clazz.getSimpleName());
-                    if (arg.required) format.append('*');
+                    if (arg.required)
+                        format.append('*');
                     format.append("> <");
                 });
                 format.append('>');
@@ -434,7 +407,7 @@ public class SerializeData {
                 // the user (playing it safe).
                 if (string == null || string.trim().isEmpty()) {
                     throw listException(relative, i, relative + " does not allow empty elements in the list.",
-                            "Valid Format: " + format);
+                        "Valid Format: " + format);
                 }
 
                 // Each element in the list should be a string of values
@@ -445,10 +418,9 @@ public class SerializeData {
                 int required = (int) arguments.stream().filter(arg -> arg.required).count();
                 if (split.length < required) {
                     throw listException(relative, i, relative + " requires the first " + required + " arguments to be defined.",
-                            SerializerException.forValue(string),
-                            "You are missing " + (required - split.length) + " arguments",
-                            "Valid Format: " + format
-                    );
+                        SerializerException.forValue(string),
+                        "You are missing " + (required - split.length) + " arguments",
+                        "Valid Format: " + format);
                 }
 
                 for (int j = 0; j < split.length; j++) {
@@ -459,9 +431,8 @@ public class SerializeData {
                     // 'string-int-double', then this will be triggered.
                     if (arguments.size() <= j) {
                         throw listException(relative, i, "Invalid list format, " + relative + " can only use " + arguments.size() + " arguments.",
-                                SerializerException.forValue(string),
-                                "Valid Format: " + format
-                        );
+                            SerializerException.forValue(string),
+                            "Valid Format: " + format);
                     }
 
                     String component = split[j];
@@ -497,13 +468,13 @@ public class SerializeData {
                         }
                     } catch (SerializerException ex) {
                         throw ex.addMessage("Full List Element: " + string)
-                                .addMessage("Valid List Format: " + format)
-                                .addMessage(wikiLink != null, getWikiMessage()); // Rethrow exception so it isn't caught and ignored
+                            .addMessage("Valid List Format: " + format)
+                            .addMessage(wikiLink != null, getWikiMessage()); // Rethrow exception so it isn't caught and ignored
                     } catch (Exception ex) {
                         throw new SerializerTypeException(serializer, argument.clazz, null, component, getLocation(i))
-                                .addMessage("Full List Element: " + string)
-                                .addMessage("Valid List Format: " + format)
-                                .addMessage(wikiLink != null, getWikiMessage());
+                            .addMessage("Full List Element: " + string)
+                            .addMessage("Valid List Format: " + format)
+                            .addMessage(wikiLink != null, getWikiMessage());
                     }
                 }
             }
@@ -561,13 +532,12 @@ public class SerializeData {
         }
     }
 
-
     /**
-     * Wraps a configuration KEY to some helper functions to facilitate data
-     * serialization. The (public) methods of this class will throw a
-     * {@link SerializerException} if the configuration is invalid.
+     * Wraps a configuration KEY to some helper functions to facilitate data serialization. The (public)
+     * methods of this class will throw a {@link SerializerException} if the configuration is invalid.
      *
-     * <p>The methods of this class follow the Builder pattern.
+     * <p>
+     * The methods of this class follow the Builder pattern.
      */
     public class ConfigAccessor {
 
@@ -579,33 +549,30 @@ public class SerializeData {
         }
 
         /**
-         * Asserts that this key exists in the configuration. This method
-         * ensures that the user explicitly defined a value for the key.
+         * Asserts that this key exists in the configuration. This method ensures that the user explicitly
+         * defined a value for the key.
          *
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the key is not explicitly defined.
          */
-        @NotNull
-        public ConfigAccessor assertExists() throws SerializerException {
+        @NotNull public ConfigAccessor assertExists() throws SerializerException {
             if (!has(relative))
                 throw new SerializerMissingKeyException(serializer, relative, getLocation())
-                        .addMessage(wikiLink != null, getWikiMessage());
+                    .addMessage(wikiLink != null, getWikiMessage());
 
             exists = true;
             return this;
         }
 
         /**
-         * If the <code>exists = true</code>, then this method will call
-         * {@link #assertExists()}. This is useful for when an argument is only
-         * required when another argument is present.
+         * If the <code>exists = true</code>, then this method will call {@link #assertExists()}. This is
+         * useful for when an argument is only required when another argument is present.
          *
          * @param exists true to assert if the argument exists.
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the key is not explicitly defined.
          */
-        @NotNull
-        public ConfigAccessor assertExists(boolean exists) throws SerializerException {
+        @NotNull public ConfigAccessor assertExists(boolean exists) throws SerializerException {
             if (exists)
                 return assertExists();
             else
@@ -613,8 +580,8 @@ public class SerializeData {
         }
 
         /**
-         * Returns <code>true</code> when the object stored in this location
-         * matches the given <code>type</code>.
+         * Returns <code>true</code> when the object stored in this location matches the given
+         * <code>type</code>.
          *
          * @param type Which type to check for
          * @return true, if the value matched the type.
@@ -629,16 +596,14 @@ public class SerializeData {
         }
 
         /**
-         * Asserts that the value at this key is an instance of the given
-         * class. Ensures that the datatype matches what the developer
-         * expected the user to give.
+         * Asserts that the value at this key is an instance of the given class. Ensures that the datatype
+         * matches what the developer expected the user to give.
          *
          * @param type The non-null data type to match.
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the type does not match.
          */
-        @NotNull
-        public ConfigAccessor assertType(@NotNull Class<?> type) throws SerializerException {
+        @NotNull public ConfigAccessor assertType(@NotNull Class<?> type) throws SerializerException {
             Object value = usingStep ? pathToConfig.getObject(getPath(relative)) : config.get(getPath(relative));
 
             // Use assertExists for required keys
@@ -646,7 +611,7 @@ public class SerializeData {
                 Class<?> actual = value.getClass();
                 if (!type.isAssignableFrom(actual)) {
                     throw new SerializerTypeException(serializer, type, actual, value, getLocation())
-                            .addMessage(wikiLink != null, getWikiMessage());
+                        .addMessage(wikiLink != null, getWikiMessage());
                 }
             }
 
@@ -654,15 +619,14 @@ public class SerializeData {
         }
 
         /**
-         * Returns the integer value of the config, or throws an exception if
-         * the value is not a number. Note that this method will also throw an
-         * exception if the input is explicitly a double. For example,
-         * <code>1.0</code> is a valid integer which will be parsed as
-         * <code>1</code>, but <code>1.1</code> will throw an exception.
+         * Returns the integer value of the config, or throws an exception if the value is not a number.
+         * Note that this method will also throw an exception if the input is explicitly a double. For
+         * example, <code>1.0</code> is a valid integer which will be parsed as <code>1</code>, but
+         * <code>1.1</code> will throw an exception.
          *
-         * <p>Note that this method should only be called if you have already
-         * used {@link #assertExists()}. For non-required values, instead use
-         * {@link #getInt(int)}.
+         * <p>
+         * Note that this method should only be called if you have already used {@link #assertExists()}. For
+         * non-required values, instead use {@link #getInt(int)}.
          *
          * @return The integer from config.
          * @throws SerializerException If the config value is not an integer.
@@ -675,11 +639,10 @@ public class SerializeData {
         }
 
         /**
-         * Returns the integer value of the config, or throws an exception if
-         * the value is not a number. Note that this method will also throw an
-         * exception if the input is explicitly a double. For example,
-         * <code>1.0</code> is a valid integer which will be parsed as
-         * <code>1</code>, but <code>1.1</code> will throw an exception.
+         * Returns the integer value of the config, or throws an exception if the value is not a number.
+         * Note that this method will also throw an exception if the input is explicitly a double. For
+         * example, <code>1.0</code> is a valid integer which will be parsed as <code>1</code>, but
+         * <code>1.1</code> will throw an exception.
          *
          * @param def The default value to return when the config is undefined.
          * @return The integer from config.
@@ -689,18 +652,17 @@ public class SerializeData {
             Number num = Objects.requireNonNull(getNumber(def));
             if (Double.compare(Math.floor(num.doubleValue()), Math.ceil(num.doubleValue())) != 0)
                 throw new SerializerTypeException(serializer, Integer.class, Double.class, num, getLocation())
-                        .addMessage(wikiLink != null, getWikiMessage());
+                    .addMessage(wikiLink != null, getWikiMessage());
 
             return num.intValue();
         }
 
         /**
-         * Returns the double value of the config, or throws an exception if
-         * the value is not a number.
+         * Returns the double value of the config, or throws an exception if the value is not a number.
          *
-         * <p>Note that this method should only be called if you have already
-         * used {@link #assertExists()}. For non-required values, instead use
-         * {@link #getDouble(double)}.
+         * <p>
+         * Note that this method should only be called if you have already used {@link #assertExists()}. For
+         * non-required values, instead use {@link #getDouble(double)}.
          *
          * @return The integer from config.
          * @throws SerializerException If the config value is not a double.
@@ -713,8 +675,7 @@ public class SerializeData {
         }
 
         /**
-         * Returns the double value of the config, or throws an exception if
-         * the value is not a number.
+         * Returns the double value of the config, or throws an exception if the value is not a number.
          *
          * @param def The default value to return when the config is undefined.
          * @return The double from config.
@@ -725,12 +686,11 @@ public class SerializeData {
         }
 
         /**
-         * Returns the boolean value of the config, or throws an exception if
-         * the value is not a boolean.
+         * Returns the boolean value of the config, or throws an exception if the value is not a boolean.
          *
-         * <p>Note that this method should only be called if you have already
-         * used {@link #assertExists()}. For non-required values, instead use
-         * {@link #getBool(boolean)}.
+         * <p>
+         * Note that this method should only be called if you have already used {@link #assertExists()}. For
+         * non-required values, instead use {@link #getBool(boolean)}.
          *
          * @return The boolean from config.
          * @throws SerializerException If the config value is not a boolean.
@@ -743,8 +703,7 @@ public class SerializeData {
         }
 
         /**
-         * Returns the boolean value of the config, or throws an exception if
-         * the value is not a boolean.
+         * Returns the boolean value of the config, or throws an exception if the value is not a boolean.
          *
          * @param def The default value to return when the config is undefined.
          * @return The boolean from config.
@@ -765,20 +724,18 @@ public class SerializeData {
             }
 
             throw new SerializerTypeException(serializer, Boolean.class, value.getClass(), value, getLocation())
-                    .addMessage(wikiLink != null, getWikiMessage());
+                .addMessage(wikiLink != null, getWikiMessage());
         }
 
         /**
-         * Asserts that the value at this key is a number of any type. The
-         * check is done by checking the value can be type-casted to a double.
-         * Note that if you want a more specific number type (for example, an
-         * integer), you should use {@link #assertType(Class)}.
+         * Asserts that the value at this key is a number of any type. The check is done by checking the
+         * value can be type-casted to a double. Note that if you want a more specific number type (for
+         * example, an integer), you should use {@link #assertType(Class)}.
          *
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the type is not a number.
          */
-        @Nullable
-        public Number getNumber(@Nullable Number def) throws SerializerException {
+        @Nullable public Number getNumber(@Nullable Number def) throws SerializerException {
             Object value = usingStep ? pathToConfig.getObject(getPath(relative)) : config.get(getPath(relative));
 
             // Use assertExists for required keys
@@ -791,7 +748,7 @@ public class SerializeData {
                     value = Double.valueOf(str);
                 } catch (NumberFormatException ex) {
                     throw new SerializerTypeException(serializer, Number.class, value.getClass(), value, getLocation())
-                            .addMessage(wikiLink != null, getWikiMessage());
+                        .addMessage(wikiLink != null, getWikiMessage());
                 }
             }
 
@@ -799,20 +756,18 @@ public class SerializeData {
                 return (Number) value;
             } catch (ClassCastException ex) {
                 throw new SerializerTypeException(serializer, Number.class, value.getClass(), value, getLocation())
-                        .addMessage(wikiLink != null, getWikiMessage());
+                    .addMessage(wikiLink != null, getWikiMessage());
             }
         }
 
         /**
-         * Asserts that the value at this key is a number, AND that the number
-         * is positive. Note that if you want a more specific number type (for
-         * example, an integer), you should use {@link #getInt(int)}.
+         * Asserts that the value at this key is a number, AND that the number is positive. Note that if you
+         * want a more specific number type (for example, an integer), you should use {@link #getInt(int)}.
          *
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the type is not a number or is not positive.
          */
-        @NotNull
-        public ConfigAccessor assertPositive() throws SerializerException {
+        @NotNull public ConfigAccessor assertPositive() throws SerializerException {
             Number value = getNumber(null);
 
             // Use assertExists for required keys
@@ -820,26 +775,24 @@ public class SerializeData {
 
                 if ((value instanceof Long && value.longValue() < 0L) || value.doubleValue() < 0L)
                     throw new SerializerNegativeException(serializer, value, getLocation())
-                            .addMessage(wikiLink != null, getWikiMessage());
+                        .addMessage(wikiLink != null, getWikiMessage());
             }
 
             return this;
         }
 
         /**
-         * Asserts that the value at this key is a number, AND that the number
-         * is within the inclusive range. Note that if you want a more specific
-         * number type (for example, an integer), you should use
-         * {@link #getInt(int)}.
+         * Asserts that the value at this key is a number, AND that the number is within the inclusive
+         * range. Note that if you want a more specific number type (for example, an integer), you should
+         * use {@link #getInt(int)}.
          *
          * @param min Inclusive minimum bound.
          * @param max Inclusive maximum bound.
          * @return A non-null reference to this accessor (builder pattern).
-         * @throws SerializerException      If the value is not in range.
+         * @throws SerializerException If the value is not in range.
          * @throws IllegalArgumentException If min larger than max.
          */
-        @NotNull
-        public ConfigAccessor assertRange(int min, int max) throws SerializerException {
+        @NotNull public ConfigAccessor assertRange(int min, int max) throws SerializerException {
             if (min > max)
                 throw new IllegalArgumentException("min > max");
 
@@ -852,26 +805,24 @@ public class SerializeData {
                 int num = value.intValue();
                 if (num < min || num > max)
                     throw new SerializerRangeException(serializer, min, num, max, getLocation())
-                            .addMessage(wikiLink != null, getWikiMessage());
+                        .addMessage(wikiLink != null, getWikiMessage());
             }
 
             return this;
         }
 
         /**
-         * Asserts that the value at this key is a number, AND that the number
-         * is within the inclusive range. Note that if you want a more specific
-         * number type (for example, an integer), you should use
-         * {@link #getInt(int)}.
+         * Asserts that the value at this key is a number, AND that the number is within the inclusive
+         * range. Note that if you want a more specific number type (for example, an integer), you should
+         * use {@link #getInt(int)}.
          *
          * @param min Inclusive minimum bound.
          * @param max Inclusive maximum bound.
          * @return A non-null reference to this accessor (builder pattern).
-         * @throws SerializerException      If the value is not in range.
+         * @throws SerializerException If the value is not in range.
          * @throws IllegalArgumentException If min larger than max.
          */
-        @NotNull
-        public ConfigAccessor assertRange(double min, double max) throws SerializerException {
+        @NotNull public ConfigAccessor assertRange(double min, double max) throws SerializerException {
             if (min > max)
                 throw new IllegalArgumentException("min > max");
 
@@ -883,14 +834,13 @@ public class SerializeData {
                 double num = value.doubleValue();
                 if (num < min || num > max)
                     throw new SerializerRangeException(serializer, min, num, max, getLocation())
-                            .addMessage(wikiLink != null, getWikiMessage());
+                        .addMessage(wikiLink != null, getWikiMessage());
             }
 
             return this;
         }
 
-        @NotNull
-        public String getLocation() {
+        @NotNull public String getLocation() {
             String stepAddon = usingStep ? " (File location will be inaccurate since you are using path-to)" : "";
             if (relative == null || relative.isEmpty()) {
                 return config.getLocation(file, key) + stepAddon;
@@ -900,17 +850,15 @@ public class SerializeData {
         }
 
         /**
-         * Gets the data stored at this relative key. Note that this method
-         * (basically) requires a previous call to {@link #assertExists()},
-         * especially for primitive types. When the key is optional, use
+         * Gets the data stored at this relative key. Note that this method (basically) requires a previous
+         * call to {@link #assertExists()}, especially for primitive types. When the key is optional, use
          * {@link #get(Object)} to define a default value.
          *
          * @param <T> The expected data-type of the data.
          * @return The data stored at this relative key.
          */
         @SuppressWarnings("unchecked")
-        @NotNull
-        public <T> T get() {
+        @NotNull public <T> T get() {
             if (!exists)
                 throw new IllegalStateException("Either provide a default value or use assertExists()!");
 
@@ -918,32 +866,28 @@ public class SerializeData {
         }
 
         /**
-         * Gets the data stored at this relative key, or
-         * <code>defaultValue</code> if the key is not explicitly defined. It
-         * does not make sense to use this method when there has been a
-         * previous call to {@link #assertExists()}.
+         * Gets the data stored at this relative key, or <code>defaultValue</code> if the key is not
+         * explicitly defined. It does not make sense to use this method when there has been a previous call
+         * to {@link #assertExists()}.
          *
          * @param defaultValue The default value to return when one has not been defined.
-         * @param <T>          The expected data-type of the data.
+         * @param <T> The expected data-type of the data.
          * @return The data stored at this relative key, or default.
          */
-        @Nullable
-        public <T> T get(T defaultValue) {
+        @Nullable public <T> T get(T defaultValue) {
             // noinspection unchecked
             return (T) (usingStep ? pathToConfig.getObject(getPath(relative), defaultValue) : config.get(getPath(relative), defaultValue));
         }
 
         /**
-         * Shorthand for using {@link #getEnum(Class, Enum)} and returning
-         * <code>null</code> by default.
+         * Shorthand for using {@link #getEnum(Class, Enum)} and returning <code>null</code> by default.
          *
          * @param clazz The non-null enum class that is expected.
-         * @param <T>   The enum type.
+         * @param <T> The enum type.
          * @return The user input enum value, or null.
          * @throws SerializerException If the user defined an invalid type.
          */
-        @Nullable
-        public <T extends Enum<T>> T getEnum(@NotNull Class<T> clazz) throws SerializerException {
+        @Nullable public <T extends Enum<T>> T getEnum(@NotNull Class<T> clazz) throws SerializerException {
             if (!exists)
                 throw new IllegalStateException("Either provide a default value or use assertExists()!");
 
@@ -951,19 +895,17 @@ public class SerializeData {
         }
 
         /**
-         * Serializes an enum value from config. If the key is not defined,
-         * then <code>defaultValue</code> is returned. If the user defines a
-         * string that doesn't match any enum, a {@link SerializerEnumException}
-         * is thrown.
+         * Serializes an enum value from config. If the key is not defined, then <code>defaultValue</code>
+         * is returned. If the user defines a string that doesn't match any enum, a
+         * {@link SerializerEnumException} is thrown.
          *
-         * @param clazz        The non-null enum class.
+         * @param clazz The non-null enum class.
          * @param defaultValue The default value to use when a key is undefined.
-         * @param <T>          The enum type.
+         * @param <T> The enum type.
          * @return The serialized enum type, or defaultValue.
          * @throws SerializerException If there is a misconfiguration in config.
          */
-        @Nullable
-        public <T extends Enum<T>> T getEnum(@NotNull Class<T> clazz, @Nullable T defaultValue) throws SerializerException {
+        @Nullable public <T extends Enum<T>> T getEnum(@NotNull Class<T> clazz, @Nullable T defaultValue) throws SerializerException {
             String input = usingStep ? pathToConfig.getString(getPath(relative)) : config.getString(getPath(relative));
 
             // Use assertExists for required keys
@@ -975,30 +917,28 @@ public class SerializeData {
             input = input.trim();
             if (input.startsWith("$"))
                 throw new SerializerEnumException(serializer, clazz, input, false, getLocation())
-                        .addMessage(wikiLink != null, getWikiMessage());
+                    .addMessage(wikiLink != null, getWikiMessage());
 
             // The returned value will have either 0 elements (meaning that the
             // input is invalid) OR 1 element (meaning that the input is valid).
             List<T> list = EnumUtil.parseEnums(clazz, input);
             if (list.isEmpty()) {
                 throw new SerializerEnumException(serializer, clazz, input, false, getLocation())
-                        .addMessage(wikiLink != null, getWikiMessage());
+                    .addMessage(wikiLink != null, getWikiMessage());
             }
 
             // At this point, the list is guaranteed to have exactly 1 element.
             return list.get(0);
         }
 
-        @Nullable
-        public <T extends Keyed> T getKeyed(@NotNull org.bukkit.Registry<T> registry) throws SerializerException {
+        @Nullable public <T extends Keyed> T getKeyed(@NotNull org.bukkit.Registry<T> registry) throws SerializerException {
             if (!exists)
                 throw new IllegalStateException("Either provide a default value or use assertExists()!");
 
             return getKeyed(registry, null);
         }
 
-        @Nullable
-        public <T extends Keyed> T getKeyed(@NotNull org.bukkit.Registry<T> registry, @Nullable T defaultValue) throws SerializerException {
+        @Nullable public <T extends Keyed> T getKeyed(@NotNull org.bukkit.Registry<T> registry, @Nullable T defaultValue) throws SerializerException {
             Object value = usingStep ? pathToConfig.getObject(getPath(relative), "") : config.get(getPath(relative), "");
             String input = value.toString().trim().toLowerCase(Locale.ROOT);
 
@@ -1044,23 +984,22 @@ public class SerializeData {
         }
 
         /**
-         * Returns the string value of the config, adjusted to fit the
-         * adventure format. Adventure text is formatting using html-like tags
-         * instead of the legacy <code>{@literal &}</code> symbol. If the string in config
-         * contains the legacy color system, we will attempt to convert it.
+         * Returns the string value of the config, adjusted to fit the adventure format. Adventure text is
+         * formatting using html-like tags instead of the legacy <code>{@literal &}</code> symbol. If the
+         * string in config contains the legacy color system, we will attempt to convert it.
          *
-         * <p>The returned string should be parsed using
-         * {@link net.kyori.adventure.text.minimessage.MiniMessage}. You may
-         * use MechanicsCore's instance {@link me.deecaad.core.MechanicsCore#message}.
+         * <p>
+         * The returned string should be parsed using
+         * {@link net.kyori.adventure.text.minimessage.MiniMessage}. You may use MechanicsCore's instance
+         * {@link me.deecaad.core.MechanicsCore#message}.
          *
-         * <p>Note that this method should only be called if you have already
-         * used {@link #assertExists()}. For non-required values, instead use
-         * {@link #getAdventure(String)}.
+         * <p>
+         * Note that this method should only be called if you have already used {@link #assertExists()}. For
+         * non-required values, instead use {@link #getAdventure(String)}.
          *
          * @return The converted string from config.
          */
-        @Nullable
-        public String getAdventure() {
+        @Nullable public String getAdventure() {
             if (!exists)
                 throw new IllegalStateException("Either provide a default value or use assertExists()!");
 
@@ -1068,19 +1007,18 @@ public class SerializeData {
         }
 
         /**
-         * Returns the string value of the config, adjusted to fit the
-         * adventure format. Adventure text is formatting using html-like tags
-         * instead of the legacy <code>{@literal &}</code> symbol. If the string in config
-         * contains the legacy color system, we will attempt to convert it.
+         * Returns the string value of the config, adjusted to fit the adventure format. Adventure text is
+         * formatting using html-like tags instead of the legacy <code>{@literal &}</code> symbol. If the
+         * string in config contains the legacy color system, we will attempt to convert it.
          *
-         * <p>The returned string should be parsed using
-         * {@link net.kyori.adventure.text.minimessage.MiniMessage}. You may
-         * use MechanicsCore's instance {@link me.deecaad.core.MechanicsCore#message}.
+         * <p>
+         * The returned string should be parsed using
+         * {@link net.kyori.adventure.text.minimessage.MiniMessage}. You may use MechanicsCore's instance
+         * {@link me.deecaad.core.MechanicsCore#message}.
          *
          * @return The converted string from config.
          */
-        @Nullable
-        public String getAdventure(@Nullable String defaultValue) {
+        @Nullable public String getAdventure(@Nullable String defaultValue) {
             if (!has(relative))
                 return defaultValue;
 
@@ -1091,17 +1029,16 @@ public class SerializeData {
         }
 
         /**
-         * Returns one type from a registry. The exact type is unknown, and is
-         * determined by the {@link InlineSerializer#UNIQUE_IDENTIFIER} present
-         * in configuration. Requires a previous call to {@link #assertExists()}.
+         * Returns one type from a registry. The exact type is unknown, and is determined by the
+         * {@link InlineSerializer#UNIQUE_IDENTIFIER} present in configuration. Requires a previous call to
+         * {@link #assertExists()}.
          *
          * @param registry The non-null registry of possible types to use.
-         * @param <T>      The superclass type.
+         * @param <T> The superclass type.
          * @return A serialized instance.
          * @throws SerializerException If there are any errors in config.
          */
-        @Nullable
-        public <T extends InlineSerializer<T>> T getRegistry(Registry<T> registry) throws SerializerException {
+        @Nullable public <T extends InlineSerializer<T>> T getRegistry(Registry<T> registry) throws SerializerException {
             if (!exists)
                 throw new IllegalStateException("Either provide a default value or use assertExists()!");
 
@@ -1109,19 +1046,17 @@ public class SerializeData {
         }
 
         /**
-         * Returns one type from a registry. The exact type is unknown, and is
-         * determined by the {@link InlineSerializer#UNIQUE_IDENTIFIER} present
-         * in configuration. If no value has been defined in config, then the
-         * default value is returned.
+         * Returns one type from a registry. The exact type is unknown, and is determined by the
+         * {@link InlineSerializer#UNIQUE_IDENTIFIER} present in configuration. If no value has been defined
+         * in config, then the default value is returned.
          *
-         * @param registry     The non-null registry of possible types to use.
+         * @param registry The non-null registry of possible types to use.
          * @param defaultValue What to return if no value exists in config.
-         * @param <T>          The superclass type.
+         * @param <T> The superclass type.
          * @return A serialized instance.
          * @throws SerializerException If there are any errors in config.
          */
-        @Nullable
-        public <T extends InlineSerializer<T>> T getRegistry(@NotNull Registry<T> registry, @Nullable T defaultValue) throws SerializerException {
+        @Nullable public <T extends InlineSerializer<T>> T getRegistry(@NotNull Registry<T> registry, @Nullable T defaultValue) throws SerializerException {
             if (!(config instanceof MapConfigLike mapLike))
                 throw new UnsupportedOperationException("Cannot use registries with " + config);
             if (!has(relative))
@@ -1141,19 +1076,17 @@ public class SerializeData {
         }
 
         /**
-         * This method is similar to {@link #getRegistry(Registry)}, but
-         * instead of allowing every type from a registry, 1 specific type is
-         * allowed.
+         * This method is similar to {@link #getRegistry(Registry)}, but instead of allowing every type from
+         * a registry, 1 specific type is allowed.
          *
-         * @param impliedType      The serializer.
+         * @param impliedType The serializer.
          * @param <SerializerType> Which type of the serializer.
          * @param <SerializedType> The type to create.
          * @return The serialized instance.
          * @throws SerializerException If there are any errors in config.
          */
         public <SerializerType extends Serializer<SerializedType>, SerializedType> @Nullable SerializedType getImplied(
-                @NotNull SerializerType impliedType
-        ) throws SerializerException {
+            @NotNull SerializerType impliedType) throws SerializerException {
             if (!(config instanceof MapConfigLike mapLike))
                 throw new UnsupportedOperationException("Cannot use registries with " + config);
             if (!has(relative))
@@ -1171,8 +1104,7 @@ public class SerializeData {
             return impliedType.serialize(nested);
         }
 
-        @NotNull
-        public <T extends InlineSerializer<T>> List<T> getRegistryList(@NotNull Registry<T> registry) throws SerializerException {
+        @NotNull public <T extends InlineSerializer<T>> List<T> getRegistryList(@NotNull Registry<T> registry) throws SerializerException {
             if (!(config instanceof MapConfigLike mapLike))
                 throw new UnsupportedOperationException("Cannot use registries with " + config);
             if (!has(relative))
@@ -1204,8 +1136,7 @@ public class SerializeData {
             return returnValue;
         }
 
-        @NotNull
-        public <T extends InlineSerializer<T>> List<T> getImpliedList(T impliedType) throws SerializerException {
+        @NotNull public <T extends InlineSerializer<T>> List<T> getImpliedList(T impliedType) throws SerializerException {
             if (!(config instanceof MapConfigLike mapLike))
                 throw new UnsupportedOperationException("Cannot use registries with " + config);
             if (!has(relative))
@@ -1233,32 +1164,28 @@ public class SerializeData {
         }
 
         /**
-         * Handles nested serializers. Uses the given class as a serializer and
-         * attempts to serialize an object from this relative key. Returns null
-         * when the key hasn't been explicitly defined.
+         * Handles nested serializers. Uses the given class as a serializer and attempts to serialize an
+         * object from this relative key. Returns null when the key hasn't been explicitly defined.
          *
          * @param serializerClass The non-null serializer class.
-         * @param <T>             The serializer type.
+         * @param <T> The serializer type.
          * @return The serialized object.
          * @throws SerializerException If there is a mistake in config found during serialization.
          */
-        @Nullable
-        public <T extends Serializer<T>> T serialize(@NotNull Class<T> serializerClass) throws SerializerException {
+        @Nullable public <T extends Serializer<T>> T serialize(@NotNull Class<T> serializerClass) throws SerializerException {
             return serialize(ReflectionUtil.newInstance(serializerClass));
         }
 
         /**
-         * Handles nested serializers. Uses the given serializer to serialize
-         * an object from this relative key. Returns null when the key hasn't
-         * been explicitly defined.
+         * Handles nested serializers. Uses the given serializer to serialize an object from this relative
+         * key. Returns null when the key hasn't been explicitly defined.
          *
          * @param serializer The non-null serializer instance.
-         * @param <T>        The serializer type.
+         * @param <T> The serializer type.
          * @return The serialized object.
          * @throws SerializerException If there is a mistake in config found during serialization.
          */
-        @Nullable
-        public <T> T serialize(@NotNull Serializer<T> serializer) throws SerializerException {
+        @Nullable public <T> T serialize(@NotNull Serializer<T> serializer) throws SerializerException {
 
             // Use assertExists for required keys
             if (!has(relative))
@@ -1290,7 +1217,7 @@ public class SerializeData {
                 Object obj = pathToConfig.getObject(path);
                 if (obj == null)
                     throw exception(relative, "Found an invalid path when using 'Path To' feature",
-                            "Path '" + path + "' could not be found. Check for errors above this message.");
+                        "Path '" + path + "' could not be found. Check for errors above this message.");
 
                 // Technically not "perfect" since a serializer can return a
                 // non-serializer object. ItemSerializer is covered with its
@@ -1298,9 +1225,9 @@ public class SerializeData {
                 // happen since the config is too small for them.
                 if (!serializer.getClass().isInstance(obj))
                     throw exception(relative, "Found an invalid object when using 'Path To' feature",
-                            "Path '" + path + "' pointed to an improper object type.",
-                            "Should have been '" + serializer.getClass().getSimpleName() + "', but instead got '" + obj.getClass().getSimpleName() + "'",
-                            SerializerException.forValue(obj));
+                        "Path '" + path + "' pointed to an improper object type.",
+                        "Should have been '" + serializer.getClass().getSimpleName() + "', but instead got '" + obj.getClass().getSimpleName() + "'",
+                        SerializerException.forValue(obj));
 
                 // Generic fuckery
                 return (T) serializer.getClass().cast(obj);

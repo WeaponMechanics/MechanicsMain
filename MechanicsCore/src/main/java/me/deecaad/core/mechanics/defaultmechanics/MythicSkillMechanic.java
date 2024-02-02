@@ -50,8 +50,7 @@ public class MythicSkillMechanic extends Mechanic implements JarSearcherExempt {
         Collection<Entity> eTargets = new ArrayList<>();
         Collection<Location> lTargets = new ArrayList<>();
 
-        OUTER:
-        for (Iterator<CastData> it = targeter.getTargets(cast); it.hasNext(); ) {
+        OUTER : for (Iterator<CastData> it = targeter.getTargets(cast); it.hasNext();) {
             CastData target = it.next();
             for (Condition condition : conditions)
                 if (!condition.isAllowed(target))
@@ -60,14 +59,13 @@ public class MythicSkillMechanic extends Mechanic implements JarSearcherExempt {
             if (target.getTarget() != null)
                 eTargets.add(target.getTarget());
             else
-                lTargets.add(target.getTargetLocation().clone());  // clone since may be modified by iterator
+                lTargets.add(target.getTargetLocation().clone()); // clone since may be modified by iterator
         }
 
         MythicBukkit.inst().getAPIHelper().castSkill(cast.getSource(), skillName, cast.getSourceLocation(), eTargets, lTargets, power);
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         String skill = data.of("Skill").assertExists().assertType(String.class).get();
         float power = (float) data.of("Power").getDouble(1.0);

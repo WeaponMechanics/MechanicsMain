@@ -32,8 +32,7 @@ public class Argument<T> {
     String description;
 
     /**
-     * Construct an argument that the {@link org.bukkit.command.CommandSender}
-     * must explicitly define.
+     * Construct an argument that the {@link org.bukkit.command.CommandSender} must explicitly define.
      *
      * @param type The non-null expected type.
      */
@@ -70,9 +69,8 @@ public class Argument<T> {
     }
 
     /**
-     * Returns the human-readable name of the argument. The name should be 1
-     * word, and be descriptive to how this argument will be used in the
-     * command. Examples: target, x, y, z, item.
+     * Returns the human-readable name of the argument. The name should be 1 word, and be descriptive to
+     * how this argument will be used in the command. Examples: target, x, y, z, item.
      *
      * @return The non-null argument name.
      */
@@ -81,8 +79,8 @@ public class Argument<T> {
     }
 
     /**
-     * Returns the data-type of the argument. Used internally to parse
-     * arguments, and to handle suggestions.
+     * Returns the data-type of the argument. Used internally to parse arguments, and to handle
+     * suggestions.
      *
      * @return The non-null data-type.
      */
@@ -91,8 +89,8 @@ public class Argument<T> {
     }
 
     /**
-     * Returns the default value when {@link #isRequired()} is false, or
-     * <code>null</code> when {@link #isRequired()} is true.
+     * Returns the default value when {@link #isRequired()} is false, or <code>null</code> when
+     * {@link #isRequired()} is true.
      *
      * @return The value to use when the user doesn't define one.
      */
@@ -101,8 +99,8 @@ public class Argument<T> {
     }
 
     /**
-     * Returns <code>true</code> if this argument is a required (if the user
-     * doesn't define a value for this argument, the command will fail!).
+     * Returns <code>true</code> if this argument is a required (if the user doesn't define a value for
+     * this argument, the command will fail!).
      *
      * @return true if this argument is required.
      */
@@ -111,8 +109,8 @@ public class Argument<T> {
     }
 
     /**
-     * Adds the given suggestions during tab completions to the pre-defined
-     * list of suggestions for this argument's {@link CommandArgumentType}.
+     * Adds the given suggestions during tab completions to the pre-defined list of suggestions for this
+     * argument's {@link CommandArgumentType}.
      *
      * @param suggestions The suggestions to add to the list.
      * @return A non-null reference pointing to this argument (builder pattern).
@@ -136,8 +134,8 @@ public class Argument<T> {
     }
 
     /**
-     * Used for the help command. Shows this short description for this
-     * argument. The description should be relatively short (smaller than 10 words).
+     * Used for the help command. Shows this short description for this argument. The description should
+     * be relatively short (smaller than 10 words).
      *
      * @param description The description to use, or null.
      * @return A non-null reference to this (builder pattern).
@@ -148,9 +146,8 @@ public class Argument<T> {
     }
 
     /**
-     * When a {@link CommandSender} does not have the given permission, they
-     * will not be able to see or use this command. If the permission was not
-     * previously registered, this method will register it.
+     * When a {@link CommandSender} does not have the given permission, they will not be able to see or
+     * use this command. If the permission was not previously registered, this method will register it.
      *
      * @param permission The permission to require, or null.
      * @return A non-null reference to this (builder pattern).
@@ -163,10 +160,9 @@ public class Argument<T> {
     }
 
     /**
-     * When a {@link CommandSender} does not test <code>true</code> to the
-     * given predicate, they will not be able to see or use this command. While
-     * this can be used for {@link Permission}, you should use
-     * {@link #withPermission(Permission)} instead.
+     * When a {@link CommandSender} does not test <code>true</code> to the given predicate, they will
+     * not be able to see or use this command. While this can be used for {@link Permission}, you should
+     * use {@link #withPermission(Permission)} instead.
      *
      * @param requirements The predicate to use, or null.
      * @return A non-null reference to this (builder pattern).

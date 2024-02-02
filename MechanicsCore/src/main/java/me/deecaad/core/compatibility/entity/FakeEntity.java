@@ -16,14 +16,13 @@ import java.util.Map;
 import static me.deecaad.core.utils.NumberUtil.square;
 
 /**
- * Defines a packet based {@link org.bukkit.entity.Entity} with no server
- * functions. Faked entities are not ticked, rendered, moved, or in any other
- * way "handled" by the server.
+ * Defines a packet based {@link org.bukkit.entity.Entity} with no server functions. Faked entities
+ * are not ticked, rendered, moved, or in any other way "handled" by the server.
  *
- * <p>Fake entities are usually used for visual effects, since faked entities
- * can control appearances per player. After changing a visual effect (metadata
- * + display name + gravity + etc), a metadata packet must be sent using
- * {@link #updateMeta()}.
+ * <p>
+ * Fake entities are usually used for visual effects, since faked entities can control appearances
+ * per player. After changing a visual effect (metadata + display name + gravity + etc), a metadata
+ * packet must be sent using {@link #updateMeta()}.
  */
 public abstract class FakeEntity {
 
@@ -56,7 +55,7 @@ public abstract class FakeEntity {
     }
 
     // * ------------------------- * //
-    // *        Meta Methods       * //
+    // * Meta Methods * //
     // * ------------------------- * //
 
     public final boolean isOnFire() {
@@ -93,43 +92,38 @@ public abstract class FakeEntity {
     }
 
     /**
-     * Sets this entity's meta-data at the given <code>metaFlag</code> index.
-     * You can toggle a meta flag by checking {@link #getMeta(int)}. smaller than
-     * <code>metaFlag</code> should be one of the flag constants in the
-     * {@link FakeEntity} (this) class. After these modifications, call
+     * Sets this entity's meta-data at the given <code>metaFlag</code> index. You can toggle a meta flag
+     * by checking {@link #getMeta(int)}. smaller than <code>metaFlag</code> should be one of the flag
+     * constants in the {@link FakeEntity} (this) class. After these modifications, call
      * {@link #updateMeta()} to show player's changes.
      *
-     * @param metaFlag  The index location of which flag to edit.
+     * @param metaFlag The index location of which flag to edit.
      * @param isEnabled Whether to enable or disable the flag.
      * @see #getMeta(int)
      */
     public abstract void setMeta(int metaFlag, boolean isEnabled);
 
     /**
-     * Returns the data that was used in the constructor (or in
-     * {@link #setData(Object)}). The data will either be an {@link ItemStack},
-     * a {@link org.bukkit.material.MaterialData} (1.12-), or a
+     * Returns the data that was used in the constructor (or in {@link #setData(Object)}). The data will
+     * either be an {@link ItemStack}, a {@link org.bukkit.material.MaterialData} (1.12-), or a
      * {@link org.bukkit.block.data.BlockData}
      *
      * @return The nullable extra data (block or item).
      */
-    @Nullable
-    public abstract Object getData();
+    @Nullable public abstract Object getData();
 
     /**
-     * Sets the data usually used in the constructor of a {@link FakeEntity}.
-     * As of the time of writing, <code>data</code> may only be an
-     * {@link ItemStack}, and this method will only have any behavior for
-     * armorstands and dropped items.
+     * Sets the data usually used in the constructor of a {@link FakeEntity}. As of the time of writing,
+     * <code>data</code> may only be an {@link ItemStack}, and this method will only have any behavior
+     * for armorstands and dropped items.
      *
      * @param data The nullable data.
      */
     public abstract void setData(@Nullable Object data);
 
     /**
-     * Sets the display name of the entity. Use <code>null</code> to remove the
-     * any previous display name. Supports color codes using
-     * {@link org.bukkit.ChatColor}. After calling this method, use
+     * Sets the display name of the entity. Use <code>null</code> to remove the any previous display
+     * name. Supports color codes using {@link org.bukkit.ChatColor}. After calling this method, use
      * {@link #updateMeta()} to show the information to clients.
      *
      * @param display The nullable entity display-name.
@@ -137,18 +131,17 @@ public abstract class FakeEntity {
     public abstract void setDisplay(@Nullable String display);
 
     /**
-     * Disables entity gravity. This has no effect server-side, and will not
-     * affect motion/position/rotation/anything. Instead, this method tells the
-     * client that the entity should not automatically have gravity applied.
-     * After calling this method use {@link #updateMeta()} to show the
-     * information to clients.
+     * Disables entity gravity. This has no effect server-side, and will not affect
+     * motion/position/rotation/anything. Instead, this method tells the client that the entity should
+     * not automatically have gravity applied. After calling this method use {@link #updateMeta()} to
+     * show the information to clients.
      *
      * @param gravity true -> gravity, false -> no gravity.
      */
     public abstract void setGravity(boolean gravity);
 
     // * ------------------------- * //
-    // *  Current Location Methods * //
+    // * Current Location Methods * //
     // * ------------------------- * //
 
     public double getX() {
@@ -172,9 +165,8 @@ public abstract class FakeEntity {
     }
 
     /**
-     * Sets the location offset for this entity. Entity yaw and pitch
-     * are also modified based on this value. This offset is applied
-     * to entity when any move packet or such is sent to the player.
+     * Sets the location offset for this entity. Entity yaw and pitch are also modified based on this
+     * value. This offset is applied to entity when any move packet or such is sent to the player.
      *
      * @param offset The vector changing FakeEntity position
      */
@@ -191,7 +183,7 @@ public abstract class FakeEntity {
     }
 
     // * ------------------------- * //
-    // *       Tick Methods        * //
+    // * Tick Methods * //
     // * ------------------------- * //
 
     /**
@@ -216,10 +208,10 @@ public abstract class FakeEntity {
     /**
      * Sends an entity rotation packet to all players who can see this entity.
      * <p>
-     * Implementing classes should set <code>this.location</code> using
-     * {@link Location#setYaw(float)} and {@link Location#setPitch(float)}.
+     * Implementing classes should set <code>this.location</code> using {@link Location#setYaw(float)}
+     * and {@link Location#setPitch(float)}.
      *
-     * @param yaw   The absolute yaw rotation of the entity.
+     * @param yaw The absolute yaw rotation of the entity.
      * @param pitch The absolute pitch rotation of the entity.
      */
     public abstract void setRotation(float yaw, float pitch);
@@ -227,8 +219,8 @@ public abstract class FakeEntity {
     /**
      * Shorthand for calling {@link #setPosition(double, double, double, float, float)}.
      *
-     * @param pos   The non-null new position of the entity.
-     * @param yaw   The yaw to set the entity at.
+     * @param pos The non-null new position of the entity.
+     * @param yaw The yaw to set the entity at.
      * @param pitch The pitch to set the entity at.
      */
     public final void setPosition(@NotNull Vector pos, float yaw, float pitch) {
@@ -249,10 +241,10 @@ public abstract class FakeEntity {
     /**
      * Shorthand for calling {@link #setPosition(double, double, double, float, float, boolean)}.
      *
-     * @param x     The new position on the x-axis.
-     * @param y     The new position on the y-axis.
-     * @param z     The new position on the z-axis.
-     * @param yaw   The yaw to set the entity at.
+     * @param x The new position on the x-axis.
+     * @param y The new position on the y-axis.
+     * @param z The new position on the z-axis.
+     * @param yaw The yaw to set the entity at.
      * @param pitch The pitch to set the entity at.
      */
     public final void setPosition(double x, double y, double z, float yaw, float pitch) {
@@ -260,19 +252,20 @@ public abstract class FakeEntity {
     }
 
     /**
-     * Sets position of this entity. When the new location is within 8 blocks,
-     * a move-look packet is sent (using a relative position). Otherwise, a
-     * teleport packet is sent (using an absolute position).
+     * Sets position of this entity. When the new location is within 8 blocks, a move-look packet is
+     * sent (using a relative position). Otherwise, a teleport packet is sent (using an absolute
+     * position).
      *
-     * <p>If you do not want to change the entity's yaw/pitch, you may use
-     * {@link #getYaw()} and {@link #getPitch()}.
+     * <p>
+     * If you do not want to change the entity's yaw/pitch, you may use {@link #getYaw()} and
+     * {@link #getPitch()}.
      *
-     * @param x     The new position on the x-axis.
-     * @param y     The new position on the y-axis.
-     * @param z     The new position on the z-axis.
-     * @param yaw   The yaw to set the entity at.
+     * @param x The new position on the x-axis.
+     * @param y The new position on the y-axis.
+     * @param z The new position on the z-axis.
+     * @param yaw The yaw to set the entity at.
      * @param pitch The pitch to set the entity at.
-     * @param raw   true to always use a teleport packet.
+     * @param raw true to always use a teleport packet.
      */
     public final void setPosition(double x, double y, double z, float yaw, float pitch, boolean raw) {
         if (offset != null) {
@@ -296,7 +289,8 @@ public abstract class FakeEntity {
             setLocation(x, y, z, yaw, pitch);
         }
 
-        if (type == EntityType.ARMOR_STAND) updateMeta();
+        if (type == EntityType.ARMOR_STAND)
+            updateMeta();
     }
 
     // private since nobody should use this method
@@ -305,29 +299,31 @@ public abstract class FakeEntity {
     }
 
     /**
-     * Sends an entity move-look packet to all players who can see this entity.
-     * Effectively sets the relative position of the entity.
+     * Sends an entity move-look packet to all players who can see this entity. Effectively sets the
+     * relative position of the entity.
      *
-     * <p>This method is protected to prevent accidental/improper usage.
+     * <p>
+     * This method is protected to prevent accidental/improper usage.
      *
-     * @param dx    The change of position across the x-axis.
-     * @param dy    The change of position across the y-axis.
-     * @param dz    The change of position across the z-axis.
-     * @param yaw   The absolute yaw rotation of the entity.
+     * @param dx The change of position across the x-axis.
+     * @param dy The change of position across the y-axis.
+     * @param dz The change of position across the z-axis.
+     * @param yaw The absolute yaw rotation of the entity.
      * @param pitch The absolute pitch rotation of the entity.
      */
     protected abstract void setPositionRotation(short dx, short dy, short dz, byte yaw, byte pitch);
 
     /**
-     * Sends an entity teleport packet to all players who can see this entity.
-     * Effectively sets the absolute position of the entity.
+     * Sends an entity teleport packet to all players who can see this entity. Effectively sets the
+     * absolute position of the entity.
      *
-     * <p>This method is protected to prevent accidental/improper usage.
+     * <p>
+     * This method is protected to prevent accidental/improper usage.
      *
-     * @param x     The absolute x position of the entity.
-     * @param y     The absolute y position of the entity.
-     * @param z     The absolute z position of the entity.
-     * @param yaw   The absolute yaw rotation of the entity.
+     * @param x The absolute x position of the entity.
+     * @param y The absolute y position of the entity.
+     * @param z The absolute z position of the entity.
+     * @param yaw The absolute yaw rotation of the entity.
      * @param pitch The absolute pitch rotation of the entity.
      */
     protected abstract void setPositionRaw(double x, double y, double z, float yaw, float pitch);
@@ -355,51 +351,47 @@ public abstract class FakeEntity {
     }
 
     // * ------------------------- * //
-    // *   Packet Based Methods    * //
+    // * Packet Based Methods * //
     // * ------------------------- * //
 
     /**
-     * Shows this entity to all players within range of the entity. Effectively
-     * the same as calling {@link #show(Player)} for each player. Sends an
-     * Add Entity packet and an Entity Meta packet.
+     * Shows this entity to all players within range of the entity. Effectively the same as calling
+     * {@link #show(Player)} for each player. Sends an Add Entity packet and an Entity Meta packet.
      */
     public abstract void show();
 
     /**
-     * Shows the entity to the given player. Sends an add Entity packet and an
-     * Entity Meta packet.
+     * Shows the entity to the given player. Sends an add Entity packet and an Entity Meta packet.
      *
      * @param player The non-null player to show the entity to.
      */
     public abstract void show(@NotNull Player player);
 
     /**
-     * Updates the meta for all players that currently see it. This method
-     * should be used after any modifications to entity meta.
+     * Updates the meta for all players that currently see it. This method should be used after any
+     * modifications to entity meta.
      */
     public abstract void updateMeta();
 
     /**
-     * Hides the entity for all players that currently see it. Sends an
-     * entity destroy packet. Players will not be able to see position or
-     * rotation or meta or velocity changes after calling this method (Unless
-     * they are added back using {@link #show(Player)}).
+     * Hides the entity for all players that currently see it. Sends an entity destroy packet. Players
+     * will not be able to see position or rotation or meta or velocity changes after calling this
+     * method (Unless they are added back using {@link #show(Player)}).
      */
     public abstract void remove();
 
     /**
-     * Hides the entity for the given player. Sends an Entity Destroy packet.
-     * The player will not be able to see position or rotation or meta or
-     * velocity changes after calling this method (Unless they are added back
-     * using {@link #show(Player)}).
+     * Hides the entity for the given player. Sends an Entity Destroy packet. The player will not be
+     * able to see position or rotation or meta or velocity changes after calling this method (Unless
+     * they are added back using {@link #show(Player)}).
      *
      * @param player The non-null player to hide the entity from.
      */
     public abstract void remove(@NotNull Player player);
 
     /**
-     * Plays an entity effect for this entity. Make sure that the given effect
-     * can be used for this entity's {@link #getType}.
+     * Plays an entity effect for this entity. Make sure that the given effect can be used for this
+     * entity's {@link #getType}.
      *
      * @param effect The non-null effect to play.
      */
@@ -414,8 +406,8 @@ public abstract class FakeEntity {
     public abstract void setEquipment(@NotNull EquipmentSlot equipmentSlot, @Nullable ItemStack itemStack);
 
     /**
-     * Updates the equipment for all players that currently see it. This method
-     * should be used after any modifications to {@link #setEquipment(EquipmentSlot, ItemStack)}.
+     * Updates the equipment for all players that currently see it. This method should be used after any
+     * modifications to {@link #setEquipment(EquipmentSlot, ItemStack)}.
      */
     public abstract void updateEquipment();
 

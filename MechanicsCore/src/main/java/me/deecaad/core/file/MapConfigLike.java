@@ -76,8 +76,8 @@ public class MapConfigLike implements ConfigLike {
 
         String indent = "    ";
         return StringUtil.foundAt(file, path) + "\n"
-                + indent + fullLine + "\n"
-                + StringUtil.repeat(" ", indent.length() + holder.index()) + "^";
+            + indent + fullLine + "\n"
+            + StringUtil.repeat(" ", indent.length() + holder.index()) + "^";
     }
 
     public record Holder(Object value, int index) {

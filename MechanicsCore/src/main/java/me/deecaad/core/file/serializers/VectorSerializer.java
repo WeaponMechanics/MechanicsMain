@@ -15,12 +15,12 @@ import java.util.function.Function;
  * Parse a vector from a string. Add ~ for relative input.
  *
  * <ul>
- *     <li>0</li>
- *     <li>r1.0</li>
- *     <li>1 1 1</li>
- *     <li>left</li>
- *     <li>down</li>
- *     <li>~1 1 0</li>
+ * <li>0</li>
+ * <li>r1.0</li>
+ * <li>1 1 1</li>
+ * <li>left</li>
+ * <li>down</li>
+ * <li>~1 1 0</li>
  * </ul>
  */
 public class VectorSerializer implements Serializer<VectorSerializer> {
@@ -50,8 +50,8 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
     }
 
     /**
-     * Returns the vector using the given entity to determine relative
-     * directions. If the given entity is null, relativity is ignored.
+     * Returns the vector using the given entity to determine relative directions. If the given entity
+     * is null, relativity is ignored.
      *
      * @param entity The nullable entity.
      * @return The non-null vector.
@@ -74,8 +74,8 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
     }
 
     /**
-     * Returns the vector using the given vector to determine relative
-     * directions. If the given entity is null, relativity is ignored.
+     * Returns the vector using the given vector to determine relative directions. If the given entity
+     * is null, relativity is ignored.
      *
      * @param view The nullable relative direction.
      * @return The non-null vector.
@@ -99,8 +99,7 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
         return raw;
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public VectorSerializer serialize(@NotNull SerializeData data) throws SerializerException {
         String input = data.of().assertExists().get().toString().trim();
 
@@ -133,7 +132,7 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
             String[] split = StringUtil.split(input);
             if (split.length != 3) {
                 throw data.exception(null, "Expected 3 numbers in left~up~forward format, instead got '" + split.length + "'",
-                        SerializerException.forValue(input));
+                    SerializerException.forValue(input));
             }
 
             try {
@@ -150,10 +149,9 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
         return new VectorSerializer(randomLength, direction, relative, raw);
     }
 
-
     /**
-     * Helper method to always return a raw vector from a vector serializer.
-     * This is helpful for zeroing input.
+     * Helper method to always return a raw vector from a vector serializer. This is helpful for zeroing
+     * input.
      *
      * @param vector The non-null vector.
      * @return The wrapped vector.
@@ -177,12 +175,8 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
      */
     public enum Direction {
 
-        UP(Transform::getUp, 0, 1, 0),
-        DOWN(t -> t.getUp().multiply(-1.0), 0, -1, 0),
-        RIGHT(Transform::getRight, 1, 0, 0),
-        LEFT(t -> t.getRight().multiply(-1.0), -1, 0, 0),
-        FORWARD(Transform::getForward, 0, 0, 1),
-        BACKWARD(t -> t.getForward().multiply(-1.0), 0, 0, -1);
+        UP(Transform::getUp, 0, 1, 0), DOWN(t -> t.getUp().multiply(-1.0), 0, -1, 0), RIGHT(Transform::getRight, 1, 0, 0), LEFT(t -> t.getRight().multiply(-1.0), -1, 0, 0), FORWARD(
+            Transform::getForward, 0, 0, 1), BACKWARD(t -> t.getForward().multiply(-1.0), 0, 0, -1);
 
         private final Function<Transform, Vector> function;
         private final Vector raw;

@@ -18,15 +18,15 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * MechanicsCore is built to be craftbukkit compatible to reduce support
- * requests. We do not use Paper code since we upload premium plugins on
- * Spigot. Unfortunately, this means we must find "creative" solutions when
- * using the Adventure chat API with Minecraft code.
+ * MechanicsCore is built to be craftbukkit compatible to reduce support requests. We do not use
+ * Paper code since we upload premium plugins on Spigot. Unfortunately, this means we must find
+ * "creative" solutions when using the Adventure chat API with Minecraft code.
  *
- * <p>This class adds methods to:
+ * <p>
+ * This class adds methods to:
  * <ul>
- *     <li>Set item display name</li>
- *     <li>Set item lore</li>
+ * <li>Set item display name</li>
+ * <li>Set item lore</li>
  * </ul>
  */
 public final class AdventureUtil {
@@ -61,10 +61,10 @@ public final class AdventureUtil {
             return Component.empty();
 
         return ReflectionUtil.getMCVersion() < 16
-                ? LegacyComponentSerializer.legacySection().deserialize(meta.getDisplayName())
-                : GsonComponentSerializer.gson().deserialize((String) ReflectionUtil.invokeField(displayField, meta));
+            ? LegacyComponentSerializer.legacySection().deserialize(meta.getDisplayName())
+            : GsonComponentSerializer.gson().deserialize((String) ReflectionUtil.invokeField(displayField, meta));
 
-        //return CompatibilityAPI.getNBTCompatibility().getDisplayName(item);
+        // return CompatibilityAPI.getNBTCompatibility().getDisplayName(item);
     }
 
     /**
@@ -119,18 +119,16 @@ public final class AdventureUtil {
         }
     }
 
-    @Nullable
-    public static List<Component> getLore(@NotNull ItemStack item) {
+    @Nullable public static List<Component> getLore(@NotNull ItemStack item) {
         return getLore(Objects.requireNonNull(item.getItemMeta()));
     }
 
-    @Nullable
-    public static List<Component> getLore(@NotNull ItemMeta meta) {
+    @Nullable public static List<Component> getLore(@NotNull ItemMeta meta) {
         boolean useLegacy = ReflectionUtil.getMCVersion() < 16; // before 1.16, hex was not supported by MC
 
         List<String> lore = useLegacy
-                ? meta.getLore()
-                : (List<String>) ReflectionUtil.invokeField(loreField, meta);
+            ? meta.getLore()
+            : (List<String>) ReflectionUtil.invokeField(loreField, meta);
 
         if (lore == null)
             return null;
@@ -138,8 +136,8 @@ public final class AdventureUtil {
         List<Component> components = new ArrayList<>(lore.size());
         for (String line : lore) {
             Component component = useLegacy
-                    ? LegacyComponentSerializer.legacySection().deserialize(line)
-                    : GsonComponentSerializer.gson().deserialize(line);
+                ? LegacyComponentSerializer.legacySection().deserialize(line)
+                : GsonComponentSerializer.gson().deserialize(line);
             components.add(component);
         }
 
@@ -149,13 +147,13 @@ public final class AdventureUtil {
     /**
      * Sets the lore of the item.
      *
-     * <p>The list should be a list of strings (or any list where
-     * {@link Object#toString()} is acceptable). The strings are then parsed
-     * using MiniMessage, then set as the lore. This is quite slow, so consider
-     * parsing the list with MiniMessage first then setting it using
+     * <p>
+     * The list should be a list of strings (or any list where {@link Object#toString()} is acceptable).
+     * The strings are then parsed using MiniMessage, then set as the lore. This is quite slow, so
+     * consider parsing the list with MiniMessage first then setting it using
      * {@link #setLore(ItemStack, List)}.
      *
-     * @param item         The item to set the lore.
+     * @param item The item to set the lore.
      * @param unparsedText The list of strings.
      */
     public static void setLoreUnparsed(@NotNull ItemStack item, @NotNull List<?> unparsedText) {
@@ -167,13 +165,13 @@ public final class AdventureUtil {
     /**
      * Sets the lore of the item meta.
      *
-     * <p>The list should be a list of strings (or any list where
-     * {@link Object#toString()} is acceptable). The strings are then parsed
-     * using MiniMessage, then set as the lore. This is quite slow, so consider
-     * parsing the list with MiniMessage first then setting it using
+     * <p>
+     * The list should be a list of strings (or any list where {@link Object#toString()} is acceptable).
+     * The strings are then parsed using MiniMessage, then set as the lore. This is quite slow, so
+     * consider parsing the list with MiniMessage first then setting it using
      * {@link #setLore(ItemStack, List)}.
      *
-     * @param meta         The item meta to set the lore.
+     * @param meta The item meta to set the lore.
      * @param unparsedText The list of strings.
      */
     public static void setLoreUnparsed(@NotNull ItemMeta meta, @NotNull List<?> unparsedText) {
@@ -184,8 +182,8 @@ public final class AdventureUtil {
             // <!italic> effectively strips away Minecraft's predefined formatting
             Component component = MechanicsCore.getPlugin().message.deserialize("<!italic>" + StringUtil.colorAdventure(obj.toString()));
             String line = useLegacy
-                    ? LegacyComponentSerializer.legacySection().serialize(component)
-                    : GsonComponentSerializer.gson().serialize(component);
+                ? LegacyComponentSerializer.legacySection().serialize(component)
+                : GsonComponentSerializer.gson().serialize(component);
             lore.add(line);
         }
 
@@ -198,7 +196,7 @@ public final class AdventureUtil {
     /**
      * Sets the lore of the item.
      *
-     * @param item  The item to set the lore.
+     * @param item The item to set the lore.
      * @param lines The list of adventure components for lore.
      */
     public static void setLore(@NotNull ItemStack item, @NotNull List<Component> lines) {
@@ -210,7 +208,7 @@ public final class AdventureUtil {
     /**
      * Sets the lore of the item.
      *
-     * @param meta  The item to set the lore.
+     * @param meta The item to set the lore.
      * @param lines The list of adventure components for lore.
      */
     public static void setLore(@NotNull ItemMeta meta, @NotNull List<Component> lines) {
@@ -219,8 +217,8 @@ public final class AdventureUtil {
         List<String> lore = new ArrayList<>(lines.size());
         for (Component component : lines) {
             String line = useLegacy
-                    ? LegacyComponentSerializer.legacySection().serialize(component)
-                    : GsonComponentSerializer.gson().serialize(component);
+                ? LegacyComponentSerializer.legacySection().serialize(component)
+                : GsonComponentSerializer.gson().serialize(component);
             lore.add(line);
         }
 
@@ -231,11 +229,10 @@ public final class AdventureUtil {
     }
 
     /**
-     * Replaces any PlaceholderAPI placeholders present in the display name
-     * and lore of the item. If PlaceholderAPI is not installed, this
-     * method is skipped.
+     * Replaces any PlaceholderAPI placeholders present in the display name and lore of the item. If
+     * PlaceholderAPI is not installed, this method is skipped.
      *
-     * @param player    The player holding the item.
+     * @param player The player holding the item.
      * @param itemStack The item to apply the placeholders to.
      */
     public static void updatePlaceholders(Player player, ItemStack itemStack) {

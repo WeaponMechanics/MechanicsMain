@@ -47,17 +47,20 @@ public class HitBox {
     }
 
     public void setBlockHitBox(Block block) {
-        if (livingEntity != null) throw new IllegalArgumentException("Can't set living entity for block hitbox");
+        if (livingEntity != null)
+            throw new IllegalArgumentException("Can't set living entity for block hitbox");
         this.block = block;
     }
 
     public void setLivingEntity(LivingEntity livingEntity) {
-        if (block != null) throw new IllegalArgumentException("Can't set block for living entity hitbox");
+        if (block != null)
+            throw new IllegalArgumentException("Can't set block for living entity hitbox");
         this.livingEntity = livingEntity;
     }
 
     public void addVoxelShapePart(HitBox hitBox) {
-        if (voxelShape == null) voxelShape = new ArrayList<>(2);
+        if (voxelShape == null)
+            voxelShape = new ArrayList<>(2);
         voxelShape.add(hitBox);
     }
 
@@ -124,17 +127,19 @@ public class HitBox {
      * @return true if collides
      */
     public boolean collides(Vector point) {
-        if (point == null) return false;
+        if (point == null)
+            return false;
         return point.getX() >= minX
-                && point.getX() <= maxX
-                && point.getY() >= minY
-                && point.getY() <= maxY
-                && point.getZ() >= minZ
-                && point.getZ() <= maxZ;
+            && point.getX() <= maxX
+            && point.getY() >= minY
+            && point.getY() <= maxY
+            && point.getZ() >= minZ
+            && point.getZ() <= maxZ;
     }
 
     /**
      * Check whether other hitbox overlaps this one
+     * 
      * @param other the other hitbox
      * @return true if overlaps
      */
@@ -149,9 +154,10 @@ public class HitBox {
      * @return the grown hit box
      */
     public HitBox grow(double amount) {
-        if (amount == 0) return this;
+        if (amount == 0)
+            return this;
         return this.modify(minX - amount, minY - amount, minZ - amount,
-                maxX + amount, maxY + amount, maxZ + amount);
+            maxX + amount, maxY + amount, maxZ + amount);
     }
 
     /**
@@ -162,12 +168,13 @@ public class HitBox {
     public HitBox grow(double width, double height) {
         width /= 2;
         return this.modify(minX - width, minY, minZ - width,
-                maxX + width, maxY + height, maxZ + width);
+            maxX + width, maxY + height, maxZ + width);
     }
 
     /**
      * Uses BoundingBox class method expand(Vector, double). Easier backwards compatibility this way.
-     * <a href="https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/util/BoundingBox.html#expand(org.bukkit.util.Vector,double)">...</a>
+     * <a href=
+     * "https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/util/BoundingBox.html#expand(org.bukkit.util.Vector,double)">...</a>
      *
      * @param direction the direction to expand
      * @param expansion the amount to expand
@@ -175,7 +182,8 @@ public class HitBox {
      */
     public HitBox expand(Vector direction, double expansion) {
         double dirX = direction.getX(), dirY = direction.getY(), dirZ = direction.getZ();
-        if (dirX == 0.0 && dirY == 0.0 && dirZ == 0.0) return this;
+        if (dirX == 0.0 && dirY == 0.0 && dirZ == 0.0)
+            return this;
 
         double negativeX = dirX < 0.0 ? -dirX * expansion : 0.0;
         double negativeY = dirY < 0.0 ? -dirY * expansion : 0.0;
@@ -187,8 +195,9 @@ public class HitBox {
     }
 
     /**
-     * Uses BoundingBox class method expand(double, double, double, double, double, double). Easier backwards compatibility this way.
-     * <a href="https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/util/BoundingBox.html#expand(double,double,double,double,double,double)">...</a>
+     * Uses BoundingBox class method expand(double, double, double, double, double, double). Easier
+     * backwards compatibility this way. <a href=
+     * "https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/util/BoundingBox.html#expand(double,double,double,double,double,double)">...</a>
      *
      * @return this hit box with expansion
      */
@@ -248,7 +257,8 @@ public class HitBox {
         RayTraceResult mainBoxHit = ray(location, normalizedMotion);
 
         // Voxel shape not used or didn't hit main hitbox
-        if (voxelShape == null || mainBoxHit == null) return mainBoxHit;
+        if (voxelShape == null || mainBoxHit == null)
+            return mainBoxHit;
 
         // Here we know main hitbox was hit, now check all voxel shapes
         RayTraceResult hit = null;
@@ -262,7 +272,8 @@ public class HitBox {
             }
 
             RayTraceResult boxPartHit = boxPart.ray(location, normalizedMotion);
-            if (boxPartHit == null) continue;
+            if (boxPartHit == null)
+                continue;
 
             // Only closest hit
             if (closestHit == -1 || boxPartHit.getHitMin() < closestHit) {
@@ -275,8 +286,9 @@ public class HitBox {
     }
 
     /**
-     * Uses BoundingBox class method rayTrace(Vector, Vector, double) with slight modifications. Easier backwards compatibility this way.
-     * <a href="https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/util/BoundingBox.html#rayTrace(org.bukkit.util.Vector,org.bukkit.util.Vector,double)">...</a>
+     * Uses BoundingBox class method rayTrace(Vector, Vector, double) with slight modifications. Easier
+     * backwards compatibility this way. <a href=
+     * "https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/util/BoundingBox.html#rayTrace(org.bukkit.util.Vector,org.bukkit.util.Vector,double)">...</a>
      */
     private RayTraceResult ray(Vector location, Vector normalizedMotion) {
 
@@ -358,7 +370,8 @@ public class HitBox {
             hitBlockFaceMax = hitBlockFaceZMax;
         }
 
-        if (tMax < 0.0) return null;
+        if (tMax < 0.0)
+            return null;
 
         if (block != null) {
             return new BlockTraceResult(location, normalizedMotion, this, hitBlockFaceMin, hitBlockFaceMax, tMin, tMax, block);
@@ -367,7 +380,7 @@ public class HitBox {
             return new RayTraceResult(location, normalizedMotion, this, hitBlockFaceMin, hitBlockFaceMax, tMin, tMax);
         }
 
-        return new EntityTraceResult(location, normalizedMotion, this,  hitBlockFaceMin, hitBlockFaceMax, tMin, tMax, livingEntity);
+        return new EntityTraceResult(location, normalizedMotion, this, hitBlockFaceMin, hitBlockFaceMax, tMin, tMax, livingEntity);
     }
 
     public void outlineAllBoxes(Entity player) {
@@ -393,9 +406,12 @@ public class HitBox {
             for (double y = minY; y <= maxY; y += step) {
                 for (double z = minZ; z <= maxZ; z += step) {
                     int components = 0;
-                    if (x == minX || x + step > maxX) components++;
-                    if (y == minY || y + step > maxY) components++;
-                    if (z == minZ || z + step > maxZ) components++;
+                    if (x == minX || x + step > maxX)
+                        components++;
+                    if (y == minY || y + step > maxY)
+                        components++;
+                    if (z == minZ || z + step > maxZ)
+                        components++;
                     if (components >= 2) {
                         if (CompatibilityAPI.getVersion() < 1.13) {
                             player.getWorld().spawnParticle(Particle.CRIT, x, y, z, 1, 0, 0, 0, 0.0001);

@@ -73,8 +73,7 @@ public class DamageMechanic extends Mechanic {
             cast.getTarget().setNoDamageTicks(0);
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         double damage = data.of("Damage").getDouble(1.0);
         boolean ignoreArmor = data.of("Ignore_Armor").getBool(false);

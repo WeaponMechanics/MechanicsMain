@@ -9,10 +9,9 @@ import java.util.Collections;
 import java.util.Iterator;
 
 /**
- * Targets every player in the current world. This targeter is not shown to
- * players. Whenever the player uses the @World{} targeter with a player-only
- * mechanic (or use a condition for players only), this targeter will be used
- * instead. This has major performance benefits.
+ * Targets every player in the current world. This targeter is not shown to players. Whenever the
+ * player uses the @World{} targeter with a player-only mechanic (or use a condition for players
+ * only), this targeter will be used instead. This has major performance benefits.
  */
 public class WorldPlayersTargeter extends WorldTargeter {
 
@@ -38,7 +37,7 @@ public class WorldPlayersTargeter extends WorldTargeter {
 
         // User may have typed the name of the world wrong... It is case-sensitive
         if (getWorldCache() == null) {
-            MechanicsCore.debug.warn("There was an error getting the world for '" + getWorldName()  + "'");
+            MechanicsCore.debug.warn("There was an error getting the world for '" + getWorldName() + "'");
             return Collections.emptyIterator();
         }
 

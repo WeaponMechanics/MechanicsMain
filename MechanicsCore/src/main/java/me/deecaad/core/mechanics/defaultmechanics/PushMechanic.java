@@ -61,8 +61,7 @@ public class PushMechanic extends Mechanic {
         return "https://cjcrafter.gitbook.io/mechanics/mechanics/push";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         double speed = data.of("Speed").assertExists().getDouble();
         double verticalMultiplier = data.of("Vertical_Multiplier").getDouble(1.0);

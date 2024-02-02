@@ -18,21 +18,20 @@ class EnumUtilTest {
     private static Stream<Arguments> provide_parseEnums() {
         return Stream.of(
 
-                // Testing parsing 1 single material
-                Arguments.of("OAK_WOOD", Collections.singletonList(OAK_WOOD)),
-                Arguments.of("DirT ", Collections.singletonList(DIRT)),
-                Arguments.of("   glasS  ", Collections.singletonList(GLASS)),
+            // Testing parsing 1 single material
+            Arguments.of("OAK_WOOD", Collections.singletonList(OAK_WOOD)),
+            Arguments.of("DirT ", Collections.singletonList(DIRT)),
+            Arguments.of("   glasS  ", Collections.singletonList(GLASS)),
 
-                // Testing invalid material names
-                Arguments.of("not", Collections.emptyList()),
-                Arguments.of("  mateRial ", Collections.emptyList()),
-                Arguments.of("$not", Collections.emptyList()),
+            // Testing invalid material names
+            Arguments.of("not", Collections.emptyList()),
+            Arguments.of("  mateRial ", Collections.emptyList()),
+            Arguments.of("$not", Collections.emptyList()),
 
-                // Testing '$' wildcards
-                Arguments.of("$dirt", Collections.singletonList(DIRT)),
-                Arguments.of("   $wood ", Arrays.asList(SPRUCE_WOOD, OAK_WOOD, BIRCH_WOOD, JUNGLE_WOOD)),
-                Arguments.of("$glasS", Arrays.asList(GLASS, STAINED_GLASS, TINTED_GLASS, RED_STAINED_GLASS, GLASS_PANE, THIN_GLASS, BLUE_STAINED_GLASS_PANE))
-        );
+            // Testing '$' wildcards
+            Arguments.of("$dirt", Collections.singletonList(DIRT)),
+            Arguments.of("   $wood ", Arrays.asList(SPRUCE_WOOD, OAK_WOOD, BIRCH_WOOD, JUNGLE_WOOD)),
+            Arguments.of("$glasS", Arrays.asList(GLASS, STAINED_GLASS, TINTED_GLASS, RED_STAINED_GLASS, GLASS_PANE, THIN_GLASS, BLUE_STAINED_GLASS_PANE)));
     }
 
     @ParameterizedTest
@@ -55,11 +54,10 @@ class EnumUtilTest {
     void test_getOptions() {
         Set<String> options = EnumUtil.getOptions(TestEnum.class);
         Set<String> actual = new HashSet<>(Arrays.asList(
-                "SPRUCE_WOOD", "OAK_WOOD", "BIRCH_WOOD", "JUNGLE_WOOD",
-                "DIRT", "STONE", "GRASS", "GLASS", "STAINED_GLASS",
-                "TINTED_GLASS", "RED_STAINED_GLASS", "GLASS_PANE",
-                "THIN_GLASS", "BLUE_STAINED_GLASS_PANE", "CLAY"
-        ));
+            "SPRUCE_WOOD", "OAK_WOOD", "BIRCH_WOOD", "JUNGLE_WOOD",
+            "DIRT", "STONE", "GRASS", "GLASS", "STAINED_GLASS",
+            "TINTED_GLASS", "RED_STAINED_GLASS", "GLASS_PANE",
+            "THIN_GLASS", "BLUE_STAINED_GLASS_PANE", "CLAY"));
 
         assertEquals(actual, options);
     }
@@ -68,31 +66,16 @@ class EnumUtilTest {
     void test_getValues() {
         List<TestEnum> values = EnumUtil.getValues(TestEnum.class);
         List<TestEnum> actual = Arrays.asList(
-                SPRUCE_WOOD, OAK_WOOD, BIRCH_WOOD, JUNGLE_WOOD,
-                DIRT, STONE, GRASS, GLASS, STAINED_GLASS,
-                TINTED_GLASS, RED_STAINED_GLASS, GLASS_PANE,
-                THIN_GLASS, BLUE_STAINED_GLASS_PANE, CLAY
-        );
+            SPRUCE_WOOD, OAK_WOOD, BIRCH_WOOD, JUNGLE_WOOD,
+            DIRT, STONE, GRASS, GLASS, STAINED_GLASS,
+            TINTED_GLASS, RED_STAINED_GLASS, GLASS_PANE,
+            THIN_GLASS, BLUE_STAINED_GLASS_PANE, CLAY);
 
         assertEquals(actual, values);
     }
 
-
     enum TestEnum {
-        SPRUCE_WOOD,
-        OAK_WOOD,
-        BIRCH_WOOD,
-        JUNGLE_WOOD,
-        DIRT,
-        STONE,
-        GRASS,
-        GLASS,
-        STAINED_GLASS,
-        TINTED_GLASS,
-        RED_STAINED_GLASS,
-        GLASS_PANE, THIN_GLASS,
-        BLUE_STAINED_GLASS_PANE,
-        CLAY
+        SPRUCE_WOOD, OAK_WOOD, BIRCH_WOOD, JUNGLE_WOOD, DIRT, STONE, GRASS, GLASS, STAINED_GLASS, TINTED_GLASS, RED_STAINED_GLASS, GLASS_PANE, THIN_GLASS, BLUE_STAINED_GLASS_PANE, CLAY
 
     }
 }

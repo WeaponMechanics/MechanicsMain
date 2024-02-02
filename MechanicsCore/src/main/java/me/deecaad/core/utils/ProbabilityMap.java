@@ -7,8 +7,8 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * This class outlines a mapping of elements to a weight. This data structure
- * allows real time getting of random elements with weight.
+ * This class outlines a mapping of elements to a weight. This data structure allows real time
+ * getting of random elements with weight.
  *
  * @param <E> The type of the element to store.
  */
@@ -30,7 +30,7 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
      * Adds an <code>element</code> with the given weight to the map.
      *
      * @param element The element to add.
-     * @param chance  The non-negative weight to map to the element.
+     * @param chance The non-negative weight to map to the element.
      * @return <code>true</code> if the element was successfully added.
      */
     public boolean add(E element, double chance) {
@@ -47,8 +47,8 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
     }
 
     /**
-     * Removes the given element, if it is present in the map. This method
-     * has an O notation of O(n) in both best and worst case scenarios.
+     * Removes the given element, if it is present in the map. This method has an O notation of O(n) in
+     * both best and worst case scenarios.
      *
      * @param element The element to remove.
      * @return <code>true</code> if the element was removed.
@@ -77,13 +77,12 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
     }
 
     /**
-     * Returns a random element based on each element's weight. If there are no
-     * elements in the set, then this method will return <code>null</code>.
+     * Returns a random element based on each element's weight. If there are no elements in the set,
+     * then this method will return <code>null</code>.
      *
      * @return The randomized element.
      */
-    @Nullable
-    public E get() {
+    @Nullable public E get() {
         dummy.offset = ThreadLocalRandom.current().nextDouble(totalProbability);
         Node<E> temp = set.floor(dummy);
         return temp == null ? null : temp.value;
@@ -107,8 +106,7 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
         return set.size();
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Iterator<Node<E>> iterator() {
         return set.iterator();
     }

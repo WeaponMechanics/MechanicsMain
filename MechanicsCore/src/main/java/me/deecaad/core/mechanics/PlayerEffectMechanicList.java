@@ -15,19 +15,18 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * This class wraps a list of {@link PlayerEffectMechanic}. The purpose of this
- * is to cache a list of targeted players so we don't waste resources instead
- * targeting every entity in the world, every mechanic we cast. This is especially
- * crucial for the {@link me.deecaad.core.mechanics.defaultmechanics.SoundMechanic},
- * which may exist 10+ times in 1 {@link Mechanics}, causing major performance issues
- * on big servers.
+ * This class wraps a list of {@link PlayerEffectMechanic}. The purpose of this is to cache a list
+ * of targeted players so we don't waste resources instead targeting every entity in the world,
+ * every mechanic we cast. This is especially crucial for the
+ * {@link me.deecaad.core.mechanics.defaultmechanics.SoundMechanic}, which may exist 10+ times in 1
+ * {@link Mechanics}, causing major performance issues on big servers.
  */
 public final class PlayerEffectMechanicList extends Mechanic implements JarSearcherExempt {
 
     private final List<PlayerEffectMechanic> mechanics;
 
     public PlayerEffectMechanicList() {
-        mechanics = new LinkedList<>();  // LinkedList for smaller memory footprint
+        mechanics = new LinkedList<>(); // LinkedList for smaller memory footprint
     }
 
     public void addMechanic(PlayerEffectMechanic mechanic) {
@@ -75,8 +74,7 @@ public final class PlayerEffectMechanicList extends Mechanic implements JarSearc
         }
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         throw new UnsupportedOperationException("Cannot directly serialize a PlayerEffectMechanicList");
     }

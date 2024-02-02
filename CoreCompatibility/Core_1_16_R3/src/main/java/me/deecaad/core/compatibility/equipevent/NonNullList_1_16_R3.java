@@ -18,10 +18,9 @@ public class NonNullList_1_16_R3 extends NonNullList<ItemStack> {
     static {
         if (ReflectionUtil.getMCVersion() != 16) {
             me.deecaad.core.MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + NonNullList_1_16_R3.class + " when not using Minecraft 16",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + NonNullList_1_16_R3.class + " when not using Minecraft 16",
+                new InternalError());
         }
     }
 

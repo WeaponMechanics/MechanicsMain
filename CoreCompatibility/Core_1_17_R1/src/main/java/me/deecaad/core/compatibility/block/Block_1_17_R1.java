@@ -33,14 +33,13 @@ public class Block_1_17_R1 implements BlockCompatibility {
     private static final Field multiBlockChangeB;
     private static final Field multiBlockChangeC;
 
-
     static {
         Class<?> shortClass = CompatibilityAPI.isPaper()
-                ? ReflectionUtil.getClass("it.unimi.dsi.fastutil.shorts.ShortSet")
-                : ReflectionUtil.getClass("org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.ShortSet");
+            ? ReflectionUtil.getClass("it.unimi.dsi.fastutil.shorts.ShortSet")
+            : ReflectionUtil.getClass("org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.ShortSet");
         Class<?> shortArrayClass = CompatibilityAPI.isPaper()
-                ? ReflectionUtil.getClass("it.unimi.dsi.fastutil.shorts.ShortArraySet")
-                : ReflectionUtil.getClass("org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.ShortArraySet");
+            ? ReflectionUtil.getClass("it.unimi.dsi.fastutil.shorts.ShortArraySet")
+            : ReflectionUtil.getClass("org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.ShortArraySet");
         shortSetConstructor = ReflectionUtil.getConstructor(shortArrayClass);
 
         multiBlockPacket = ReflectionUtil.getPacketClass("PacketPlayOutMultiBlockChange");
@@ -48,14 +47,11 @@ public class Block_1_17_R1 implements BlockCompatibility {
         multiBlockChangeB = ReflectionUtil.getField(multiBlockPacket, "b");
         multiBlockChangeC = ReflectionUtil.getField(multiBlockPacket, "c");
 
-
-
         if (ReflectionUtil.getMCVersion() != 17) {
             me.deecaad.core.MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + Block_1_17_R1.class + " when not using Minecraft 17",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + Block_1_17_R1.class + " when not using Minecraft 17",
+                new InternalError());
         }
     }
 
@@ -139,7 +135,8 @@ public class Block_1_17_R1 implements BlockCompatibility {
             data[i] = mask;
         }
 
-        ClientboundSectionBlocksUpdatePacket packet = (ClientboundSectionBlocksUpdatePacket) ReflectionUtil.newInstance(multiBlockPacketConstructor, SectionPos.of(position), ReflectionUtil.newInstance(shortSetConstructor), null, false);
+        ClientboundSectionBlocksUpdatePacket packet = (ClientboundSectionBlocksUpdatePacket) ReflectionUtil.newInstance(multiBlockPacketConstructor, SectionPos.of(position), ReflectionUtil
+            .newInstance(shortSetConstructor), null, false);
         ReflectionUtil.setField(multiBlockChangeB, packet, locations);
         ReflectionUtil.setField(multiBlockChangeC, packet, data);
 

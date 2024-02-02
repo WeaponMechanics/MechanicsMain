@@ -68,11 +68,10 @@ class StringUtilTest {
 
     private static Stream<Arguments> provide_splitCapitalLetters() {
         return Stream.of(
-                Arguments.of("MyPluginName", new String[]{"My", "Plugin", "Name"}),
-                Arguments.of("WeaponMechanics", new String[]{"Weapon", "Mechanics"}),
-                Arguments.of("Test", new String[]{"Test"}),
-                Arguments.of("HereIsAStringThatIsALittleBitLonger", new String[]{"Here", "Is","A", "String", "That", "Is", "A", "Little", "Bit", "Longer"})
-        );
+            Arguments.of("MyPluginName", new String[]{"My", "Plugin", "Name"}),
+            Arguments.of("WeaponMechanics", new String[]{"Weapon", "Mechanics"}),
+            Arguments.of("Test", new String[]{"Test"}),
+            Arguments.of("HereIsAStringThatIsALittleBitLonger", new String[]{"Here", "Is", "A", "String", "That", "Is", "A", "Little", "Bit", "Longer"}));
     }
 
     @ParameterizedTest
@@ -83,10 +82,9 @@ class StringUtilTest {
 
     private static Stream<Arguments> provide_splitAfterWord() {
         return Stream.of(
-                Arguments.of("So here's the thing", new String[]{"So", "here's", "the", "thing"}),
-                Arguments.of("One", new String[]{"One"}),
-                Arguments.of("Hello World", new String[]{"Hello", "World"})
-        );
+            Arguments.of("So here's the thing", new String[]{"So", "here's", "the", "thing"}),
+            Arguments.of("One", new String[]{"One"}),
+            Arguments.of("Hello World", new String[]{"Hello", "World"}));
     }
 
     @ParameterizedTest
@@ -97,12 +95,11 @@ class StringUtilTest {
 
     private static Stream<Arguments> provide_split() {
         return Stream.of(
-                Arguments.of("1-2-3-4-5", new String[]{"1", "2", "3", "4", "5"}),
-                Arguments.of("-1--2--3--4-5", new String[]{"-1", "-2", "-3", "-4", "5"}),
-                Arguments.of("hello-world", new String[]{"hello", "world"}),
-                Arguments.of("parse~values~-4~from~-config", new String[]{"parse", "values", "-4", "from", "-config"}),
-                Arguments.of("Something 22 -634", new String[]{"Something", "22", "-634"})
-        );
+            Arguments.of("1-2-3-4-5", new String[]{"1", "2", "3", "4", "5"}),
+            Arguments.of("-1--2--3--4-5", new String[]{"-1", "-2", "-3", "-4", "5"}),
+            Arguments.of("hello-world", new String[]{"hello", "world"}),
+            Arguments.of("parse~values~-4~from~-config", new String[]{"parse", "values", "-4", "from", "-config"}),
+            Arguments.of("Something 22 -634", new String[]{"Something", "22", "-634"}));
     }
 
     @ParameterizedTest
@@ -113,10 +110,9 @@ class StringUtilTest {
 
     private static Stream<Arguments> provide_didYouMean() {
         return Stream.of(
-                Arguments.of("endermen", Arrays.asList("cat", "dog", "enderman", "endermite", "ender", "man"), "enderman"),
-                Arguments.of("dirt", Arrays.asList("dirt", "dirty", "dirts", "trid", "treat", "cat", "dog"), "dirt"),
-                Arguments.of("block_sand_break", Arrays.asList("sand_break", "block_snad_break", "sand", "block", "cat"), "block_snad_break")
-        );
+            Arguments.of("endermen", Arrays.asList("cat", "dog", "enderman", "endermite", "ender", "man"), "enderman"),
+            Arguments.of("dirt", Arrays.asList("dirt", "dirty", "dirts", "trid", "treat", "cat", "dog"), "dirt"),
+            Arguments.of("block_sand_break", Arrays.asList("sand_break", "block_snad_break", "sand", "block", "cat"), "block_snad_break"));
     }
 
     @ParameterizedTest

@@ -53,8 +53,7 @@ public class FireworkMechanic extends PlayerEffectMechanic {
             return "Firework";
         }
 
-        @NotNull
-        @Override
+        @NotNull @Override
         public FireworkData serialize(@NotNull SerializeData data) throws SerializerException {
             FireworkEffect.Type type = data.of("Shape").getEnum(FireworkEffect.Type.class, FireworkEffect.Type.BALL);
             boolean trail = data.of("Trail").getBool(false);
@@ -149,8 +148,7 @@ public class FireworkMechanic extends PlayerEffectMechanic {
                 center.setTargetLocation((Supplier<Location>) null);
             }
 
-            OUTER:
-            for (Iterator<CastData> it = viewers.getTargets(center); it.hasNext(); ) {
+            OUTER : for (Iterator<CastData> it = viewers.getTargets(center); it.hasNext();) {
                 CastData target = it.next();
                 if (!(target.getTarget() instanceof Player player))
                     continue;
@@ -180,8 +178,7 @@ public class FireworkMechanic extends PlayerEffectMechanic {
         return "https://cjcrafter.gitbook.io/mechanics/mechanics/firework";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         ItemStack fireworkItem = new ItemStack(ReflectionUtil.getMCVersion() >= 13 ? Material.FIREWORK_ROCKET : Material.valueOf("FIREWORK"));
         FireworkMeta meta = (FireworkMeta) fireworkItem.getItemMeta();
@@ -206,7 +203,8 @@ public class FireworkMechanic extends PlayerEffectMechanic {
     public void playFor(CastData cast, List<Player> viewers) {
 
         FakeEntity fakeEntity = CompatibilityAPI.getCompatibility().getEntityCompatibility().generateFakeEntity(cast.getTargetLocation(), EntityType.FIREWORK, fireworkItem);
-        if (flightTime > 1) fakeEntity.setMotion(0.001, 0.3, -0.001);
+        if (flightTime > 1)
+            fakeEntity.setMotion(0.001, 0.3, -0.001);
 
         for (Player player : viewers)
             fakeEntity.show(player);

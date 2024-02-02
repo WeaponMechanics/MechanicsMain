@@ -18,8 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class SerializerListTest {
 
     public static final Serializer<?> DUMMY = new Serializer<>() {
-        @NotNull
-        @Override
+        @NotNull @Override
         public Object serialize(@NotNull SerializeData data) throws SerializerException {
             throw new RuntimeException();
         }
@@ -27,7 +26,6 @@ public class SerializerListTest {
 
     private File file;
     private FileConfiguration config;
-
 
     @BeforeEach
     void setUp() {
@@ -52,12 +50,12 @@ public class SerializerListTest {
         SerializeData data = new SerializeData(DUMMY, file, "a", new BukkitConfig(config));
 
         List<String[]> list = data.ofList(key)
-                .addArgument(String.class, true)
-                .addArgument(int.class, true).assertArgumentPositive()
-                .addArgument(double.class, false).assertArgumentRange(0.0, 1.0)
-                .addArgument(boolean.class, false)
-                .addArgument(int.class, false)
-                .assertExists().assertList().get();
+            .addArgument(String.class, true)
+            .addArgument(int.class, true).assertArgumentPositive()
+            .addArgument(double.class, false).assertArgumentRange(0.0, 1.0)
+            .addArgument(boolean.class, false)
+            .addArgument(int.class, false)
+            .assertExists().assertList().get();
 
         for (String[] split : list) {
             String str = split[0];
@@ -74,11 +72,11 @@ public class SerializerListTest {
         SerializeData data = new SerializeData(DUMMY, file, "a", new BukkitConfig(config));
 
         assertThrows(SerializerException.class, () -> data.ofList(key)
-                .addArgument(String.class, true)
-                .addArgument(int.class, true).assertArgumentPositive()
-                .addArgument(double.class, false).assertArgumentRange(0.0, 1.0)
-                .addArgument(boolean.class, false)
-                .addArgument(int.class, false)
-                .assertExists().assertList().get());
+            .addArgument(String.class, true)
+            .addArgument(int.class, true).assertArgumentPositive()
+            .addArgument(double.class, false).assertArgumentRange(0.0, 1.0)
+            .addArgument(boolean.class, false)
+            .addArgument(int.class, false)
+            .assertExists().assertList().get());
     }
 }

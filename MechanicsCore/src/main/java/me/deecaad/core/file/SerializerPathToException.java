@@ -20,7 +20,7 @@ public class SerializerPathToException extends SerializerException {
     }
 
     private static String[] getMessages(Serializer<?> serializer, SerializeData data) {
-        return new String[] {
+        return new String[]{
                 "Attempted to use 'Path_To' feature when the plugin (or serializer) doesn't support it!",
                 "'Path_To' is used so server admins can re-use their config without copying and pasting.",
                 "Found path: " + data.of().get("-Unknown-"),

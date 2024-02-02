@@ -25,7 +25,8 @@ public class MythicMobsEntityCondition extends Condition implements JarSearcherE
 
     @Override
     public boolean isAllowed0(CastData cast) {
-        if (cast.getTarget() == null) return false;
+        if (cast.getTarget() == null)
+            return false;
 
         ActiveMob mythicMob = MythicBukkit.inst().getMobManager().getActiveMob(cast.getTarget().getUniqueId()).orElse(null);
         return mythicMob != null && mythicMob.getName().equals(name);
@@ -41,8 +42,7 @@ public class MythicMobsEntityCondition extends Condition implements JarSearcherE
         return "https://cjcrafter.gitbook.io/mechanics/integrations/mythicmobs#mythic-mobs-entity-condition";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         String type = data.of("Entity").assertExists().get();
 

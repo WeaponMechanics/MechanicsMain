@@ -45,5 +45,6 @@ spotless {
     }
     java {
         eclipse().configFile(rootProject.file("java-style.xml").absolutePath)
+        formatAnnotations()
     }
 }

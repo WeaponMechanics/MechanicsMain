@@ -19,7 +19,7 @@ public interface ConfigLike {
 
     default String getString(String key) {
         Object temp = get(key);
-        if (temp == null || temp instanceof Collection<?> || temp instanceof Map<?,?>)
+        if (temp == null || temp instanceof Collection<?> || temp instanceof Map<?, ?>)
             return null;
 
         return temp.toString();

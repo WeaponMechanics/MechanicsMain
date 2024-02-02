@@ -61,10 +61,11 @@ public class Mechanics implements Serializer<Mechanics> {
     }
 
     /**
-     * When using {@link #addDirty(List)}, after casting the mechanics
-     * ({@link #use(CastData)}), you should clear the dirty mechanics.
+     * When using {@link #addDirty(List)}, after casting the mechanics ({@link #use(CastData)}), you
+     * should clear the dirty mechanics.
      *
-     * <p>This method is automatically called after using {@link #use(CastData)}.
+     * <p>
+     * This method is automatically called after using {@link #use(CastData)}.
      */
     public void clearDirty() {
         dirty.clear();
@@ -75,8 +76,7 @@ public class Mechanics implements Serializer<Mechanics> {
         return "Mechanics";
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public String getWikiLink() {
         return "https://cjcrafter.gitbook.io/mechanics/";
     }
@@ -90,8 +90,7 @@ public class Mechanics implements Serializer<Mechanics> {
         clearDirty();
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Mechanics serialize(@NotNull SerializeData data) throws SerializerException {
         List<?> list = data.config.getList(data.key);
         List<Mechanic> mechanics = new ArrayList<>();
@@ -99,7 +98,7 @@ public class Mechanics implements Serializer<Mechanics> {
         // The old mechanic format used nested memory sections, so the list will be null.
         if (list == null) {
             throw data.exception(null, "Could not find any list... Are you still using the outdated Mechanics format?",
-                    "Need help? https://youtu.be/q8Oh2qsiCH0");
+                "Need help? https://youtu.be/q8Oh2qsiCH0");
         }
 
         // Store cacheable mechanics into this list to improve performance.
@@ -160,7 +159,7 @@ public class Mechanics implements Serializer<Mechanics> {
                         Matcher nameMatcher = NAME_FINDER.matcher(group);
                         if (!nameMatcher.find())
                             throw data.exception(null, "Could not determine the name of the targeter",
-                                    "Make sure you included the {} after your targeter", SerializerException.forValue(group));
+                                "Make sure you included the {} after your targeter", SerializerException.forValue(group));
 
                         String temp = nameMatcher.group().substring(1);
                         targeter = TARGETERS.get(temp);
@@ -197,15 +196,15 @@ public class Mechanics implements Serializer<Mechanics> {
                         // Already have a mechanic, so the user probably mis-labeled something
                         if (mechanic != null)
                             throw data.exception(null, "Found multiple mechanics on the same line",
-                                    "Mechanic 1: " + mechanic.getInlineKeyword(), "Mechanic 2: " + group,
-                                    "If you are trying to use @targeters and ?conditions, make sure to use @ and ?");
+                                "Mechanic 1: " + mechanic.getInlineKeyword(), "Mechanic 2: " + group,
+                                "If you are trying to use @targeters and ?conditions, make sure to use @ and ?");
 
                         // Try to figure out the name of the target. For example:
                         // '@EntitiesInRadius(radius=10)' => '@EntitiesInRadius'
                         Matcher nameMatcher = NAME_FINDER.matcher(group);
                         if (!nameMatcher.find())
                             throw data.exception(null, "Could not determine the name of the mechanic",
-                                    "Make sure you included the {} after your mechanic!", SerializerException.forValue(group));
+                                "Make sure you included the {} after your mechanic!", SerializerException.forValue(group));
 
                         String temp = nameMatcher.group();
                         mechanic = MECHANICS.get(temp);
@@ -226,7 +225,7 @@ public class Mechanics implements Serializer<Mechanics> {
             } catch (InlineSerializer.FormatException ex) {
                 String indent = "    ";
                 throw data.exception(null, ex.getMessage(), indent + line,
-                        StringUtil.repeat(" ", index + ex.getIndex() + indent.length() - 1) + "^");
+                    StringUtil.repeat(" ", index + ex.getIndex() + indent.length() - 1) + "^");
             }
         }
 

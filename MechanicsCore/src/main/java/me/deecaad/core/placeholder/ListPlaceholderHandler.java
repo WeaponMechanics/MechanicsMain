@@ -12,13 +12,11 @@ public abstract class ListPlaceholderHandler extends PlaceholderHandler {
         super(placeholderName);
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public String onRequest(@NotNull PlaceholderData data) {
         List<String> list = requestValue(data);
         return list == null ? null : String.join(", ", list);
     }
 
-    @Nullable
-    public abstract List<String> requestValue(@NotNull PlaceholderData data);
+    @Nullable public abstract List<String> requestValue(@NotNull PlaceholderData data);
 }

@@ -38,7 +38,6 @@ public class TableBuilder {
     private Style elementCharStyle;
     private Style elementStyle;
 
-
     private IntFunction<TextComponent> supplier;
 
     public TableBuilder() {
@@ -109,8 +108,8 @@ public class TableBuilder {
     }
 
     /**
-     * When you use this method, all supplied content needs to be uppercase.
-     * Otherwise, the content will still be off by 1 pixel.
+     * When you use this method, all supplied content needs to be uppercase. Otherwise, the content will
+     * still be off by 1 pixel.
      *
      * @return A non-null reference to this (builder pattern).
      */
@@ -250,33 +249,28 @@ public class TableBuilder {
         return width;
     }
 
-
     /**
-     * Immutable class that defines the <i>limits</i> of a table (the maximum
-     * number of rows that can fit in chat, the requested number of columns,
-     * and the maximum number of pixels that can fit in 1 row).
+     * Immutable class that defines the <i>limits</i> of a table (the maximum number of rows that can
+     * fit in chat, the requested number of columns, and the maximum number of pixels that can fit in 1
+     * row).
      */
     public record TableConstraints(int rows, int columns, int pixels) {
 
         @Contract(pure = true)
-        @NotNull
-        public TableConstraints setRows(int rows) {
+        @NotNull public TableConstraints setRows(int rows) {
             return new TableConstraints(rows, columns, pixels);
         }
 
         @Contract(pure = true)
-        @NotNull
-        public TableConstraints setColumns(int columns) {
+        @NotNull public TableConstraints setColumns(int columns) {
             return new TableConstraints(rows, columns, pixels);
         }
 
         @Contract(pure = true)
-        @NotNull
-        public TableConstraints setPixels(int pixels) {
+        @NotNull public TableConstraints setPixels(int pixels) {
             return new TableConstraints(rows, columns, pixels);
         }
     }
-
 
     public record Line(char c, Style style) {
 

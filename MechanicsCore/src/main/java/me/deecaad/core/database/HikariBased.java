@@ -20,7 +20,8 @@ public class HikariBased extends Database {
 
     @Override
     public void close() throws SQLException {
-        if (dataSource != null && !dataSource.isClosed()) dataSource.close();
+        if (dataSource != null && !dataSource.isClosed())
+            dataSource.close();
     }
 
     @Override

@@ -31,8 +31,7 @@ public class RidingCondition extends Condition {
         return "https://cjcrafter.gitbook.io/mechanics/conditions/riding";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         return applyParentArgs(data, new RidingCondition());
     }

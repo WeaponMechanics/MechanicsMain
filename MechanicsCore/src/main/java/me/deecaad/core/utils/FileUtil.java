@@ -19,8 +19,7 @@ import java.util.jar.JarFile;
 import static me.deecaad.core.MechanicsCore.debug;
 
 /**
- * This final utility class outlines static methods that work with files,
- * resources, and streams.
+ * This final utility class outlines static methods that work with files, resources, and streams.
  */
 public final class FileUtil {
 
@@ -29,19 +28,15 @@ public final class FileUtil {
     }
 
     /**
-     * Copies the resource defined by <code>resource</code> in the project's
-     * resource folder to an <code>output</code> directory. If the copied
-     * resource is a folder (If the file name does not contain a '.'), then
-     * this method will be called recursively until all subdirectories are
-     * copied.
+     * Copies the resource defined by <code>resource</code> in the project's resource folder to an
+     * <code>output</code> directory. If the copied resource is a folder (If the file name does not
+     * contain a '.'), then this method will be called recursively until all subdirectories are copied.
      *
-     * @param source The non-null resource folder that contains the files to
-     *               copy. No need to start this with a '/' character.
-     *               Depending on the .jar file, you may need to append
-     *               'resources/' before your resource. Use
-     *               {@link ClassLoader#getResource(String)}.
-     * @param target The non-null target file to write all the resource files
-     *               to. Use {@link File#toPath()}.
+     * @param source The non-null resource folder that contains the files to copy. No need to start this
+     *        with a '/' character. Depending on the .jar file, you may need to append 'resources/'
+     *        before your resource. Use {@link ClassLoader#getResource(String)}.
+     * @param target The non-null target file to write all the resource files to. Use
+     *        {@link File#toPath()}.
      *
      * @throws InternalError If an IO or URI exception occurs.
      */
@@ -91,12 +86,11 @@ public final class FileUtil {
     }
 
     /**
-     * Returns the jar file from the given arguments. The file should point to
-     * a <code>.jar</code> file. You can get the {@link File} from your plugin
-     * using the protected JavaPlugin#getFile() method.
+     * Returns the jar file from the given arguments. The file should point to a <code>.jar</code> file.
+     * You can get the {@link File} from your plugin using the protected JavaPlugin#getFile() method.
      *
      * @param plugin The non-null plugin who owns the jar file.
-     * @param jar    The non-null file pointing to the jar
+     * @param jar The non-null file pointing to the jar
      * @return The non-null jar file.
      */
     public JarFile getJarFile(Plugin plugin, File jar) {
@@ -126,11 +120,11 @@ public final class FileUtil {
     }
 
     /**
-     * Ensures that a given <code>file</code> has all config options
-     * defined by the <code>resource</code>.
+     * Ensures that a given <code>file</code> has all config options defined by the
+     * <code>resource</code>.
      *
      * @param resource The non-null resource to copy.
-     * @param file     The output file that should have the default values.
+     * @param file The output file that should have the default values.
      */
     public static void ensureDefaults(URL resource, File file) {
         if (resource == null)
@@ -192,9 +186,8 @@ public final class FileUtil {
     public static void ensureFile(URL resource, File file) {
         if (!file.exists()) {
             try (
-                    InputStream in = new BufferedInputStream(resource.openStream());
-                    FileOutputStream out = new FileOutputStream(file)
-            ) {
+                InputStream in = new BufferedInputStream(resource.openStream());
+                FileOutputStream out = new FileOutputStream(file)) {
                 int data;
                 while ((data = in.read()) != -1) {
                     out.write(data);

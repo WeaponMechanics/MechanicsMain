@@ -36,8 +36,7 @@ public class BiomeCondition extends Condition {
         return "https://cjcrafter.gitbook.io/mechanics/conditions/biome";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         Biome biome = data.of("Biome").assertExists().getEnum(Biome.class);
         return applyParentArgs(data, new BiomeCondition(biome));

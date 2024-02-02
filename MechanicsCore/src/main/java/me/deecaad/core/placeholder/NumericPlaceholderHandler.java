@@ -10,13 +10,11 @@ public abstract class NumericPlaceholderHandler extends PlaceholderHandler {
         super(placeholderName);
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public final String onRequest(@NotNull PlaceholderData data) {
         Number value = requestValue(data);
         return value == null ? null : value.toString();
     }
 
-    @Nullable
-    public abstract Number requestValue(@NotNull PlaceholderData data);
+    @Nullable public abstract Number requestValue(@NotNull PlaceholderData data);
 }

@@ -33,10 +33,9 @@ public abstract class CommandArgumentType<T> {
     }
 
     /**
-     * Usually, an argument's datatype is pretty intuitive. For example, an
-     * {@link EntityArgumentType} is usually used as a target selector. An
-     * {@link IntegerArgumentType} is never as intuitive, so it should override
-     * this method to return <code>true</code>.
+     * Usually, an argument's datatype is pretty intuitive. For example, an {@link EntityArgumentType}
+     * is usually used as a target selector. An {@link IntegerArgumentType} is never as intuitive, so it
+     * should override this method to return <code>true</code>.
      *
      * @return true to include the {@link Argument#getName()}
      */

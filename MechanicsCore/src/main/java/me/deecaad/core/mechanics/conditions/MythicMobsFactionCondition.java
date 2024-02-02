@@ -33,7 +33,8 @@ public class MythicMobsFactionCondition extends Condition implements JarSearcher
     @Override
     protected boolean isAllowed0(CastData cast) {
         LivingEntity target = cast.getTarget();
-        if (target == null) return false;
+        if (target == null)
+            return false;
 
         if (target instanceof Player player) {
             AbstractEntity abstractPlayer = BukkitAdapter.adapt(player);
@@ -44,8 +45,8 @@ public class MythicMobsFactionCondition extends Condition implements JarSearcher
         }
 
         ActiveMob activeMob = MythicBukkit.inst().getMobManager().getMythicMobInstance(target);
-        if (activeMob == null || !activeMob.hasFaction()) return false;
-
+        if (activeMob == null || !activeMob.hasFaction())
+            return false;
 
         return Objects.equals(activeMob.getFaction(), faction);
     }
@@ -60,8 +61,7 @@ public class MythicMobsFactionCondition extends Condition implements JarSearcher
         return "https://cjcrafter.gitbook.io/mechanics/integrations/mythicmobs#mythic-mobs-faction-condition";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         String faction = data.of("Faction").assertType(String.class).get(null);
 

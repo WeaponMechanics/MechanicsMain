@@ -17,14 +17,14 @@ public class SuggestionsBuilder {
     }
 
     /**
-     * Adds the given option to the suggestions list. The given type may be a
-     * {@link List}, an {@link java.lang.reflect.Array}, a {@link Tooltip}, or
-     * any object that overrides the {@link #toString()} method to produce a
-     * simple, human-readable result.
+     * Adds the given option to the suggestions list. The given type may be a {@link List}, an
+     * {@link java.lang.reflect.Array}, a {@link Tooltip}, or any object that overrides the
+     * {@link #toString()} method to produce a simple, human-readable result.
      *
-     * <p>For example, 'DOG', 'HOUSE', 'ALL', and 'GLASS' are all readable, but
-     * 'MyObject@3423', 'MyObject{a=2, b=3, c=4}' are not readable. In general,
-     * suggestions should not include special characters or spaces (See
+     * <p>
+     * For example, 'DOG', 'HOUSE', 'ALL', and 'GLASS' are all readable, but 'MyObject@3423',
+     * 'MyObject{a=2, b=3, c=4}' are not readable. In general, suggestions should not include special
+     * characters or spaces (See
      * {@link com.mojang.brigadier.StringReader#isAllowedInUnquotedString(char)}).
      *
      * @param option The non-null option to add to the suggestions list.
@@ -77,9 +77,8 @@ public class SuggestionsBuilder {
     }
 
     /**
-     * Use this method whenever you want to use the 'boiler-plate' methods
-     * ({@link #with(Object)}) along with a tab-completion that uses
-     * {@link CommandData}.
+     * Use this method whenever you want to use the 'boiler-plate' methods ({@link #with(Object)}) along
+     * with a tab-completion that uses {@link CommandData}.
      *
      * @param function The function to generate tab completions, or null.
      * @return A non-null reference to this (builder pattern).

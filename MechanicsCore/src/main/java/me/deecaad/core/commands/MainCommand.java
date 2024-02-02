@@ -12,11 +12,10 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
- * This abstract class outlines a bukkit plugin's main command that stores all
- * subcommands. A plugin should only have 1 main command, and all
- * implementations of {@link SubCommand} should be stored here. After
- * instantiating this class, it needs to be registered to the bukkit server's
- * main command map.
+ * This abstract class outlines a bukkit plugin's main command that stores all subcommands. A plugin
+ * should only have 1 main command, and all implementations of {@link SubCommand} should be stored
+ * here. After instantiating this class, it needs to be registered to the bukkit server's main
+ * command map.
  *
  * @see SubCommand#register()
  */
@@ -29,7 +28,7 @@ public abstract class MainCommand extends BukkitCommand {
     /**
      * This constructor is only meant to be accessed from subclasses.
      *
-     * @param name       The name/appearance of the command.
+     * @param name The name/appearance of the command.
      * @param permission The readable value of a permission.
      */
     protected MainCommand(String name, String permission) {
@@ -59,14 +58,13 @@ public abstract class MainCommand extends BukkitCommand {
     }
 
     /**
-     * Finds a {@link SubCommand} from the <code>args</code> and attempts to
-     * execute it. If no command exists with the given information, the command
-     * executor is sent a help message.
+     * Finds a {@link SubCommand} from the <code>args</code> and attempts to execute it. If no command
+     * exists with the given information, the command executor is sent a help message.
      *
      * @param sender The console/block/entity that sent the command.
-     * @param label  The label of this command. Will always be equal to this
-     *               command's tag, or one of this command's aliases.
-     * @param args   The arguments given to find the {@link SubCommand}.
+     * @param label The label of this command. Will always be equal to this command's tag, or one of
+     *        this command's aliases.
+     * @param args The arguments given to find the {@link SubCommand}.
      * @return Returns true every time.
      */
     @Override
@@ -94,18 +92,16 @@ public abstract class MainCommand extends BukkitCommand {
     }
 
     /**
-     * Finds a {@link SubCommand} from the <code>args</code> and attempts to
-     * find possible <i>completions</i>, or options for what is currently
-     * being typed. The options are filtered based on what is currently
-     * being typed, and is later sorted into alphabetical order by the server.
+     * Finds a {@link SubCommand} from the <code>args</code> and attempts to find possible
+     * <i>completions</i>, or options for what is currently being typed. The options are filtered based
+     * on what is currently being typed, and is later sorted into alphabetical order by the server.
      *
      * @param sender Who is typing the command.
-     * @param alias  The label of the command.
-     * @param args   The arguments being typed.
+     * @param alias The label of the command.
+     * @param args The arguments being typed.
      * @return The possible options for arguments.
      */
-    @NotNull
-    @Override
+    @NotNull @Override
     public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
         if (!sender.hasPermission(permission)) {
             return new ArrayList<>();
@@ -118,8 +114,10 @@ public abstract class MainCommand extends BukkitCommand {
 
             // Should the we follow help command tab completions?
             if (args[0].equals("help")) {
-                if (args.length == 2) temp = commands.keys();
-                else temp = commands.tabCompletions(args[1], Arrays.copyOfRange(args, 2, args.length));
+                if (args.length == 2)
+                    temp = commands.keys();
+                else
+                    temp = commands.tabCompletions(args[1], Arrays.copyOfRange(args, 2, args.length));
 
                 // Let subcommands handle tab completions
             } else {
@@ -130,7 +128,7 @@ public abstract class MainCommand extends BukkitCommand {
         }
 
         return temp.stream()
-                .filter(string -> string.toLowerCase(Locale.ROOT).startsWith(args[args.length - 1].toLowerCase(Locale.ROOT)))
-                .collect(Collectors.toList());
+            .filter(string -> string.toLowerCase(Locale.ROOT).startsWith(args[args.length - 1].toLowerCase(Locale.ROOT)))
+            .collect(Collectors.toList());
     }
 }

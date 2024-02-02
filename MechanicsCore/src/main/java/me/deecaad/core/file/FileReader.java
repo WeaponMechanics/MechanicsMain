@@ -32,8 +32,8 @@ public class FileReader {
     }
 
     /**
-     * Adds new serializers for this file reader.
-     * Serializers should be added before using fillAllFiles() or fillOneFile() methods.
+     * Adds new serializers for this file reader. Serializers should be added before using
+     * fillAllFiles() or fillOneFile() methods.
      *
      * @param serializers the new list serializers for this file reader
      */
@@ -46,8 +46,8 @@ public class FileReader {
     }
 
     /**
-     * Adds new serializer for this file reader.
-     * Serializers should be added before using fillAllFiles() or fillOneFile() methods.
+     * Adds new serializer for this file reader. Serializers should be added before using fillAllFiles()
+     * or fillOneFile() methods.
      *
      * @param serializer the new serializer for this file reader
      */
@@ -59,22 +59,22 @@ public class FileReader {
             // Check if already added serializer isn't assignable with the new one
             if (!alreadyAdded.getClass().isAssignableFrom(serializer.getClass())) {
                 debug.log(LogLevel.ERROR,
-                        "Can't add serializer with keyword of " + serializer.getKeyword() + " because other serializer already has same keyword.",
-                        "Already added serializer is located at " + alreadyAdded.getClass().getName() + " and this new one was located at " + serializer.getClass().getName() + ".",
-                        "To override existing serializer either make new serializer extend existing serializer or implement Serializer<same data type as the existing one>.");
+                    "Can't add serializer with keyword of " + serializer.getKeyword() + " because other serializer already has same keyword.",
+                    "Already added serializer is located at " + alreadyAdded.getClass().getName() + " and this new one was located at " + serializer.getClass().getName() + ".",
+                    "To override existing serializer either make new serializer extend existing serializer or implement Serializer<same data type as the existing one>.");
                 return;
             }
 
             // If code reaches this point, it was assignable from new serializer
             debug.log(LogLevel.DEBUG,
-                    "New serializer " + serializer.getClass().getName() + " will now override already added serializer " + alreadyAdded.getClass().getName());
+                "New serializer " + serializer.getClass().getName() + " will now override already added serializer " + alreadyAdded.getClass().getName());
         }
         this.serializers.put(serializerLowerCase, serializer);
     }
 
     /**
-     * Adds new validators for this file reader.
-     * Validators should be added before using fillAllFiles() or fillOneFile() methods.
+     * Adds new validators for this file reader. Validators should be added before using fillAllFiles()
+     * or fillOneFile() methods.
      *
      * @param validators the new list validators for this file reader
      */
@@ -87,8 +87,8 @@ public class FileReader {
     }
 
     /**
-     * Adds new validator for this file reader.
-     * Validators should be added before using fillAllFiles() or fillOneFile() methods.
+     * Adds new validator for this file reader. Validators should be added before using fillAllFiles()
+     * or fillOneFile() methods.
      *
      * @param validator the new validator for this file reader
      */
@@ -100,22 +100,22 @@ public class FileReader {
             // Check if already added validator isn't assignable with the new one
             if (!alreadyAdded.getClass().isAssignableFrom(validator.getClass())) {
                 debug.log(LogLevel.ERROR,
-                        "Can't add validator with keyword of " + validator.getKeyword() + " because other validator already has same keyword.",
-                        "Already added validators is located at " + alreadyAdded.getClass().getName() + " and this new one was located at " + validator.getClass().getName() + ".");
+                    "Can't add validator with keyword of " + validator.getKeyword() + " because other validator already has same keyword.",
+                    "Already added validators is located at " + alreadyAdded.getClass().getName() + " and this new one was located at " + validator.getClass().getName() + ".");
                 return;
             }
 
             // If code reaches this point, it was assignable from new validator
             debug.log(LogLevel.DEBUG,
-                    "New validator " + validator.getClass().getName() + " will now override already added validator " + alreadyAdded.getClass().getName());
+                "New validator " + validator.getClass().getName() + " will now override already added validator " + alreadyAdded.getClass().getName());
         }
         this.validators.put(validatorLowerCase, validator);
     }
 
     /**
-     * Iterates through all .yml files inside every directory starting from the given directory.
-     * It is recommended to give this method plugin's data folder directory.
-     * This also takes in account given serializers.
+     * Iterates through all .yml files inside every directory starting from the given directory. It is
+     * recommended to give this method plugin's data folder directory. This also takes in account given
+     * serializers.
      *
      * @param directory the directory
      * @param ignoreFiles ignored files which name starts with any given string
@@ -151,7 +151,8 @@ public class FileReader {
         for (File directoryFile : directory.listFiles()) {
 
             String name = directoryFile.getName();
-            if (fileBlacklist.contains(name)) continue;
+            if (fileBlacklist.contains(name))
+                continue;
 
             try {
                 if (name.endsWith(".yml")) {
@@ -168,10 +169,10 @@ public class FileReader {
                 }
             } catch (DuplicateKeyException ex) {
                 debug.log(LogLevel.ERROR, "Found duplicate keys in configuration!",
-                        "This occurs when you have 2 lines in configuration with the same name",
-                        "This is a huge error and WILL 100% cause issues in your guns.",
-                        "Duplicates Found: " + Arrays.toString(ex.getKeys()),
-                        "Found in file: " + name);
+                    "This occurs when you have 2 lines in configuration with the same name",
+                    "This is a huge error and WILL 100% cause issues in your guns.",
+                    "Duplicates Found: " + Arrays.toString(ex.getKeys()),
+                    "Found in file: " + name);
 
                 debug.log(LogLevel.DEBUG, "Duplicate Key Exception: ", ex);
             }
@@ -180,8 +181,8 @@ public class FileReader {
     }
 
     /**
-     * Fills one file into map and returns its configuration.
-     * This also takes in account given serializers.
+     * Fills one file into map and returns its configuration. This also takes in account given
+     * serializers.
      *
      * @param file the file to read
      * @return the map with file's configurations
@@ -236,7 +237,8 @@ public class FileReader {
                     // If the serializer doesn't have parent keywords used, or it doesn't match the current path
                     // -> Don't try to serialize this serializer under serializer
                     String keyWithoutLastKey = keySplit.length == 1 ? null : key.substring(0, key.length() - lastKey.length() - 1);
-                    if (startsWithDeny != null && (serializer.getParentKeywords() == null || keyWithoutLastKey == null || serializer.getParentKeywords().stream().noneMatch(keyWithoutLastKey::endsWith))) {
+                    if (startsWithDeny != null && (serializer.getParentKeywords() == null || keyWithoutLastKey == null || serializer.getParentKeywords().stream().noneMatch(
+                        keyWithoutLastKey::endsWith))) {
                         continue;
                     }
 
@@ -258,7 +260,8 @@ public class FileReader {
                             filledMap.set(key, valid);
 
                             // Only update the startsWithDeny if this is the "main serializer"
-                            // If this serialization happened within serializer (meaning this is child serializer), startsWithDeny is not null
+                            // If this serialization happened within serializer (meaning this is child serializer),
+                            // startsWithDeny is not null
                             if (startsWithDeny == null) {
                                 startsWithDeny = key;
                                 savedSerializer = serializer;
@@ -292,7 +295,8 @@ public class FileReader {
             }
 
             // We don't want to store these
-            if (configuration.isConfigurationSection(key)) continue;
+            if (configuration.isConfigurationSection(key))
+                continue;
 
             Object object = configuration.get(key);
             filledMap.set(key, object);
@@ -305,8 +309,7 @@ public class FileReader {
     }
 
     /**
-     * Uses all path to serializers and validators.
-     * This should be used AFTER normal serialization.
+     * Uses all path to serializers and validators. This should be used AFTER normal serialization.
      *
      * @param filledMap the filled mappings
      * @return the map with used path to serializers and validators
@@ -353,40 +356,38 @@ public class FileReader {
     }
 
     /**
-     * Stores temporary data to help with the 'Path To' feature of serializers,
-     * specifically when used nested in {@link SerializeData}.
+     * Stores temporary data to help with the 'Path To' feature of serializers, specifically when used
+     * nested in {@link SerializeData}.
      *
      * @param serializer Type of the serialized object.
-     * @param path       The "base-key" location of the outer serialized object.
-     * @param ex         The failure which contains copy-from and paste-to locations.
+     * @param path The "base-key" location of the outer serialized object.
+     * @param ex The failure which contains copy-from and paste-to locations.
      */
     public record NestedPathToSerializer(Serializer<?> serializer, String path, SerializerPathToException ex) {
     }
 
     /**
-     * Stores temporary data to help with the 'Path To' feature of serializers.
-     * This is saved, so we can do a "second loop" of serialization which can
-     * re-use values that have already been serialized. This is useful for
-     * REALLY long configuration sections, so they don't need to be copy-pasted
+     * Stores temporary data to help with the 'Path To' feature of serializers. This is saved, so we can
+     * do a "second loop" of serialization which can re-use values that have already been serialized.
+     * This is useful for REALLY long configuration sections, so they don't need to be copy-pasted
      * between multiple files (just put it once!)
      *
-     * @param serializer       Type of the serialized object.
+     * @param serializer Type of the serialized object.
      * @param pathWhereToStore Where in config should we store the value.
-     * @param pathTo           Where should we pull the values from.
+     * @param pathTo Where should we pull the values from.
      */
     public record PathToSerializer(Serializer<?> serializer, String pathWhereToStore, String pathTo) {
     }
 
     /**
-     * Stores temporary data to help with 'Validators', a type of serializer
-     * checked AFTER all serialization is done. This is useful when you don't
-     * want to store any specific object, but you do want to check to make sure
-     * input is valid.
+     * Stores temporary data to help with 'Validators', a type of serializer checked AFTER all
+     * serialization is done. This is useful when you don't want to store any specific object, but you
+     * do want to check to make sure input is valid.
      *
-     * @param validator            Which validator to use.
-     * @param file                 Which file the config is from.
+     * @param validator Which validator to use.
+     * @param file Which file the config is from.
      * @param configurationSection The configuration section in question.
-     * @param path                 The string path to the configuration section.
+     * @param path The string path to the configuration section.
      */
     public record ValidatorData(IValidator validator, File file, ConfigurationSection configurationSection, String path) {
     }

@@ -73,28 +73,23 @@ public class CastData implements Cloneable, PlaceholderData {
         return MechanicsCore.getPlugin().message.serialize(component);
     }
 
-    @NotNull
-    public LivingEntity getSource() {
+    @NotNull public LivingEntity getSource() {
         return source;
     }
 
-    @NotNull
-    public Location getSourceLocation() {
+    @NotNull public Location getSourceLocation() {
         return source.getLocation();
     }
 
-    @NotNull
-    public World getSourceWorld() {
+    @NotNull public World getSourceWorld() {
         return source.getWorld();
     }
 
-    @Nullable
-    public LivingEntity getTarget() {
+    @Nullable public LivingEntity getTarget() {
         return targetEntity;
     }
 
-    @Nullable
-    public World getTargetWorld() {
+    @Nullable public World getTargetWorld() {
         if (targetEntity != null)
             return targetEntity.getWorld();
         if (targetLocation != null)
@@ -117,16 +112,14 @@ public class CastData implements Cloneable, PlaceholderData {
         return targetLocation != null;
     }
 
-    @Nullable
-    public Location getTargetLocation() {
+    @Nullable public Location getTargetLocation() {
         if (targetLocation == null && targetEntity == null) {
             debug.log(LogLevel.WARN, "Not targeting either entity nor location", new Throwable());
         }
         return targetLocation != null ? targetLocation.get() : targetEntity.getLocation();
     }
 
-    @NotNull
-    public Supplier<Location> getTargetLocationSupplier() {
+    @NotNull public Supplier<Location> getTargetLocationSupplier() {
         return targetLocation;
     }
 
@@ -147,8 +140,7 @@ public class CastData implements Cloneable, PlaceholderData {
         this.targetLocation = targetLocation;
     }
 
-    @Nullable
-    public Consumer<Integer> getTaskIdConsumer() {
+    @Nullable public Consumer<Integer> getTaskIdConsumer() {
         return taskIdConsumer;
     }
 

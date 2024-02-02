@@ -85,7 +85,7 @@ public class Command_1_19_R3 implements CommandCompatibility {
         SERVER = ((CraftServer) Bukkit.getServer()).getServer();
         COMMAND_BUILD_CONTEXT = CommandBuildContext.configurable(SERVER.registryAccess(), SERVER.getWorldData().getDataConfiguration().enabledFeatures());
         ERROR_BIOME_INVALID = new DynamicCommandExceptionType(
-                arg -> net.minecraft.network.chat.Component.translatable("commands.locate.biome.invalid", arg));
+            arg -> net.minecraft.network.chat.Component.translatable("commands.locate.biome.invalid", arg));
     }
 
     @Override
@@ -103,7 +103,7 @@ public class Command_1_19_R3 implements CommandCompatibility {
     public void generateFile(File file) {
         try {
             Files.asCharSink(file, StandardCharsets.UTF_8).write(new GsonBuilder().setPrettyPrinting().create()
-                    .toJson(ArgumentUtils.serializeNodeToJson(getCommandDispatcher(), getCommandDispatcher().getRoot())));
+                .toJson(ArgumentUtils.serializeNodeToJson(getCommandDispatcher(), getCommandDispatcher().getRoot())));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -384,7 +384,7 @@ public class Command_1_19_R3 implements CommandCompatibility {
     public Predicate<Block> getBlockPredicate(CommandContext<Object> context, String key) throws CommandSyntaxException {
         Predicate<BlockInWorld> predicate = BlockPredicateArgument.getBlockPredicate(cast(context), key);
         return block -> predicate.test(new BlockInWorld(cast(context).getSource().getLevel(),
-                new BlockPos(block.getX(), block.getY(), block.getZ()), true));
+            new BlockPos(block.getX(), block.getY(), block.getZ()), true));
     }
 
     @Override
@@ -426,8 +426,8 @@ public class Command_1_19_R3 implements CommandCompatibility {
 
         CommandSourceStack source = (CommandSourceStack) context.getSource();
         return selector.findEntities(source).stream()
-                .map(Entity::getBukkitEntity)
-                .collect(Collectors.toList());
+            .map(Entity::getBukkitEntity)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -454,8 +454,8 @@ public class Command_1_19_R3 implements CommandCompatibility {
 
         CommandSourceStack source = (CommandSourceStack) context.getSource();
         return selector.findPlayers(source).stream()
-                .map(ServerPlayer::getBukkitEntity)
-                .collect(Collectors.toList());
+            .map(ServerPlayer::getBukkitEntity)
+            .collect(Collectors.toList());
     }
 
     @Override

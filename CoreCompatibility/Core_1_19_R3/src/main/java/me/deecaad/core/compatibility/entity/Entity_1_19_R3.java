@@ -32,15 +32,13 @@ public class Entity_1_19_R3 implements EntityCompatibility {
     static {
         if (ReflectionUtil.getMCVersion() != 19) {
             MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + Entity_1_19_R3.class + " when not using Minecraft 19",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + Entity_1_19_R3.class + " when not using Minecraft 19",
+                new InternalError());
         }
     }
 
     public static final Field itemsById = ReflectionUtil.getField(SynchedEntityData.class, Int2ObjectMap.class);
-
 
     @Override
     public Vector getLastLocation(Entity entity) {

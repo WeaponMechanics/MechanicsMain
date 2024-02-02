@@ -36,8 +36,7 @@ public class EntityTypeCondition extends Condition {
         return "https://cjcrafter.gitbook.io/mechanics/conditions/entity-type";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         EntityType type = data.of("Entity").assertExists().getEnum(EntityType.class);
         return applyParentArgs(data, new EntityTypeCondition(type));

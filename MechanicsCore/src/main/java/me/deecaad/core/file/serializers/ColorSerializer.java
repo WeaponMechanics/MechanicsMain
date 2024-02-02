@@ -35,8 +35,7 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
     }
 
     @Override
-    @NotNull
-    public ColorSerializer serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public ColorSerializer serialize(@NotNull SerializeData data) throws SerializerException {
 
         String input = data.config.getString(data.key);
         if (input == null || input.isEmpty())
@@ -55,8 +54,8 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
             String substring = input.substring(2);
             if (substring.length() != 6) {
                 throw data.exception(null, "Hex strings should have 6 digits",
-                        SerializerException.forValue(input),
-                        SerializerException.examples("0xFF00BB", "0x123456", "0x111111"));
+                    SerializerException.forValue(input),
+                    SerializerException.examples("0xFF00BB", "0x123456", "0x111111"));
             }
             int rgb = Integer.parseInt(substring, 16);
             return Color.fromRGB(rgb);
@@ -69,8 +68,8 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
             String substring = input.substring(1);
             if (substring.length() != 6) {
                 throw data.exception(null, "Hex strings should have 6 digits",
-                        SerializerException.forValue(input),
-                        SerializerException.examples("#FF00BB", "#123456", "#111111"));
+                    SerializerException.forValue(input),
+                    SerializerException.examples("#FF00BB", "#123456", "#111111"));
             }
             int rgb = Integer.parseInt(substring, 16);
             return Color.fromRGB(rgb);
@@ -117,10 +116,9 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
             // provide a lot of information to help the user.
             else {
                 throw data.exception(null, SerializerException.forValue(input),
-                        SerializerException.didYouMean(input, ColorType.class),
-                        "Choose one of these formats: #RRGGBB, r g b, RED, RRGGBB, 0xRRGGBB, r~g~b",
-                        SerializerException.examples("#AA0022", "255 100 0", "RED", "444411", "BLUE", "0 0 255")
-                        );
+                    SerializerException.didYouMean(input, ColorType.class),
+                    "Choose one of these formats: #RRGGBB, r g b, RED, RRGGBB, 0xRRGGBB, r~g~b",
+                    SerializerException.examples("#AA0022", "255 100 0", "RED", "444411", "BLUE", "0 0 255"));
             }
         }
     }
@@ -128,22 +126,10 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
     public enum ColorType {
 
         // All somewhat default Minecraft colors are directly supported
-        BLACK(Color.fromRGB(0, 0, 0)),
-        DARK_BLUE(Color.fromRGB(0, 0, 170)),
-        DARK_GREEN(Color.fromRGB(0, 170, 0)),
-        DARK_AQUA(Color.fromRGB(0, 170, 170)),
-        DARK_RED(Color.fromRGB(170, 0, 0)),
-        DARK_PURPLE(Color.fromRGB(170, 0, 170)),
-        GOLD(Color.fromRGB(255, 170, 0)),
-        GRAY(Color.fromRGB(170, 170, 170)),
-        DARK_GRAY(Color.fromRGB(85, 85, 85)),
-        BLUE(Color.fromRGB(85, 85, 255)),
-        GREEN(Color.fromRGB(85, 255, 85)),
-        AQUA(Color.fromRGB(85, 255, 255)),
-        RED(Color.fromRGB(255, 85, 85)),
-        LIGHT_PURPLE(Color.fromRGB(255, 85, 255)),
-        YELLOW(Color.fromRGB(255, 255, 85)),
-        WHITE(Color.fromRGB(255, 255, 255));
+        BLACK(Color.fromRGB(0, 0, 0)), DARK_BLUE(Color.fromRGB(0, 0, 170)), DARK_GREEN(Color.fromRGB(0, 170, 0)), DARK_AQUA(Color.fromRGB(0, 170, 170)), DARK_RED(Color.fromRGB(170, 0,
+            0)), DARK_PURPLE(Color.fromRGB(170, 0, 170)), GOLD(Color.fromRGB(255, 170, 0)), GRAY(Color.fromRGB(170, 170, 170)), DARK_GRAY(Color.fromRGB(85, 85, 85)), BLUE(Color.fromRGB(85, 85,
+                255)), GREEN(Color.fromRGB(85, 255, 85)), AQUA(Color.fromRGB(85, 255, 255)), RED(Color.fromRGB(255, 85, 85)), LIGHT_PURPLE(Color.fromRGB(255, 85, 255)), YELLOW(Color.fromRGB(255, 255,
+                    85)), WHITE(Color.fromRGB(255, 255, 255));
 
         private final Color color;
 
@@ -182,7 +168,7 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
         public static Color fromRGBString(String[] splittedColor) {
             if (splittedColor.length < 3) {
                 debug.log(LogLevel.ERROR, "Tried to get RGB color out of " + Arrays.toString(splittedColor) + ", but it wasn't in correct format.",
-                        "Correct format is red-green-blue");
+                    "Correct format is red-green-blue");
                 return null;
             }
             try {

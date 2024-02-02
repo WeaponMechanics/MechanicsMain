@@ -20,10 +20,9 @@ public class NonNullList_1_18_R2 extends NonNullList<ItemStack> {
     static {
         if (ReflectionUtil.getMCVersion() != 18) {
             MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + NonNullList_1_18_R2.class + " when not using Minecraft 18",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + NonNullList_1_18_R2.class + " when not using Minecraft 18",
+                new InternalError());
         }
     }
 

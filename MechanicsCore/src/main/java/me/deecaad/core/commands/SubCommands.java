@@ -29,8 +29,7 @@ public class SubCommands {
     }
 
     /**
-     * Registers a given sub-command with its
-     * label as if it's key (for execution)
+     * Registers a given sub-command with its label as if it's key (for execution)
      *
      * @param command to register
      */
@@ -39,8 +38,7 @@ public class SubCommands {
     }
 
     /**
-     * Registers a given sub-command with the
-     * given key (for execution)
+     * Registers a given sub-command with the given key (for execution)
      *
      * @param key The key to use for activation
      * @param command to register
@@ -77,8 +75,7 @@ public class SubCommands {
     }
 
     /**
-     * Removes the command with the given
-     * activation key
+     * Removes the command with the given activation key
      *
      * @param key The activation key
      * @return The removed command
@@ -88,8 +85,8 @@ public class SubCommands {
     }
 
     /**
-     * Gets the label + aliases of every registered {@link SubCommand}.
-     * Modifying the returned list does not modify the registered commands.
+     * Gets the label + aliases of every registered {@link SubCommand}. Modifying the returned list does
+     * not modify the registered commands.
      *
      * @return The non-null list of keys.
      */
@@ -111,8 +108,7 @@ public class SubCommands {
     }
 
     /**
-     * Sends information to the given sender about the
-     * command defined by this class and the given args
+     * Sends information to the given sender about the command defined by this class and the given args
      *
      * @param sender Who to send help to
      * @param args Command arguments
@@ -135,13 +131,12 @@ public class SubCommands {
 
                 // Create a hoverable for the command
                 HoverEvent<?> hover = HoverEvent.showText(text()
-                       .append(text("Command: ").color(GOLD).append(text(command.getLabel()).color(GRAY).append(newline())))
-                       .append(text("Description: ").color(GOLD).append(text(command.getDescription()).color(GRAY)).append(newline()))
-                       .append(text("Usage: ").color(GOLD).append(text("/" + command.getPrefix() + " " + String.join("", command.getArgs())).color(GRAY).append(newline())))
-                       .append(text("Permission: ").color(GOLD).append(text(command.getPermission() == null ? "N/A" : command.getPermission()).color(GRAY).append(newline())))
-                       .append(newline())
-                       .append(text("Click to auto-complete.").color(GRAY))
-                );
+                    .append(text("Command: ").color(GOLD).append(text(command.getLabel()).color(GRAY).append(newline())))
+                    .append(text("Description: ").color(GOLD).append(text(command.getDescription()).color(GRAY)).append(newline()))
+                    .append(text("Usage: ").color(GOLD).append(text("/" + command.getPrefix() + " " + String.join("", command.getArgs())).color(GRAY).append(newline())))
+                    .append(text("Permission: ").color(GOLD).append(text(command.getPermission() == null ? "N/A" : command.getPermission()).color(GRAY).append(newline())))
+                    .append(newline())
+                    .append(text("Click to auto-complete.").color(GRAY)));
 
                 builder.append(text("  " + SYM + " ").color(GRAY));
                 builder.append(text("/" + command.getPrefix()).color(GOLD).clickEvent(ClickEvent.suggestCommand("/" + command.getPrefix())).hoverEvent(hover));
@@ -157,14 +152,14 @@ public class SubCommands {
         }
 
         SubCommand command = get(args[0]);
-        if (command == null) return false;
+        if (command == null)
+            return false;
 
         return command.sendHelp(sender, Arrays.copyOfRange(args, 1, args.length));
     }
 
     /**
-     * Executes the given command, if present. Else
-     * the default command is executed.
+     * Executes the given command, if present. Else the default command is executed.
      *
      * @param key The command's activation key
      * @param sender Who is executing the command
@@ -183,8 +178,7 @@ public class SubCommands {
     }
 
     /**
-     * Gets the tab completions for a given command,
-     * if present. Else an empty list is returned
+     * Gets the tab completions for a given command, if present. Else an empty list is returned
      *
      * @param key the command's activation key
      * @param args what is being typed

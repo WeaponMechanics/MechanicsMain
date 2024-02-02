@@ -48,8 +48,7 @@ public class OnGroundCondition extends Condition {
         return "https://cjcrafter.gitbook.io/mechanics/conditions/on-ground";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         List<MapConfigLike.Holder> materials = data.of("Blocks").assertType(List.class).get(List.of());
         Set<Material> blocks = new HashSet<>();

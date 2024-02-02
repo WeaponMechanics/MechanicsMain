@@ -17,27 +17,32 @@ import static net.kyori.adventure.text.Component.text;
 /**
  * Consider the command: /wm test explosion sphere 5.0 3 DEFAULT #logs
  *
- * <p>It is relatively intuitive, but what is 'test'? 'explosion'? What other
- * options do we have? What do they all do? We want to be able to use /wm help,
- * /wm help test, /wm help test explosion, and /wm help test explosion sphere.
+ * <p>
+ * It is relatively intuitive, but what is 'test'? 'explosion'? What other options do we have? What
+ * do they all do? We want to be able to use /wm help, /wm help test, /wm help test explosion, and
+ * /wm help test explosion sphere.
  *
- * <p>For any
- * command with sub-commands, 'help' should list the sub-commands with
- * their descriptions. Therefore, /wm help test explosion produces:
- * <blockquote><pre>{@code
+ * <p>
+ * For any command with sub-commands, 'help' should list the sub-commands with their descriptions.
+ * Therefore, /wm help test explosion produces: <blockquote>
+ * 
+ * <pre>{@code
  *      /wm test explosion: Spawns in an explosion that regenerates
  *
  *      <sphere>: Causes a spherical explosion
  *      <cube>: Causes a cubical explosion
  *      <parabola>: Causes a parabolic explosion
  *      <default>: Causes a vanilla MC explosion
- * }</pre></blockquote>
+ * }</pre>
+ * 
+ * </blockquote>
  *
  *
- * <p>For any command without sub-commands, we should give the user
- * information on the arguments of the command. Therefore, /wm help give
- * produces:
- * <blockquote><pre>{@code
+ * <p>
+ * For any command without sub-commands, we should give the user information on the arguments of the
+ * command. Therefore, /wm help give produces: <blockquote>
+ * 
+ * <pre>{@code
  *      /wm give: Gives the target(s) with requested weapon(s)
  *      Usage: /wm give <target*> <weapon*> <amount> <data>
  *      Permission: weaponmechanics.commands.give
@@ -47,7 +52,9 @@ import static net.kyori.adventure.text.Component.text;
  *      <weapon*>: Which weapon to choose, use "*" to give all.
  *      <amount>: How many weapons should be given. Default: 1
  *      <data>: Should any extra data be added to the weapon? Default: {}
- * }</pre></blockquote>
+ * }</pre>
+ * 
+ * </blockquote>
  */
 public class HelpCommandBuilder {
 
@@ -59,8 +66,8 @@ public class HelpCommandBuilder {
 
     public static void register(CommandBuilder command, HelpColor color) {
         CommandBuilder help = new CommandBuilder("help")
-                .withAliases("?")
-                .withDescription(command.label);
+            .withAliases("?")
+            .withDescription(command.label);
         buildHelp(help, command, color);
         help.withDescription("Displays useful information about how to use the commands");
         command.withSubcommand(help);
@@ -69,9 +76,9 @@ public class HelpCommandBuilder {
     private static void buildHelp(CommandBuilder help, CommandBuilder parent, HelpColor color) {
         for (CommandBuilder subcommand : parent.subcommands) {
             CommandBuilder subHelp = new CommandBuilder(subcommand.label)
-                    .withPermission(subcommand.permission)
-                    .withRequirements(subcommand.requirements)
-                    .withDescription(help.description + " " + subcommand.label);
+                .withPermission(subcommand.permission)
+                .withRequirements(subcommand.requirements)
+                .withDescription(help.description + " " + subcommand.label);
             help.withSubcommand(subHelp);
 
             buildHelp(subHelp, subcommand, color);
@@ -92,9 +99,9 @@ public class HelpCommandBuilder {
             // run the command '/wm help give'
             if (!parent.args.isEmpty() && parent.args.get(0).isRequired()) {
                 CommandBuilder friend = new CommandBuilder(parent.label)
-                        .withDescription(parent.description)
-                        .withPermission(parent.permission)
-                        .withRequirements(parent.requirements);
+                    .withDescription(parent.description)
+                    .withPermission(parent.permission)
+                    .withRequirements(parent.requirements);
 
                 friend.executes(CommandExecutor.any((sender, args) -> {
                     MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(help.cache);
@@ -152,8 +159,10 @@ public class HelpCommandBuilder {
         List<CommandBuilder> subcommands = parent.subcommands;
         for (int i = 0; i < subcommands.size(); i++) {
             CommandBuilder subcommand = subcommands.get(i);
-            builder.append(text().content("<" + subcommand.label + ">: ").style(color.a).clickEvent(ClickEvent.suggestCommand("/" + help.description + " " + subcommand.label)).hoverEvent(subcommand.cache));
-            builder.append(text().content(String.valueOf(subcommand.description)).style(color.b).clickEvent(ClickEvent.suggestCommand("/" + help.description + " " + subcommand.label)).hoverEvent(subcommand.cache));
+            builder.append(text().content("<" + subcommand.label + ">: ").style(color.a).clickEvent(ClickEvent.suggestCommand("/" + help.description + " " + subcommand.label)).hoverEvent(
+                subcommand.cache));
+            builder.append(text().content(String.valueOf(subcommand.description)).style(color.b).clickEvent(ClickEvent.suggestCommand("/" + help.description + " " + subcommand.label)).hoverEvent(
+                subcommand.cache));
 
             if (i != subcommands.size() - 1)
                 builder.append(newline());
@@ -196,7 +205,6 @@ public class HelpCommandBuilder {
         return builder;
     }
 
-
     public static final class HelpColor {
 
         public Style a;
@@ -211,10 +219,9 @@ public class HelpCommandBuilder {
 
         public static HelpColor from(ChatColor a, ChatColor b, char c) {
             return new HelpColor(
-                    Style.style(NamedTextColor.NAMES.value(a.name().toLowerCase(Locale.ROOT)), TextDecoration.BOLD),
-                    Style.style(NamedTextColor.NAMES.value(b.name().toLowerCase(Locale.ROOT))),
-                    String.valueOf(c)
-            );
+                Style.style(NamedTextColor.NAMES.value(a.name().toLowerCase(Locale.ROOT)), TextDecoration.BOLD),
+                Style.style(NamedTextColor.NAMES.value(b.name().toLowerCase(Locale.ROOT))),
+                String.valueOf(c));
         }
     }
 }

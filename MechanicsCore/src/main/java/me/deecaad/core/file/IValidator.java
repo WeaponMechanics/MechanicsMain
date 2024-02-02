@@ -23,9 +23,8 @@ public interface IValidator {
     }
 
     /**
-     * After the {@link #getKeyword()} check, this check can be customized by
-     * the validator in order to "fine tune" when a validator should be
-     * automatically used.
+     * After the {@link #getKeyword()} check, this check can be customized by the validator in order to
+     * "fine tune" when a validator should be automatically used.
      *
      * @param data The config information.
      * @return true if the validator should be used.
@@ -35,8 +34,8 @@ public interface IValidator {
     }
 
     /**
-     * This is used to validate configurations which can't be used as serializers.
-     * This validation process should be done after the serialization.
+     * This is used to validate configurations which can't be used as serializers. This validation
+     * process should be done after the serialization.
      *
      * @param configuration the global configuration object.
      * @param data Config wrapper, see {@link SerializeData}.

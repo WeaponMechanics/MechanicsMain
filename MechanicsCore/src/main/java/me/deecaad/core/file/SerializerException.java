@@ -26,8 +26,8 @@ public class SerializerException extends Exception {
 
     /**
      * @param serializer The serializer that generated the exception.
-     * @param messages   The messages telling the user the error and how to fix it.
-     * @param location   The file + path location to the issue {@link StringUtil#foundAt(File, String)}
+     * @param messages The messages telling the user the error and how to fix it.
+     * @param location The file + path location to the issue {@link StringUtil#foundAt(File, String)}
      */
     public SerializerException(@NotNull Serializer<?> serializer, String[] messages, @NotNull String location) {
         this.messages = messages;
@@ -85,7 +85,6 @@ public class SerializerException extends Exception {
 
         return this;
     }
-
 
     public static String forValue(Object value) {
         return "Found value: " + value;

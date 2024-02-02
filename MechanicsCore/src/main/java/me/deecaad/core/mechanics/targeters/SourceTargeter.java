@@ -32,14 +32,12 @@ public class SourceTargeter extends Targeter {
         return "Source";
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public String getWikiLink() {
         return "https://cjcrafter.gitbook.io/mechanics/targeters/source";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Targeter serialize(@NotNull SerializeData data) throws SerializerException {
         return applyParentArgs(data, new SourceTargeter());
     }

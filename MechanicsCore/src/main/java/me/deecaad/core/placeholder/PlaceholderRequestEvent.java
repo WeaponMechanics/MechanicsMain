@@ -13,11 +13,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 
 /**
- * This event is called whenever a {@link PlaceholderMessage} requests values
- * from a {@link PlaceholderHandler} (usually multiple placeholder handlers).
+ * This event is called whenever a {@link PlaceholderMessage} requests values from a
+ * {@link PlaceholderHandler} (usually multiple placeholder handlers).
  *
- * <p>WeaponMechanicsPlus uses this event to add special formats to existing
- * placeholders, and add more placeholders.
+ * <p>
+ * WeaponMechanicsPlus uses this event to add special formats to existing placeholders, and add more
+ * placeholders.
  */
 public class PlaceholderRequestEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
@@ -65,8 +66,7 @@ public class PlaceholderRequestEvent extends Event {
         placeholders().put(placeholder, value);
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public HandlerList getHandlers() {
         return handlers;
     }

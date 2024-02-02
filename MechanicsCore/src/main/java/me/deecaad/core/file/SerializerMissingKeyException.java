@@ -13,7 +13,7 @@ public class SerializerMissingKeyException extends SerializerException {
     }
 
     private static String[] getMessages(String key) {
-        return new String[] {
+        return new String[]{
                 "You are missing the required config option '" + key + "'",
                 "Make sure that your configuration is spelled correctly (It is case-sensitive!)"
         };

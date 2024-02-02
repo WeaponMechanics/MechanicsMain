@@ -8,10 +8,9 @@ import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
 /**
- * Wraps a bukkit {@link Entity} to use {@link Transform} methods easily.
- * Entity transforms cannot have parents, but they can have children. Not very
- * performance friendly when having many children, since the quaternions are
- * not cached every tick.
+ * Wraps a bukkit {@link Entity} to use {@link Transform} methods easily. Entity transforms cannot
+ * have parents, but they can have children. Not very performance friendly when having many
+ * children, since the quaternions are not cached every tick.
  *
  * TODO add cache to deal with potential performance problems
  */
@@ -40,7 +39,7 @@ public class EntityTransform extends Transform {
 
     @Override
     public void setLocalPosition(Vector localPosition) {
-       entity.teleport(localPosition.toLocation(entity.getWorld()));
+        entity.teleport(localPosition.toLocation(entity.getWorld()));
     }
 
     @Override
@@ -59,11 +58,9 @@ public class EntityTransform extends Transform {
         if (entity.getType() == EntityType.ARMOR_STAND) {
             ArmorStand stand = (ArmorStand) entity;
             stand.setHeadPose(new EulerAngle(euler.getX(), euler.getY(), euler.getZ()));
-        }
-        else if (ReflectionUtil.getMCVersion() >= 13) {
+        } else if (ReflectionUtil.getMCVersion() >= 13) {
             entity.setRotation((float) euler.getX(), (float) euler.getY());
-        }
-        else {
+        } else {
             Location loc = entity.getLocation();
             loc.setYaw((float) euler.getX());
             loc.setPitch((float) euler.getY());

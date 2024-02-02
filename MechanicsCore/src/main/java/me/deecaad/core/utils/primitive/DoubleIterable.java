@@ -6,9 +6,8 @@ import java.util.Spliterators;
 import java.util.function.DoubleConsumer;
 
 /**
- * This interface outlines a collection that can be iterated over. This
- * interface has the advantage of not needing to box and unbox a {@link Double}
- * wrapper.
+ * This interface outlines a collection that can be iterated over. This interface has the advantage
+ * of not needing to box and unbox a {@link Double} wrapper.
  *
  * @see Iterable
  */

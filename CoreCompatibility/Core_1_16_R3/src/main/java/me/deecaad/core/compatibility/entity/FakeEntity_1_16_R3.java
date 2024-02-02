@@ -32,10 +32,9 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     static {
         if (ReflectionUtil.getMCVersion() != 16) {
             me.deecaad.core.MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + FakeEntity_1_16_R3.class + " when not using Minecraft 16",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + FakeEntity_1_16_R3.class + " when not using Minecraft 16",
+                new InternalError());
         }
     }
 
@@ -68,11 +67,9 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
             entity = switch (type) {
                 case DROPPED_ITEM -> new EntityItem(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
                 case FALLING_BLOCK ->
-                    new EntityFallingBlock(world.getHandle(), x, y, z, block =
-                            (data.getClass() == Material.class
-                                    ? ((CraftBlockData) ((Material) data).createBlockData()).getState()
-                                    : ((CraftBlockState) data).getHandle()
-                            ));
+                    new EntityFallingBlock(world.getHandle(), x, y, z, block = (data.getClass() == Material.class
+                        ? ((CraftBlockData) ((Material) data).createBlockData()).getState()
+                        : ((CraftBlockState) data).getHandle()));
                 case FIREWORK -> new EntityFireworks(world.getHandle(), item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data), x, y, z, true);
                 default -> world.createEntity(location, type.getEntityClass());
             };
@@ -167,7 +164,8 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
 
         sendPackets(packet, head);
 
-        if (type == EntityType.ARMOR_STAND) updateMeta();
+        if (type == EntityType.ARMOR_STAND)
+            updateMeta();
     }
 
     @Override
@@ -191,13 +189,12 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
         // Construct the packets out of the loop to save resources, they will
         // be the same for each Player.
         Packet<?> spawn = type.isAlive()
-                ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
-                : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0);
+            ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
+            : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0);
         PacketPlayOutEntityMetadata meta = new PacketPlayOutEntityMetadata(cache, entity.getDataWatcher(), true);
         PacketPlayOutEntityHeadRotation head = new PacketPlayOutEntityHeadRotation(entity, convertYaw(getYaw()));
         PacketPlayOutEntityLook look = new PacketPlayOutEntityLook(cache, convertYaw(getYaw()), convertPitch(getPitch()), false);
         PacketPlayOutEntityVelocity velocity = new PacketPlayOutEntityVelocity(cache, new Vec3D(motion.getX(), motion.getY(), motion.getZ()));
-
 
         for (Player temp : DistanceUtil.getPlayersInRange(location)) {
             PlayerConnection connection = ((CraftPlayer) temp).getHandle().playerConnection;
@@ -211,7 +208,8 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
             connection.sendPacket(velocity);
             connection.sendPacket(look);
             PacketPlayOutEntityEquipment equipment = getEquipmentPacket();
-            if (equipment != null) connection.sendPacket(equipment);
+            if (equipment != null)
+                connection.sendPacket(equipment);
 
             connections.add(connection);
         }
@@ -224,14 +222,15 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
             throw new IllegalArgumentException();
 
         connection.sendPacket(type.isAlive()
-                ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
-                : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0));
+            ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
+            : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0));
         connection.sendPacket(new PacketPlayOutEntityMetadata(cache, entity.getDataWatcher(), true));
         connection.sendPacket(new PacketPlayOutEntityLook(cache, convertYaw(getYaw()), convertPitch(getPitch()), false));
         connection.sendPacket(new PacketPlayOutEntityVelocity(cache, new Vec3D(motion.getX(), motion.getY(), motion.getZ())));
         connection.sendPacket(new PacketPlayOutEntityHeadRotation(entity, convertYaw(getYaw())));
         PacketPlayOutEntityEquipment equipment = getEquipmentPacket();
-        if (equipment != null) connection.sendPacket(equipment);
+        if (equipment != null)
+            connection.sendPacket(equipment);
 
         // Inject the player's packet connection into this listener, so we can
         // show the player position/velocity/rotation changes
@@ -240,7 +239,8 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
 
     @Override
     public void updateMeta() {
-        if (type == EntityType.ARMOR_STAND) ((EntityArmorStand) entity).setHeadPose(new Vector3f(getPitch(), 0, 0));
+        if (type == EntityType.ARMOR_STAND)
+            ((EntityArmorStand) entity).setHeadPose(new Vector3f(getPitch(), 0, 0));
 
         sendPackets(new PacketPlayOutEntityMetadata(cache, entity.getDataWatcher(), false));
     }
@@ -264,7 +264,8 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
 
     @Override
     public void playEffect(EntityEffect effect) {
-        if (!effect.getApplicable().isAssignableFrom(type.getEntityClass())) return;
+        if (!effect.getApplicable().isAssignableFrom(type.getEntityClass()))
+            return;
         sendPackets(new PacketPlayOutEntityStatus(entity, effect.getData()));
     }
 
@@ -289,11 +290,13 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     @Override
     public void updateEquipment() {
         PacketPlayOutEntityEquipment packet = getEquipmentPacket();
-        if (packet != null) sendPackets(packet);
+        if (packet != null)
+            sendPackets(packet);
     }
 
     private PacketPlayOutEntityEquipment getEquipmentPacket() {
-        if (!type.isAlive()) return null;
+        if (!type.isAlive())
+            return null;
         EntityLiving livingEntity = (EntityLiving) entity;
 
         List<Pair<EnumItemSlot, ItemStack>> equipmentList = new ArrayList<>(6);
