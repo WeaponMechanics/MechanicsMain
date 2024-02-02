@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    id("com.diffplug.spotless")
 }
 
 repositories {
@@ -35,5 +36,15 @@ tasks {
     }
     test {
         useJUnitPlatform()
+    }
+}
+
+spotless {
+    kotlin {
+        ktlint()
+    }
+    java {
+        googleJavaFormat()
+            .reorderImports(false)
     }
 }
