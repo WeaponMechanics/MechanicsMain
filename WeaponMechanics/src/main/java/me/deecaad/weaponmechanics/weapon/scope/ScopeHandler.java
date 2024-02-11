@@ -108,7 +108,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
                     return false;
                 }
 
-                List<String> zoomStacks = config.getList(weaponTitle + ".Scope.Zoom_Stacking.Stacks", null);
+                List<?> zoomStacks = config.getList(weaponTitle + ".Scope.Zoom_Stacking.Stacks", null);
                 if (zoomStacks == null) { // meaning that zoom stacking is not used
                     // Should turn off
                     return zoomOut(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
@@ -161,10 +161,10 @@ public class ScopeHandler implements IValidator, TriggerListener {
 
         if (zoomData.isZooming()) { // zoom stack
 
-            List<String> zoomStacks = config.getList(weaponTitle + ".Scope.Zoom_Stacking.Stacks", null);
+            List<?> zoomStacks = config.getList(weaponTitle + ".Scope.Zoom_Stacking.Stacks", null);
             if (zoomStacks != null) {
                 int currentStacks = zoomData.getZoomStacks();
-                double zoomAmount = Double.parseDouble(zoomStacks.get(currentStacks));
+                double zoomAmount = Double.parseDouble(zoomStacks.get(currentStacks).toString());
                 int zoomStack = currentStacks + 1;
                 Mechanics zoomStackingMechanics = config.getObject(weaponTitle + ".Scope.Zoom_Stacking.Mechanics", Mechanics.class);
 
@@ -319,10 +319,10 @@ public class ScopeHandler implements IValidator, TriggerListener {
         if (zoomAmount < 1 || zoomAmount > 10)
             throw new SerializerRangeException(data.serializer, 1.0, zoomAmount, 10.0, data.of("Zoom_Amount").getLocation());
 
-        List<String> zoomStacks = configuration.getList(data.key + ".Zoom_Stacking.Stacks", null);
+        List<?> zoomStacks = configuration.getList(data.key + ".Zoom_Stacking.Stacks", null);
         if (zoomStacks != null) {
             for (int i = 0; i < zoomStacks.size(); i++) {
-                String zoomStack = zoomStacks.get(i);
+                String zoomStack = zoomStacks.get(i).toString();
                 try {
                     double v = Double.parseDouble(zoomStack);
                     if (v < 1 || v > 10)
