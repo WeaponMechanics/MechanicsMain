@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -77,7 +78,7 @@ public class RepairItemListener implements Listener {
 
                     try {
                         config = new YamlConfiguration();
-                        config.load(new InputStreamReader(stream));
+                        config.load(new InputStreamReader(stream, StandardCharsets.UTF_8));
                     } catch (InvalidConfigurationException ex) {
                         WeaponMechanics.debug.log(LogLevel.WARN, "Could not read file '" + file.toFile() + "'... make sure it is a valid YAML file");
                         return FileVisitResult.CONTINUE;

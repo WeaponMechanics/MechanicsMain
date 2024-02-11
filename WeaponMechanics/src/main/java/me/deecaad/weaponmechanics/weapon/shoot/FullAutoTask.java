@@ -202,7 +202,7 @@ public class FullAutoTask extends BukkitRunnable {
 
         boolean destroyWhenEmpty = WeaponMechanics.getConfigurations().getBool(weaponTitle + ".Shoot.Destroy_When_Empty");
         for (int i = 0; i < shootAmount; ++i) {
-            Location shootLocation = weaponHandler.getShootHandler().getShootLocation(entityWrapper.getEntity(), dualWield, mainHand);
+            Location shootLocation = weaponHandler.getShootHandler().getShootLocation(entityWrapper, weaponTitle, mainHand);
             weaponHandler.getShootHandler().shoot(entityWrapper, weaponTitle, taskReference, shootLocation, mainHand, true, false);
             boolean consumeEmpty = destroyWhenEmpty && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0;
             if ((consumeEmpty || consumeItemOnShoot) && weaponHandler.getShootHandler().handleConsumeItemOnShoot(weaponStack, handData)) {

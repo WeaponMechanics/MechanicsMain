@@ -13,6 +13,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Statistic;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -28,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 
 public class DamageUtil {
@@ -123,10 +126,21 @@ public class DamageUtil {
         // For compatibility with plugins that only set the damage to 0.0...
         double tempDamage = damage;
 
-        EntityDamageByEntityEvent entityDamageByEntityEvent = new WeaponMechanicsEntityDamageByEntityEvent(cause, victim, EntityDamageEvent.DamageCause.PROJECTILE, damage);
-        Bukkit.getPluginManager().callEvent(entityDamageByEntityEvent);
-        if (entityDamageByEntityEvent.isCancelled())
+        // try-catch New damage source API added in later 1.20.4 versions
+        EntityDamageByEntityEvent entityDamageByEntityEvent;
+        try {
+            DamageSource damageSource = DamageSource.builder(DamageType.MOB_PROJECTILE)
+                    .withCausingEntity(cause)
+                    .build();
+            entityDamageByEntityEvent = new WeaponMechanicsEntityDamageByEntityEvent(cause, victim, EntityDamageEvent.DamageCause.PROJECTILE, damageSource, damage);
+            Bukkit.getPluginManager().callEvent(entityDamageByEntityEvent);
+            if (entityDamageByEntityEvent.isCancelled())
+                return true;
+        } catch (LinkageError ex) {
+            debug.error("You are using an outdated version of Spigot 1.20.4. Please update to the latest version.",
+                    "This is required for the new damage source API to work.", "");
             return true;
+        }
 
         // Doing getDamage() is enough since only BASE modifier is used in event call above ^^
         damage = entityDamageByEntityEvent.getDamage();

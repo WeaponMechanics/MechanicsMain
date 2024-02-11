@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
@@ -70,18 +69,6 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
 
     @Nullable @Override
     public Object set(String key, Object value) {
-
-        // If we are getting strings, make sure the color formatting has been
-        // done.
-        if (value instanceof List<?>) {
-            value = ((List<?>) value).stream()
-                .map(Object::toString)
-                .map(StringUtil::colorBukkit)
-                .collect(Collectors.toList());
-        } else if (value instanceof String) {
-            value = StringUtil.colorBukkit(value.toString());
-        }
-
         return super.put(key, value);
     }
 
