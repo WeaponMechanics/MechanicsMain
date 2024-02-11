@@ -137,9 +137,7 @@ public class DamageUtil {
                 return true;
         } catch (LinkageError ex) {
             debug.error("You are using an outdated version of Spigot 1.20.4. Please update to the latest version.",
-                    "This is required for the new damage source API to work.",
-                    "We'll disable the plugin for you to prevent any issues.");
-            Bukkit.getPluginManager().disablePlugin(WeaponMechanics.getPlugin());
+                    "This is required for the new damage source API to work.", "");
             return true;
         }
 
