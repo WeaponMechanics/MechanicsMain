@@ -3,6 +3,7 @@ package me.deecaad.core.file;
 import me.deecaad.core.mechanics.Registry;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.SerializerUtil;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
@@ -248,7 +249,7 @@ public class SerializeData {
         if (relative != null && !relative.isEmpty())
             key = getPath(relative);
 
-        return new SerializerException(serializer, appendWikiLink(messages), StringUtil.foundAt(file, key));
+        return new SerializerException(serializer, appendWikiLink(messages), SerializerUtil.foundAt(file, key));
     }
 
     /**
@@ -268,7 +269,7 @@ public class SerializeData {
         if (relative != null && !relative.isEmpty())
             key = getPath(relative);
 
-        return new SerializerException(serializer, appendWikiLink(messages), StringUtil.foundAt(file, key, index + 1));
+        return new SerializerException(serializer, appendWikiLink(messages), SerializerUtil.foundAt(file, key, index + 1));
     }
 
     /**
@@ -412,18 +413,18 @@ public class SerializeData {
 
                 // Each element in the list should be a string of values
                 // separated by a standard delimiter (Either '~' or '-' or ' ')
-                String[] split = StringUtil.split(string);
+                List<String> split = StringUtil.split(string);
 
                 // Missing required data
                 int required = (int) arguments.stream().filter(arg -> arg.required).count();
-                if (split.length < required) {
+                if (split.size() < required) {
                     throw listException(relative, i, relative + " requires the first " + required + " arguments to be defined.",
                         SerializerException.forValue(string),
-                        "You are missing " + (required - split.length) + " arguments",
+                        "You are missing " + (required - split.size()) + " arguments",
                         "Valid Format: " + format);
                 }
 
-                for (int j = 0; j < split.length; j++) {
+                for (int j = 0; j < split.size(); j++) {
 
                     // Extra data check. This happens when the user adds more
                     // data than what the list can take. For example, if this
@@ -435,7 +436,7 @@ public class SerializeData {
                             "Valid Format: " + format);
                     }
 
-                    String component = split[j];
+                    String component = split.get(j);
                     ClassArgument argument = arguments.get(j);
                     if (argument.skipCheck)
                         continue;
@@ -493,7 +494,7 @@ public class SerializeData {
             List<String[]> list = new ArrayList<>();
             List<?> configList = usingStep ? pathToConfig.getList(getPath(relative)) : config.getList(getPath(relative));
             for (Object obj : configList) {
-                list.add(StringUtil.split(obj.toString()));
+                list.add(StringUtil.split(obj.toString()).toArray(new String[0]));
             }
 
             return list;
@@ -515,9 +516,9 @@ public class SerializeData {
         public String getLocation(int index) {
             String stepAddon = usingStep ? " (File location will be inaccurate since you are using path-to)" : "";
             if (relative == null || relative.isEmpty()) {
-                return StringUtil.foundAt(file, key, index + 1) + stepAddon;
+                return SerializerUtil.foundAt(file, key, index + 1) + stepAddon;
             } else {
-                return StringUtil.foundAt(file, getPath(relative), index + 1) + stepAddon;
+                return SerializerUtil.foundAt(file, getPath(relative), index + 1) + stepAddon;
             }
         }
 

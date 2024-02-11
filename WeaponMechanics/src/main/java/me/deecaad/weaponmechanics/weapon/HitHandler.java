@@ -73,7 +73,7 @@ public class HitHandler {
         if (!worldGuard.testFlag(loc, shooter instanceof Player ? (Player) shooter : null, "weapon-damage")) { // is cancelled check
             Object obj = worldGuard.getValue(loc, "weapon-damage-message");
             if (obj != null && !obj.toString().isEmpty() && shooter != null) {
-                shooter.sendMessage(StringUtil.color(obj.toString()));
+                shooter.sendMessage(StringUtil.colorBukkit(obj.toString()));
             }
             return true;
         }
@@ -119,7 +119,7 @@ public class HitHandler {
         if (!worldGuard.testFlag(loc, shooter instanceof Player ? (Player) shooter : null, "weapon-damage")) { // is cancelled check
             Object obj = worldGuard.getValue(loc, "weapon-damage-message");
             if (obj != null && !obj.toString().isEmpty() && shooter != null) {
-                shooter.sendMessage(StringUtil.color(obj.toString()));
+                shooter.sendMessage(StringUtil.colorBukkit(obj.toString()));
             }
             return true;
         }

@@ -49,7 +49,7 @@ public enum DamagePoint {
     private final String readable;
 
     DamagePoint() {
-        readable = StringUtil.keyToRead(name());
+        readable = StringUtil.snakeToReadable(name());
     }
 
     public String getReadable() {

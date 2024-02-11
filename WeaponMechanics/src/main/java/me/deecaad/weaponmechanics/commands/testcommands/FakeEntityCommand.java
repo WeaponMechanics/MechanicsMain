@@ -32,7 +32,7 @@ public class FakeEntityCommand extends SubCommand {
         String moveType = args.length > 1 ? args[1] : "none";
         int time =        args.length > 2 ? Integer.parseInt(args[2]) : 1200;
         boolean gravity = args.length > 3 ? Boolean.parseBoolean(args[3]) : false;
-        String name     = args.length > 4 ? StringUtil.color(args[4]) : null;
+        String name     = args.length > 4 ? StringUtil.colorBukkit(args[4]) : null;
 
         WeaponMechanicsCommand.spawn(player, player.getLocation(), type, moveType, time, gravity, name);
     }

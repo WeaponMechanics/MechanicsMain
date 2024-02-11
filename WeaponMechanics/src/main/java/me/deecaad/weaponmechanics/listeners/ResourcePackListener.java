@@ -112,7 +112,7 @@ public class ResourcePackListener implements Listener {
 
                 // TODO consider adding a permission to allow people to be exempt
                 String message = WeaponMechanics.getBasicConfigurations().getString("Resource_Pack_Download.Kick_Message");
-                player.kickPlayer(StringUtil.color(message));
+                player.kickPlayer(StringUtil.colorBukkit(message));
             }
         }
     }

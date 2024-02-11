@@ -76,10 +76,10 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
         if (value instanceof List<?>) {
             value = ((List<?>) value).stream()
                 .map(Object::toString)
-                .map(StringUtil::color)
+                .map(StringUtil::colorBukkit)
                 .collect(Collectors.toList());
         } else if (value instanceof String) {
-            value = StringUtil.color(value.toString());
+            value = StringUtil.colorBukkit(value.toString());
         }
 
         return super.put(key, value);
@@ -234,7 +234,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
 
     @Override
     public void forEach(@NotNull String basePath, @NotNull BiConsumer<String, Object> consumer, boolean deep) {
-        int memorySections = StringUtil.countChars('.', basePath);
+        int memorySections = StringUtil.countOccurrences(basePath, '.');
         if (basePath.isEmpty())
             memorySections--;
 
@@ -246,7 +246,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
             if (!key.startsWith(basePath))
                 continue;
 
-            int currentMemorySections = StringUtil.countChars('.', key);
+            int currentMemorySections = StringUtil.countOccurrences(key, '.');
             if (!deep && currentMemorySections == memorySections + 1) {
                 consumer.accept(key, value);
             } else if (deep && currentMemorySections > memorySections) {

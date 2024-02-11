@@ -120,7 +120,7 @@ public interface InlineSerializer<T> extends Serializer<T>, Keyable {
             // When a character is escaped, we should skip the special parsing.
             char c = line.charAt(i);
             if (StringUtil.isEscaped(line, i)) {
-                if (StringUtil.isEscapedAndInclude(line, i))
+                if (StringUtil.isEscaped(line, i, true))
                     value.append(c);
 
                 // If the escaped character was the last character, we need an
@@ -212,7 +212,7 @@ public interface InlineSerializer<T> extends Serializer<T>, Keyable {
             // When a character is escaped, we should skip the special parsing.
             char c = line.charAt(i);
             if (StringUtil.isEscaped(line, i)) {
-                if (StringUtil.isEscapedAndInclude(line, i))
+                if (StringUtil.isEscaped(line, i, true))
                     value.append(c);
 
                 // If the escaped character was the last character, we need an

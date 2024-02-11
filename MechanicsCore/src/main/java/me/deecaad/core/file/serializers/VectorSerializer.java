@@ -9,6 +9,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -129,16 +130,16 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
             if (relative)
                 input = input.substring(1);
 
-            String[] split = StringUtil.split(input);
-            if (split.length != 3) {
-                throw data.exception(null, "Expected 3 numbers in left~up~forward format, instead got '" + split.length + "'",
+            List<String> split = StringUtil.split(input);
+            if (split.size() != 3) {
+                throw data.exception(null, "Expected 3 numbers in left~up~forward format, instead got '" + split.size() + "'",
                     SerializerException.forValue(input));
             }
 
             try {
-                double x = Double.parseDouble(split[0]);
-                double y = Double.parseDouble(split[1]);
-                double z = Double.parseDouble(split[2]);
+                double x = Double.parseDouble(split.get(0));
+                double y = Double.parseDouble(split.get(1));
+                double z = Double.parseDouble(split.get(2));
 
                 raw = new Vector(x, y, z);
             } catch (NumberFormatException ex) {

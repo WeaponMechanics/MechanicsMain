@@ -79,7 +79,7 @@ public abstract class SubCommand extends BukkitCommand {
 
         this.prefix = parentPrefix.toLowerCase(Locale.ROOT) + " " + label;
         this.commands = new SubCommands(this.prefix);
-        this.args = StringUtil.splitAfterWord(usage);
+        this.args = StringUtil.splitAfterWord(usage).toArray(new String[0]);
 
         setDescription(desc);
 
@@ -171,7 +171,7 @@ public abstract class SubCommand extends BukkitCommand {
                     .map(Player::getName)
                     .collect(Collectors.toList());
             case INTEGERS:
-                return StringUtil.getList("1", "16", "64", "128");
+                return List.of("1", "16", "64", "128");
             case SUB_COMMANDS:
                 return commands.keys();
             case "OUT_OF_BOUNDS":
@@ -186,7 +186,7 @@ public abstract class SubCommand extends BukkitCommand {
             default :
                 if (current.contains(",")) {
                     String[] split = current.replaceAll("[<>]", "").split(",");
-                    return StringUtil.getList(split);
+                    return Arrays.asList(split);
                 } else {
                     return handleCustomTag(args, current);
                 }
@@ -202,7 +202,7 @@ public abstract class SubCommand extends BukkitCommand {
      * @return The tab completions for the custom tag.
      */
     protected List<String> handleCustomTag(String[] args, String current) {
-        return StringUtil.getList(current);
+        return List.of(current);
     }
 
     /**

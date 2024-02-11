@@ -3,11 +3,12 @@ package me.deecaad.core.file.serializers;
 import me.deecaad.core.file.*;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.SerializerUtil;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Color;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -39,7 +40,7 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
 
         String input = data.config.getString(data.key);
         if (input == null || input.isEmpty())
-            throw new SerializerMissingKeyException(this, "Color", StringUtil.foundAt(data.file, data.key));
+            throw new SerializerMissingKeyException(this, "Color", SerializerUtil.foundAt(data.file, data.key));
 
         Color color = fromString(data, input.trim());
         return new ColorSerializer(color);
@@ -88,18 +89,18 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
         }
 
         // Follows the format, 'R-G-B' and translates each character as a byte.
-        else if (StringUtil.split(input).length == 3) {
+        else if (StringUtil.split(input).size() == 3) {
             String[] split = input.split("-");
             int r = Integer.parseInt(split[0]);
             int g = Integer.parseInt(split[1]);
             int b = Integer.parseInt(split[2]);
 
             if (r < 0 || r > 255)
-                throw new SerializerRangeException("Color", 0, r, 255, StringUtil.foundAt(data.file, data.key));
+                throw new SerializerRangeException("Color", 0, r, 255, SerializerUtil.foundAt(data.file, data.key));
             else if (g < 0 || g > 255)
-                throw new SerializerRangeException("Color", 0, g, 255, StringUtil.foundAt(data.file, data.key));
+                throw new SerializerRangeException("Color", 0, g, 255, SerializerUtil.foundAt(data.file, data.key));
             else if (b < 0 || b > 255)
-                throw new SerializerRangeException("Color", 0, b, 255, StringUtil.foundAt(data.file, data.key));
+                throw new SerializerRangeException("Color", 0, b, 255, SerializerUtil.foundAt(data.file, data.key));
 
             return Color.fromRGB(r, g, b);
         }
@@ -149,8 +150,8 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
          * @return the color parsed from string or null if not valid or found
          */
         public static Color fromString(String colorString) {
-            String[] splittedColor = StringUtil.split(colorString);
-            if (splittedColor.length == 1) {
+            List<String> splittedColor = StringUtil.split(colorString);
+            if (splittedColor.size() == 1) {
                 try {
                     return ColorType.valueOf(colorString).getBukkitColor();
                 } catch (IllegalArgumentException e) {
@@ -165,19 +166,19 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
          * @param splittedColor the string color in red-green-blue format
          * @return the RGB bukkit color or null if not valid
          */
-        public static Color fromRGBString(String[] splittedColor) {
-            if (splittedColor.length < 3) {
-                debug.log(LogLevel.ERROR, "Tried to get RGB color out of " + Arrays.toString(splittedColor) + ", but it wasn't in correct format.",
+        public static Color fromRGBString(List<String> splittedColor) {
+            if (splittedColor.size() < 3) {
+                debug.log(LogLevel.ERROR, "Tried to get RGB color out of " + splittedColor + ", but it wasn't in correct format.",
                     "Correct format is red-green-blue");
                 return null;
             }
             try {
-                int red = Integer.parseInt(splittedColor[0]);
-                int green = Integer.parseInt(splittedColor[1]);
-                int blue = Integer.parseInt(splittedColor[2]);
+                int red = Integer.parseInt(splittedColor.get(0));
+                int green = Integer.parseInt(splittedColor.get(1));
+                int blue = Integer.parseInt(splittedColor.get(2));
                 return Color.fromRGB(red, green, blue);
             } catch (NumberFormatException e) {
-                debug.log(LogLevel.ERROR, "Tried to get RGB color out of " + Arrays.toString(splittedColor) + ", but it didn't contain integers.");
+                debug.log(LogLevel.ERROR, "Tried to get RGB color out of " + splittedColor + ", but it didn't contain integers.");
                 return null;
             }
         }

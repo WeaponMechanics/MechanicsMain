@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static net.kyori.adventure.text.Component.*;
 import static org.bukkit.ChatColor.GOLD;
@@ -260,7 +259,7 @@ public final class MechanicsCoreCommand {
             TextComponent.Builder builder = text();
             builder.append(text(adventure + " = "));
 
-            String readable = altText != null ? altText : StringUtil.keyToRead(adventure.substring(1, adventure.length() - 1));
+            String readable = altText != null ? altText : StringUtil.snakeToReadable(adventure.substring(1, adventure.length() - 1));
             if (color != null)
                 builder.append(text(readable).color(color));
             else

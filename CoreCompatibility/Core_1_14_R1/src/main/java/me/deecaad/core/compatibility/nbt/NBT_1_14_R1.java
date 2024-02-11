@@ -9,7 +9,6 @@ import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;

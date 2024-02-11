@@ -764,7 +764,7 @@ public class WeaponMechanicsCommand {
 
         String tags = CompatibilityAPI.getNBTCompatibility().getNBTDebug(item);
         WeaponMechanics.debug.info(tags);
-        sender.sendMessage(StringUtil.color(tags));
+        sender.sendMessage(StringUtil.colorBukkit(tags));
     }
 
     public static void explode(LivingEntity cause, ExplosionShape shape, Location origin, String exposureString, boolean isBreakBlocks, Predicate<Block> blackList, int regen) {

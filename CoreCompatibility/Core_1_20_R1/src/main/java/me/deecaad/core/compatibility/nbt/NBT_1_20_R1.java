@@ -15,7 +15,6 @@ import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Field;
 import java.util.Collections;

@@ -49,7 +49,7 @@ public class Factory<T> {
         Arguments args = map.get(key);
 
         if (args == null) {
-            String name = StringUtil.splitCapitalLetters(getClass().getSimpleName())[0];
+            String name = StringUtil.splitCapitalLetters(getClass().getSimpleName()).get(0);
             throw new SerializerOptionsException(name, clazz.getSimpleName(), getOptions(), key, "FILL_ME");
         }
 
@@ -62,7 +62,7 @@ public class Factory<T> {
             Class<?> clazz = args.argumentTypes[i];
 
             if (!arguments.containsKey(argument)) {
-                String name = StringUtil.splitCapitalLetters(args.manufacturedType.getSimpleName())[0];
+                String name = StringUtil.splitCapitalLetters(args.manufacturedType.getSimpleName()).get(0);
                 throw new SerializerMissingKeyException(name, argument, "FILL_ME")
                         .addMessage("You specified: " + arguments);
             }
@@ -79,7 +79,7 @@ public class Factory<T> {
                     else
                         throw new NumberFormatException();
                 } catch (NumberFormatException ex) {
-                    String name = StringUtil.splitCapitalLetters(args.manufacturedType.getSimpleName())[0];
+                    String name = StringUtil.splitCapitalLetters(args.manufacturedType.getSimpleName()).get(0);
                     throw new SerializerTypeException(name, clazz, arguments.get(argument).getClass(), arguments.get(argument), "FILL_ME");
                 }
             } else {

@@ -105,7 +105,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         if (!worldGuard.testFlag(loc, entityWrapper instanceof PlayerWrapper ? ((PlayerWrapper) entityWrapper).getPlayer() : null, "weapon-shoot")) {
             Object obj = worldGuard.getValue(loc, "weapon-shoot-message");
             if (obj != null && !obj.toString().isEmpty()) {
-                entityWrapper.getEntity().sendMessage(StringUtil.color(obj.toString()));
+                entityWrapper.getEntity().sendMessage(StringUtil.colorBukkit(obj.toString()));
             }
 
             return false;

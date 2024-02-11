@@ -10,9 +10,8 @@ import net.minecraft.server.v1_12_R1.NBTTagList;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nonnull;
 import org.jetbrains.annotations.Nullable;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
