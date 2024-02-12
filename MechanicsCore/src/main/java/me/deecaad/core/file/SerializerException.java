@@ -24,7 +24,7 @@ public class SerializerException extends Exception {
     /**
      * @param serializer The serializer that generated the exception.
      * @param messages The messages telling the user the error and how to fix it.
-     * @param location The file + path location to the issue {@link StringUtil#foundAt(File, String)}
+     * @param location The file + path location to the issue {@link SerializerUtil#foundAt(File, String)}
      */
     public SerializerException(@NotNull Serializer<?> serializer, String[] messages, @NotNull String location) {
         this.messages = messages;
