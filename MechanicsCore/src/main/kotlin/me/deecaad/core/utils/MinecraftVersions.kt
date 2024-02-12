@@ -31,7 +31,7 @@ object MinecraftVersions {
     /**
      * 1.12, the colorful blocks update (concrete)
      */
-    @JvmStatic
+    @JvmField
     val WORLD_OF_COLOR = Update(1, 12) {
         add(Version(it, 0, 1)) // 1.12
         add(Version(it, 1, 1)) // 1.12.1
@@ -41,7 +41,7 @@ object MinecraftVersions {
     /**
      * 1.13, ocean update (the flattening, waterloggable blocks, sprint swimming, brigadier commands)
      */
-    @JvmStatic
+    @JvmField
     val UPDATE_AQUATIC = Update(1, 13) {
         add(Version(it, 0, 1)) // 1.13
         add(Version(it, 1, 2)) // 1.13.1
@@ -51,7 +51,7 @@ object MinecraftVersions {
     /**
      * 1.14, villagers update (sneaking below slabs, new village generation)
      */
-    @JvmStatic
+    @JvmField
     val VILLAGE_AND_PILLAGE = Update(1, 14) {
         add(Version(it, 0, 1)) // 1.14
         add(Version(it, 1, 1)) // 1.14.1
@@ -63,7 +63,7 @@ object MinecraftVersions {
     /**
      * 1.15, bees update (bug fixes, bees)
      */
-    @JvmStatic
+    @JvmField
     val BUZZY_BEES = Update(1, 15) {
         add(Version(it, 0, 1)) // 1.15
         add(Version(it, 1, 1)) // 1.15.1
@@ -73,7 +73,7 @@ object MinecraftVersions {
     /**
      * 1.16, nether update (crimson, fungus, nether generation, biome fogs)
      */
-    @JvmStatic
+    @JvmField
     val NETHER_UPDATE = Update(1, 16) {
         add(Version(it, 0, 1)) // 1.16
         add(Version(it, 1, 1)) // 1.16.1
@@ -86,7 +86,7 @@ object MinecraftVersions {
     /**
      * 1.17, caves and cliffs part 1 (tuff, new mobs, new blocks)
      */
-    @JvmStatic
+    @JvmField
     val CAVES_AND_CLIFFS_1 = Update(1, 17) {
         add(Version(it, 0, 1)) // 1.17
         add(Version(it, 1, 1)) // 1.17.1
@@ -95,7 +95,7 @@ object MinecraftVersions {
     /**
      * 1.18, caves and cliffs part 2 (new generations)
      */
-    @JvmStatic
+    @JvmField
     val CAVES_AND_CLIFFS_2 = Update(1, 18) {
         add(Version(it, 0, 1)) // 1.18
         add(Version(it, 1, 1)) // 1.18.1
@@ -105,7 +105,7 @@ object MinecraftVersions {
     /**
      * 1.19, the deep dark update (sculk, warden, mud, mangrove, etc.)
      */
-    @JvmStatic
+    @JvmField
     val WILD_UPDATE = Update(1, 19) {
         add(Version(it, 0, 1)) // 1.19
         add(Version(it, 1, 1)) // 1.19.1
@@ -117,7 +117,7 @@ object MinecraftVersions {
     /**
      * 1.20, the archaeology update (cherry grove, sniffers, etc.)
      */
-    @JvmStatic
+    @JvmField
     val TRAILS_AND_TAILS = Update(1, 20) {
         add(Version(it, 0, 1)) // 1.20
         add(Version(it, 1, 1)) // 1.20.1

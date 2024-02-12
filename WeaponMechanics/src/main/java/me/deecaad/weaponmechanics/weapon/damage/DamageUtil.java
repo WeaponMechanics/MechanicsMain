@@ -2,28 +2,26 @@ package me.deecaad.weaponmechanics.weapon.damage;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.events.WeaponMechanicsEntityDamageByEntityEvent;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Statistic;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.damage.DamageSource;
-import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.metadata.LazyMetadataValue;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.Nullable;
@@ -129,16 +127,16 @@ public class DamageUtil {
         // try-catch New damage source API added in later 1.20.4 versions
         EntityDamageByEntityEvent entityDamageByEntityEvent;
         try {
-            DamageSource damageSource = DamageSource.builder(DamageType.MOB_PROJECTILE)
-                    .withCausingEntity(cause)
-                    .build();
-            entityDamageByEntityEvent = new WeaponMechanicsEntityDamageByEntityEvent(cause, victim, EntityDamageEvent.DamageCause.PROJECTILE, damageSource, damage);
+            victim.setMetadata("doing-weapon-damage", new LazyMetadataValue(WeaponMechanics.getPlugin(), () -> true));
+            entityDamageByEntityEvent = WeaponCompatibilityAPI.getWeaponCompatibility().newEntityDamageByEntityEvent(victim, cause, damage, true);
             Bukkit.getPluginManager().callEvent(entityDamageByEntityEvent);
+            victim.removeMetadata("doing-weapon-damage", WeaponMechanics.getPlugin());
             if (entityDamageByEntityEvent.isCancelled())
                 return true;
         } catch (LinkageError ex) {
             debug.error("You are using an outdated version of Spigot 1.20.4. Please update to the latest version.",
-                    "This is required for the new damage source API to work.", "");
+                    "This is required for the new damage source API to work.",
+                    "Detected version: " + MinecraftVersions.getCURRENT(), "");
             return true;
         }
 

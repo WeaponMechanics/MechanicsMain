@@ -14,6 +14,7 @@ import net.minecraft.world.entity.RelativeMovement;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -81,6 +82,16 @@ public class v1_19_R3 implements IWeaponCompatibility {
         nms.combatTracker.recordDamage(damageSource, (float) damage, (float) health);
         nms.setLastHurtByMob(((CraftLivingEntity) source).getHandle());
         if (source instanceof Player) nms.setLastHurtByPlayer(((CraftPlayer) source).getHandle());
+    }
+
+    @Override
+    public EntityDamageByEntityEvent newEntityDamageByEntityEvent(org.bukkit.entity.LivingEntity victim, org.bukkit.entity.LivingEntity source, double damage, boolean isMelee) {
+        return new EntityDamageByEntityEvent(
+                source,
+                victim,
+                isMelee ? EntityDamageByEntityEvent.DamageCause.ENTITY_ATTACK : EntityDamageByEntityEvent.DamageCause.PROJECTILE,
+                damage
+        );
     }
 
     @Override

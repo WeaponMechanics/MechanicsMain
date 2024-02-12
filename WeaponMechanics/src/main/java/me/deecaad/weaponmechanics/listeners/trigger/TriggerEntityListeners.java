@@ -61,6 +61,10 @@ public class TriggerEntityListeners implements Listener {
             return;
         }
 
+        // WeaponMechanics fires an EntityDamageByEntityEvent
+        if (victim.hasMetadata("doing-weapon-damage"))
+            return;
+
         // MythicMobs damage skill support. Holding a gun while dealing damage normally triggers this
         if (victim.hasMetadata("doing-skill-damage"))
             return;

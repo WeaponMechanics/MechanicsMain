@@ -2,8 +2,12 @@ package me.deecaad.weaponmechanics.compatibility;
 
 import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
 import org.bukkit.EntityEffect;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.jetbrains.annotations.NotNull;
 
 public interface IWeaponCompatibility {
@@ -38,6 +42,20 @@ public interface IWeaponCompatibility {
      * @param isMelee Whether or not this is a melee attack (And not a projectile)
      */
     void logDamage(LivingEntity victim, LivingEntity source, double health, double damage, boolean isMelee);
+
+    default EntityDamageByEntityEvent newEntityDamageByEntityEvent(LivingEntity victim, LivingEntity source, double damage, boolean isMelee) {
+        return new EntityDamageByEntityEvent(
+                source,
+                victim,
+                isMelee ? EntityDamageByEntityEvent.DamageCause.ENTITY_ATTACK : EntityDamageByEntityEvent.DamageCause.PROJECTILE,
+                DamageSource.builder(
+                        isMelee
+                                ? (source.getType() == EntityType.PLAYER ? DamageType.PLAYER_ATTACK : DamageType.MOB_ATTACK)
+                                : DamageType.MOB_PROJECTILE
+                ).build(),
+                damage
+        );
+    }
 
     /**
      * Sets which player killed the <code>victim</code>. Entities that are killed by players
