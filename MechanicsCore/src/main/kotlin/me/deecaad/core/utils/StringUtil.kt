@@ -176,7 +176,7 @@ object StringUtil {
 
         // Basically, if the user is trying to use MC color codes, we try to
         // translate them to Bukkit codes. Doesn't properly handle &x format.
-        var value = value.replace("§".toRegex(), "&")
+        var value = value.replace('§', '&')
 
         // Adventure text is formatted using tags <color></color> instead
         // of with symbols &7. While not a perfect fix, we can replace the

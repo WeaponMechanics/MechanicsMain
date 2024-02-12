@@ -23,7 +23,34 @@ High performance, fully featured gun plugin for newer Minecraft versions.
 See the [Weapon Modules](https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules) section on the wiki.
 
 ## How to (Developers)
-See [Hooking into WeaponMechanics](https://cjcrafter.gitbook.io/weaponmechanics/developer-api) page on the wiki.  
+See [Hooking into WeaponMechanics](https://cjcrafter.gitbook.io/weaponmechanics/developer-api) for detailed API information.
+See [Contributing]() for information on how to contribute to the project.
+
+### Maven
+WeaponMechanics is available on [Maven Central](https://central.sonatype.com/artifact/com.cjcrafter/weaponmechanics). 
+To use it, add the following to your `pom.xml`:
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.cjcrafter</groupId>
+        <artifactId>weaponmechanics</artifactId>
+        <version>3.3.0</version>
+        <scope>provided</scope>
+    </dependency>
+</dependencies>
+```
+
+### Gradle
+Add the following into your `build.gradle.kts`:
+```kotlin
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("com.cjcrafter:weaponmechanics:3.3.0")
+}
+```
 
 ## Support the Developers
 WeaponMechanics is the combination of hundreds of hours of work. If you appreciate
