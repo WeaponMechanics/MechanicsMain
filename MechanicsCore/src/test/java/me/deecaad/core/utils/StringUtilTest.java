@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class StringUtilTest {
@@ -17,7 +16,7 @@ class StringUtilTest {
     @ParameterizedTest
     @CsvSource({"bob,b,2", "deecaad,d,2", "cjcrafter,z,0", "darkman,k,1", "mississippi,i,4"})
     void test_countChars(String str, char c, int expected) {
-        assertEquals(expected, StringUtil.countChars(c, str));
+        assertEquals(expected, StringUtil.countOccurrences(str, c));
     }
 
     @ParameterizedTest
@@ -57,7 +56,7 @@ class StringUtilTest {
             "&fone last &rtest &ocombining \\&ea few features&,\u00A7fone last \u00A7rtest \u00A7ocombining &ea few features&"
     })
     void test_color(String str, String expected) {
-        assertEquals(expected, StringUtil.color(str));
+        assertEquals(expected, StringUtil.colorBukkit(str));
     }
 
     @ParameterizedTest
@@ -68,44 +67,44 @@ class StringUtilTest {
 
     private static Stream<Arguments> provide_splitCapitalLetters() {
         return Stream.of(
-            Arguments.of("MyPluginName", new String[]{"My", "Plugin", "Name"}),
-            Arguments.of("WeaponMechanics", new String[]{"Weapon", "Mechanics"}),
-            Arguments.of("Test", new String[]{"Test"}),
-            Arguments.of("HereIsAStringThatIsALittleBitLonger", new String[]{"Here", "Is", "A", "String", "That", "Is", "A", "Little", "Bit", "Longer"}));
+            Arguments.of("MyPluginName", List.of("My", "Plugin", "Name")),
+            Arguments.of("WeaponMechanics", List.of("Weapon", "Mechanics")),
+            Arguments.of("Test", List.of("Test")),
+            Arguments.of("HereIsAStringThatIsALittleBitLonger", List.of("Here", "Is", "A", "String", "That", "Is", "A", "Little", "Bit", "Longer")));
     }
 
     @ParameterizedTest
     @MethodSource("provide_splitCapitalLetters")
-    void test_splitCapitalLetters(String input, String[] expected) {
-        assertArrayEquals(expected, StringUtil.splitCapitalLetters(input));
+    void test_splitCapitalLetters(String input, List<String> expected) {
+        assertEquals(expected, StringUtil.splitCapitalLetters(input));
     }
 
     private static Stream<Arguments> provide_splitAfterWord() {
         return Stream.of(
-            Arguments.of("So here's the thing", new String[]{"So", "here's", "the", "thing"}),
-            Arguments.of("One", new String[]{"One"}),
-            Arguments.of("Hello World", new String[]{"Hello", "World"}));
+            Arguments.of("So here's the thing", List.of("So", "here's", "the", "thing")),
+            Arguments.of("One", List.of("One")),
+            Arguments.of("Hello World", List.of("Hello", "World")));
     }
 
     @ParameterizedTest
     @MethodSource("provide_splitAfterWord")
-    void test_splitAfterWord(String input, String[] expected) {
-        assertArrayEquals(expected, StringUtil.splitAfterWord(input));
+    void test_splitAfterWord(String input, List<String> expected) {
+        assertEquals(expected, StringUtil.splitAfterWord(input));
     }
 
     private static Stream<Arguments> provide_split() {
         return Stream.of(
-            Arguments.of("1-2-3-4-5", new String[]{"1", "2", "3", "4", "5"}),
-            Arguments.of("-1--2--3--4-5", new String[]{"-1", "-2", "-3", "-4", "5"}),
-            Arguments.of("hello-world", new String[]{"hello", "world"}),
-            Arguments.of("parse~values~-4~from~-config", new String[]{"parse", "values", "-4", "from", "-config"}),
-            Arguments.of("Something 22 -634", new String[]{"Something", "22", "-634"}));
+            Arguments.of("1-2-3-4-5", List.of("1", "2", "3", "4", "5")),
+            Arguments.of("-1--2--3--4-5", List.of("-1", "-2", "-3", "-4", "5")),
+            Arguments.of("hello-world", List.of("hello", "world")),
+            Arguments.of("parse~values~-4~from~-config", List.of("parse", "values", "-4", "from", "-config")),
+            Arguments.of("Something 22 -634", List.of("Something", "22", "-634")));
     }
 
     @ParameterizedTest
     @MethodSource("provide_split")
-    void test_split(String input, String[] expected) {
-        assertArrayEquals(expected, StringUtil.split(input));
+    void test_split(String input, List<String> expected) {
+        assertEquals(expected, StringUtil.split(input));
     }
 
     private static Stream<Arguments> provide_didYouMean() {

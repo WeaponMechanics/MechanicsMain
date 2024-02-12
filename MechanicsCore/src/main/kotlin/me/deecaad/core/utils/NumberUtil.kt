@@ -1067,6 +1067,9 @@ object NumberUtil {
      */
     @JvmStatic
     fun toTime(seconds: Int): String {
+        if (seconds <= 0)
+            return "0s"
+
         val unit = TIME.floorKey(seconds)
         val amount: Int = seconds / unit
         return if (seconds % unit == 0) {

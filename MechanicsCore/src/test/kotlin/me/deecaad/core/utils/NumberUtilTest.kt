@@ -90,7 +90,13 @@ class NumberUtilTest {
     }
 
     @ParameterizedTest
-    @MethodSource("provide_normalizeRadians")
+    @CsvSource(
+        "${2 * Math.PI}, 0.0",
+        "0.0, 0.0",
+        "${Math.PI}, ${Math.PI}",
+        "${-Math.PI}, ${Math.PI}",
+        "${Math.PI / 4.0}, ${Math.PI / 4.0}"
+    )
     fun test_normalizeRadians(input: Double, expected: Double) {
         assertEquals(expected, NumberUtil.normalizeRadians(input))
     }
@@ -149,17 +155,16 @@ class NumberUtilTest {
         assertEquals(expected, NumberUtil.toRomanNumeral(value))
     }
 
-    companion object {
-
-        @JvmStatic
-        fun provide_normalizeRadians(): Stream<Arguments> {
-            return Stream.of(
-                Arguments.of(2 * Math.PI, 0.0),
-                Arguments.of(0.0, 0.0),
-                Arguments.of(Math.PI, Math.PI),
-                Arguments.of(-Math.PI, Math.PI),
-                Arguments.of(Math.PI / 4.0, Math.PI / 4.0)
-            )
-        }
+    @ParameterizedTest
+    @CsvSource(
+        "0, 0s",
+        "1, 1s",
+        "60, 1m",
+        "61, 1m 1s",
+        "3600, 1h",
+        "3661, 1h 1m 1s",
+    )
+    fun testToTime(seconds: Int, expected: String) {
+        assertEquals(expected, NumberUtil.toTime(seconds))
     }
 }

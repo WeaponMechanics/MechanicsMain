@@ -60,7 +60,7 @@ object StringUtil {
      */
     @JvmStatic
     @JvmOverloads
-    fun isEscaped(str: String, index: Int, includeBackslash: Boolean = true): Boolean {
+    fun isEscaped(str: String, index: Int, includeBackslash: Boolean = false): Boolean {
         if (index == 0)
             return false
 
@@ -75,7 +75,7 @@ object StringUtil {
         // The `|| str[index] == '\\'` part is needed to handle the characters
         // that ESCAPE a character. It counts the backslashes preceding the
         // escape character as an escaped character.
-        return backslashes % 2 == 1 || (includeBackslash && str[index] == '\\')
+        return backslashes % 2 == 1 || (!includeBackslash && str[index] == '\\')
     }
 
     /**
@@ -240,7 +240,7 @@ object StringUtil {
     @JvmStatic
     fun ordinal(number: Int): String {
         return when {
-            number in 11..13 -> number.toString() + "th"
+            number % 100 in 11..13 -> number.toString() + "th"
             else -> number.toString() + SUFFIXES[number % 10]
         }
     }
@@ -274,7 +274,9 @@ object StringUtil {
      */
     @JvmStatic
     fun splitAfterWord(str: String): List<String> {
-        return str.split("(?!\\S+) |(?!\\S+)".toRegex())
+        return str.split("(?!\\S+) |(?!\\S+)".toRegex()).filter {
+            it.isNotBlank()
+        }
     }
 
     /**
