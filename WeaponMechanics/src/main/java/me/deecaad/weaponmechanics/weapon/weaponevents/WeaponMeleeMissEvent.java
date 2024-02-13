@@ -9,8 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Called whenever a melee swing misses. Goes along with
- * {@link WeaponMeleeHitEvent}.
+ * Called whenever a melee swing misses. Goes along with {@link WeaponMeleeHitEvent}.
  */
 public class WeaponMeleeMissEvent extends WeaponEvent implements Cancellable {
 
@@ -22,7 +21,7 @@ public class WeaponMeleeMissEvent extends WeaponEvent implements Cancellable {
     private boolean isCancelled;
 
     public WeaponMeleeMissEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand,
-                                int meleeMissDelay, Mechanics mechanics, boolean consume) {
+        int meleeMissDelay, Mechanics mechanics, boolean consume) {
 
         super(weaponTitle, weaponStack, shooter, hand);
 
@@ -66,8 +65,7 @@ public class WeaponMeleeMissEvent extends WeaponEvent implements Cancellable {
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

@@ -7,8 +7,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * This class outlines convenient methods for any {@link WeaponEvent} that
- * involves an {@link WeaponProjectile}.
+ * This class outlines convenient methods for any {@link WeaponEvent} that involves an
+ * {@link WeaponProjectile}.
  */
 public abstract class ProjectileEvent extends WeaponEvent {
 
@@ -30,14 +30,12 @@ public abstract class ProjectileEvent extends WeaponEvent {
     }
 
     /**
-     * Returns the weapon item which caused the event. This should always be an
-     * item in the player's main hand, or off hand. If API is used to shoot projectile
-     * this will be null.
+     * Returns the weapon item which caused the event. This should always be an item in the player's
+     * main hand, or off hand. If API is used to shoot projectile this will be null.
      *
      * @return The nullable weapon item.
      */
-    @Nullable
-    @Override
+    @Nullable @Override
     public ItemStack getWeaponStack() {
         return super.getWeaponStack();
     }

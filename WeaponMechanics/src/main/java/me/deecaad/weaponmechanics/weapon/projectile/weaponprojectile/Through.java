@@ -66,7 +66,8 @@ public class Through implements Serializer<Through>, Cloneable {
             return false;
         }
 
-        if (speedModifier != 1.0) projectile.setMotion(projectile.getMotion().multiply(speedModifier));
+        if (speedModifier != 1.0)
+            projectile.setMotion(projectile.getMotion().multiply(speedModifier));
 
         return true;
     }
@@ -81,8 +82,7 @@ public class Through implements Serializer<Through>, Cloneable {
     }
 
     @Override
-    @NotNull
-    public Through serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public Through serialize(@NotNull SerializeData data) throws SerializerException {
         ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class));
         ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
 

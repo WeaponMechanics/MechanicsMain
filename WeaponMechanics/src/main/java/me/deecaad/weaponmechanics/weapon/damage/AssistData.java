@@ -30,9 +30,9 @@ public class AssistData implements IValidator {
         players.get(uuid).compute(weaponTitle, (key, value) -> value == null ? new DamageInfo(amount, weaponStack) : value.add(amount, weaponStack));
     }
 
-    @Nullable
-    public Map<Player, Map<String, DamageInfo>> getAssists(Player killer) {
-        if (players.isEmpty()) return null;
+    @Nullable public Map<Player, Map<String, DamageInfo>> getAssists(Player killer) {
+        if (players.isEmpty())
+            return null;
 
         Map<Player, Map<String, DamageInfo>> assists = new HashMap<>();
 
@@ -40,11 +40,13 @@ public class AssistData implements IValidator {
         int timer = getBasicConfigurations().getInt("Assists_Event.Timer", 0);
 
         players.forEach((uuid, value) -> {
-            if (killer != null && uuid.equals(killer.getUniqueId())) return;
+            if (killer != null && uuid.equals(killer.getUniqueId()))
+                return;
 
             Player playerByUuid = Bukkit.getPlayer(uuid);
             // Might be null if damager has quit
-            if (playerByUuid == null) return;
+            if (playerByUuid == null)
+                return;
 
             assists.putIfAbsent(playerByUuid, new HashMap<>());
 
@@ -54,14 +56,15 @@ public class AssistData implements IValidator {
 
                 DamageInfo entryValue = entry.getValue();
                 totalDamage += entryValue.damage;
-                if (lastHitTime == 0) lastHitTime = entryValue.lastHitTime;
+                if (lastHitTime == 0)
+                    lastHitTime = entryValue.lastHitTime;
                 lastHitTime = Math.max(lastHitTime, entryValue.lastHitTime);
 
                 assists.get(playerByUuid).put(entry.getKey(), entryValue);
             }
 
             if ((requiredDamageAmount != 0 && totalDamage < requiredDamageAmount)
-                    || (timer != 0 && NumberUtil.hasMillisPassed(lastHitTime, timer))) {
+                || (timer != 0 && NumberUtil.hasMillisPassed(lastHitTime, timer))) {
 
                 // Remove since it wasn't valid
                 assists.remove(playerByUuid);
@@ -98,8 +101,7 @@ public class AssistData implements IValidator {
         }
 
         /**
-         * Using this to e.g. set meta is unreliable since
-         * the reference might be old at this point.
+         * Using this to e.g. set meta is unreliable since the reference might be old at this point.
          *
          * @return the weapon stack used to damage.
          */
@@ -117,18 +119,18 @@ public class AssistData implements IValidator {
         @Override
         public String toString() {
             return "DamageInfo{" +
-                    "lastHitTime=" + lastHitTime +
-                    ", damage=" + damage +
-                    ", weaponStack=" + weaponStack.getType() +
-                    '}';
+                "lastHitTime=" + lastHitTime +
+                ", damage=" + damage +
+                ", weaponStack=" + weaponStack.getType() +
+                '}';
         }
     }
 
     @Override
     public String toString() {
         return "AssistData{" +
-                "players=" + players +
-                '}';
+            "players=" + players +
+            '}';
     }
 
     @Override

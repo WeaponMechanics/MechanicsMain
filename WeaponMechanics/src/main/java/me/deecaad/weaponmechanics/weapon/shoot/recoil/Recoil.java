@@ -50,7 +50,7 @@ public class Recoil implements Serializer<Recoil> {
     public void start(Player player, boolean mainHand) {
 
         if (Bukkit.getPluginManager().getPlugin("VivecraftSpigot") != null
-                && VSE.isVive(player)) {
+            && VSE.isVive(player)) {
             // Don't try to use this kind of recoil with Vivecraft players
             return;
         }
@@ -74,9 +74,9 @@ public class Recoil implements Serializer<Recoil> {
             return;
         }
         // Shoot during recoil
-        //  -> continue from current recoil with new one (cancel last recoil)
+        // -> continue from current recoil with new one (cancel last recoil)
         // Shoot during recover
-        //  -> continue from current recover spot with new recoil (cancel last recover)
+        // -> continue from current recover spot with new recoil (cancel last recover)
         recoilTask.setRecoil(this);
     }
 
@@ -110,8 +110,7 @@ public class Recoil implements Serializer<Recoil> {
     }
 
     @Override
-    @NotNull
-    public Recoil serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public Recoil serialize(@NotNull SerializeData data) throws SerializerException {
         RecoilPattern recoilPattern = data.of("Recoil_Pattern").serialize(RecoilPattern.class);
         List<Float> randomHorizontal = convertToFloatList(data.ofList("Horizontal"));
         List<Float> randomVertical = convertToFloatList(data.ofList("Vertical"));

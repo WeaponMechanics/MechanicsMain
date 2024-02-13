@@ -21,28 +21,24 @@ public interface ExplosionExposure {
     double FOV = Math.toRadians(70.0);
 
     /**
-     * This method should return a list of entities that
-     * are within this <code>Explosion</code> triggered
-     * at the given <code>Location</code>.
+     * This method should return a list of entities that are within this <code>Explosion</code>
+     * triggered at the given <code>Location</code>.
      *
-     * Conditions (Like player team, the cause of the
-     * explosion, etc) are not used to filter entities,
+     * Conditions (Like player team, the cause of the explosion, etc) are not used to filter entities,
      * that is handled separately
      *
-     * The <code>Double</code> generic represents how much
-     * "impact" the player gets. This should be a number (0, 1]
-     * Higher numbers mean more damage and knockback
+     * The <code>Double</code> generic represents how much "impact" the player gets. This should be a
+     * number (0, 1] Higher numbers mean more damage and knockback
      *
      * @param origin Where the explosion spawns
      * @param shape The shape of the explosion
      * @return The effected players and their impact level
      */
-    @NotNull
-    DoubleMap<LivingEntity> mapExposures(@NotNull Location origin, @NotNull ExplosionShape shape);
+    @NotNull DoubleMap<LivingEntity> mapExposures(@NotNull Location origin, @NotNull ExplosionShape shape);
 
     /**
-     * Determines if the given entity can see the given <code>Location</code>. This
-     * method assumes the entity's field of view is a 90 degree angle
+     * Determines if the given entity can see the given <code>Location</code>. This method assumes the
+     * entity's field of view is a 90 degree angle
      *
      * @param origin The point to check if the entity can see
      * @param entity The entity to check against

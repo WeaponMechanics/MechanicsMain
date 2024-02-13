@@ -11,7 +11,6 @@ import kotlin.math.floor
  * This class is inspired by Unity's Mathf class, but is not a direct port.
  */
 object NumberUtil {
-
     /**
      * A small value used to compare floating point numbers.
      */
@@ -132,7 +131,11 @@ object NumberUtil {
      * @throws IllegalArgumentException if `min` is greater than `max`
      */
     @JvmStatic
-    fun clamp(value: Int, min: Int, max: Int): Int {
+    fun clamp(
+        value: Int,
+        min: Int,
+        max: Int,
+    ): Int {
         require(min <= max) { "min must be less than or equal to max" }
         return when {
             value < min -> min
@@ -151,7 +154,11 @@ object NumberUtil {
      * @throws IllegalArgumentException if `min` is greater than `max`
      */
     @JvmStatic
-    fun clamp(value: Float, min: Float, max: Float): Float {
+    fun clamp(
+        value: Float,
+        min: Float,
+        max: Float,
+    ): Float {
         require(min <= max) { "min must be less than or equal to max" }
         return when {
             value < min -> min
@@ -170,7 +177,11 @@ object NumberUtil {
      * @throws IllegalArgumentException if `min` is greater than `max`
      */
     @JvmStatic
-    fun clamp(value: Double, min: Double, max: Double): Double {
+    fun clamp(
+        value: Double,
+        min: Double,
+        max: Double,
+    ): Double {
         require(min <= max) { "min must be less than or equal to max" }
         return when {
             value < min -> min
@@ -189,7 +200,11 @@ object NumberUtil {
      * @throws IllegalArgumentException if `min` is greater than `max`
      */
     @JvmStatic
-    fun clamp(value: Long, min: Long, max: Long): Long {
+    fun clamp(
+        value: Long,
+        min: Long,
+        max: Long,
+    ): Long {
         require(min <= max) { "min must be less than or equal to max" }
         return when {
             value < min -> min
@@ -229,7 +244,11 @@ object NumberUtil {
      */
     @JvmStatic
     @JvmOverloads
-    fun approximately(a: Float, b: Float, epsilon: Float = EPSILON): Boolean {
+    fun approximately(
+        a: Float,
+        b: Float,
+        epsilon: Float = EPSILON,
+    ): Boolean {
         return abs(a - b) < epsilon
     }
 
@@ -242,7 +261,11 @@ object NumberUtil {
      */
     @JvmStatic
     @JvmOverloads
-    fun approximately(a: Double, b: Double, epsilon: Double = EPSILON_DOUBLE): Boolean {
+    fun approximately(
+        a: Double,
+        b: Double,
+        epsilon: Double = EPSILON_DOUBLE,
+    ): Boolean {
         return abs(a - b) < epsilon
     }
 
@@ -255,7 +278,11 @@ object NumberUtil {
      * @return The interpolated value
      */
     @JvmStatic
-    fun lerp(a: Float, b: Float, t: Float): Float {
+    fun lerp(
+        a: Float,
+        b: Float,
+        t: Float,
+    ): Float {
         return a + (b - a) * clamp01(t)
     }
 
@@ -268,7 +295,11 @@ object NumberUtil {
      * @return The interpolated value
      */
     @JvmStatic
-    fun lerp(a: Double, b: Double, t: Double): Double {
+    fun lerp(
+        a: Double,
+        b: Double,
+        t: Double,
+    ): Double {
         return a + (b - a) * clamp01(t)
     }
 
@@ -285,7 +316,11 @@ object NumberUtil {
      * @return The interpolated value
      */
     @JvmStatic
-    fun lerpUnclamped(a: Float, b: Float, t: Float): Float {
+    fun lerpUnclamped(
+        a: Float,
+        b: Float,
+        t: Float,
+    ): Float {
         return a + (b - a) * t
     }
 
@@ -302,7 +337,11 @@ object NumberUtil {
      * @return The interpolated value
      */
     @JvmStatic
-    fun lerpUnclamped(a: Double, b: Double, t: Double): Double {
+    fun lerpUnclamped(
+        a: Double,
+        b: Double,
+        t: Double,
+    ): Double {
         return a + (b - a) * t
     }
 
@@ -318,7 +357,11 @@ object NumberUtil {
      * ```
      */
     @JvmStatic
-    fun lerpDegrees(a: Float, b: Float, t: Float): Float {
+    fun lerpDegrees(
+        a: Float,
+        b: Float,
+        t: Float,
+    ): Float {
         val delta = (b - a) % 360.0f
         return (a + delta * clamp01(t)) % 360.0f
     }
@@ -335,7 +378,11 @@ object NumberUtil {
      * ```
      */
     @JvmStatic
-    fun lerpDegrees(a: Double, b: Double, t: Double): Double {
+    fun lerpDegrees(
+        a: Double,
+        b: Double,
+        t: Double,
+    ): Double {
         val delta = (b - a) % 360.0
         return (a + delta * clamp01(t)) % 360.0
     }
@@ -349,7 +396,11 @@ object NumberUtil {
      * around values that are outside the range [-PI, PI].
      */
     @JvmStatic
-    fun lerpRadians(a: Float, b: Float, t: Float): Float {
+    fun lerpRadians(
+        a: Float,
+        b: Float,
+        t: Float,
+    ): Float {
         val delta = (b - a) % TAU
         return (a + delta * clamp01(t)) % TAU
     }
@@ -363,7 +414,11 @@ object NumberUtil {
      * around values that are outside the range [-PI, PI].
      */
     @JvmStatic
-    fun lerpRadians(a: Double, b: Double, t: Double): Double {
+    fun lerpRadians(
+        a: Double,
+        b: Double,
+        t: Double,
+    ): Double {
         val delta = (b - a) % TAU_DOUBLE
         return (a + delta * clamp01(t)) % TAU_DOUBLE
     }
@@ -379,7 +434,11 @@ object NumberUtil {
      * @throws IllegalArgumentException if `a` and `b` are equal
      */
     @JvmStatic
-    fun inverseLerp(a: Float, b: Float, value: Float): Float {
+    fun inverseLerp(
+        a: Float,
+        b: Float,
+        value: Float,
+    ): Float {
         require(a != b) { "a and b cannot be equal" }
         return clamp01((value - a) / (b - a))
     }
@@ -395,7 +454,11 @@ object NumberUtil {
      * @throws IllegalArgumentException if `a` and `b` are equal
      */
     @JvmStatic
-    fun inverseLerp(a: Double, b: Double, value: Double): Double {
+    fun inverseLerp(
+        a: Double,
+        b: Double,
+        value: Double,
+    ): Double {
         require(a != b) { "a and b cannot be equal" }
         return clamp01((value - a) / (b - a))
     }
@@ -411,7 +474,11 @@ object NumberUtil {
      * @throws IllegalArgumentException if `a` and `b` are equal
      */
     @JvmStatic
-    fun inverseLerpUnclamped(a: Float, b: Float, value: Float): Float {
+    fun inverseLerpUnclamped(
+        a: Float,
+        b: Float,
+        value: Float,
+    ): Float {
         require(a != b) { "a and b cannot be equal" }
         return (value - a) / (b - a)
     }
@@ -427,7 +494,11 @@ object NumberUtil {
      * @throws IllegalArgumentException if `a` and `b` are equal
      */
     @JvmStatic
-    fun inverseLerpUnclamped(a: Double, b: Double, value: Double): Double {
+    fun inverseLerpUnclamped(
+        a: Double,
+        b: Double,
+        value: Double,
+    ): Double {
         require(a != b) { "a and b cannot be equal" }
         return (value - a) / (b - a)
     }
@@ -449,7 +520,13 @@ object NumberUtil {
      * @return The remapped value
      */
     @JvmStatic
-    fun remap(value: Float, from1: Float, to1: Float, from2: Float, to2: Float): Float {
+    fun remap(
+        value: Float,
+        from1: Float,
+        to1: Float,
+        from2: Float,
+        to2: Float,
+    ): Float {
         return lerpUnclamped(from2, to2, inverseLerpUnclamped(from1, to1, value))
     }
 
@@ -470,7 +547,13 @@ object NumberUtil {
      * @return The remapped value
      */
     @JvmStatic
-    fun remap(value: Double, from1: Double, to1: Double, from2: Double, to2: Double): Double {
+    fun remap(
+        value: Double,
+        from1: Double,
+        to1: Double,
+        from2: Double,
+        to2: Double,
+    ): Double {
         return lerpUnclamped(from2, to2, inverseLerpUnclamped(from1, to1, value))
     }
 
@@ -538,7 +621,10 @@ object NumberUtil {
      * @return The smallest angle between the two angles
      */
     @JvmStatic
-    fun deltaDegrees(a: Float, b: Float): Float {
+    fun deltaDegrees(
+        a: Float,
+        b: Float,
+    ): Float {
         return normalizeDegrees(b - a)
     }
 
@@ -550,7 +636,10 @@ object NumberUtil {
      * @return The smallest angle between the two angles
      */
     @JvmStatic
-    fun deltaDegrees(a: Double, b: Double): Double {
+    fun deltaDegrees(
+        a: Double,
+        b: Double,
+    ): Double {
         return normalizeDegrees(b - a)
     }
 
@@ -562,7 +651,10 @@ object NumberUtil {
      * @return The smallest angle between the two angles
      */
     @JvmStatic
-    fun deltaRadians(a: Float, b: Float): Float {
+    fun deltaRadians(
+        a: Float,
+        b: Float,
+    ): Float {
         return normalizeRadians(b - a)
     }
 
@@ -574,7 +666,10 @@ object NumberUtil {
      * @return The smallest angle between the two angles
      */
     @JvmStatic
-    fun deltaRadians(a: Double, b: Double): Double {
+    fun deltaRadians(
+        a: Double,
+        b: Double,
+    ): Double {
         return normalizeRadians(b - a)
     }
 
@@ -588,7 +683,11 @@ object NumberUtil {
      * @throws IllegalArgumentException if `maxDelta` is negative
      */
     @JvmStatic
-    fun moveTowards(current: Float, target: Float, maxDelta: Float): Float {
+    fun moveTowards(
+        current: Float,
+        target: Float,
+        maxDelta: Float,
+    ): Float {
         require(maxDelta > 0.0f) { "maxDelta must be positive" }
 
         return if (abs(target - current) <= maxDelta) {
@@ -608,7 +707,11 @@ object NumberUtil {
      * @throws IllegalArgumentException if `maxDelta` is negative
      */
     @JvmStatic
-    fun moveTowards(current: Double, target: Double, maxDelta: Double): Double {
+    fun moveTowards(
+        current: Double,
+        target: Double,
+        maxDelta: Double,
+    ): Double {
         require(maxDelta > 0.0) { "maxDelta must be positive" }
 
         return if (abs(target - current) <= maxDelta) {
@@ -629,7 +732,11 @@ object NumberUtil {
      * @throws IllegalArgumentException if `maxDelta` is negative
      */
     @JvmStatic
-    fun moveTowardsDegrees(current: Float, target: Float, maxDelta: Float): Float {
+    fun moveTowardsDegrees(
+        current: Float,
+        target: Float,
+        maxDelta: Float,
+    ): Float {
         require(maxDelta > 0.0) { "maxDelta must be positive" }
 
         val delta = deltaDegrees(current, target)
@@ -651,7 +758,11 @@ object NumberUtil {
      * @throws IllegalArgumentException if `maxDelta` is negative
      */
     @JvmStatic
-    fun moveTowardsDegrees(current: Double, target: Double, maxDelta: Double): Double {
+    fun moveTowardsDegrees(
+        current: Double,
+        target: Double,
+        maxDelta: Double,
+    ): Double {
         require(maxDelta > 0.0) { "maxDelta must be positive" }
 
         val delta = deltaDegrees(current, target)
@@ -673,7 +784,11 @@ object NumberUtil {
      * @throws IllegalArgumentException if `maxDelta` is negative
      */
     @JvmStatic
-    fun moveTowardsRadians(current: Float, target: Float, maxDelta: Float): Float {
+    fun moveTowardsRadians(
+        current: Float,
+        target: Float,
+        maxDelta: Float,
+    ): Float {
         require(maxDelta > 0.0) { "maxDelta must be positive" }
 
         val delta = deltaRadians(current, target)
@@ -695,7 +810,11 @@ object NumberUtil {
      * @throws IllegalArgumentException if `maxDelta` is negative
      */
     @JvmStatic
-    fun moveTowardsRadians(current: Double, target: Double, maxDelta: Double): Double {
+    fun moveTowardsRadians(
+        current: Double,
+        target: Double,
+        maxDelta: Double,
+    ): Double {
         require(maxDelta > 0.0) { "maxDelta must be positive" }
 
         val delta = deltaRadians(current, target)
@@ -1054,7 +1173,9 @@ object NumberUtil {
         val numeral = NUMERALS.floorKey(a)
         return if (a == numeral) {
             NUMERALS[a]!!
-        } else NUMERALS[numeral] + toRomanNumeral(a - numeral)
+        } else {
+            NUMERALS[numeral] + toRomanNumeral(a - numeral)
+        }
     }
 
     /**
@@ -1067,14 +1188,17 @@ object NumberUtil {
      */
     @JvmStatic
     fun toTime(seconds: Int): String {
-        if (seconds <= 0)
+        if (seconds <= 0) {
             return "0s"
+        }
 
         val unit = TIME.floorKey(seconds)
         val amount: Int = seconds / unit
         return if (seconds % unit == 0) {
             amount.toString() + TIME[unit]
-        } else amount.toString() + TIME[unit] + " " + toTime(seconds - amount * unit)
+        } else {
+            amount.toString() + TIME[unit] + " " + toTime(seconds - amount * unit)
+        }
     }
 
     /**
@@ -1085,7 +1209,10 @@ object NumberUtil {
      * @return `true` if enough time has passed.
      */
     @JvmStatic
-    fun hasMillisPassed(lastMillis: Long, amount: Long): Boolean {
+    fun hasMillisPassed(
+        lastMillis: Long,
+        amount: Long,
+    ): Boolean {
         return System.currentTimeMillis() - lastMillis > amount
     }
 }

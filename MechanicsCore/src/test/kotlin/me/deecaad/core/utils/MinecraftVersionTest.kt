@@ -10,17 +10,20 @@ import org.junit.jupiter.params.provider.CsvSource
  * These tests are more for verifying that new updates are added correctly.
  */
 class MinecraftVersionTest {
-
     @ParameterizedTest
     @CsvSource(
         "Bukkit 1.12.2,1.12.2R1",
         "Paper (1.16.5),1.16.5R3",
         "Purpur 1.20.4,1.20.4R3",
     )
-    fun `test parse version`(versionString: String, expected: String) {
+    fun `test parse version`(
+        versionString: String,
+        expected: String,
+    ) {
         val version = MinecraftVersions.parseCurrentVersion(versionString)
-        if ("${version}R${version.protocol}" != expected)
+        if ("${version}R${version.protocol}" != expected) {
             fail { "Version was incorrect, expected $expected but got $version" }
+        }
     }
 
     @ParameterizedTest
@@ -38,8 +41,9 @@ class MinecraftVersionTest {
     fun `ensure update order is increasing`() {
         var previous: MinecraftVersions.Update? = null
         for (update in MinecraftVersions.updates().values) {
-            if (previous != null && previous > update)
+            if (previous != null && previous > update) {
                 fail { "Update order was incorrect, $previous came before $update" }
+            }
 
             previous = update
         }
@@ -49,8 +53,9 @@ class MinecraftVersionTest {
     fun `ensure version order is increasing`() {
         var previous: MinecraftVersions.Version? = null
         for (version in MinecraftVersions.versions().values) {
-            if (previous != null && previous > version)
+            if (previous != null && previous > version) {
                 fail { "Version order was incorrect, $previous came before $version" }
+            }
 
             previous = version
         }

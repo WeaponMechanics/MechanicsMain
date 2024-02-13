@@ -70,7 +70,8 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
 
     public void updateToNextAmmo(ItemStack weapon) {
         int next = getCurrentAmmoIndex(weapon) + 1;
-        if (next >= ammunitions.size()) next = 0;
+        if (next >= ammunitions.size())
+            next = 0;
 
         setCurrentAmmoIndex(weapon, next);
     }
@@ -86,12 +87,15 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
         // can be loaded into the gun. Of course, for that, we need the gun to
         // be empty. Then we search.
         int ammoLeft = CustomTag.AMMO_LEFT.getInteger(weapon);
-        if (ammoLeft > 0) return false;
+        if (ammoLeft > 0)
+            return false;
 
         for (int i = 0; i < ammunitions.size(); i++) {
-            if (i == index) continue; // already checked for this ^^^
+            if (i == index)
+                continue; // already checked for this ^^^
 
-            if (!ammunitions.get(i).getType().hasAmmo(player)) continue;
+            if (!ammunitions.get(i).getType().hasAmmo(player))
+                continue;
 
             setCurrentAmmoIndex(weapon, i);
             if (switchMechanics != null)
@@ -103,12 +107,14 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
     }
 
     public int removeAmmo(ItemStack weapon, PlayerWrapper player, int amount, int maximumMagazineSize) {
-        if (amount == 0) return 0;
+        if (amount == 0)
+            return 0;
         return getCurrentAmmo(weapon).getType().removeAmmo(weapon, player, amount, maximumMagazineSize);
     }
 
     public void giveAmmo(ItemStack weapon, PlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
-        if (amount == 0) return;
+        if (amount == 0)
+            return;
         getCurrentAmmo(weapon).getType().giveAmmo(weapon, playerWrapper, amount, maximumMagazineSize);
     }
 
@@ -126,8 +132,7 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
         return "https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/reload/ammo";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public AmmoConfig serialize(@NotNull SerializeData data) throws SerializerException {
         Mechanics mechanics = data.of("Out_Of_Ammo_Mechanics").serialize(Mechanics.class);
         Trigger switchTrigger = data.of("Ammo_Switch_Trigger").serialize(Trigger.class);

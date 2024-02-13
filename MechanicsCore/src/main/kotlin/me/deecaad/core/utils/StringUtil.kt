@@ -8,7 +8,6 @@ import kotlin.math.abs
  * Utility class for working with strings.
  */
 object StringUtil {
-
     const val LOWER_ALPHABET = "abcdefghijklmnopqrstuvwxyz"
     const val VALID_HEX = "0123456789AaBbCcDdEeFf"
     const val MINECRAFT_COLOR_CODES = VALID_HEX + "KkLlMmNnOoRrXx"
@@ -23,7 +22,10 @@ object StringUtil {
      * @return The number of occurrences of the character in the string.
      */
     @JvmStatic
-    fun countOccurrences(str: String, char: Char): Int {
+    fun countOccurrences(
+        str: String,
+        char: Char,
+    ): Int {
         return str.count { it == char }
     }
 
@@ -38,9 +40,13 @@ object StringUtil {
      * @return The repeated string.
      */
     @JvmStatic
-    fun repeat(str: String, times: Int): String {
-        if (str.isEmpty() || times <= 0)
+    fun repeat(
+        str: String,
+        times: Int,
+    ): String {
+        if (str.isEmpty() || times <= 0) {
             return ""
+        }
         return str.repeat(times)
     }
 
@@ -60,15 +66,21 @@ object StringUtil {
      */
     @JvmStatic
     @JvmOverloads
-    fun isEscaped(str: String, index: Int, includeBackslash: Boolean = false): Boolean {
-        if (index == 0)
+    fun isEscaped(
+        str: String,
+        index: Int,
+        includeBackslash: Boolean = false,
+    ): Boolean {
+        if (index == 0) {
             return false
+        }
 
         // An odd number of backslashes means the character is escaped
-        var backslashes = 0;
+        var backslashes = 0
         for (i in index - 1 downTo 0) {
-            if (str[i] != '\\')
+            if (str[i] != '\\') {
                 break
+            }
             backslashes++
         }
 
@@ -86,7 +98,10 @@ object StringUtil {
      * @return The first occurrence of the regex in the string, or `null`.
      */
     @JvmStatic
-    fun match(@RegExp regex: String, str: String): String? {
+    fun match(
+        @RegExp regex: String,
+        str: String,
+    ): String? {
         return match(regex.toRegex(), str)
     }
 
@@ -98,7 +113,10 @@ object StringUtil {
      * @return The first occurrence of the regex in the string, or `null`.
      */
     @JvmStatic
-    fun match(regex: Regex, str: String): String? {
+    fun match(
+        regex: Regex,
+        str: String,
+    ): String? {
         val match = regex.find(str)
         return match?.value
     }
@@ -173,7 +191,6 @@ object StringUtil {
      */
     @JvmStatic
     fun colorAdventure(value: String): String {
-
         // Basically, if the user is trying to use MC color codes, we try to
         // translate them to Bukkit codes. Doesn't properly handle &x format.
         var value = value.replace('§', '&')
@@ -388,7 +405,10 @@ object StringUtil {
      * @throws IllegalArgumentException if `possibilities` is empty.
      */
     @JvmStatic
-    fun didYouMean(input: String, possibilities: Iterable<String>): String {
+    fun didYouMean(
+        input: String,
+        possibilities: Iterable<String>,
+    ): String {
         var closest: String? = null
         var closestDistance = Int.MAX_VALUE
         val table = toCharTable(input)
@@ -426,8 +446,9 @@ object StringUtil {
         val table: IntArray = IntArray(LOWER_ALPHABET.length)
         for (c in str) {
             val index = c.lowercaseChar() - 'a'
-            if (index < 0 || index >= table.size)
+            if (index < 0 || index >= table.size) {
                 continue
+            }
 
             table[index]++
         }

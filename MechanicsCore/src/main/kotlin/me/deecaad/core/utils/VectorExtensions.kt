@@ -2,7 +2,6 @@ package me.deecaad.core.utils
 
 import org.bukkit.util.Vector
 
-
 /**
  * Sets the length of the given vector to the given length.
  *
@@ -15,8 +14,9 @@ import org.bukkit.util.Vector
  */
 fun Vector.setLength(length: Double): Vector {
     val currentLength = this.length()
-    if (currentLength.approximately(0.0))
+    if (currentLength.approximately(0.0)) {
         throw IllegalArgumentException("Cannot set the length of a zero-length vector")
+    }
 
     return this.multiply(length / currentLength)
 }
@@ -37,10 +37,11 @@ fun Vector.setLength(length: Double): Vector {
  */
 fun Vector.getPerpendicular(
     up: Vector = VectorUtil.UP,
-    back: Vector = VectorUtil.SOUTH
+    back: Vector = VectorUtil.SOUTH,
 ): Vector {
-    if (VectorUtil.isZero(this))
+    if (VectorUtil.isZero(this)) {
         throw IllegalArgumentException("Cannot get a perpendicular vector of a zero-length vector")
+    }
 
     val cross = this.getCrossProduct(up)
 

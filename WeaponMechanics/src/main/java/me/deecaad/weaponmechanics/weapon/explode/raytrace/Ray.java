@@ -21,8 +21,7 @@ import java.util.Map;
 public class Ray {
 
     /**
-     * This buffer is used to make sure that we get entities with large hit-boxes
-     * in other chunks.
+     * This buffer is used to make sure that we get entities with large hit-boxes in other chunks.
      */
     private static final Vector BUFFER = new Vector(2.0, 2.0, 2.0);
 
@@ -32,10 +31,10 @@ public class Ray {
     private final double directionLength;
 
     /**
-     * Draws a ray from the given point <code>origin</code> in the direction <code>direction</code>. Used
-     * the magnitude of <code>direction</code> to determine how far to trace.
+     * Draws a ray from the given point <code>origin</code> in the direction <code>direction</code>.
+     * Used the magnitude of <code>direction</code> to determine how far to trace.
      *
-     * @param origin    The starting point of this ray
+     * @param origin The starting point of this ray
      * @param direction The direction and magnitude to trace
      */
     public Ray(@NotNull Location origin, @NotNull Vector direction) {
@@ -54,7 +53,7 @@ public class Ray {
      *
      * @param world The world in which the ray exists
      * @param start The starting point
-     * @param stop  The ending point
+     * @param stop The ending point
      */
     public Ray(@NotNull World world, Vector start, Vector stop) {
         this.world = world;
@@ -65,15 +64,14 @@ public class Ray {
     }
 
     /**
-     * A more "raw" constructor if you already have the direction's length. Draws a ray
-     * between the 2 given points in the given <code>world</code>.
+     * A more "raw" constructor if you already have the direction's length. Draws a ray between the 2
+     * given points in the given <code>world</code>.
      * <p>
-     * If you do not have the distance between the 2 points saved, you shouldn't use
-     * this constructor
+     * If you do not have the distance between the 2 points saved, you shouldn't use this constructor
      *
-     * @param world           The world in which the ray exists
-     * @param origin          The starting point
-     * @param end             The ending point
+     * @param world The world in which the ray exists
+     * @param origin The starting point
+     * @param end The ending point
      * @param directionLength The distance between the 2 points
      * @see Ray#Ray(World, Vector, Vector)
      */
@@ -89,7 +87,7 @@ public class Ray {
      * <code>collision</code>.
      *
      * @param collision What the ray collides with
-     * @param accuracy  The distance (in blocks) between checks
+     * @param accuracy The distance (in blocks) between checks
      * @return The collision data
      */
     public TraceResult trace(@NotNull TraceCollision collision, @Nonnegative double accuracy) {
@@ -101,8 +99,8 @@ public class Ray {
      * <code>collision</code>.
      *
      * @param collision What the ray collides with
-     * @param accuracy  The distance (in blocks) between checks
-     * @param isShow    Useful for debugging. Spawns redstone particles that are removed after 1 minute
+     * @param accuracy The distance (in blocks) between checks
+     * @param isShow Useful for debugging. Spawns redstone particles that are removed after 1 minute
      * @return The collision data
      */
     public TraceResult trace(@NotNull TraceCollision collision, @Nonnegative double accuracy, boolean isShow) {
@@ -112,8 +110,8 @@ public class Ray {
         // entities to their hit box. If this ray is too long, this method becomes
         // inefficient -- Ideally rays should be kept to 25 blocks max
         Map<Entity, HitBox> availableEntities = collision.isHitEntity()
-                ? getEntities(collision)
-                : Collections.emptyMap();
+            ? getEntities(collision)
+            : Collections.emptyMap();
 
         // If we are checking for entities, and there are no entities that the vector
         // can hit, then we can take a shortcut and return an empty trace result, saving resources
@@ -238,12 +236,13 @@ public class Ray {
 
     private static boolean contains(Vector min, Vector max, Location loc) {
         return loc.getX() > min.getX() && loc.getX() < max.getX() &&
-                loc.getY() > min.getY() && loc.getY() < max.getY() &&
-                loc.getZ() > min.getZ() && loc.getZ() < max.getZ();
+            loc.getY() > min.getY() && loc.getY() < max.getY() &&
+            loc.getZ() > min.getZ() && loc.getZ() < max.getZ();
     }
 
     private static boolean contains(HitBox hitbox, Vector point) {
-        if (hitbox == null) return false;
+        if (hitbox == null)
+            return false;
 
         return hitbox.collides(point);
     }

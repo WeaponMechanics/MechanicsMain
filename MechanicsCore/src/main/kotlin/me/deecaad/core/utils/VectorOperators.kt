@@ -2,7 +2,6 @@ package me.deecaad.core.utils
 
 import org.bukkit.util.Vector
 
-
 // override the + operator
 operator fun Vector.plus(other: Vector): Vector {
     return this.clone().add(other)

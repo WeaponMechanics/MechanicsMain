@@ -65,8 +65,8 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     }
 
     public WeaponInfoDisplay(String actionBar, String bossBar, BossBar.Color barColor, BossBar.Overlay barStyle,
-                             boolean showAmmoInBossBarProgress, boolean showAmmoInExpLevel, boolean showAmmoInExpProgress,
-                             String dualWieldMainActionBar, String dualWieldMainBossBar, String dualWieldOffActionBar, String dualWieldOffBossBar) {
+        boolean showAmmoInBossBarProgress, boolean showAmmoInExpLevel, boolean showAmmoInExpProgress,
+        String dualWieldMainActionBar, String dualWieldMainBossBar, String dualWieldOffActionBar, String dualWieldOffBossBar) {
         this.actionBar = actionBar == null ? null : new PlaceholderMessage(actionBar);
         this.bossBar = bossBar == null ? null : new PlaceholderMessage(bossBar);
         this.barColor = barColor;
@@ -78,8 +78,10 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
         this.dualWieldMainBossBar = dualWieldMainBossBar == null ? null : new PlaceholderMessage(dualWieldMainBossBar);
         this.dualWieldOffActionBar = dualWieldOffActionBar == null ? null : new PlaceholderMessage(dualWieldOffActionBar);
         this.dualWieldOffBossBar = dualWieldOffBossBar == null ? null : new PlaceholderMessage(dualWieldOffBossBar);
-        this.dualWieldMainHandFormat = new PlaceholderMessage(StringUtil.colorAdventure(getBasicConfigurations().getString("Placeholder_Symbols.Dual_Wield.Main_Hand", "<gold><ammo_left><gray>»<gold><reload> <gold><firearm-state><weapon-title>")));
-        this.dualWieldOffHandFormat = new PlaceholderMessage(StringUtil.colorAdventure(getBasicConfigurations().getString("Placeholder_Symbols.Dual_Wield.Off_Hand", "<gold><weapon_title><firearm_state> <gold><reload><gray>«<gold><ammo-left>")));
+        this.dualWieldMainHandFormat = new PlaceholderMessage(StringUtil.colorAdventure(getBasicConfigurations().getString("Placeholder_Symbols.Dual_Wield.Main_Hand",
+            "<gold><ammo_left><gray>»<gold><reload> <gold><firearm-state><weapon-title>")));
+        this.dualWieldOffHandFormat = new PlaceholderMessage(StringUtil.colorAdventure(getBasicConfigurations().getString("Placeholder_Symbols.Dual_Wield.Off_Hand",
+            "<gold><weapon_title><firearm_state> <gold><reload><gray>«<gold><ammo-left>")));
         this.dualWieldSplit = MechanicsCore.getPlugin().message.deserialize(StringUtil.colorAdventure(getBasicConfigurations().getString("Placeholder_Symbols.Dual_Wield.Split", " <gray>|</gray> ")));
     }
 
@@ -120,7 +122,8 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
             offWeapon = checkCorrectOff;
         }
 
-        if (mainWeapon == null && offWeapon == null) return;
+        if (mainWeapon == null && offWeapon == null)
+            return;
 
         // Mostly this is RIGHT, but some players may have it LEFT
         boolean hasInvertedMainHand = player.getMainHand() == MainHand.LEFT;
@@ -229,35 +232,37 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
             ItemStack useStack = mainhand ? mainStack : offStack;
             String useWeapon = mainhand ? mainWeapon : offWeapon;
 
-            if (useStack == null || !useStack.hasItemMeta() || useWeapon == null) return;
+            if (useStack == null || !useStack.hasItemMeta() || useWeapon == null)
+                return;
 
             if (magazineProgress == -1) {
                 magazineProgress = getMagazineProgress(useStack, useWeapon);
             }
 
             int lastExpTask = messageHelper.getExpTask();
-            if (lastExpTask != 0) Bukkit.getServer().getScheduler().cancelTask(lastExpTask);
+            if (lastExpTask != 0)
+                Bukkit.getServer().getScheduler().cancelTask(lastExpTask);
 
             if (CompatibilityAPI.getVersion() < 1.15) {
                 CompatibilityAPI.getCompatibility().sendPackets(player,
-                        ReflectionUtil.newInstance(packetPlayOutExperienceConstructor, showAmmoInExpProgress
-                                        ? (float) (magazineProgress != -1 ? magazineProgress : getMagazineProgress(useStack, useWeapon))
-                                        : player.getExp(),
-                                player.getTotalExperience(),
-                                showAmmoInExpLevel ? getAmmoLeft(useStack, useWeapon) : player.getLevel()));
+                    ReflectionUtil.newInstance(packetPlayOutExperienceConstructor, showAmmoInExpProgress
+                        ? (float) (magazineProgress != -1 ? magazineProgress : getMagazineProgress(useStack, useWeapon))
+                        : player.getExp(),
+                        player.getTotalExperience(),
+                        showAmmoInExpLevel ? getAmmoLeft(useStack, useWeapon) : player.getLevel()));
                 messageHelper.setExpTask(new BukkitRunnable() {
                     public void run() {
                         CompatibilityAPI.getCompatibility().sendPackets(player,
-                                ReflectionUtil.newInstance(packetPlayOutExperienceConstructor,
-                                        player.getExp(),
-                                        player.getTotalExperience(),
-                                        player.getLevel()));
+                            ReflectionUtil.newInstance(packetPlayOutExperienceConstructor,
+                                player.getExp(),
+                                player.getTotalExperience(),
+                                player.getLevel()));
                         messageHelper.setExpTask(0);
                     }
                 }.runTaskLater(WeaponMechanics.getPlugin(), 40).getTaskId());
             } else {
                 player.sendExperienceChange(showAmmoInExpProgress ? (float) (magazineProgress != -1 ? magazineProgress : getMagazineProgress(useStack, useWeapon)) : player.getExp(),
-                        showAmmoInExpLevel ? getAmmoLeft(useStack, useWeapon) : player.getLevel());
+                    showAmmoInExpLevel ? getAmmoLeft(useStack, useWeapon) : player.getLevel());
                 messageHelper.setExpTask(new BukkitRunnable() {
                     public void run() {
                         player.sendExperienceChange(player.getExp(), player.getLevel());
@@ -269,7 +274,8 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     }
 
     private ComponentLike getDualDisplay(WeaponInfoDisplay display, PlaceholderData data, WeaponInfoDisplay otherDisplay, boolean bossbar, boolean isInverted) {
-        if (display == null) return null;
+        if (display == null)
+            return null;
 
         PlaceholderMessage toApply;
 
@@ -279,22 +285,22 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
             if (isInverted) {
                 if (data.slot() == EquipmentSlot.HAND) {
                     toApply = bossbar
-                            ? display.dualWieldOffBossBar != null ? display.dualWieldOffBossBar : dualWieldOffHandFormat
-                            : display.dualWieldOffActionBar != null ? display.dualWieldOffActionBar : dualWieldOffHandFormat;
+                        ? display.dualWieldOffBossBar != null ? display.dualWieldOffBossBar : dualWieldOffHandFormat
+                        : display.dualWieldOffActionBar != null ? display.dualWieldOffActionBar : dualWieldOffHandFormat;
                 } else {
                     toApply = bossbar
-                            ? display.dualWieldMainBossBar != null ? display.dualWieldMainBossBar : dualWieldMainHandFormat
-                            : display.dualWieldMainActionBar != null ? display.dualWieldMainActionBar : dualWieldMainHandFormat;
+                        ? display.dualWieldMainBossBar != null ? display.dualWieldMainBossBar : dualWieldMainHandFormat
+                        : display.dualWieldMainActionBar != null ? display.dualWieldMainActionBar : dualWieldMainHandFormat;
                 }
             } else {
                 if (data.slot() == EquipmentSlot.HAND) {
                     toApply = bossbar
-                            ? display.dualWieldMainBossBar != null ? display.dualWieldMainBossBar : dualWieldMainHandFormat
-                            : display.dualWieldMainActionBar != null ? display.dualWieldMainActionBar : dualWieldMainHandFormat;
+                        ? display.dualWieldMainBossBar != null ? display.dualWieldMainBossBar : dualWieldMainHandFormat
+                        : display.dualWieldMainActionBar != null ? display.dualWieldMainActionBar : dualWieldMainHandFormat;
                 } else {
                     toApply = bossbar
-                            ? display.dualWieldOffBossBar != null ? display.dualWieldOffBossBar : dualWieldOffHandFormat
-                            : display.dualWieldOffActionBar != null ? display.dualWieldOffActionBar : dualWieldOffHandFormat;
+                        ? display.dualWieldOffBossBar != null ? display.dualWieldOffBossBar : dualWieldOffHandFormat
+                        : display.dualWieldOffActionBar != null ? display.dualWieldOffActionBar : dualWieldOffHandFormat;
                 }
             }
         }
@@ -343,8 +349,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     }
 
     @Override
-    @NotNull
-    public WeaponInfoDisplay serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public WeaponInfoDisplay serialize(@NotNull SerializeData data) throws SerializerException {
 
         // ACTION BAR
         String actionBarMessage = data.of("Action_Bar.Message").getAdventure(null);
@@ -373,11 +378,11 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
         if (bossBarProgress && bossBarMessage == null) {
             throw data.exception(null, "In order for a boss bar to work properly, 'Show_Ammo_In.Boss_Bar_Progress: true' and the",
-                    "boss bar needs to be defined in the message.");
+                "boss bar needs to be defined in the message.");
         }
 
         return new WeaponInfoDisplay(actionBarMessage, bossBarMessage, barColor, barStyle,
-                bossBarProgress, expLevel, expProgress,
-                dualWieldMainActionBar, dualWieldMainBossBar, dualWieldOffActionBar, dualWieldOffBossBar);
+            bossBarProgress, expLevel, expProgress,
+            dualWieldMainActionBar, dualWieldMainBossBar, dualWieldOffActionBar, dualWieldOffBossBar);
     }
 }

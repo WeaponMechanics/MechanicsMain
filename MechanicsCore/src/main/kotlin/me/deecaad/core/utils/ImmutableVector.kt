@@ -9,7 +9,6 @@ import org.bukkit.util.Vector
  * @see Vector
  */
 class ImmutableVector : Vector {
-
     constructor() : super()
     constructor(x: Int, y: Int, z: Int) : super(x, y, z)
     constructor(x: Double, y: Double, z: Double) : super(x, y, z)
@@ -75,11 +74,17 @@ class ImmutableVector : Vector {
         return clone().rotateAroundZ(angle)
     }
 
-    override fun rotateAroundAxis(axis: Vector, angle: Double): Vector {
+    override fun rotateAroundAxis(
+        axis: Vector,
+        angle: Double,
+    ): Vector {
         return clone().rotateAroundAxis(axis, angle)
     }
 
-    override fun rotateAroundNonUnitAxis(axis: Vector, angle: Double): Vector {
+    override fun rotateAroundNonUnitAxis(
+        axis: Vector,
+        angle: Double,
+    ): Vector {
         return clone().rotateAroundNonUnitAxis(axis, angle)
     }
 

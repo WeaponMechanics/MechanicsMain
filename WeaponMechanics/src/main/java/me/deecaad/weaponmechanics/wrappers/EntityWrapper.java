@@ -16,9 +16,9 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Wraps a {@link LivingEntity} object to simplify per-entity data/methods that
- * are used by WeaponMechanics. Also contains useful API functionality for
- * plugins who want to check if an entity is scoped, reloading, etc.
+ * Wraps a {@link LivingEntity} object to simplify per-entity data/methods that are used by
+ * WeaponMechanics. Also contains useful API functionality for plugins who want to check if an
+ * entity is scoped, reloading, etc.
  */
 public class EntityWrapper {
 
@@ -39,9 +39,9 @@ public class EntityWrapper {
 
         Configuration config = WeaponMechanics.getBasicConfigurations();
         if (!config.getBool("Disabled_Trigger_Checks.In_Midair")
-                || !config.getBool("Disabled_Trigger_Checks.Standing_And_Walking")
-                || !config.getBool("Disabled_Trigger_Checks.Jump")
-                || !config.getBool("Disabled_Trigger_Checks.Double_Jump")) {
+            || !config.getBool("Disabled_Trigger_Checks.Standing_And_Walking")
+            || !config.getBool("Disabled_Trigger_Checks.Jump")
+            || !config.getBool("Disabled_Trigger_Checks.Double_Jump")) {
 
             this.moveTask = new MoveTask(this).runTaskTimer(WeaponMechanics.getPlugin(), 0, MOVE_TASK_INTERVAL).getTaskId();
         }
@@ -56,8 +56,8 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> when the entity is standing still. Returns
-     * <code>false</code> when the entity is moving, swimming, or mid-air.
+     * Returns <code>true</code> when the entity is standing still. Returns <code>false</code> when the
+     * entity is moving, swimming, or mid-air.
      *
      * @return <code>true</code> if the entity is standing still.
      */
@@ -66,7 +66,8 @@ public class EntityWrapper {
     }
 
     void setStanding(boolean standing) {
-        if (this.standing == standing) return;
+        if (this.standing == standing)
+            return;
         this.standing = standing;
 
         if (standing) {
@@ -79,9 +80,8 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> when the entity is moving. Returns
-     * <code>false</code> when the entity is standing still, swimming, or
-     * mid-air.
+     * Returns <code>true</code> when the entity is moving. Returns <code>false</code> when the entity
+     * is standing still, swimming, or mid-air.
      *
      * @return <code>true</code> if the entity is moving.
      */
@@ -90,7 +90,8 @@ public class EntityWrapper {
     }
 
     void setWalking(boolean walking) {
-        if (this.walking == walking) return;
+        if (this.walking == walking)
+            return;
         this.walking = walking;
 
         if (walking) {
@@ -103,9 +104,8 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> when the entity is mid-air (not on the
-     * ground). Returns <code>false</code> when the entity is standing still,
-     * swimming, or walking.
+     * Returns <code>true</code> when the entity is mid-air (not on the ground). Returns
+     * <code>false</code> when the entity is standing still, swimming, or walking.
      *
      * @return <code>true</code> if the entity is mid-air.
      */
@@ -114,7 +114,8 @@ public class EntityWrapper {
     }
 
     void setInMidair(boolean inMidair) {
-        if (this.inMidair == inMidair) return;
+        if (this.inMidair == inMidair)
+            return;
         this.inMidair = inMidair;
 
         if (inMidair) {
@@ -127,10 +128,9 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> when the entity is swimming (legs and head are
-     * both in water, also checks 1.13+ sprint swimming). Returns
-     * <code>false</code> when the entity is standing still, mid-air, or
-     * walking.
+     * Returns <code>true</code> when the entity is swimming (legs and head are both in water, also
+     * checks 1.13+ sprint swimming). Returns <code>false</code> when the entity is standing still,
+     * mid-air, or walking.
      *
      * @return <code>true</code> if the entity is swimming.
      */
@@ -139,7 +139,8 @@ public class EntityWrapper {
     }
 
     void setSwimming(boolean swimming) {
-        if (this.swimming == swimming) return;
+        if (this.swimming == swimming)
+            return;
         this.swimming = swimming;
 
         if (swimming) {
@@ -152,8 +153,7 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> if the entity is a player, and the player is
-     * in sneak mode.
+     * Returns <code>true</code> if the entity is a player, and the player is in sneak mode.
      *
      * @return <code>true</code> when the player is sneaking.
      * @see Player#isSneaking()
@@ -163,8 +163,7 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> if the entity is a player, and the player is
-     * sprinting.
+     * Returns <code>true</code> if the entity is a player, and the player is sprinting.
      *
      * @return <code>true</code> when the player is sprinting.
      * @see Player#isSprinting()
@@ -174,8 +173,8 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> if the entity is gliding using an elytra.
-     * Apparently, non-player entities CAN glide.
+     * Returns <code>true</code> if the entity is gliding using an elytra. Apparently, non-player
+     * entities CAN glide.
      *
      * @return <code>true</code> when the entity is gliding.
      * @see LivingEntity#isGliding()
@@ -185,14 +184,13 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> if the entity is a player, and the player has
-     * right-clicked in the past 4 ticks (+- 25 milliseconds). This method also
-     * considers the player's ping ({@link Player#getPing()}) to determine if
-     * they are still right-clicking.
+     * Returns <code>true</code> if the entity is a player, and the player has right-clicked in the past
+     * 4 ticks (+- 25 milliseconds). This method also considers the player's ping
+     * ({@link Player#getPing()}) to determine if they are still right-clicking.
      *
-     * <p>While this method is usually quite inaccurate (can be up to 4 ticks
-     * late!), it is 100% accurate when the player is blocking (swords in 1.8,
-     * shields in 1.9+).
+     * <p>
+     * While this method is usually quite inaccurate (can be up to 4 ticks late!), it is 100% accurate
+     * when the player is blocking (swords in 1.8, shields in 1.9+).
      *
      * @return <code>true</code> when the player is right-clicking.
      * @see Player#isBlocking()
@@ -204,8 +202,8 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> if the entity is dual wielding,
-     * meaning when they have items equipped in both hands.
+     * Returns <code>true</code> if the entity is dual wielding, meaning when they have items equipped
+     * in both hands.
      *
      * @return <code>true</code> when the entity is dual wielding.
      */
@@ -217,8 +215,7 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> if the entity is dual wielding two weapons
-     * from WeaponMechanics.
+     * Returns <code>true</code> if the entity is dual wielding two weapons from WeaponMechanics.
      *
      * @return <code>true</code> when the entity is dual wielding two weapons.
      * @see #isDualWielding()
@@ -231,7 +228,7 @@ public class EntityWrapper {
         ItemStack main = equipment.getItemInMainHand();
         ItemStack off = equipment.getItemInOffHand();
         return main.getType() != Material.AIR && off.getType() != Material.AIR
-                && CustomTag.WEAPON_TITLE.hasString(main) && CustomTag.WEAPON_TITLE.hasString(off);
+            && CustomTag.WEAPON_TITLE.hasString(main) && CustomTag.WEAPON_TITLE.hasString(off);
     }
 
     /**
@@ -241,18 +238,15 @@ public class EntityWrapper {
         return entity.isInsideVehicle();
     }
 
-    @NotNull
-    public HandData getHandData(boolean mainHand) {
+    @NotNull public HandData getHandData(boolean mainHand) {
         return mainHand ? getMainHandData() : getOffHandData();
     }
 
-    @NotNull
-    public HandData getMainHandData() {
+    @NotNull public HandData getMainHandData() {
         return mainHandData == null ? mainHandData = new HandData(this, true) : mainHandData;
     }
 
-    @NotNull
-    public HandData getOffHandData() {
+    @NotNull public HandData getOffHandData() {
         return offHandData == null ? offHandData = new HandData(this, false) : offHandData;
     }
 

@@ -8,7 +8,10 @@ import java.util.logging.Level;
  */
 public enum LogLevel {
 
-    INFO(1, Level.INFO), ERROR(1, Level.SEVERE), WARN(2, Level.WARNING), DEBUG(3, Level.INFO);
+    INFO(1, Level.INFO),
+    ERROR(1, Level.SEVERE),
+    WARN(2, Level.WARNING),
+    DEBUG(3, Level.INFO);
 
     private final int level;
     private final Level parallel;

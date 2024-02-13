@@ -22,17 +22,16 @@ public class SphericalExplosion implements ExplosionShape {
 
     private final double radius;
     private final double radiusSquared;
-    
+
     public SphericalExplosion(double radius) {
         this.radius = radius;
         this.radiusSquared = radius * radius;
     }
-    
-    @NotNull
-    @Override
+
+    @NotNull @Override
     public List<Block> getBlocks(@NotNull Location origin) {
         List<Block> temp = new ArrayList<>();
-        
+
         Location pos1 = origin.clone().add(-radius, -radius, -radius);
         Location pos2 = origin.clone().add(+radius, +radius, +radius);
 
@@ -46,7 +45,7 @@ public class SphericalExplosion implements ExplosionShape {
             for (int y = pos1.getBlockY(); y < pos2.getBlockY(); y++) {
                 for (int z = pos1.getBlockZ(); z < pos2.getBlockZ(); z++) {
                     Location loc = new Location(origin.getWorld(), x, y, z);
-                    
+
                     // If the distance between the current iteration
                     // and the origin is less than the radius of the
                     // sphere. This "reshapes" the cube into a sphere
@@ -66,14 +65,13 @@ public class SphericalExplosion implements ExplosionShape {
         }
         return temp;
     }
-    
-    @NotNull
-    @Override
+
+    @NotNull @Override
     public List<LivingEntity> getEntities(@NotNull Location origin) {
         return origin.getWorld().getLivingEntities()
-                .stream()
-                .filter(entity -> entity.getLocation().distanceSquared(origin) < radiusSquared)
-                .collect(Collectors.toList());
+            .stream()
+            .filter(entity -> entity.getLocation().distanceSquared(origin) < radiusSquared)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -94,7 +92,7 @@ public class SphericalExplosion implements ExplosionShape {
     @Override
     public String toString() {
         return "SphericalExplosion{" +
-                "radius=" + radius +
-                '}';
+            "radius=" + radius +
+            '}';
     }
 }

@@ -56,8 +56,8 @@ public class ZoomData {
     }
 
     /**
-     * Note: This method does not set the player's FOV. This method should not
-     * be used unless you know what you are doing.
+     * Note: This method does not set the player's FOV. This method should not be used unless you know
+     * what you are doing.
      *
      * @param zoomAmount How far the player is zoomed in.
      */
@@ -73,8 +73,8 @@ public class ZoomData {
     }
 
     /**
-     * Note: This method does not set the player's FOV. This method should not
-     * be used unless you know what you are doing.
+     * Note: This method does not set the player's FOV. This method should not be used unless you know
+     * what you are doing.
      *
      * @param zoomStacks the new zoom stack amount.
      */
@@ -90,8 +90,8 @@ public class ZoomData {
     }
 
     /**
-     * Note: This method does not set the player's potion effects. This method
-     * should not be used unless you know what you are doing.
+     * Note: This method does not set the player's potion effects. This method should not be used unless
+     * you know what you are doing.
      *
      * @param zoomNightVision whether zoom night vision is on
      */
@@ -103,7 +103,8 @@ public class ZoomData {
         if (isZooming()) {
 
             // IF player is in VR this happens
-            if (getZoomAmount() == 0) return;
+            if (getZoomAmount() == 0)
+                return;
 
             EntityWrapper entityWrapper = handData.getEntityWrapper();
 
@@ -115,8 +116,8 @@ public class ZoomData {
             Mechanics zoomOffMechanics = getConfigurations().getObject(this.scopeWeaponTitle + ".Scope.Zoom_Off.Mechanics", Mechanics.class);
 
             WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(this.scopeWeaponTitle, this.scopeWeaponStack,
-                    entityWrapper.getEntity(), getHandData().isMainhand() ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND,
-                    WeaponScopeEvent.ScopeType.OUT, 0, 0, zoomOffMechanics);
+                entityWrapper.getEntity(), getHandData().isMainhand() ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND,
+                WeaponScopeEvent.ScopeType.OUT, 0, 0, zoomOffMechanics);
             Bukkit.getPluginManager().callEvent(weaponScopeEvent);
 
             // Get Mechanics from event, so we can let plugins modify them.

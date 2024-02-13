@@ -17,34 +17,35 @@ public class Tools {
     private static final Object b = "before b";
 
     public static void main(String[] args) {
-        //System.out.println(StringUtils.color("&#FFFFFF/&6test&#efefef&r"));
+        // System.out.println(StringUtils.color("&#FFFFFF/&6test&#efefef&r"));
         //
 
-        //blockDamageData();
-        //if (true)
-        //    return;
+        // blockDamageData();
+        // if (true)
+        // return;
 
-        //int MAXIMUM_CAPACITY = 1 << 30;
-        //int n = -1 >>> Integer.numberOfLeadingZeros(700 - 1);
-        //int cap = (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
-        //System.out.println(cap);
+        // int MAXIMUM_CAPACITY = 1 << 30;
+        // int n = -1 >>> Integer.numberOfLeadingZeros(700 - 1);
+        // int cap = (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
+        // System.out.println(cap);
 
-        //if (true)
-        //    return;
+        // if (true)
+        // return;
 
-        //String str = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_'abcdefghijklmnopqrstuvwxyz{|}~\u007fÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƑáíóúñÑªº¿®¬½¼¡«»";
-        //for (int i = 0; i < str.length(); i++) {
-        //    char c = str.charAt(i);
+        // String str = "
+        // !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_'abcdefghijklmnopqrstuvwxyz{|}~\u007fÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƑáíóúñÑªº¿®¬½¼¡«»";
+        // for (int i = 0; i < str.length(); i++) {
+        // char c = str.charAt(i);
 
-        //    MapFont.CharacterSprite sprite = MinecraftFont.Font.getChar(c);
-        //    System.out.println(c + ": " + sprite.getWidth());
-        //}
+        // MapFont.CharacterSprite sprite = MinecraftFont.Font.getChar(c);
+        // System.out.println(c + ": " + sprite.getWidth());
+        // }
 
         calculateStats(0.55, 0.79, 0.42, 0.51, 0.71, 0.75);
     }
 
     private static void calculateStats(double accuracy, double damage, double range,
-                                       double firerate, double mobility, double control) {
+        double firerate, double mobility, double control) {
         // https://callofduty.fandom.com/wiki/Call_of_Duty:_Modern_Warfare_(2019)#Weapons
         // https://www.gamesatlas.com/cod-modern-warfare/weapons/
         System.out.println("Accuracy: ");
@@ -87,7 +88,8 @@ public class Tools {
 
         System.out.println("Entity_Hitboxes:");
         for (EntityType type : types) {
-            if (!type.isAlive()) continue; // If it can be a livingEntity, I think
+            if (!type.isAlive())
+                continue; // If it can be a livingEntity, I think
             System.out.println("  " + type.name() + ":");
             System.out.println("    " + "Horizontal_Entity: false");
             System.out.println("    " + "HEAD: 0.0");
@@ -104,7 +106,8 @@ public class Tools {
         System.out.print("blocks = [");
 
         for (Material mat : Material.values()) {
-            if (mat.isLegacy() || !mat.isBlock() || mat.isAir()) continue;
+            if (mat.isLegacy() || !mat.isBlock() || mat.isAir())
+                continue;
 
             System.out.print("(\"" + mat.name() + "\", " + mat.getBlastResistance() + ", " + mat.getHardness() + ")");
             System.out.print(", ");
@@ -114,8 +117,8 @@ public class Tools {
 
     private static void fontData() {
         final String ALL_CHARS = " !\"#$%&'()*+,-./0123456789:;<=>?" +
-                "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_" +
-                "'abcdefghijklmnopqrstuvwxyz{|}~\u007F";
+            "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_" +
+            "'abcdefghijklmnopqrstuvwxyz{|}~\u007F";
 
         for (int i = 0; i < ALL_CHARS.length(); i++) {
             char c = ALL_CHARS.charAt(i);

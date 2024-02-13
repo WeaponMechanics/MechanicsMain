@@ -31,7 +31,7 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
     }
 
     public Bouncy(int maximumBounceAmount, ListHolder<Material> blocks, ListHolder<EntityType> entities,
-                  double requiredMotionToStartRollingOrDie, ListHolder<Material> rollingBlocks) {
+        double requiredMotionToStartRollingOrDie, ListHolder<Material> rollingBlocks) {
         this.maximumBounceAmount = maximumBounceAmount;
         this.blocks = blocks;
         this.entities = entities;
@@ -48,8 +48,9 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
     }
 
     /**
-     * If rolling isn't used, this value is used determine whether projectile can't bounce anymore.
-     * If rolling is used, this value is used to determine when projectile starts rolling instead of bouncing.
+     * If rolling isn't used, this value is used determine whether projectile can't bounce anymore. If
+     * rolling is used, this value is used to determine when projectile starts rolling instead of
+     * bouncing.
      *
      * @return the required motion to start rolling or die
      */
@@ -84,7 +85,8 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
         }
 
         Vector motion = projectile.getMotion();
-        if (speedModifier != 1.0) motion.multiply(speedModifier);
+        if (speedModifier != 1.0)
+            motion.multiply(speedModifier);
 
         switch (hit.getHitFace()) {
             case UP, DOWN -> motion.setY(-motion.getY());
@@ -105,7 +107,8 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
      * @return true if projectile kept rolling, false if projectile should die
      */
     public boolean handleRolling(WeaponProjectile projectile, Block block) {
-        if (rollingBlocks == null) return false;
+        if (rollingBlocks == null)
+            return false;
 
         Double speedModifier = rollingBlocks.isValid(block.getType());
 
@@ -158,8 +161,7 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
     }
 
     @Override
-    @NotNull
-    public Bouncy serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public Bouncy serialize(@NotNull SerializeData data) throws SerializerException {
         ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class));
         ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
 

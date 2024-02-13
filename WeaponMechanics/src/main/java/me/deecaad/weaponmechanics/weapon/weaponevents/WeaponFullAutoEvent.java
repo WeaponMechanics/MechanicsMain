@@ -10,17 +10,18 @@ import org.jetbrains.annotations.NotNull;
 import me.deecaad.weaponmechanics.weapon.shoot.FullAutoTask;
 
 /**
- * Called before an attempt to use Full Auto. This event is called for all types
- * of weapons, including semi, burst, AND auto. However, for semi and burst,
- * shotsPerSecond will be 0 (and thus the event will be cancelled).
+ * Called before an attempt to use Full Auto. This event is called for all types of weapons,
+ * including semi, burst, AND auto. However, for semi and burst, shotsPerSecond will be 0 (and thus
+ * the event will be cancelled).
  *
- * <p>Note that all changes are kept until the task is cancelled. This means
- * that changes are <i>semi-permanent</i>. If you want to change the full-auto
- * rate of a current gun, you should get the {@link FullAutoTask} from an
- * entity's hand data.
+ * <p>
+ * Note that all changes are kept until the task is cancelled. This means that changes are
+ * <i>semi-permanent</i>. If you want to change the full-auto rate of a current gun, you should get
+ * the {@link FullAutoTask} from an entity's hand data.
  *
- * <p>If you want to "reset" the rate later, you should call this event so
- * other plugins, like WeaponMechanicsPlus, can modify the fire rate again.
+ * <p>
+ * If you want to "reset" the rate later, you should call this event so other plugins, like
+ * WeaponMechanicsPlus, can modify the fire rate again.
  */
 public class WeaponFullAutoEvent extends WeaponEvent implements Cancellable {
 
@@ -35,12 +36,12 @@ public class WeaponFullAutoEvent extends WeaponEvent implements Cancellable {
     }
 
     /**
-     * Gets the rate of fire in shots per second. This is the number of shots
-     * that will be fired every second. For example, if this value is 2, then
-     * 2 shots will be fired every second.
+     * Gets the rate of fire in shots per second. This is the number of shots that will be fired every
+     * second. For example, if this value is 2, then 2 shots will be fired every second.
      *
-     * <p>For semi and burst weapons, this value will be 0. A typical full auto
-     * weapon will use values 1-20, but can be any integer.
+     * <p>
+     * For semi and burst weapons, this value will be 0. A typical full auto weapon will use values
+     * 1-20, but can be any integer.
      *
      * @return the rate of fire in shots per second
      */
@@ -49,12 +50,12 @@ public class WeaponFullAutoEvent extends WeaponEvent implements Cancellable {
     }
 
     /**
-     * Sets the rate of fire in shots per second. This is the number of shots
-     * that will be fired every second. For example, if this value is 2, then
-     * 2 shots will be fired every second.
+     * Sets the rate of fire in shots per second. This is the number of shots that will be fired every
+     * second. For example, if this value is 2, then 2 shots will be fired every second.
      *
-     * <p>If you set this value to 0, the full auto attempt will be cancelled, and
-     * the handler will try to use burst/semi.
+     * <p>
+     * If you set this value to 0, the full auto attempt will be cancelled, and the handler will try to
+     * use burst/semi.
      *
      * @param shotsPerSecond the rate of fire in shots per second
      */
@@ -63,8 +64,7 @@ public class WeaponFullAutoEvent extends WeaponEvent implements Cancellable {
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

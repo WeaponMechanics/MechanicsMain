@@ -22,10 +22,9 @@ public class Scope_1_20_R3 implements IScopeCompatibility {
     static {
         if (ReflectionUtil.getMCVersion() != 20) {
             WeaponMechanics.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + Scope_1_20_R3.class + " when not using Minecraft 20",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + Scope_1_20_R3.class + " when not using Minecraft 20",
+                new InternalError());
         }
     }
 

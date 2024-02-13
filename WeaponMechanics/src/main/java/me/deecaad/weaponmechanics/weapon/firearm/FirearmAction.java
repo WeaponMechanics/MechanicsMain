@@ -37,10 +37,12 @@ public class FirearmAction implements Serializer<FirearmAction> {
 
     public void useMechanics(CastData castData, boolean isOpen) {
         if (isOpen) {
-            if (open != null) open.use(castData);
+            if (open != null)
+                open.use(castData);
             return;
         }
-        if (close != null) close.use(castData);
+        if (close != null)
+            close.use(castData);
     }
 
     public FirearmState getState(ItemStack weaponStack) {
@@ -86,8 +88,7 @@ public class FirearmAction implements Serializer<FirearmAction> {
     }
 
     @Override
-    @NotNull
-    public FirearmAction serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public FirearmAction serialize(@NotNull SerializeData data) throws SerializerException {
 
         FirearmType type = data.of("Type").assertExists().getEnum(FirearmType.class);
 

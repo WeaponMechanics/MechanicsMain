@@ -15,7 +15,7 @@ public class LegacyInfoCommand extends SubCommand {
     public LegacyInfoCommand() {
         super("wm", "info", "General plugin information");
     }
-    
+
     @Override
     public void execute(CommandSender sender, String[] args) {
         WeaponMechanicsCommand.info(sender);

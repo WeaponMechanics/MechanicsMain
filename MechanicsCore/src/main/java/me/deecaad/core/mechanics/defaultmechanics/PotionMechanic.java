@@ -97,6 +97,8 @@ public class PotionMechanic extends Mechanic {
      * booleans.
      */
     public enum ParticleMode {
-        HIDE, NORMAL, AMBIENT
+        HIDE,
+        NORMAL,
+        AMBIENT
     }
 }

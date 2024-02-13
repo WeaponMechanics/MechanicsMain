@@ -49,14 +49,13 @@ public class StickedData {
         return blockLocation != null;
     }
 
-    @Nullable
-    public LivingEntity getLivingEntity() {
+    @Nullable public LivingEntity getLivingEntity() {
         return livingEntity == null || livingEntity.isDead() || !worldName.equals(livingEntity.getWorld().getName()) ? null : livingEntity;
     }
 
-    @Nullable
-    public Block getBlock() {
-        if (blockLocation == null) return null;
+    @Nullable public Block getBlock() {
+        if (blockLocation == null)
+            return null;
         Block block = blockLocation.getBlock();
         return CompatibilityAPI.getBlockCompatibility().getHitBox(block) == null ? null : block;
     }

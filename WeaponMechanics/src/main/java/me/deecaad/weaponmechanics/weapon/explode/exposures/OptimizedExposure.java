@@ -22,8 +22,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class OptimizedExposure implements ExplosionExposure {
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public DoubleMap<LivingEntity> mapExposures(@NotNull Location origin, @NotNull ExplosionShape shape) {
 
         List<LivingEntity> entities = shape.getEntities(origin);
@@ -77,13 +76,12 @@ public class OptimizedExposure implements ExplosionExposure {
     }
 
     /**
-     * Gets a double [0.0, 1.0] representing how exposed the entity is to the explosion.
-     * Exposure is determined by 8 rays, 1 ray for each corner of an entity's
-     * bounding box. The returned exposure is equal to the number of rays that hit
-     * the entity divided by 8.
+     * Gets a double [0.0, 1.0] representing how exposed the entity is to the explosion. Exposure is
+     * determined by 8 rays, 1 ray for each corner of an entity's bounding box. The returned exposure is
+     * equal to the number of rays that hit the entity divided by 8.
      *
-     * <p>There is also one ray going to the center of the entity hit-box that
-     * has the power of 4 rays.
+     * <p>
+     * There is also one ray going to the center of the entity hit-box that has the power of 4 rays.
      *
      * @param vec3d The origin point
      * @param entity The entity exposed to the explosion

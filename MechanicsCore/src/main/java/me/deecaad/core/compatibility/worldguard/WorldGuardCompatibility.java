@@ -71,6 +71,9 @@ public interface WorldGuardCompatibility {
      * This enum outlines the different data types that a flag can store.
      */
     enum FlagType {
-        STATE_FLAG, DOUBLE_FLAG, INT_FLAG, STRING_FLAG,
+        STATE_FLAG,
+        DOUBLE_FLAG,
+        INT_FLAG,
+        STRING_FLAG,
     }
 }

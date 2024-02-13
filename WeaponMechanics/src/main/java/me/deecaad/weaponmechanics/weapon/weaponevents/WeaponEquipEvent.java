@@ -7,8 +7,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class outlines the event of a player holding a weapon. This can be done
- * by picking up the item, switching the hot bar slots, etc.
+ * This class outlines the event of a player holding a weapon. This can be done by picking up the
+ * item, switching the hot bar slots, etc.
  */
 public class WeaponEquipEvent extends WeaponEvent {
 
@@ -19,8 +19,7 @@ public class WeaponEquipEvent extends WeaponEvent {
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

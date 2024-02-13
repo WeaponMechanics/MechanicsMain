@@ -42,7 +42,8 @@ public class TriggerEntityListeners implements Listener {
 
         // Only when victim has been damaged by WM projectile
         // when Use_Vanilla_Damaging is true
-        if (!MetadataKey.VANILLA_DAMAGE.has(victim)) return;
+        if (!MetadataKey.VANILLA_DAMAGE.has(victim))
+            return;
         MetadataKey.VANILLA_DAMAGE.remove(victim);
 
         if (e.isCancelled()) {
@@ -71,19 +72,24 @@ public class TriggerEntityListeners implements Listener {
 
         EntityDamageEvent.DamageCause cause = e.getCause();
         boolean isSweep = ReflectionUtil.getMCVersion() > 10 && cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK;
-        if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK && !isSweep) return;
-        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click")) return;
+        if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK && !isSweep)
+            return;
+        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click"))
+            return;
 
         Entity damager = e.getDamager();
-        if (!damager.getType().isAlive() || !victim.getType().isAlive()) return;
+        if (!damager.getType().isAlive() || !victim.getType().isAlive())
+            return;
 
         EntityWrapper entityWrapper = getEntityWrapper((LivingEntity) damager, true);
-        if (entityWrapper == null) return;
+        if (entityWrapper == null)
+            return;
 
         LivingEntity livingEntity = entityWrapper.getEntity();
 
         EntityEquipment entityEquipment = livingEntity.getEquipment();
-        if (entityEquipment == null) return;
+        if (entityEquipment == null)
+            return;
 
         ItemStack mainStack = entityEquipment.getItemInMainHand();
         String mainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(mainStack, false);
@@ -91,7 +97,8 @@ public class TriggerEntityListeners implements Listener {
         ItemStack offStack = entityEquipment.getItemInOffHand();
         String offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, false);
 
-        if (mainWeapon == null && offWeapon == null) return;
+        if (mainWeapon == null && offWeapon == null)
+            return;
 
         if (mainWeapon != null) {
             // Cancel melee with weapons by default
@@ -99,10 +106,11 @@ public class TriggerEntityListeners implements Listener {
         }
 
         // When sweep hit we don't want to do actual melee casts
-        if (isSweep) return;
+        if (isSweep)
+            return;
 
         if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.MELEE,
-                livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon))
+            livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon))
             return;
 
         if (mainStack.getAmount() != 0) {
@@ -117,7 +125,8 @@ public class TriggerEntityListeners implements Listener {
         Entity entity = e.getEntity();
 
         // Don't remove when its player
-        if (entity.getType() == EntityType.PLAYER) return;
+        if (entity.getType() == EntityType.PLAYER)
+            return;
 
         // If entity had EntityWrapper data, remove it
         WeaponMechanics.removeEntityWrapper(e.getEntity());
@@ -149,9 +158,11 @@ public class TriggerEntityListeners implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void toggleGlide(EntityToggleGlideEvent e) {
-        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Glide")) return;
+        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Glide"))
+            return;
 
-        if (!e.getEntityType().isAlive()) return;
+        if (!e.getEntityType().isAlive())
+            return;
         weaponHandler.useTrigger((LivingEntity) e.getEntity(), e.isGliding() ? TriggerType.START_GLIDE : TriggerType.END_GLIDE, false);
     }
 }

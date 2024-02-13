@@ -60,7 +60,7 @@ public abstract class AProjectile {
         this.lastLocation = this.location.clone();
         this.motion = motion;
         this.motionLength = motion.length();
-        this.scripts = new LinkedList<>(); //dynamic, O(1) resize
+        this.scripts = new LinkedList<>(); // dynamic, O(1) resize
         onStart();
     }
 
@@ -125,16 +125,14 @@ public abstract class AProjectile {
     /**
      * @return the disguise of projectile, or null if not used
      */
-    @Nullable
-    public FakeEntity getDisguise() {
+    @Nullable public FakeEntity getDisguise() {
         return disguise;
     }
 
     /**
      * @return the shooter of projectile
      */
-    @Nullable
-    public LivingEntity getShooter() {
+    @Nullable public LivingEntity getShooter() {
         return shooter;
     }
 
@@ -179,19 +177,21 @@ public abstract class AProjectile {
      * @param location the new location for projectile
      */
     public void setLocation(Vector location) {
-        if (location == null) throw new IllegalArgumentException("Location can't be null");
+        if (location == null)
+            throw new IllegalArgumentException("Location can't be null");
         this.lastLocation = this.location.clone();
         this.location = location;
     }
 
     /**
-     * Main difference compared to {@link #setLocation(Vector)} is that this
-     * doesn't update projectile last location.
+     * Main difference compared to {@link #setLocation(Vector)} is that this doesn't update projectile
+     * last location.
      *
      * @param location the new location for projectile
      */
     public void setRawLocation(Vector location) {
-        if (location == null) throw new IllegalArgumentException("Location can't be null");
+        if (location == null)
+            throw new IllegalArgumentException("Location can't be null");
         this.location = location;
     }
 
@@ -213,7 +213,8 @@ public abstract class AProjectile {
      * @return the normalized current motion
      */
     public Vector getNormalizedMotion() {
-        if (motionLength == 0) return getMotion();
+        if (motionLength == 0)
+            return getMotion();
         return getMotion().divide(new Vector(motionLength, motionLength, motionLength));
     }
 
@@ -223,7 +224,8 @@ public abstract class AProjectile {
      * @param motion the new motion for projectile
      */
     public void setMotion(Vector motion) {
-        if (motion == null) throw new IllegalArgumentException("Motion can't be null");
+        if (motion == null)
+            throw new IllegalArgumentException("Motion can't be null");
         this.motion = motion;
         this.motionLength = motion.length();
     }
@@ -266,8 +268,10 @@ public abstract class AProjectile {
      * @param value the value for key
      */
     public void setTag(String key, String value) {
-        if (key == null) throw new IllegalArgumentException("Key can't be null");
-        if (value == null) throw new IllegalArgumentException("Value can't be null");
+        if (key == null)
+            throw new IllegalArgumentException("Key can't be null");
+        if (value == null)
+            throw new IllegalArgumentException("Value can't be null");
         if (this.stringTags == null) {
             this.stringTags = new HashMap<>();
         }
@@ -291,7 +295,8 @@ public abstract class AProjectile {
      * @param value the value for key
      */
     public void setIntTag(String key, int value) {
-        if (key == null) throw new IllegalArgumentException("Key can't be null");
+        if (key == null)
+            throw new IllegalArgumentException("Key can't be null");
         if (this.integerTags == null) {
             this.integerTags = new HashMap<>();
         }
@@ -310,19 +315,21 @@ public abstract class AProjectile {
     }
 
     /**
-     * Marks projectile for removal and will be removed on next tick
-     * or in this tick if this method is called within the tick method.
+     * Marks projectile for removal and will be removed on next tick or in this tick if this method is
+     * called within the tick method.
      */
     public void remove() {
         // Don't allow anything to remove this twice
-        if (this.dead) return;
+        if (this.dead)
+            return;
 
         this.dead = true;
 
         updateDisguise(true);
 
         onEnd();
-        if (disguise != null) disguise.remove();
+        if (disguise != null)
+            disguise.remove();
 
         scriptEvent(ProjectileScript::onTickEnd);
     }
@@ -364,7 +371,8 @@ public abstract class AProjectile {
 
             // No need to continue as motion is empty and there isn't gravity currently
 
-            if (motionLength != 0) motionLength = 0;
+            if (motionLength != 0)
+                motionLength = 0;
 
             updateDisguise(true);
             scriptEvent(ProjectileScript::onTickEnd);
@@ -401,14 +409,17 @@ public abstract class AProjectile {
      * @param disguise the disguise to spawn
      */
     public void spawnDisguise(FakeEntity disguise) {
-        if (disguise == null || this.disguise != null) return;
+        if (disguise == null || this.disguise != null)
+            return;
 
         // Cache this rate
-        if (CHECK_FOR_NEW_PLAYER_RATE == 0) CHECK_FOR_NEW_PLAYER_RATE = getBasicConfigurations().getInt("Check_For_New_Player_Rate", 50);
+        if (CHECK_FOR_NEW_PLAYER_RATE == 0)
+            CHECK_FOR_NEW_PLAYER_RATE = getBasicConfigurations().getInt("Check_For_New_Player_Rate", 50);
 
         this.disguise = disguise;
 
-        if (getGravity() == 0.0) this.disguise.setGravity(false);
+        if (getGravity() == 0.0)
+            this.disguise.setGravity(false);
 
         this.disguise.show();
         this.disguise.setMotion(motion);
@@ -420,10 +431,12 @@ public abstract class AProjectile {
      * @param forceTeleport true to force teleport packet
      */
     protected void updateDisguise(boolean forceTeleport) {
-        if (disguise == null || lastDisguiseUpdateTick == aliveTicks) return;
+        if (disguise == null || lastDisguiseUpdateTick == aliveTicks)
+            return;
 
         // Show for new players in range
-        if (aliveTicks % CHECK_FOR_NEW_PLAYER_RATE == 0) disguise.show();
+        if (aliveTicks % CHECK_FOR_NEW_PLAYER_RATE == 0)
+            disguise.show();
 
         if (motionLength == 0) {
             disguise.setPosition(location.getX(), location.getY(), location.getZ(), disguise.getYaw(), disguise.getPitch(), forceTeleport);
@@ -437,20 +450,21 @@ public abstract class AProjectile {
     }
 
     private float calculateYaw(Vector normalizedMotion) {
-        if (motionLength == 0) return 0;
+        if (motionLength == 0)
+            return 0;
         double PI_2 = NumberUtil.TAU_DOUBLE;
         return (float) Math.toDegrees((Math.atan2(-normalizedMotion.getX(), normalizedMotion.getZ()) + PI_2) % PI_2);
     }
 
     private float calculatePitch(Vector normalizedMotion) {
-        if (motionLength == 0) return 0;
+        if (motionLength == 0)
+            return 0;
         return (float) Math.toDegrees(Math.atan(-normalizedMotion.getY() / Math.sqrt(NumberConversions.square(normalizedMotion.getX()) + NumberConversions.square(normalizedMotion.getZ()))));
     }
 
     /**
-     * This method updates the projectile's position/velocity, and handles all
-     * physics interactions during that movement. This method also updates
-     * {@link #distanceTravelled}.
+     * This method updates the projectile's position/velocity, and handles all physics interactions
+     * during that movement. This method also updates {@link #distanceTravelled}.
      *
      * @return true if projectile should be removed from projectile runnable
      */

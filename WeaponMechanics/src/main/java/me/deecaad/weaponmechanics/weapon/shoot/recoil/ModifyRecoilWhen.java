@@ -19,9 +19,9 @@ public class ModifyRecoilWhen extends AModifyWhen {
     }
 
     public ModifyRecoilWhen(NumberModifier always, NumberModifier zooming, NumberModifier sneaking,
-                            NumberModifier crawling, NumberModifier standing, NumberModifier walking,
-                            NumberModifier riding, NumberModifier sprinting, NumberModifier dualWielding,
-                            NumberModifier swimming, NumberModifier inMidair, NumberModifier gliding) {
+        NumberModifier crawling, NumberModifier standing, NumberModifier walking,
+        NumberModifier riding, NumberModifier sprinting, NumberModifier dualWielding,
+        NumberModifier swimming, NumberModifier inMidair, NumberModifier gliding) {
         super(always, zooming, sneaking, crawling, standing, walking, riding, sprinting, dualWielding, swimming, inMidair, gliding);
     }
 
@@ -31,8 +31,7 @@ public class ModifyRecoilWhen extends AModifyWhen {
     }
 
     @Override
-    @NotNull
-    public ModifyRecoilWhen serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public ModifyRecoilWhen serialize(@NotNull SerializeData data) throws SerializerException {
 
         NumberModifier always = getModifierHandler(data.of("Always"));
         NumberModifier zooming = getModifierHandler(data.of("Zooming"));
@@ -47,8 +46,8 @@ public class ModifyRecoilWhen extends AModifyWhen {
         NumberModifier inMidair = getModifierHandler(data.of("In_Midair"));
         NumberModifier gliding = getModifierHandler(data.of("Gliding"));
         if (always == null && zooming == null && sneaking == null && crawling == null
-                && standing == null && walking == null && riding == null && sprinting == null
-                && dualWielding == null && swimming == null && inMidair == null && gliding == null) {
+            && standing == null && walking == null && riding == null && sprinting == null
+            && dualWielding == null && swimming == null && inMidair == null && gliding == null) {
 
             throw data.exception(null, "Tried to use Modify_Recoil_When without any arguments");
         }
@@ -58,7 +57,8 @@ public class ModifyRecoilWhen extends AModifyWhen {
 
     private NumberModifier getModifierHandler(SerializeData.ConfigAccessor data) throws SerializerException {
         String value = Objects.toString(data.get(null), null);
-        if (value == null) return null;
+        if (value == null)
+            return null;
         try {
             boolean percentage = value.endsWith("%");
             double number = Double.parseDouble(value.split("%")[0]);
@@ -69,7 +69,7 @@ public class ModifyRecoilWhen extends AModifyWhen {
             return new NumberModifier(number, percentage);
         } catch (NumberFormatException e) {
             throw new SerializerTypeException(this, Number.class, null, value, data.getLocation())
-                    .addMessage("Remember that you can use percentages like '10%' to add 10% more recoil");
+                .addMessage("Remember that you can use percentages like '10%' to add 10% more recoil");
         }
     }
 }

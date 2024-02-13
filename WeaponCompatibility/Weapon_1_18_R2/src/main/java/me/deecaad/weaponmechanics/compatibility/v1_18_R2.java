@@ -23,24 +23,23 @@ public class v1_18_R2 implements IWeaponCompatibility {
     static {
         if (ReflectionUtil.getMCVersion() != 18) {
             WeaponMechanics.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + v1_18_R2.class + " when not using Minecraft 18",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + v1_18_R2.class + " when not using Minecraft 18",
+                new InternalError());
         }
     }
 
     private final Set<ClientboundPlayerPositionPacket.RelativeArgument> RELATIVE_FLAGS = new HashSet<>(Arrays.asList(
-            ClientboundPlayerPositionPacket.RelativeArgument.X,
-            ClientboundPlayerPositionPacket.RelativeArgument.Y,
-            ClientboundPlayerPositionPacket.RelativeArgument.Z,
-            ClientboundPlayerPositionPacket.RelativeArgument.X_ROT,
-            ClientboundPlayerPositionPacket.RelativeArgument.Y_ROT));
+        ClientboundPlayerPositionPacket.RelativeArgument.X,
+        ClientboundPlayerPositionPacket.RelativeArgument.Y,
+        ClientboundPlayerPositionPacket.RelativeArgument.Z,
+        ClientboundPlayerPositionPacket.RelativeArgument.X_ROT,
+        ClientboundPlayerPositionPacket.RelativeArgument.Y_ROT));
 
     private final Set<ClientboundPlayerPositionPacket.RelativeArgument> ABSOLUTE_FLAGS = new HashSet<>(Arrays.asList(
-            ClientboundPlayerPositionPacket.RelativeArgument.X,
-            ClientboundPlayerPositionPacket.RelativeArgument.Y,
-            ClientboundPlayerPositionPacket.RelativeArgument.Z));
+        ClientboundPlayerPositionPacket.RelativeArgument.X,
+        ClientboundPlayerPositionPacket.RelativeArgument.Y,
+        ClientboundPlayerPositionPacket.RelativeArgument.Z));
 
     private final IScopeCompatibility scopeCompatibility;
 
@@ -48,8 +47,7 @@ public class v1_18_R2 implements IWeaponCompatibility {
         this.scopeCompatibility = new Scope_1_18_R2();
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public IScopeCompatibility getScopeCompatibility() {
         return scopeCompatibility;
     }
@@ -77,17 +75,17 @@ public class v1_18_R2 implements IWeaponCompatibility {
         LivingEntity nms = ((CraftLivingEntity) victim).getHandle();
         nms.combatTracker.recordDamage(damageSource, (float) damage, (float) health);
         nms.setLastHurtByMob(((CraftLivingEntity) source).getHandle());
-        if (source instanceof Player) nms.setLastHurtByPlayer(((CraftPlayer) source).getHandle());
+        if (source instanceof Player)
+            nms.setLastHurtByPlayer(((CraftPlayer) source).getHandle());
     }
 
     @Override
     public EntityDamageByEntityEvent newEntityDamageByEntityEvent(org.bukkit.entity.LivingEntity victim, org.bukkit.entity.LivingEntity source, double damage, boolean isMelee) {
         return new EntityDamageByEntityEvent(
-                source,
-                victim,
-                isMelee ? EntityDamageByEntityEvent.DamageCause.ENTITY_ATTACK : EntityDamageByEntityEvent.DamageCause.PROJECTILE,
-                damage
-        );
+            source,
+            victim,
+            isMelee ? EntityDamageByEntityEvent.DamageCause.ENTITY_ATTACK : EntityDamageByEntityEvent.DamageCause.PROJECTILE,
+            damage);
     }
 
     @Override

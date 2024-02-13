@@ -80,8 +80,9 @@ public class CrackShotPlusConverter {
         // SCOPE
         SOUNDS_SCOPE("Scope.Custom_Scope_Sound", "Scope.Mechanics", Type.STR, new CustomSoundConvert()),
         SOUNDS_SCOPE_END("Scope.Custom_Scope_End_Sound", "Scope.Zoom_Off.Mechanics", Type.STR, new CustomSoundConvert()),
-        SECOND_ZOOM_STACKS("Scope.Second_Zoom.Amount", "Scope.Zoom_Stacking.Stacks", Type.INT, new GeneralObjectModifier(x ->
-                Collections.singletonList(NumberUtil.lerp(1, 5, (int) x > 6 ? 6 : ((double) ((int) x)) / 6)))),
+        SECOND_ZOOM_STACKS("Scope.Second_Zoom.Amount", "Scope.Zoom_Stacking.Stacks", Type.INT, new GeneralObjectModifier(x -> Collections.singletonList(NumberUtil.lerp(1, 5, (int) x > 6
+            ? 6
+            : ((double) ((int) x)) / 6)))),
 
         // SHOOT
         INVISIBLE_PROJECTILES("Shoot.Invisible_Projectiles", "Projectile.Projectile_Settings.Type", Type.BOOL, new GeneralObjectModifier(x -> "INVISIBLE")),
@@ -154,17 +155,19 @@ public class CrackShotPlusConverter {
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             Object value = type.get(from);
-            if (value == null) return;
+            if (value == null)
+                return;
 
-            if (type == Type.BOOL && !(Boolean) value) return;
+            if (type == Type.BOOL && !(Boolean) value)
+                return;
 
             if (type == Type.STR) {
                 value = ((String) value).replaceAll("#DAMAGED#", "%victim%")
-                        .replaceAll("#PLAYER#", "%shooter%")
-                        .replaceAll("#WEAPON#", "%weapon-title%")
-                        .replaceAll("#KILLER#", "%shooter%")
-                        .replaceAll("#KILLED#", "%victim%")
-                        .replaceAll("#C#", "console:");
+                    .replaceAll("#PLAYER#", "%shooter%")
+                    .replaceAll("#WEAPON#", "%weapon-title%")
+                    .replaceAll("#KILLER#", "%shooter%")
+                    .replaceAll("#KILLED#", "%victim%")
+                    .replaceAll("#C#", "console:");
 
                 value = StringUtil.colorAdventure((String) value);
             } else if (type == Type.LIST) {
@@ -193,10 +196,12 @@ public class CrackShotPlusConverter {
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String shape = CSPapi.getString(from + "Shape");
-            if (shape == null) return;
+            if (shape == null)
+                return;
 
             Boolean flicker = CSPapi.getBoolean(from + "Flicker");
-            if (flicker == null) flicker = false;
+            if (flicker == null)
+                flicker = false;
 
             List<String> mechanics = toConfig.getStringList(to);
 
@@ -225,7 +230,8 @@ public class CrackShotPlusConverter {
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String customSounds = CSPapi.getString(from);
-            if (customSounds == null) return;
+            if (customSounds == null)
+                return;
 
             List<String> mechanics = toConfig.getStringList(to);
 
@@ -261,13 +267,14 @@ public class CrackShotPlusConverter {
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String value = CSPapi.getString(from);
-            if (value == null) return;
+            if (value == null)
+                return;
 
             value = value.replaceAll("#DAMAGED#", "<target_name>")
-                    .replaceAll("#PLAYER#", "<source_name>")
-                    .replaceAll("#WEAPON#", "<weapon_title>")
-                    .replaceAll("#KILLER#", "<source_name>")
-                    .replaceAll("#KILLED#", "<target_name>");
+                .replaceAll("#PLAYER#", "<source_name>")
+                .replaceAll("#WEAPON#", "<weapon_title>")
+                .replaceAll("#KILLER#", "<source_name>")
+                .replaceAll("#KILLED#", "<target_name>");
 
             List<String> mechanics = toConfig.getStringList(to);
 
@@ -286,7 +293,8 @@ public class CrackShotPlusConverter {
                 }
             }
 
-            if (!mechanics.isEmpty()) toConfig.set(to, mechanics);
+            if (!mechanics.isEmpty())
+                toConfig.set(to, mechanics);
         }
     }
 
@@ -295,9 +303,11 @@ public class CrackShotPlusConverter {
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             Object value = type.get(from);
-            if (value == null) return;
+            if (value == null)
+                return;
 
-            if (type == Type.BOOL && !(Boolean) value) return;
+            if (type == Type.BOOL && !(Boolean) value)
+                return;
 
             toConfig.set(to, function.apply(value));
         }
@@ -310,7 +320,8 @@ public class CrackShotPlusConverter {
             Object title = type.get(from + ".Title");
             Object subtitle = type.get(from + ".Subtitle");
 
-            if (title == null && subtitle == null) return;
+            if (title == null && subtitle == null)
+                return;
 
             title = StringUtil.colorAdventure((String) title);
             subtitle = StringUtil.colorAdventure((String) subtitle);
@@ -324,7 +335,8 @@ public class CrackShotPlusConverter {
             }
 
             if (subtitle != null) {
-                if (title != null) builder.append(", ");
+                if (title != null)
+                    builder.append(", ");
                 builder.append("subtitle=%s".formatted(((String) subtitle).replaceAll(",", "\\\\,")));
             }
 
@@ -346,21 +358,25 @@ public class CrackShotPlusConverter {
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String title = CSPapi.getString(from + "Title");
-            if (title == null) return;
+            if (title == null)
+                return;
 
             title = title
-                    .replaceAll("#KILLED#", "%victim%")
-                    .replaceAll("#KILLER#", "%shooter%")
-                    .replaceAll(",", "\\\\,");
+                .replaceAll("#KILLED#", "%victim%")
+                .replaceAll("#KILLER#", "%shooter%")
+                .replaceAll(",", "\\\\,");
 
             Integer time = CSPapi.getInteger(from + "Time");
-            if (time == null) time = 60;
+            if (time == null)
+                time = 60;
 
             String barColor = CSPapi.getString(from + "Bar.Color");
-            if (barColor == null) barColor = "WHITE";
+            if (barColor == null)
+                barColor = "WHITE";
 
             String barStyle = CSPapi.getString(from + "Bar.Style");
-            if (barStyle == null) barStyle = "NOTCHED_20";
+            if (barStyle == null)
+                barStyle = "NOTCHED_20";
 
             try {
                 BossBar.Overlay.valueOf(barStyle);
@@ -383,12 +399,15 @@ public class CrackShotPlusConverter {
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             Integer bounceAmount = CSPapi.getInteger(from + "Bounce_Amount");
-            if (bounceAmount == null) return;
+            if (bounceAmount == null)
+                return;
 
-            if (bounceAmount > 25) bounceAmount = -1;
+            if (bounceAmount > 25)
+                bounceAmount = -1;
 
             Double decreaseVelocityPerBounce = CSPapi.getDouble(from + "Decrese_Velocity_Per_Bounce");
-            if (decreaseVelocityPerBounce == null) decreaseVelocityPerBounce = 0.6;
+            if (decreaseVelocityPerBounce == null)
+                decreaseVelocityPerBounce = 0.6;
 
             toConfig.set(to + "Maximum_Bounce_Amount", bounceAmount);
             toConfig.set(to + ".Blocks.Allow_Any", true);
@@ -405,15 +424,19 @@ public class CrackShotPlusConverter {
             Double upMin = CSPapi.getDouble(from + "Upwards.Minium");
             Double upMax = CSPapi.getDouble(from + "Upwards.Maxium");
             List<Double> up = new ArrayList<>();
-            if (upMin != null) up.add(upMin);
-            if (upMax != null) up.add(upMax);
+            if (upMin != null)
+                up.add(upMin);
+            if (upMax != null)
+                up.add(upMax);
 
             Double sidMin = CSPapi.getDouble(from + "Sideways.Minium");
             Double sidMax = CSPapi.getDouble(from + "Sideways.Maxium");
 
             List<Double> sid = new ArrayList<>();
-            if (sidMin != null) sid.add(sidMin);
-            if (sidMax != null) sid.add(sidMax);
+            if (sidMin != null)
+                sid.add(sidMin);
+            if (sidMax != null)
+                sid.add(sidMax);
 
             if (!up.isEmpty()) {
                 toConfig.set(to + "Vertical", up);
@@ -430,7 +453,8 @@ public class CrackShotPlusConverter {
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String defaultSkin = fromConfig.getString(from);
-            if (defaultSkin == null) return;
+            if (defaultSkin == null)
+                return;
 
             String weapon = from.split("\\.")[0];
             String skinPath = weapon + "_" + defaultSkin;
@@ -457,7 +481,8 @@ public class CrackShotPlusConverter {
             String reloadPath = skinPath + ((CSPapi.getBoolean(weapon + ".Reload.Reload_Skin") != null && CSPapi.getBoolean(weapon + ".Reload.Reload_Skin")) ? "_Reload" : ".Reload");
 
             String reloadType = CSPapi.getString(reloadPath + ".Change_Item_Type");
-            if (reloadType != null) toConfig.set(to + ".Reload.Type", reloadType);
+            if (reloadType != null)
+                toConfig.set(to + ".Reload.Type", reloadType);
 
             Integer reloadDurability = CSPapi.getInteger(reloadPath + ".Durability");
             if (reloadDurability != null) {
@@ -466,12 +491,14 @@ public class CrackShotPlusConverter {
             }
 
             Integer reloadCustomModelData = CSPapi.getInteger(reloadPath + ".Custom_Model_Data");
-            if (reloadCustomModelData != null) toConfig.set(to + ".Reload.Custom_Model_Data", reloadCustomModelData);
+            if (reloadCustomModelData != null)
+                toConfig.set(to + ".Reload.Custom_Model_Data", reloadCustomModelData);
 
             String scopePath = skinPath + ((CSPapi.getBoolean(weapon + ".Scope.Scope_Skin") != null && CSPapi.getBoolean(weapon + ".Scope.Scope_Skin")) ? "_Scope" : ".Scope");
 
             String scopeType = CSPapi.getString(scopePath + ".Change_Item_Type");
-            if (scopeType != null) toConfig.set(to + ".Scope.Type", scopeType);
+            if (scopeType != null)
+                toConfig.set(to + ".Scope.Type", scopeType);
 
             Integer scopeDurability = CSPapi.getInteger(scopePath + ".Durability");
             if (scopeDurability != null) {
@@ -480,7 +507,8 @@ public class CrackShotPlusConverter {
             }
 
             Integer scopeCustomModelData = CSPapi.getInteger(scopePath + ".Custom_Model_Data");
-            if (scopeCustomModelData != null) toConfig.set(to + ".Scope.Custom_Model_Data", scopeCustomModelData);
+            if (scopeCustomModelData != null)
+                toConfig.set(to + ".Scope.Custom_Model_Data", scopeCustomModelData);
         }
     }
 
@@ -489,7 +517,8 @@ public class CrackShotPlusConverter {
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String defaultTrail = CSPapi.getString(from);
-            if (defaultTrail == null) return;
+            if (defaultTrail == null)
+                return;
 
             String[] defaultTrails = defaultTrail.split(",");
 
@@ -567,7 +596,8 @@ public class CrackShotPlusConverter {
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String visualReload = CSPapi.getString(from);
-            if (visualReload == null) return;
+            if (visualReload == null)
+                return;
 
             String weapon = from.split("\\.")[0];
             String reloadPath = visualReload + ".";
@@ -599,11 +629,13 @@ public class CrackShotPlusConverter {
     }
 
     private static String getMaterial(String type) {
-        if (type == null) return null;
+        if (type == null)
+            return null;
 
         try {
             Material material = MaterialManager.getMaterial(type);
-            if (material != null) return material.name();
+            if (material != null)
+                return material.name();
         } catch (NoClassDefFoundError | Exception e) {
             // If CrackShot is outdated... or other exception
             try {
@@ -618,7 +650,8 @@ public class CrackShotPlusConverter {
     }
 
     private static String getBossBarStyle(String type) {
-        if (type == null) return null;
+        if (type == null)
+            return null;
 
         type = type.trim().toUpperCase(Locale.ROOT);
         if ("SOLID".equals(type))

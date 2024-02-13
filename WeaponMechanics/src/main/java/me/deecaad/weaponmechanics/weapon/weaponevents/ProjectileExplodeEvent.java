@@ -13,10 +13,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * Called whenever an explosion is spawned by a weapon (When a projectile
- * explodes, usually). While this event is {@link Cancellable}, you should
- * <i>ALWAYS</i> cancel {@link ProjectilePreExplodeEvent} (this will skip a lot
- * more calculations, saving that precious CPU).
+ * Called whenever an explosion is spawned by a weapon (When a projectile explodes, usually). While
+ * this event is {@link Cancellable}, you should <i>ALWAYS</i> cancel
+ * {@link ProjectilePreExplodeEvent} (this will skip a lot more calculations, saving that precious
+ * CPU).
  */
 public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellable {
 
@@ -31,7 +31,7 @@ public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellab
     private boolean isCancelled;
 
     public ProjectileExplodeEvent(WeaponProjectile projectile, List<Block> blocks, BlockRegenSorter sorter,
-                                  DoubleMap<LivingEntity> entities, Mechanics mechanics) {
+        DoubleMap<LivingEntity> entities, Mechanics mechanics) {
         super(projectile);
 
         this.blocks = blocks;
@@ -43,8 +43,8 @@ public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellab
 
     /**
      * Returns the list of blocks that were affected by the
-     * {@link me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape}.
-     * You can modify this list.
+     * {@link me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape}. You can modify this
+     * list.
      *
      * @return The non-null list of blocks affected.
      */
@@ -53,9 +53,8 @@ public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellab
     }
 
     /**
-     * Overrides the current list of blocks affected by the explosion. Using
-     * this method may cause compatibility issues with other plugins using this
-     * event, so use this carefully.
+     * Overrides the current list of blocks affected by the explosion. Using this method may cause
+     * compatibility issues with other plugins using this event, so use this carefully.
      *
      * @param blocks The non-null list of blocks to be destroyed.
      */
@@ -64,9 +63,8 @@ public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellab
     }
 
     /**
-     * A {@link BlockRegenSorter} simply sorts the block list after this event
-     * is called. This is nice for regeneration, as we can make the explosions
-     * regenerate in a "satisfying pattern".
+     * A {@link BlockRegenSorter} simply sorts the block list after this event is called. This is nice
+     * for regeneration, as we can make the explosions regenerate in a "satisfying pattern".
      *
      * @return The current block regen sorter.
      */
@@ -85,9 +83,8 @@ public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellab
     }
 
     /**
-     * Gets the list of entities mapped to their exposure (A number 0..1 that
-     * determines how exposed that entity is to the explosion. Higher numbers
-     * mean more damage).
+     * Gets the list of entities mapped to their exposure (A number 0..1 that determines how exposed
+     * that entity is to the explosion. Higher numbers mean more damage).
      *
      * @return The non-null entities mapped to their exposures.
      */
@@ -96,9 +93,8 @@ public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellab
     }
 
     /**
-     * Overrides the current list of entities affected by the explosion. Using
-     * this method may cause compatibility issues with other plugins using this
-     * event, so use this carefully.
+     * Overrides the current list of entities affected by the explosion. Using this method may cause
+     * compatibility issues with other plugins using this event, so use this carefully.
      *
      * @param entities The non-null map of entities and their exposures (0..1).
      */
@@ -117,8 +113,7 @@ public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellab
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

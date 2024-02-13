@@ -22,8 +22,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class DefaultExposure implements ExplosionExposure {
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public DoubleMap<LivingEntity> mapExposures(@NotNull Location origin, @NotNull ExplosionShape shape) {
 
         List<LivingEntity> entities = shape.getEntities(origin);

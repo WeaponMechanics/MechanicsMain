@@ -10,14 +10,14 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Called whenever a {@link WeaponProjectile} hits a block. This may be called
- * multiple times for some projectiles (that use
- * {@link me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Through}
- * or {@link me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Bouncy}).
+ * Called whenever a {@link WeaponProjectile} hits a block. This may be called multiple times for
+ * some projectiles (that use
+ * {@link me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Through} or
+ * {@link me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Bouncy}).
  *
- * <p>For more control over the projectile, consider using a
- * {@link me.deecaad.weaponmechanics.weapon.projectile.ProjectileScript}
- * instead.
+ * <p>
+ * For more control over the projectile, consider using a
+ * {@link me.deecaad.weaponmechanics.weapon.projectile.ProjectileScript} instead.
  */
 public class ProjectileHitBlockEvent extends ProjectileEvent implements Cancellable {
 
@@ -54,8 +54,8 @@ public class ProjectileHitBlockEvent extends ProjectileEvent implements Cancella
     }
 
     /**
-     * Returns the <i>exact*</i> location where the projectile's ray
-     * collides with the block's bounding box.
+     * Returns the <i>exact*</i> location where the projectile's ray collides with the block's bounding
+     * box.
      *
      * @return The non-null collision point
      */
@@ -74,8 +74,7 @@ public class ProjectileHitBlockEvent extends ProjectileEvent implements Cancella
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

@@ -25,24 +25,23 @@ public class v1_20_R2 implements IWeaponCompatibility {
     static {
         if (ReflectionUtil.getMCVersion() != 20) {
             WeaponMechanics.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + v1_20_R2.class + " when not using Minecraft 20",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + v1_20_R2.class + " when not using Minecraft 20",
+                new InternalError());
         }
     }
 
     private final Set<RelativeMovement> RELATIVE_FLAGS = new HashSet<>(Arrays.asList(
-            RelativeMovement.X,
-            RelativeMovement.Y,
-            RelativeMovement.Z,
-            RelativeMovement.X_ROT,
-            RelativeMovement.Y_ROT));
+        RelativeMovement.X,
+        RelativeMovement.Y,
+        RelativeMovement.Z,
+        RelativeMovement.X_ROT,
+        RelativeMovement.Y_ROT));
 
     private final Set<RelativeMovement> ABSOLUTE_FLAGS = new HashSet<>(Arrays.asList(
-            RelativeMovement.X,
-            RelativeMovement.Y,
-            RelativeMovement.Z));
+        RelativeMovement.X,
+        RelativeMovement.Y,
+        RelativeMovement.Z));
 
     private final IScopeCompatibility scopeCompatibility;
 
@@ -50,8 +49,7 @@ public class v1_20_R2 implements IWeaponCompatibility {
         this.scopeCompatibility = new Scope_1_20_R2();
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public IScopeCompatibility getScopeCompatibility() {
         return scopeCompatibility;
     }
@@ -80,17 +78,17 @@ public class v1_20_R2 implements IWeaponCompatibility {
         LivingEntity nms = ((CraftLivingEntity) victim).getHandle();
         nms.combatTracker.recordDamage(damageSource, (float) health);
         nms.setLastHurtByMob(((CraftLivingEntity) source).getHandle());
-        if (source instanceof Player) nms.setLastHurtByPlayer(((CraftPlayer) source).getHandle());
+        if (source instanceof Player)
+            nms.setLastHurtByPlayer(((CraftPlayer) source).getHandle());
     }
 
     @Override
     public EntityDamageByEntityEvent newEntityDamageByEntityEvent(org.bukkit.entity.LivingEntity victim, org.bukkit.entity.LivingEntity source, double damage, boolean isMelee) {
         return new EntityDamageByEntityEvent(
-                source,
-                victim,
-                isMelee ? EntityDamageByEntityEvent.DamageCause.ENTITY_ATTACK : EntityDamageByEntityEvent.DamageCause.PROJECTILE,
-                damage
-        );
+            source,
+            victim,
+            isMelee ? EntityDamageByEntityEvent.DamageCause.ENTITY_ATTACK : EntityDamageByEntityEvent.DamageCause.PROJECTILE,
+            damage);
     }
 
     @Override

@@ -24,22 +24,21 @@ public class v1_16_R3 implements IWeaponCompatibility {
     static {
         if (ReflectionUtil.getMCVersion() != 16) {
             WeaponMechanics.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + v1_16_R3.class + " when not using Minecraft 16",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + v1_16_R3.class + " when not using Minecraft 16",
+                new InternalError());
         }
     }
 
     private final Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> RELATIVE_FLAGS = new HashSet<>(Arrays.asList(PacketPlayOutPosition.EnumPlayerTeleportFlags.X,
-            PacketPlayOutPosition.EnumPlayerTeleportFlags.Y,
-            PacketPlayOutPosition.EnumPlayerTeleportFlags.Z,
-            PacketPlayOutPosition.EnumPlayerTeleportFlags.X_ROT,
-            PacketPlayOutPosition.EnumPlayerTeleportFlags.Y_ROT));
+        PacketPlayOutPosition.EnumPlayerTeleportFlags.Y,
+        PacketPlayOutPosition.EnumPlayerTeleportFlags.Z,
+        PacketPlayOutPosition.EnumPlayerTeleportFlags.X_ROT,
+        PacketPlayOutPosition.EnumPlayerTeleportFlags.Y_ROT));
 
     private final Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> ABSOLUTE_FLAGS = new HashSet<>(Arrays.asList(PacketPlayOutPosition.EnumPlayerTeleportFlags.X,
-            PacketPlayOutPosition.EnumPlayerTeleportFlags.Y,
-            PacketPlayOutPosition.EnumPlayerTeleportFlags.Z));
+        PacketPlayOutPosition.EnumPlayerTeleportFlags.Y,
+        PacketPlayOutPosition.EnumPlayerTeleportFlags.Z));
 
     private final IScopeCompatibility scopeCompatibility;
 
@@ -47,8 +46,7 @@ public class v1_16_R3 implements IWeaponCompatibility {
         this.scopeCompatibility = new Scope_1_16_R3();
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public IScopeCompatibility getScopeCompatibility() {
         return scopeCompatibility;
     }
@@ -56,8 +54,7 @@ public class v1_16_R3 implements IWeaponCompatibility {
     @Override
     public void modifyCameraRotation(Player player, float yaw, float pitch, boolean absolute) {
         pitch *= -1;
-        ((CraftPlayer) player).getHandle().playerConnection.
-                sendPacket(new PacketPlayOutPosition(0, 0, 0, yaw, pitch, absolute ? ABSOLUTE_FLAGS : RELATIVE_FLAGS, 0));
+        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutPosition(0, 0, 0, yaw, pitch, absolute ? ABSOLUTE_FLAGS : RELATIVE_FLAGS, 0));
     }
 
     @Override
@@ -77,17 +74,17 @@ public class v1_16_R3 implements IWeaponCompatibility {
         EntityLiving nms = ((CraftLivingEntity) victim).getHandle();
         nms.combatTracker.trackDamage(damageSource, (float) damage, (float) health);
         nms.setLastDamager(((CraftLivingEntity) source).getHandle());
-        if (source instanceof Player) nms.e(((CraftPlayer) source).getHandle());
+        if (source instanceof Player)
+            nms.e(((CraftPlayer) source).getHandle());
     }
 
     @Override
     public EntityDamageByEntityEvent newEntityDamageByEntityEvent(org.bukkit.entity.LivingEntity victim, org.bukkit.entity.LivingEntity source, double damage, boolean isMelee) {
         return new EntityDamageByEntityEvent(
-                source,
-                victim,
-                isMelee ? EntityDamageByEntityEvent.DamageCause.ENTITY_ATTACK : EntityDamageByEntityEvent.DamageCause.PROJECTILE,
-                damage
-        );
+            source,
+            victim,
+            isMelee ? EntityDamageByEntityEvent.DamageCause.ENTITY_ATTACK : EntityDamageByEntityEvent.DamageCause.PROJECTILE,
+            damage);
     }
 
     @Override

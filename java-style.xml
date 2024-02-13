@@ -56,7 +56,12 @@
 		<setting id="org.eclipse.jdt.core.formatter.continuation_indentation" value="1" />
 		<setting id="org.eclipse.jdt.core.formatter.join_wrapped_lines" value="false"/>
 		<setting id="org.eclipse.jdt.core.formatter.wrap_outer_expressions_when_nested" value="false"/>
+
+		<!-- Be less strict on enums... Multiline always -->
 		<setting id="org.eclipse.jdt.core.formatter.keep_enum_declaration_on_one_line" value="one_line_never"/>
 		<setting id="org.eclipse.jdt.core.formatter.keep_enum_constant_declaration_on_one_line" value="one_line_never"/>
+		<setting id="org.eclipse.jdt.core.formatter.alignment_for_enum_constants" value="49"/>
+		<setting id="org.eclipse.jdt.core.formatter.alignment_for_arguments_in_enum_constant" value="0"/>
+		<setting id="org.eclipse.jdt.core.formatter.alignment_for_superinterfaces_in_enum_declaration" value="0"/>
 	</profile>
 </profiles>

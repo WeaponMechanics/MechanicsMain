@@ -7,14 +7,14 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Called right before calculations for an explosion occurs. This is useful if
- * you want to:
+ * Called right before calculations for an explosion occurs. This is useful if you want to:
  * <ul>
- *     <li>Completely override everything about an explosion</li>
- *     <li>Cancel an explosion early</li>
+ * <li>Completely override everything about an explosion</li>
+ * <li>Cancel an explosion early</li>
  * </ul>
  *
- * <p>For more general usage, see {@link ProjectileExplodeEvent}.
+ * <p>
+ * For more general usage, see {@link ProjectileExplodeEvent}.
  */
 public class ProjectilePreExplodeEvent extends ProjectileEvent implements Cancellable {
 
@@ -33,7 +33,8 @@ public class ProjectilePreExplodeEvent extends ProjectileEvent implements Cancel
     }
 
     public void setExplosion(Explosion explosion) {
-        if (explosion == null) throw new NullPointerException("Explosion can't be null");
+        if (explosion == null)
+            throw new NullPointerException("Explosion can't be null");
         this.explosion = explosion;
     }
 
@@ -48,8 +49,7 @@ public class ProjectilePreExplodeEvent extends ProjectileEvent implements Cancel
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

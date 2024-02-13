@@ -1,7 +1,6 @@
 package me.deecaad.core.utils
 
 import org.bukkit.util.Vector
-import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.acos
 import kotlin.math.cos
 import kotlin.math.sin
@@ -13,7 +12,6 @@ import kotlin.math.sqrt
  * @see NumberUtil
  */
 object VectorUtil {
-
     /**
      * An immutable vector with all components set to 0.
      */
@@ -60,10 +58,14 @@ object VectorUtil {
      * @return The reference to the given vector
      */
     @JvmStatic
-    fun setLength(vector: Vector, length: Double): Vector {
+    fun setLength(
+        vector: Vector,
+        length: Double,
+    ): Vector {
         val currentLength = vector.length()
-        if (currentLength.approximately(0.0))
+        if (currentLength.approximately(0.0)) {
             throw IllegalArgumentException("Cannot set the length of a zero-length vector")
+        }
 
         return vector.multiply(length / currentLength)
     }
@@ -77,7 +79,10 @@ object VectorUtil {
      * @return the vector
      */
     @JvmStatic
-    fun fromDegrees(yaw: Double, pitch: Double): Vector {
+    fun fromDegrees(
+        yaw: Double,
+        pitch: Double,
+    ): Vector {
         val yawRad = Math.toRadians(yaw)
         val pitchRad = Math.toRadians(pitch)
 
@@ -93,7 +98,10 @@ object VectorUtil {
      * @return the new vector
      */
     @JvmStatic
-    fun fromRadians(yaw: Double, pitch: Double): Vector {
+    fun fromRadians(
+        yaw: Double,
+        pitch: Double,
+    ): Vector {
         val cosPitch = cos(pitch)
 
         val x = sin(yaw) * -cosPitch
@@ -112,7 +120,11 @@ object VectorUtil {
      * @return The new interpolated vector
      */
     @JvmStatic
-    fun lerp(a: Vector, b: Vector, t: Double): Vector {
+    fun lerp(
+        a: Vector,
+        b: Vector,
+        t: Double,
+    ): Vector {
         val x = NumberUtil.lerp(a.x, b.x, t)
         val y = NumberUtil.lerp(a.y, b.y, t)
         val z = NumberUtil.lerp(a.z, b.z, t)
@@ -129,7 +141,11 @@ object VectorUtil {
      * @return The new interpolated vector
      */
     @JvmStatic
-    fun lerpUnclamped(a: Vector, b: Vector, t: Double): Vector {
+    fun lerpUnclamped(
+        a: Vector,
+        b: Vector,
+        t: Double,
+    ): Vector {
         val x = NumberUtil.lerpUnclamped(a.x, b.x, t)
         val y = NumberUtil.lerpUnclamped(a.y, b.y, t)
         val z = NumberUtil.lerpUnclamped(a.z, b.z, t)
@@ -145,7 +161,10 @@ object VectorUtil {
      * @return The new vector
      */
     @JvmStatic
-    fun min(a: Vector, b: Vector): Vector {
+    fun min(
+        a: Vector,
+        b: Vector,
+    ): Vector {
         val x = Math.min(a.x, b.x)
         val y = Math.min(a.y, b.y)
         val z = Math.min(a.z, b.z)
@@ -161,7 +180,10 @@ object VectorUtil {
      * @return The new vector
      */
     @JvmStatic
-    fun max(a: Vector, b: Vector): Vector {
+    fun max(
+        a: Vector,
+        b: Vector,
+    ): Vector {
         val x = Math.max(a.x, b.x)
         val y = Math.max(a.y, b.y)
         val z = Math.max(a.z, b.z)
@@ -188,10 +210,11 @@ object VectorUtil {
     fun getPerpendicular(
         base: Vector,
         up: Vector = UP,
-        back: Vector = SOUTH
+        back: Vector = SOUTH,
     ): Vector {
-        if (isZero(base))
+        if (isZero(base)) {
             throw IllegalArgumentException("Cannot get a perpendicular vector of a zero-length vector")
+        }
 
         val cross = base.getCrossProduct(up)
 
@@ -220,7 +243,10 @@ object VectorUtil {
      * @see Math.toDegrees
      */
     @JvmStatic
-    fun getAngleBetween(a: Vector, b: Vector): Double {
+    fun getAngleBetween(
+        a: Vector,
+        b: Vector,
+    ): Double {
         // This uses the formula for the dot product of two vectors:
         // a · b = |a| * |b| * cos(θ)
         // θ = acos(a · b / (|a| * |b|))
@@ -248,9 +274,12 @@ object VectorUtil {
      */
     @JvmStatic
     @JvmOverloads
-    fun isZero(a: Vector, epsilon: Double = NumberUtil.EPSILON_DOUBLE): Boolean {
-        return a.x.approximately(0.0, epsilon)
-                && a.y.approximately(0.0, epsilon)
-                && a.z.approximately(0.0, epsilon)
+    fun isZero(
+        a: Vector,
+        epsilon: Double = NumberUtil.EPSILON_DOUBLE,
+    ): Boolean {
+        return a.x.approximately(0.0, epsilon) &&
+            a.y.approximately(0.0, epsilon) &&
+            a.z.approximately(0.0, epsilon)
     }
 }

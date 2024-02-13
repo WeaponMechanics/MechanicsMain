@@ -138,7 +138,7 @@ public class ItemAmmo implements IAmmoType {
                 // If the one stack of bullets is enough to fill the gun, then
                 // consume only that stack and stop.
                 if (potentialAmmo.getAmount() >= amount) {
-                    //amount -= potentialAmmo.getAmount();
+                    // amount -= potentialAmmo.getAmount();
                     total += amount;
                     consumeItem(inventory, i, potentialAmmo, amount);
                     return total;
@@ -208,19 +208,22 @@ public class ItemAmmo implements IAmmoType {
         for (int i = 0; i < 36; ++i) {
 
             // Don't check currently held slot either since it's weapon
-            if (i == playerInventory.getHeldItemSlot()) continue;
+            if (i == playerInventory.getHeldItemSlot())
+                continue;
 
             ItemStack potentialAmmo = playerInventory.getItem(i);
-            if (potentialAmmo == null || potentialAmmo.getType() == Material.AIR) continue;
+            if (potentialAmmo == null || potentialAmmo.getType() == Material.AIR)
+                continue;
 
             String potentialAmmoName = CustomTag.AMMO_TITLE.getString(potentialAmmo);
-            if (potentialAmmoName == null || !potentialAmmoName.equals(ammoTitle)) continue;
+            if (potentialAmmoName == null || !potentialAmmoName.equals(ammoTitle))
+                continue;
 
             // Now we know it's actually an ammo item
             if (CustomTag.AMMO_MAGAZINE.getInteger(potentialAmmo) == 1) {
                 amount += (potentialAmmo.getAmount() * maximumMagazineSize);
             } else {
-                amount +=  potentialAmmo.getAmount();
+                amount += potentialAmmo.getAmount();
             }
         }
         return amount;

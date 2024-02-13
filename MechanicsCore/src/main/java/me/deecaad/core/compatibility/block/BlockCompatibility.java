@@ -205,6 +205,10 @@ public interface BlockCompatibility {
     }
 
     enum SoundType {
-        BREAK, STEP, PLACE, HIT, FALL
+        BREAK,
+        STEP,
+        PLACE,
+        HIT,
+        FALL
     }
 }

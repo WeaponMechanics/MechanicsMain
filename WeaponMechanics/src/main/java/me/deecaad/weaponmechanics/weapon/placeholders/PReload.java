@@ -15,10 +15,10 @@ public class PReload extends PlaceholderHandler {
         super("reload");
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public String onRequest(@NotNull PlaceholderData data) {
-        if (data.player() == null || data.slot() == null) return null;
+        if (data.player() == null || data.slot() == null)
+            return null;
 
         PlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper(data.player());
         if (data.slot() == EquipmentSlot.HAND ? playerWrapper.getMainHandData().isReloading() : playerWrapper.getOffHandData().isReloading()) {

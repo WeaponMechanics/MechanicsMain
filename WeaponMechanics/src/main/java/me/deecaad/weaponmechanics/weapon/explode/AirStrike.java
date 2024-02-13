@@ -46,20 +46,18 @@ public class AirStrike implements Serializer<AirStrike> {
      * See arguments.
      *
      * @param projectile The non-null projectile to spawn for each bomb.
-     * @param min        The minimum number of bombs to spawn (per layer).
-     * @param max        The maximum number of bombs to spawn (per layer).
-     * @param height     The vertical distance above the initial projectile to
-     *                   spawn the layers.
+     * @param min The minimum number of bombs to spawn (per layer).
+     * @param max The maximum number of bombs to spawn (per layer).
+     * @param height The vertical distance above the initial projectile to spawn the layers.
      * @param yVariation The random variations in the <code>height</code> parameter.
-     * @param distance   The minimum distance between bombs.
-     * @param radius     The maximum horizontal distance away from the initial
-     *                   projectile that a bomb is allowed to spawn. Larger numbers
-     *                   means higher spread.
-     * @param loops      The number of layers of bombs to spawn.
-     * @param delay      The amount of time (in ticks) between each layer of bombs.
+     * @param distance The minimum distance between bombs.
+     * @param radius The maximum horizontal distance away from the initial projectile that a bomb is
+     *        allowed to spawn. Larger numbers means higher spread.
+     * @param loops The number of layers of bombs to spawn.
+     * @param delay The amount of time (in ticks) between each layer of bombs.
      */
     public AirStrike(Projectile projectile, int min, int max, double height, double yVariation,
-                     double distance, double radius, int loops, int delay, Detonation detonation, Mechanics mechanics) {
+        double distance, double radius, int loops, int delay, Detonation detonation, Mechanics mechanics) {
 
         this.projectile = projectile;
         this.min = min;
@@ -174,8 +172,7 @@ public class AirStrike implements Serializer<AirStrike> {
                 // each other. Uses distanceBetweenSquared
                 List<Vector2d> spawnLocations = new ArrayList<>(bombs);
 
-                locationFinder:
-                for (int i = 0; i < checks && spawnLocations.size() < bombs; i++) {
+                locationFinder : for (int i = 0; i < checks && spawnLocations.size() < bombs; i++) {
 
                     double x = flareLocation.getX() + RandomUtil.range(-radius, radius);
                     double z = flareLocation.getZ() + RandomUtil.range(-radius, radius);
@@ -197,8 +194,9 @@ public class AirStrike implements Serializer<AirStrike> {
                     // or use the projectile settings for this airstrike
                     Projectile projectileHandler = getProjectile() != null ? getProjectile() : getConfigurations().getObject(projectile.getWeaponTitle() + ".Projectile", Projectile.class);
                     if (projectileHandler != null) {
-                        WeaponProjectile newProjectile = getProjectile() != null ? projectileHandler.create(shooter, location, new Vector(0, 0, 0), projectile.getWeaponStack(), projectile.getWeaponTitle(), projectile.getHand())
-                                : projectile.clone(location, new Vector(0, 0, 0));
+                        WeaponProjectile newProjectile = getProjectile() != null
+                            ? projectileHandler.create(shooter, location, new Vector(0, 0, 0), projectile.getWeaponStack(), projectile.getWeaponTitle(), projectile.getHand())
+                            : projectile.clone(location, new Vector(0, 0, 0));
                         newProjectile.setIntTag("airstrike-bomb", 1);
                         projectileHandler.shoot(newProjectile, location);
                     }
@@ -212,8 +210,7 @@ public class AirStrike implements Serializer<AirStrike> {
     }
 
     @Override
-    @NotNull
-    public AirStrike serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public AirStrike serialize(@NotNull SerializeData data) throws SerializerException {
 
         int min = data.of("Minimum_Bombs").assertExists().assertPositive().getInt();
         int max = data.of("Maximum_Bombs").assertExists().assertPositive().getInt();

@@ -127,10 +127,25 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
     public enum ColorType {
 
         // All somewhat default Minecraft colors are directly supported
-        BLACK(Color.fromRGB(0, 0, 0)), DARK_BLUE(Color.fromRGB(0, 0, 170)), DARK_GREEN(Color.fromRGB(0, 170, 0)), DARK_AQUA(Color.fromRGB(0, 170, 170)), DARK_RED(Color.fromRGB(170, 0,
-            0)), DARK_PURPLE(Color.fromRGB(170, 0, 170)), GOLD(Color.fromRGB(255, 170, 0)), GRAY(Color.fromRGB(170, 170, 170)), DARK_GRAY(Color.fromRGB(85, 85, 85)), BLUE(Color.fromRGB(85, 85,
-                255)), GREEN(Color.fromRGB(85, 255, 85)), AQUA(Color.fromRGB(85, 255, 255)), RED(Color.fromRGB(255, 85, 85)), LIGHT_PURPLE(Color.fromRGB(255, 85, 255)), YELLOW(Color.fromRGB(255, 255,
-                    85)), WHITE(Color.fromRGB(255, 255, 255));
+        BLACK(Color.fromRGB(0, 0, 0)),
+        DARK_BLUE(Color.fromRGB(0, 0, 170)),
+        DARK_GREEN(Color.fromRGB(0, 170, 0)),
+        DARK_AQUA(Color.fromRGB(0, 170, 170)),
+        DARK_RED(Color.fromRGB(170, 0,
+            0)),
+        DARK_PURPLE(Color.fromRGB(170, 0, 170)),
+        GOLD(Color.fromRGB(255, 170, 0)),
+        GRAY(Color.fromRGB(170, 170, 170)),
+        DARK_GRAY(Color.fromRGB(85, 85, 85)),
+        BLUE(Color.fromRGB(85, 85,
+            255)),
+        GREEN(Color.fromRGB(85, 255, 85)),
+        AQUA(Color.fromRGB(85, 255, 255)),
+        RED(Color.fromRGB(255, 85, 85)),
+        LIGHT_PURPLE(Color.fromRGB(255, 85, 255)),
+        YELLOW(Color.fromRGB(255, 255,
+            85)),
+        WHITE(Color.fromRGB(255, 255, 255));
 
         private final Color color;
 

@@ -40,10 +40,10 @@ public enum PlayerStat {
     public static String getCreateTableString() {
         StringBuilder builder = new StringBuilder("CREATE TABLE IF NOT EXISTS player_stats (");
         Arrays.stream(VALUES).forEach(stat -> builder
-                .append(stat.name())
-                .append(" ")
-                .append(stat.columnType)
-                .append(", "));
+            .append(stat.name())
+            .append(" ")
+            .append(stat.columnType)
+            .append(", "));
         builder.append("PRIMARY KEY (UUID))");
 
         return builder.toString();

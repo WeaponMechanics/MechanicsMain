@@ -10,8 +10,7 @@ import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 
 /**
- * Listens and cancels events that could interfere
- * with block regeneration, or cause damage because
+ * Listens and cancels events that could interfere with block regeneration, or cause damage because
  * of the missing blocks
  *
  * It also regenerates blocks if chunks unload
@@ -24,7 +23,7 @@ public class ExplosionInteractionListeners implements Listener {
         BlockDamageData.regenerate(chunk);
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void onItemFrameBreak(HangingBreakEvent e) {
         BlockFace attachment = e.getEntity().getAttachedFace();
         Block in = e.getEntity().getLocation().getBlock();

@@ -99,7 +99,8 @@ public class Projectile implements Serializer<Projectile> {
 
         // Handle explosions
         Explosion explosion = getConfigurations().getObject(projectile.getWeaponTitle() + ".Explosion", Explosion.class);
-        if (explosion != null) explosion.handleExplosion(projectile.getShooter(), projectile, ExplosionTrigger.SPAWN);
+        if (explosion != null)
+            explosion.handleExplosion(projectile.getShooter(), projectile, ExplosionTrigger.SPAWN);
 
         WeaponMechanics.getProjectilesRunnable().addProjectile(projectile);
         return projectile;
@@ -124,8 +125,7 @@ public class Projectile implements Serializer<Projectile> {
     }
 
     @Override
-    @NotNull
-    public Projectile serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public Projectile serialize(@NotNull SerializeData data) throws SerializerException {
         ProjectileSettings projectileSettings = data.of("Projectile_Settings").assertExists().serialize(ProjectileSettings.class);
 
         Sticky sticky = data.of("Sticky").serialize(Sticky.class);

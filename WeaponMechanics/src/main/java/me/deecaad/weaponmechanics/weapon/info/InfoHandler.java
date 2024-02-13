@@ -36,8 +36,8 @@ public class InfoHandler implements IValidator {
     private final Set<String> weaponList = new LinkedHashSet<>();
 
     /**
-     * List of all registered weapons in sorted order.
-     * This is here just to make it more efficient to use list command.
+     * List of all registered weapons in sorted order. This is here just to make it more efficient to
+     * use list command.
      */
     private final List<String> sortedWeaponList = new ArrayList<>();
 
@@ -59,16 +59,14 @@ public class InfoHandler implements IValidator {
     }
 
     /**
-     * Returns the weapon-title that is most similar to the method parameter.
-     * This method will <i>always</i> return a valid weapon title, regardless
-     * of how inaccurate the parameter is. Meaning, yes, <code>AK-47</code>
-     * could return <code>RPG</code>.
+     * Returns the weapon-title that is most similar to the method parameter. This method will
+     * <i>always</i> return a valid weapon title, regardless of how inaccurate the parameter is.
+     * Meaning, yes, <code>AK-47</code> could return <code>RPG</code>.
      *
      * @param weapon The non-null "inaccurate" weapon-title.
      * @return The non-null valid weapon-title.
      */
-    @NotNull
-    public String getWeaponTitle(String weapon) {
+    @NotNull public String getWeaponTitle(String weapon) {
 
         // Before checking for similarities, do a startsWith check (since
         // players usually like to press enter before they finish typing
@@ -84,7 +82,7 @@ public class InfoHandler implements IValidator {
 
     public boolean hasPermission(LivingEntity player, String weaponTitle) {
         return player.hasPermission("weaponmechanics.use.*")
-                || player.hasPermission("weaponmechanics.use." + weaponTitle);
+            || player.hasPermission("weaponmechanics.use." + weaponTitle);
     }
 
     /**
@@ -125,14 +123,15 @@ public class InfoHandler implements IValidator {
      * @param autoConvert whether or not to automatically convert weapon stack to weapon if its valid
      * @return the weapon title or null if not found
      */
-    @Nullable
-    public String getWeaponTitle(ItemStack weaponStack, boolean autoConvert) {
-        if (weaponStack == null || weaponStack.getType() == Material.AIR) return null;
+    @Nullable public String getWeaponTitle(ItemStack weaponStack, boolean autoConvert) {
+        if (weaponStack == null || weaponStack.getType() == Material.AIR)
+            return null;
 
         String weaponTitle = CustomTag.WEAPON_TITLE.getString(weaponStack);
 
         // If its already weapon item stack
-        if (weaponTitle != null) return weaponTitle;
+        if (weaponTitle != null)
+            return weaponTitle;
 
         // If its not and auto convert is set to true, try to convert to weapon stack
         return autoConvert ? tryConvertingToWeapon(weaponStack) : null;
@@ -144,9 +143,9 @@ public class InfoHandler implements IValidator {
      * @param possibleWeaponStack the possible weapon stack
      * @return the weapon title or null if not found
      */
-    @Nullable
-    public String tryConvertingToWeapon(ItemStack possibleWeaponStack) {
-        if (weaponsWithConvert.isEmpty()) return null;
+    @Nullable public String tryConvertingToWeapon(ItemStack possibleWeaponStack) {
+        if (weaponsWithConvert.isEmpty())
+            return null;
 
         for (String weaponWithConvert : weaponsWithConvert) {
             ItemStack weaponStack = getConfigurations().getObject(weaponWithConvert + ".Info.Weapon_Item", ItemStack.class).clone();
@@ -185,7 +184,6 @@ public class InfoHandler implements IValidator {
         return weaponStack;
     }
 
-
     public boolean giveOrDropWeapon(String weaponTitle, LivingEntity entity, int amount) {
         return giveOrDropWeapon(weaponTitle, entity, amount, Collections.emptyMap());
     }
@@ -209,9 +207,12 @@ public class InfoHandler implements IValidator {
         int durability = (int) data.getOrDefault("durability", -1);
         int maxDurability = (int) data.getOrDefault("maxDurability", -1);
 
-        if (slot != -1) skipMainhand = true;
-        if (ammo != -1) CustomTag.AMMO_LEFT.setInteger(weaponStack, ammo);
-        if (firemode != -1) CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, firemode);
+        if (slot != -1)
+            skipMainhand = true;
+        if (ammo != -1)
+            CustomTag.AMMO_LEFT.setInteger(weaponStack, ammo);
+        if (firemode != -1)
+            CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, firemode);
 
         // Custom Durability Arguments
         CustomDurability customDurability = WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
@@ -253,9 +254,9 @@ public class InfoHandler implements IValidator {
         } else
             return false;
 
-
         Mechanics weaponGetMechanics = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Get_Mechanics", Mechanics.class);
-        if (weaponGetMechanics != null) weaponGetMechanics.use(new CastData(entity, weaponTitle, weaponStack));
+        if (weaponGetMechanics != null)
+            weaponGetMechanics.use(new CastData(entity, weaponTitle, weaponStack));
 
         return true;
     }
@@ -271,7 +272,8 @@ public class InfoHandler implements IValidator {
     public boolean denyDualWielding(TriggerType checkCause, @Nullable Player player, @Nullable String mainWeaponTitle, @Nullable String offWeaponTitle) {
 
         // Just simple check whether other hand is empty anyway
-        if (mainWeaponTitle == null || offWeaponTitle == null) return false;
+        if (mainWeaponTitle == null || offWeaponTitle == null)
+            return false;
 
         // Check that main hand weapon allows
         DualWield mainDualWield = getConfigurations().getObject(mainWeaponTitle + ".Info.Dual_Wield", DualWield.class);

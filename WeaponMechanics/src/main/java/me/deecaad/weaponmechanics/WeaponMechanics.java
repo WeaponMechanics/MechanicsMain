@@ -134,11 +134,11 @@ public class WeaponMechanics {
         try {
             JarSearcher searcher = new JarSearcher(new JarFile(getFile()));
             searcher.findAllSubclasses(Mechanic.class, getClassLoader(), true)
-                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.MECHANICS::add);
+                .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.MECHANICS::add);
             searcher.findAllSubclasses(Targeter.class, getClassLoader(), true)
-                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.TARGETERS::add);
+                .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.TARGETERS::add);
             searcher.findAllSubclasses(Condition.class, getClassLoader(), true)
-                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
+                .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
         } catch (Throwable ex) {
             ex.printStackTrace();
         }
@@ -176,13 +176,12 @@ public class WeaponMechanics {
         // Commands, for example, can't be registered after onEnable without
         // some disgusting NMS shit.
         new TaskChain(javaPlugin)
-                .thenRunSync(() -> {
-                    loadConfig();
-                    registerListeners();
-                    registerBStats();
-                    registerPermissions();
-                });
-
+            .thenRunSync(() -> {
+                loadConfig();
+                registerListeners();
+                registerBStats();
+                registerPermissions();
+            });
 
         registerCommands();
         registerUpdateChecker();
@@ -244,33 +243,34 @@ public class WeaponMechanics {
             // Just creates empty map to prevent other issues
             basicConfiguration = new LinkedConfig();
             debug.log(LogLevel.WARN,
-                    "Could not locate config.yml?",
-                    "Make sure it exists in path " + getDataFolder() + "/config.yml");
+                "Could not locate config.yml?",
+                "Make sure it exists in path " + getDataFolder() + "/config.yml");
         }
 
         // Ensure that the resource pack exists in the folder
         if (basicConfiguration.getBool("Resource_Pack_Download.Enabled")) {
             new TaskChain(WeaponMechanics.getPlugin())
-                    .thenRunAsync((data) -> {
-                        String link = basicConfiguration.getString("Resource_Pack_Download.Link");
-                        int connection = basicConfiguration.getInt("Resource_Pack_Download.Connection_Timeout");
-                        int read = basicConfiguration.getInt("Resource_Pack_Download.Read_Timeout");
+                .thenRunAsync((data) -> {
+                    String link = basicConfiguration.getString("Resource_Pack_Download.Link");
+                    int connection = basicConfiguration.getInt("Resource_Pack_Download.Connection_Timeout");
+                    int read = basicConfiguration.getInt("Resource_Pack_Download.Read_Timeout");
 
-                        if (("https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack.zip").equals(link)) {
-                            try {
-                                link = "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/resourcepack/WeaponMechanicsResourcePack-" + resourcePackListener.getResourcePackVersion() + ".zip";
-                            } catch (InternalError e) {
-                                debug.log(LogLevel.DEBUG, "Failed to fetch resource pack version due to timeout", e);
-                                return null;
-                            }
+                    if (("https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack.zip").equals(link)) {
+                        try {
+                            link = "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/resourcepack/WeaponMechanicsResourcePack-" + resourcePackListener.getResourcePackVersion()
+                                + ".zip";
+                        } catch (InternalError e) {
+                            debug.log(LogLevel.DEBUG, "Failed to fetch resource pack version due to timeout", e);
+                            return null;
                         }
+                    }
 
-                        File pack = new File(getDataFolder(), "WeaponMechanicsResourcePack.zip");
-                        if (!pack.exists()) {
-                            FileUtil.downloadFile(pack, link, connection, read);
-                        }
-                        return null;
-                    });
+                    File pack = new File(getDataFolder(), "WeaponMechanicsResourcePack.zip");
+                    if (!pack.exists()) {
+                        FileUtil.downloadFile(pack, link, connection, read);
+                    }
+                    return null;
+                });
         }
     }
 
@@ -324,7 +324,8 @@ public class WeaponMechanics {
             event.addValidators(validators);
             Bukkit.getPluginManager().callEvent(event);
 
-            Configuration temp = new FileReader(debug, event.getSerializers(), event.getValidators()).fillAllFiles(getDataFolder(), "config.yml", "repair_kits", "attachments", "ammos", "placeholders");
+            Configuration temp = new FileReader(debug, event.getSerializers(), event.getValidators()).fillAllFiles(getDataFolder(), "config.yml", "repair_kits", "attachments", "ammos",
+                "placeholders");
             configurations.add(temp);
         } catch (IOException e) {
             e.printStackTrace();
@@ -403,8 +404,8 @@ public class WeaponMechanics {
                 mainCommand = (MainCommand) registered;
             } catch (ClassCastException ex) {
                 debug.error("/weaponmechanics command was already registered... does another plugin use /wm?",
-                        "The registered command: " + registered,
-                        "Do not ignore this error! The weapon mechanics commands will not work at all!");
+                    "The registered command: " + registered,
+                    "Do not ignore this error! The weapon mechanics commands will not work at all!");
             }
         } else {
             commands.register("weaponmechanics", mainCommand = new WeaponMechanicsMainCommand());
@@ -435,18 +436,20 @@ public class WeaponMechanics {
     }
 
     void registerUpdateChecker() {
-        if (!basicConfiguration.getBool("Update_Checker.Enable", true)) return;
+        if (!basicConfiguration.getBool("Update_Checker.Enable", true))
+            return;
 
         debug.debug("Registering update checker");
         new UpdateChecker(javaPlugin, UpdateCheckSource.SPIGOT, "99913")
-                .setNotifyOpsOnJoin(true)
-                .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion())
-                .checkEveryXHours(24)
-                .checkNow();
+            .setNotifyOpsOnJoin(true)
+            .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion())
+            .checkEveryXHours(24)
+            .checkNow();
     }
 
     void registerBStats() {
-        if (this.metrics != null) return;
+        if (this.metrics != null)
+            return;
 
         debug.debug("Registering bStats");
 
@@ -481,16 +484,16 @@ public class WeaponMechanics {
 
         metrics.addCustomChart(new SimplePie("custom_weapons", () -> {
             Set<String> defaultWeapons = new HashSet<>(Arrays.asList("AK_47", "FN_FAL", "FR_5_56", "M4A1",
-                    "Stim",
-                    "Airstrike", "Cluster_Grenade", "Flashbang", "Grenade", "Semtex",
-                    "MG34",
-                    "Kar98k",
-                    "Combat_Knife",
-                    "50_GS", "357_Magnum",
-                    "RPG-7", "RPG_7",
-                    "Origin_12", "R9-0", "R9_0",
-                    "AX-50", "AX_50",
-                    "AUG", "Uzi"));
+                "Stim",
+                "Airstrike", "Cluster_Grenade", "Flashbang", "Grenade", "Semtex",
+                "MG34",
+                "Kar98k",
+                "Combat_Knife",
+                "50_GS", "357_Magnum",
+                "RPG-7", "RPG_7",
+                "Origin_12", "R9-0", "R9_0",
+                "AX-50", "AX_50",
+                "AUG", "Uzi"));
 
             InfoHandler infoHandler = getWeaponHandler().getInfoHandler();
             int counter = 0;
@@ -541,24 +544,24 @@ public class WeaponMechanics {
         resourcePackListener = new ResourcePackListener();
 
         return new TaskChain(getPlugin())
-                .thenRunAsync(this::writeFiles)
-                .thenRunSync(() -> {
+            .thenRunAsync(this::writeFiles)
+            .thenRunSync(() -> {
 
-                    loadConfig();
-                    registerPacketListeners();
-                    registerListeners();
-                    registerCommands();
-                    registerPermissions();
-                    registerUpdateChecker();
-                    setupDatabase();
+                loadConfig();
+                registerPacketListeners();
+                registerListeners();
+                registerCommands();
+                registerPermissions();
+                registerUpdateChecker();
+                setupDatabase();
 
-                    for (Player player : Bukkit.getOnlinePlayers()) {
-                        // Add PlayerWrapper in onEnable in case server is reloaded for example
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    // Add PlayerWrapper in onEnable in case server is reloaded for example
 
-                        PlayerWrapper playerWrapper = getPlayerWrapper(player);
-                        weaponHandler.getStatsHandler().load(playerWrapper);
-                    }
-                });
+                    PlayerWrapper playerWrapper = getPlayerWrapper(player);
+                    weaponHandler.getStatsHandler().load(playerWrapper);
+                }
+            });
     }
 
     public void onDisable() {
@@ -570,7 +573,8 @@ public class WeaponMechanics {
         // Close database and save data in SYNC
         if (database != null) {
             for (EntityWrapper entityWrapper : entityWrappers.values()) {
-                if (!entityWrapper.isPlayer()) continue;
+                if (!entityWrapper.isPlayer())
+                    continue;
                 weaponHandler.getStatsHandler().save((PlayerWrapper) entityWrapper, true);
             }
             try {
@@ -585,7 +589,7 @@ public class WeaponMechanics {
 
         database = null;
         weaponHandler = null;
-        //updateChecker = null; do not reset update checker
+        // updateChecker = null; do not reset update checker
         entityWrappers = null;
         mainCommand = null;
         configurations = null;
@@ -627,15 +631,15 @@ public class WeaponMechanics {
     }
 
     /**
-     * This method will return null if no auto add is set to true and EntityWrapper is not found.
-     * If no auto add is false then new EntityWrapper is automatically created if not found and returned by this method.
+     * This method will return null if no auto add is set to true and EntityWrapper is not found. If no
+     * auto add is false then new EntityWrapper is automatically created if not found and returned by
+     * this method.
      *
-     * @param entity    the entity
+     * @param entity the entity
      * @param noAutoAdd true means that EntityWrapper wont be automatically added if not found
      * @return the entity wrapper or null if no auto add is true and EntityWrapper was not found
      */
-    @Nullable
-    public static EntityWrapper getEntityWrapper(LivingEntity entity, boolean noAutoAdd) {
+    @Nullable public static EntityWrapper getEntityWrapper(LivingEntity entity, boolean noAutoAdd) {
         if (entity.getType() == EntityType.PLAYER) {
             return getPlayerWrapper((Player) entity);
         }
@@ -651,8 +655,8 @@ public class WeaponMechanics {
     }
 
     /**
-     * This method can't return null because new PlayerWrapper is created if not found.
-     * Use mainly getEntityWrapper() instead of this unless you especially need something from PlayerWrapper.
+     * This method can't return null because new PlayerWrapper is created if not found. Use mainly
+     * getEntityWrapper() instead of this unless you especially need something from PlayerWrapper.
      *
      * @param player the player wrapper to get
      * @return the player wrapper
@@ -671,8 +675,7 @@ public class WeaponMechanics {
     }
 
     /**
-     * Removes entity (and player) wrapper and all of its content.
-     * Move task is also cancelled.
+     * Removes entity (and player) wrapper and all of its content. Move task is also cancelled.
      *
      * @param entity the entity (or player)
      */
@@ -723,8 +726,7 @@ public class WeaponMechanics {
     /**
      * @return the database instance if enabled
      */
-    @Nullable
-    public static Database getDatabase() {
+    @Nullable public static Database getDatabase() {
         return plugin.database;
     }
 }

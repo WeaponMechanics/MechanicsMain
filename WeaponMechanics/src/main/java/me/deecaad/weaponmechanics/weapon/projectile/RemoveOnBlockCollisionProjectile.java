@@ -9,9 +9,8 @@ import org.bukkit.util.Vector;
 import java.util.List;
 
 /**
- * Really lightweight remove on block collision projectile.
- * This considers all blocks as 1x1x1 and is removed on any
- * collision including passable blocks.
+ * Really lightweight remove on block collision projectile. This considers all blocks as 1x1x1 and
+ * is removed on any collision including passable blocks.
  *
  * This doesn't check entity collisions.
  */
@@ -25,7 +24,8 @@ public class RemoveOnBlockCollisionProjectile extends AProjectile {
 
     public RemoveOnBlockCollisionProjectile(Location location, Vector motion, FakeEntity disguise) {
         super(location, motion);
-        if (disguise != null) spawnDisguise(disguise);
+        if (disguise != null)
+            spawnDisguise(disguise);
     }
 
     @Override

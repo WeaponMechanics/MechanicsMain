@@ -10,9 +10,7 @@ package me.deecaad.core.utils
  * as a dependency would have to use kotlin, and might have shading issues... So:
  */
 data class DoubleRef(var value: Double) {
-
     companion object {
-
         /**
          * Creates a new [DoubleRef] with the given value.
          *

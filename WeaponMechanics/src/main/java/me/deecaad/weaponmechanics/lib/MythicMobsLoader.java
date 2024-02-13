@@ -21,7 +21,7 @@ public class MythicMobsLoader implements Listener {
     }
 
     @EventHandler
-    public void onMythicConditionLoad(MythicConditionLoadEvent event)	{
+    public void onMythicConditionLoad(MythicConditionLoadEvent event) {
         if (event.getConditionName().equalsIgnoreCase("weaponMechanicsArmed")) {
             event.register(new MythicMobsArmedCondition(event.getConfig()));
         } else if (event.getConditionName().equalsIgnoreCase("weaponMechanicsReloading")) {
@@ -30,7 +30,7 @@ public class MythicMobsLoader implements Listener {
     }
 
     @EventHandler
-    public void onMythicDropLoad(MythicDropLoadEvent event)	{
+    public void onMythicDropLoad(MythicDropLoadEvent event) {
         if (event.getDropName().equalsIgnoreCase("weaponMechanicsWeapon")) {
             event.register(new MythicMobsWeaponDrop(event.getConfig(), event.getArgument()));
         }

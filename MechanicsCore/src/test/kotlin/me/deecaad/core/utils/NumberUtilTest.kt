@@ -5,15 +5,11 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.CsvSource
-import org.junit.jupiter.params.provider.MethodSource
 import java.util.concurrent.ThreadLocalRandom
-import java.util.stream.Stream
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NumberUtilTest {
-
     @ParameterizedTest
     @CsvSource(
         "4.0, 16.0",
@@ -21,9 +17,12 @@ class NumberUtilTest {
         "0.0, 0.0",
         "1.0, 1.0",
         "0.5, 0.25",
-        "10000,100000000"
+        "10000,100000000",
     )
-    fun testSquare(value: Double, expected: Double) {
+    fun testSquare(
+        value: Double,
+        expected: Double,
+    ) {
         assertEquals(expected, NumberUtil.square(value))
     }
 
@@ -47,7 +46,12 @@ class NumberUtilTest {
         "0.0, 0.0, 1.0, 0.0",
         "1.0, 0.0, 1.0, 1.0",
     )
-    fun testClamp(value: Double, min: Double, max: Double, expected: Double) {
+    fun testClamp(
+        value: Double,
+        min: Double,
+        max: Double,
+        expected: Double,
+    ) {
         assertEquals(expected, value.clamp(min, max))
     }
 
@@ -60,7 +64,10 @@ class NumberUtilTest {
         "-1.0, 0.0",
         "2.0, 1.0",
     )
-    fun testClamp01(value: Double, expected: Double) {
+    fun testClamp01(
+        value: Double,
+        expected: Double,
+    ) {
         assertEquals(expected, value.clamp01())
     }
 
@@ -73,7 +80,11 @@ class NumberUtilTest {
         "-180, 180, 0",
         "0, -45, -45",
     )
-    fun testDeltaDegrees(a: Float, b: Float, expected: Float) {
+    fun testDeltaDegrees(
+        a: Float,
+        b: Float,
+        expected: Float,
+    ) {
         assertEquals(expected, NumberUtil.deltaDegrees(a, b))
     }
 
@@ -84,9 +95,12 @@ class NumberUtilTest {
         "180, 180",
         "450, 90",
         "360, 0",
-        "0, 0"
+        "0, 0",
     )
-    fun test_normalizeAngle(input: Double, expected: Double) {
+    fun test_normalizeAngle(
+        input: Double,
+        expected: Double,
+    ) {
         assertEquals(expected, NumberUtil.normalizeDegrees(input))
     }
 
@@ -96,9 +110,12 @@ class NumberUtilTest {
         "0.0, 0.0",
         "${Math.PI}, ${Math.PI}",
         "${-Math.PI}, ${Math.PI}",
-        "${Math.PI / 4.0}, ${Math.PI / 4.0}"
+        "${Math.PI / 4.0}, ${Math.PI / 4.0}",
     )
-    fun test_normalizeRadians(input: Double, expected: Double) {
+    fun test_normalizeRadians(
+        input: Double,
+        expected: Double,
+    ) {
         assertEquals(expected, NumberUtil.normalizeRadians(input))
     }
 
@@ -117,7 +134,7 @@ class NumberUtilTest {
             println("Iteration $i: $result, which is a difference of ${result - position}. Velocity is ${velocity.value}")
             position = result
         }
-        
+
         assertEquals(target, position, 0.001f)
     }
 
@@ -152,7 +169,10 @@ class NumberUtilTest {
         "10, X",
         "513, DXIII",
     )
-    fun testRomanNumeral(value: Int, expected: String) {
+    fun testRomanNumeral(
+        value: Int,
+        expected: String,
+    ) {
         assertEquals(expected, NumberUtil.toRomanNumeral(value))
     }
 
@@ -165,7 +185,10 @@ class NumberUtilTest {
         "3600, 1h",
         "3661, 1h 1m 1s",
     )
-    fun testToTime(seconds: Int, expected: String) {
+    fun testToTime(
+        seconds: Int,
+        expected: String,
+    ) {
         assertEquals(expected, NumberUtil.toTime(seconds))
     }
 }

@@ -176,8 +176,12 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
      */
     public enum Direction {
 
-        UP(Transform::getUp, 0, 1, 0), DOWN(t -> t.getUp().multiply(-1.0), 0, -1, 0), RIGHT(Transform::getRight, 1, 0, 0), LEFT(t -> t.getRight().multiply(-1.0), -1, 0, 0), FORWARD(
-            Transform::getForward, 0, 0, 1), BACKWARD(t -> t.getForward().multiply(-1.0), 0, 0, -1);
+        UP(Transform::getUp, 0, 1, 0),
+        DOWN(t -> t.getUp().multiply(-1.0), 0, -1, 0),
+        RIGHT(Transform::getRight, 1, 0, 0),
+        LEFT(t -> t.getRight().multiply(-1.0), -1, 0, 0),
+        FORWARD(Transform::getForward, 0, 0, 1),
+        BACKWARD(t -> t.getForward().multiply(-1.0), 0, 0, -1);
 
         private final Function<Transform, Vector> function;
         private final Vector raw;

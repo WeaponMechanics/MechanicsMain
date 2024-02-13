@@ -33,7 +33,7 @@ public class AmmoTypeSwitchTriggerListener implements TriggerListener {
 
         Trigger ammoTypeSwitchTrigger = ammo.getSwitchTrigger();
         if (ammoTypeSwitchTrigger == null || entityWrapper.getEntity().getType() != EntityType.PLAYER
-                || !ammoTypeSwitchTrigger.check(triggerType, slot, entityWrapper)) {
+            || !ammoTypeSwitchTrigger.check(triggerType, slot, entityWrapper)) {
             return false;
         }
 
@@ -54,7 +54,8 @@ public class AmmoTypeSwitchTriggerListener implements TriggerListener {
             ammo.getSwitchMechanics().use(new CastData(entityWrapper.getEntity(), weaponTitle, weaponStack));
 
         WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
+        if (weaponInfoDisplay != null)
+            weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
 
         getWeaponHandler().getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
 

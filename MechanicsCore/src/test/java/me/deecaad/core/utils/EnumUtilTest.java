@@ -75,7 +75,21 @@ class EnumUtilTest {
     }
 
     enum TestEnum {
-        SPRUCE_WOOD, OAK_WOOD, BIRCH_WOOD, JUNGLE_WOOD, DIRT, STONE, GRASS, GLASS, STAINED_GLASS, TINTED_GLASS, RED_STAINED_GLASS, GLASS_PANE, THIN_GLASS, BLUE_STAINED_GLASS_PANE, CLAY
+        SPRUCE_WOOD,
+        OAK_WOOD,
+        BIRCH_WOOD,
+        JUNGLE_WOOD,
+        DIRT,
+        STONE,
+        GRASS,
+        GLASS,
+        STAINED_GLASS,
+        TINTED_GLASS,
+        RED_STAINED_GLASS,
+        GLASS_PANE,
+        THIN_GLASS,
+        BLUE_STAINED_GLASS_PANE,
+        CLAY
 
     }
 }

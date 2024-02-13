@@ -19,7 +19,8 @@ public class DualWieldingCondition extends Condition {
 
     @Override
     protected boolean isAllowed0(CastData cast) {
-        if (cast.getTarget() == null) return false;
+        if (cast.getTarget() == null)
+            return false;
         EntityWrapper wrapper = WeaponMechanics.getEntityWrapper(cast.getTarget(), true);
 
         return wrapper != null && wrapper.isDualWielding();
@@ -35,8 +36,7 @@ public class DualWieldingCondition extends Condition {
         return "https://cjcrafter.gitbook.io/mechanics/integrations/weaponmechanics#dual-wielding";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         return applyParentArgs(data, new DualWieldingCondition());
     }

@@ -50,7 +50,8 @@ public class WeaponListeners implements Listener {
 
     @EventHandler
     public void equip(EntityEquipmentEvent e) {
-        if (e.isArmor()) return;
+        if (e.isArmor())
+            return;
 
         LivingEntity entity = (LivingEntity) e.getEntity();
         EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(entity);
@@ -151,36 +152,41 @@ public class WeaponListeners implements Listener {
     public void quit(PlayerQuitEvent e) {
         // Cleanup metadata on player quit
         Player player = e.getPlayer();
-        if (!MetadataKey.ASSIST_DATA.has(player)) return;
+        if (!MetadataKey.ASSIST_DATA.has(player))
+            return;
         MetadataKey.ASSIST_DATA.remove(player);
     }
 
     @EventHandler
     public void unload(ChunkUnloadEvent e) {
         // Small performance boost when using assists only for players
-        if (getBasicConfigurations().getBool("Assists_Event.Only_Players", true)) return;
+        if (getBasicConfigurations().getBool("Assists_Event.Only_Players", true))
+            return;
 
         // Cleanup metadata on chunk unload...
         for (Entity entity : e.getChunk().getEntities()) {
-            if (!MetadataKey.ASSIST_DATA.has(entity)) continue;
+            if (!MetadataKey.ASSIST_DATA.has(entity))
+                continue;
             MetadataKey.ASSIST_DATA.remove(entity);
         }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void click(InventoryClickEvent e) {
-        if (!(e.getWhoClicked() instanceof Player player)) return;
+        if (!(e.getWhoClicked() instanceof Player player))
+            return;
         PlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper(player);
 
         // Keep track of when last inventory click drop happens
         ClickType clickType = e.getClick();
         if (clickType == ClickType.DROP || clickType == ClickType.CONTROL_DROP
-                || e.getSlot() == -999) {
+            || e.getSlot() == -999) {
             playerWrapper.inventoryDrop();
         }
 
         // Off hand is also considered as quickbar slot
-        if (e.getSlotType() != InventoryType.SlotType.QUICKBAR) return;
+        if (e.getSlotType() != InventoryType.SlotType.QUICKBAR)
+            return;
 
         playerWrapper.getMainHandData().cancelTasks(true);
         playerWrapper.getOffHandData().cancelTasks(true);

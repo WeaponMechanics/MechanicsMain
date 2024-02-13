@@ -43,11 +43,11 @@ public class DamageHandler {
      */
     public boolean tryUse(LivingEntity victim, WeaponProjectile projectile, double damage, DamagePoint point, boolean isBackstab) {
         return tryUse(victim, damage, point, isBackstab, projectile.getShooter(), projectile.getWeaponTitle(),
-                projectile.getWeaponStack(), projectile.getHand(), projectile.getDistanceTravelled());
+            projectile.getWeaponStack(), projectile.getHand(), projectile.getDistanceTravelled());
     }
 
     public boolean tryUse(LivingEntity victim, double damage, DamagePoint point, boolean isBackstab,
-                          LivingEntity shooter, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, double distanceTravelled) {
+        LivingEntity shooter, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, double distanceTravelled) {
         return tryUse(victim, damage, point, isBackstab, shooter, weaponTitle, weaponStack, slot, distanceTravelled, false);
     }
 
@@ -55,7 +55,7 @@ public class DamageHandler {
      * @return false if damaging was cancelled
      */
     public boolean tryUse(LivingEntity victim, double damage, DamagePoint point, boolean isBackstab,
-                          LivingEntity shooter, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, double distanceTravelled, boolean isExplosion) {
+        LivingEntity shooter, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, double distanceTravelled, boolean isExplosion) {
         Configuration config = getConfigurations();
 
         if (!DamageUtil.canHarmScoreboardTeams(shooter, victim) && !config.getBool(weaponTitle + ".Damage.Ignore_Teams"))
@@ -86,8 +86,8 @@ public class DamageHandler {
         // Make sure legacy-users have updated their config.yml file
         if (damageModifier == null) {
             debug.error("Could not find the default DamageModifiers... Are you using the outdated system?",
-                    "In WeaponMechanics-2.5.0, we added a new damage system. Check the patch notes for an easy copy-paste solution",
-                    "Your damage will not work until this is addressed");
+                "In WeaponMechanics-2.5.0, we added a new damage system. Check the patch notes for an easy copy-paste solution",
+                "Your damage will not work until this is addressed");
             return false;
         }
 
@@ -103,9 +103,9 @@ public class DamageHandler {
         Mechanics feetMechanics = config.getObject(weaponTitle + ".Damage.Feet.Mechanics", Mechanics.class);
 
         WeaponDamageEntityEvent damageEntityEvent = new WeaponDamageEntityEvent(weaponTitle, weaponStack, shooter, slot, victim,
-                damage, isBackstab, critChance, point, armorDamage, fireTicks, isExplosion, distanceTravelled, damageModifier,
-                damageMechanics, killMechanics, backstabMechanics, criticalHitMechanics, headMechanics, bodyMechanics,
-                armsMechanics, legsMechanics, feetMechanics);
+            damage, isBackstab, critChance, point, armorDamage, fireTicks, isExplosion, distanceTravelled, damageModifier,
+            damageMechanics, killMechanics, backstabMechanics, criticalHitMechanics, headMechanics, bodyMechanics,
+            armsMechanics, legsMechanics, feetMechanics);
         Bukkit.getPluginManager().callEvent(damageEntityEvent);
         if (damageEntityEvent.isCancelled())
             return false;
@@ -146,7 +146,7 @@ public class DamageHandler {
         if (shooterData != null) {
             shooterData.add(weaponTitle, WeaponStat.TOTAL_DAMAGE, (float) finalDamage);
             shooterData.set(weaponTitle, WeaponStat.LONGEST_DISTANCE_HIT,
-                    (key, value) -> value == null ? (float) distanceTravelled : Math.max((float) value, (float) distanceTravelled));
+                (key, value) -> value == null ? (float) distanceTravelled : Math.max((float) value, (float) distanceTravelled));
         }
         if (victimData != null)
             victimData.add(PlayerStat.DAMAGE_TAKEN, (float) finalDamage);
@@ -169,10 +169,10 @@ public class DamageHandler {
                     shooterData.add(weaponTitle, WeaponStat.OTHER_KILLS, 1);
                 }
                 shooterData.set(weaponTitle, WeaponStat.LONGEST_DISTANCE_KILL,
-                        (key, value) -> value == null ? (float) distanceTravelled : Math.max((float) value, (float) distanceTravelled));
+                    (key, value) -> value == null ? (float) distanceTravelled : Math.max((float) value, (float) distanceTravelled));
             }
         } else if (shooter.getType() == EntityType.PLAYER && getBasicConfigurations().getBool("Assists_Event.Enable", true)
-                && (!getBasicConfigurations().getBool("Assists_Event.Only_Players", true) || victim.getType() == EntityType.PLAYER)) {
+            && (!getBasicConfigurations().getBool("Assists_Event.Only_Players", true) || victim.getType() == EntityType.PLAYER)) {
 
             // If shot didn't kill entity, log assist damage
             AssistData assistData;
@@ -192,7 +192,8 @@ public class DamageHandler {
 
             if (shooterData != null) {
                 shooterData.add(weaponTitle, WeaponStat.BACKSTABS, 1);
-                if (killed) shooterData.add(weaponTitle, WeaponStat.BACKSTAB_KILLS, 1);
+                if (killed)
+                    shooterData.add(weaponTitle, WeaponStat.BACKSTAB_KILLS, 1);
             }
         }
 
@@ -203,7 +204,8 @@ public class DamageHandler {
 
             if (shooterData != null) {
                 shooterData.add(weaponTitle, WeaponStat.CRITICAL_HITS, 1);
-                if (killed) shooterData.add(weaponTitle, WeaponStat.CRITICAL_KILLS, 1);
+                if (killed)
+                    shooterData.add(weaponTitle, WeaponStat.CRITICAL_KILLS, 1);
             }
         }
 
@@ -223,23 +225,28 @@ public class DamageHandler {
                 switch (point) {
                     case HEAD -> {
                         shooterData.add(weaponTitle, WeaponStat.HEAD_HITS, 1);
-                        if (killed) shooterData.add(weaponTitle, WeaponStat.HEAD_KILLS, 1);
+                        if (killed)
+                            shooterData.add(weaponTitle, WeaponStat.HEAD_KILLS, 1);
                     }
                     case BODY -> {
                         shooterData.add(weaponTitle, WeaponStat.BODY_HITS, 1);
-                        if (killed) shooterData.add(weaponTitle, WeaponStat.BODY_KILLS, 1);
+                        if (killed)
+                            shooterData.add(weaponTitle, WeaponStat.BODY_KILLS, 1);
                     }
                     case ARMS -> {
                         shooterData.add(weaponTitle, WeaponStat.ARM_HITS, 1);
-                        if (killed) shooterData.add(weaponTitle, WeaponStat.ARM_KILLS, 1);
+                        if (killed)
+                            shooterData.add(weaponTitle, WeaponStat.ARM_KILLS, 1);
                     }
                     case LEGS -> {
                         shooterData.add(weaponTitle, WeaponStat.LEG_HITS, 1);
-                        if (killed) shooterData.add(weaponTitle, WeaponStat.LEG_KILLS, 1);
+                        if (killed)
+                            shooterData.add(weaponTitle, WeaponStat.LEG_KILLS, 1);
                     }
                     case FEET -> {
                         shooterData.add(weaponTitle, WeaponStat.FOOT_HITS, 1);
-                        if (killed) shooterData.add(weaponTitle, WeaponStat.FOOT_KILLS, 1);
+                        if (killed)
+                            shooterData.add(weaponTitle, WeaponStat.FOOT_KILLS, 1);
                     }
                 }
             }

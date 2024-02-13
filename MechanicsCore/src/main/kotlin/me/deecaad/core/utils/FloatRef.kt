@@ -10,9 +10,7 @@ package me.deecaad.core.utils
  * as a dependency would have to use kotlin, and might have shading issues... So:
  */
 data class FloatRef(var value: Float) {
-
     companion object {
-
         /**
          * Creates a new [FloatRef] with the given value.
          *

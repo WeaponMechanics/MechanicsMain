@@ -1,6 +1,5 @@
 package me.deecaad.core.utils
 
-
 /**
  * Squares a value, i.e. multiplies it by itself.
  *
@@ -54,7 +53,10 @@ fun Long.square(): Long {
  * @return The clamped value
  * @throws IllegalArgumentException if `min` is greater than `max`
  */
-fun Int.clamp(min: Int, max: Int): Int {
+fun Int.clamp(
+    min: Int,
+    max: Int,
+): Int {
     return NumberUtil.clamp(this, min, max)
 }
 
@@ -67,7 +69,10 @@ fun Int.clamp(min: Int, max: Int): Int {
  * @return The clamped value
  * @throws IllegalArgumentException if `min` is greater than `max`
  */
-fun Float.clamp(min: Float, max: Float): Float {
+fun Float.clamp(
+    min: Float,
+    max: Float,
+): Float {
     return NumberUtil.clamp(this, min, max)
 }
 
@@ -80,7 +85,10 @@ fun Float.clamp(min: Float, max: Float): Float {
  * @return The clamped value
  * @throws IllegalArgumentException if `min` is greater than `max`
  */
-fun Double.clamp(min: Double, max: Double): Double {
+fun Double.clamp(
+    min: Double,
+    max: Double,
+): Double {
     return NumberUtil.clamp(this, min, max)
 }
 
@@ -93,7 +101,10 @@ fun Double.clamp(min: Double, max: Double): Double {
  * @return The clamped value
  * @throws IllegalArgumentException if `min` is greater than `max`
  */
-fun Long.clamp(min: Long, max: Long): Long {
+fun Long.clamp(
+    min: Long,
+    max: Long,
+): Long {
     return NumberUtil.clamp(this, min, max)
 }
 
@@ -124,7 +135,10 @@ fun Double.clamp01(): Double {
  * @param other The second number
  * @return True if the numbers are approximately equal
  */
-fun Float.approximately(other: Float, epsilon: Float = NumberUtil.EPSILON): Boolean {
+fun Float.approximately(
+    other: Float,
+    epsilon: Float = NumberUtil.EPSILON,
+): Boolean {
     return NumberUtil.approximately(this, other, epsilon)
 }
 
@@ -135,7 +149,10 @@ fun Float.approximately(other: Float, epsilon: Float = NumberUtil.EPSILON): Bool
  * @param other The second number
  * @return True if the numbers are approximately equal
  */
-fun Double.approximately(other: Double, epsilon: Double = NumberUtil.EPSILON_DOUBLE): Boolean {
+fun Double.approximately(
+    other: Double,
+    epsilon: Double = NumberUtil.EPSILON_DOUBLE,
+): Boolean {
     return NumberUtil.approximately(this, other, epsilon)
 }
 
@@ -147,7 +164,10 @@ fun Double.approximately(other: Double, epsilon: Double = NumberUtil.EPSILON_DOU
  * @param t The interpolation value, clamped between 0 and 1
  * @return The interpolated value
  */
-fun Float.lerp(target: Float, t: Float): Float {
+fun Float.lerp(
+    target: Float,
+    t: Float,
+): Float {
     return NumberUtil.lerp(this, target, t)
 }
 
@@ -159,7 +179,10 @@ fun Float.lerp(target: Float, t: Float): Float {
  * @param t The interpolation value, clamped between 0 and 1
  * @return The interpolated value
  */
-fun Double.lerp(target: Double, t: Double): Double {
+fun Double.lerp(
+    target: Double,
+    t: Double,
+): Double {
     return NumberUtil.lerp(this, target, t)
 }
 
@@ -175,7 +198,10 @@ fun Double.lerp(target: Double, t: Double): Double {
  * @param t The interpolation value.
  * @return The interpolated value
  */
-fun Float.lerpUnclamped(target: Float, t: Float): Float {
+fun Float.lerpUnclamped(
+    target: Float,
+    t: Float,
+): Float {
     return NumberUtil.lerpUnclamped(this, target, t)
 }
 
@@ -191,7 +217,10 @@ fun Float.lerpUnclamped(target: Float, t: Float): Float {
  * @param t The interpolation value.
  * @return The interpolated value
  */
-fun Double.lerpUnclamped(target: Double, t: Double): Double {
+fun Double.lerpUnclamped(
+    target: Double,
+    t: Double,
+): Double {
     return NumberUtil.lerpUnclamped(this, target, t)
 }
 
@@ -206,7 +235,10 @@ fun Double.lerpUnclamped(target: Double, t: Double): Double {
  * lerpDegrees(1.0f, 190f, 1.0f) // returns -170.0f
  * ```
  */
-fun Float.lerpDegrees(target: Float, t: Float): Float {
+fun Float.lerpDegrees(
+    target: Float,
+    t: Float,
+): Float {
     return NumberUtil.lerpDegrees(this, target, t)
 }
 
@@ -221,7 +253,10 @@ fun Float.lerpDegrees(target: Float, t: Float): Float {
  * lerpDegrees(1.0, 190.0, 1.0) // returns -170.0
  * ```
  */
-fun Double.lerpDegrees(target: Double, t: Double): Double {
+fun Double.lerpDegrees(
+    target: Double,
+    t: Double,
+): Double {
     return NumberUtil.lerp(this, target, t)
 }
 
@@ -233,7 +268,10 @@ fun Double.lerpDegrees(target: Double, t: Double): Double {
  * the shortest path between the specified angles. This method wraps
  * around values that are outside the range [-PI, PI].
  */
-fun Float.lerpRadians(target: Float, t: Float): Float {
+fun Float.lerpRadians(
+    target: Float,
+    t: Float,
+): Float {
     return NumberUtil.lerpRadians(this, target, t)
 }
 
@@ -245,7 +283,10 @@ fun Float.lerpRadians(target: Float, t: Float): Float {
  * the shortest path between the specified angles. This method wraps
  * around values that are outside the range [-PI, PI].
  */
-fun Double.lerpRadians(target: Double, t: Double): Double {
+fun Double.lerpRadians(
+    target: Double,
+    t: Double,
+): Double {
     return NumberUtil.lerpRadians(this, target, t)
 }
 
@@ -259,7 +300,10 @@ fun Double.lerpRadians(target: Double, t: Double): Double {
  * @return The interpolation value `t`
  * @throws IllegalArgumentException if `a` and `b` are equal
  */
-fun Float.inverseLerp(target: Float, value: Float): Float {
+fun Float.inverseLerp(
+    target: Float,
+    value: Float,
+): Float {
     return NumberUtil.inverseLerp(this, target, value)
 }
 
@@ -273,7 +317,10 @@ fun Float.inverseLerp(target: Float, value: Float): Float {
  * @return The interpolation value `t`
  * @throws IllegalArgumentException if `a` and `b` are equal
  */
-fun Double.inverseLerp(target: Double, value: Double): Double {
+fun Double.inverseLerp(
+    target: Double,
+    value: Double,
+): Double {
     return NumberUtil.inverseLerp(this, target, value)
 }
 
@@ -287,7 +334,10 @@ fun Double.inverseLerp(target: Double, value: Double): Double {
  * @return The interpolation value `t`
  * @throws IllegalArgumentException if `a` and `b` are equal
  */
-fun Float.inverseLerpUnclamped(target: Float, value: Float): Float {
+fun Float.inverseLerpUnclamped(
+    target: Float,
+    value: Float,
+): Float {
     return NumberUtil.inverseLerpUnclamped(this, target, value)
 }
 
@@ -301,7 +351,10 @@ fun Float.inverseLerpUnclamped(target: Float, value: Float): Float {
  * @return The interpolation value `t`
  * @throws IllegalArgumentException if `a` and `b` are equal
  */
-fun Double.inverseLerpUnclamped(target: Double, value: Double): Double {
+fun Double.inverseLerpUnclamped(
+    target: Double,
+    value: Double,
+): Double {
     return NumberUtil.inverseLerpUnclamped(this, target, value)
 }
 
@@ -321,7 +374,12 @@ fun Double.inverseLerpUnclamped(target: Double, value: Double): Double {
  * @param to2 The upper bound of the second range
  * @return The remapped value
  */
-fun Float.remap(from1: Float, to1: Float, from2: Float, to2: Float): Float {
+fun Float.remap(
+    from1: Float,
+    to1: Float,
+    from2: Float,
+    to2: Float,
+): Float {
     return NumberUtil.remap(this, from1, to1, from2, to2)
 }
 
@@ -341,7 +399,12 @@ fun Float.remap(from1: Float, to1: Float, from2: Float, to2: Float): Float {
  * @param to2 The upper bound of the second range
  * @return The remapped value
  */
-fun Double.remap(from1: Double, to1: Double, from2: Double, to2: Double): Double {
+fun Double.remap(
+    from1: Double,
+    to1: Double,
+    from2: Double,
+    to2: Double,
+): Double {
     return NumberUtil.remap(this, from1, to1, from2, to2)
 }
 
@@ -438,7 +501,10 @@ fun Double.deltaRadians(other: Double): Double {
  * @return The new value
  * @throws IllegalArgumentException if `maxDelta` is negative
  */
-fun Float.moveTowards(target: Float, maxDelta: Float): Float {
+fun Float.moveTowards(
+    target: Float,
+    maxDelta: Float,
+): Float {
     return NumberUtil.moveTowards(this, target, maxDelta)
 }
 
@@ -451,7 +517,10 @@ fun Float.moveTowards(target: Float, maxDelta: Float): Float {
  * @return The new value
  * @throws IllegalArgumentException if `maxDelta` is negative
  */
-fun Double.moveTowards(target: Double, maxDelta: Double): Double {
+fun Double.moveTowards(
+    target: Double,
+    maxDelta: Double,
+): Double {
     return NumberUtil.moveTowards(this, target, maxDelta)
 }
 
@@ -465,7 +534,10 @@ fun Double.moveTowards(target: Double, maxDelta: Double): Double {
  * @return The new value
  * @throws IllegalArgumentException if `maxDelta` is negative
  */
-fun Float.moveTowardsDegrees(target: Float, maxDelta: Float): Float {
+fun Float.moveTowardsDegrees(
+    target: Float,
+    maxDelta: Float,
+): Float {
     return NumberUtil.moveTowardsDegrees(this, target, maxDelta)
 }
 
@@ -479,7 +551,10 @@ fun Float.moveTowardsDegrees(target: Float, maxDelta: Float): Float {
  * @return The new value
  * @throws IllegalArgumentException if `maxDelta` is negative
  */
-fun Double.moveTowardsDegrees(target: Double, maxDelta: Double): Double {
+fun Double.moveTowardsDegrees(
+    target: Double,
+    maxDelta: Double,
+): Double {
     return NumberUtil.moveTowardsDegrees(this, target, maxDelta)
 }
 
@@ -493,7 +568,10 @@ fun Double.moveTowardsDegrees(target: Double, maxDelta: Double): Double {
  * @return The new value
  * @throws IllegalArgumentException if `maxDelta` is negative
  */
-fun Float.moveTowardsRadians(target: Float, maxDelta: Float): Float {
+fun Float.moveTowardsRadians(
+    target: Float,
+    maxDelta: Float,
+): Float {
     return NumberUtil.moveTowardsRadians(this, target, maxDelta)
 }
 
@@ -507,7 +585,10 @@ fun Float.moveTowardsRadians(target: Float, maxDelta: Float): Float {
  * @return The new value
  * @throws IllegalArgumentException if `maxDelta` is negative
  */
-fun Double.moveTowardsRadians(target: Double, maxDelta: Double): Double {
+fun Double.moveTowardsRadians(
+    target: Double,
+    maxDelta: Double,
+): Double {
     return NumberUtil.moveTowardsRadians(this, target, maxDelta)
 }
 

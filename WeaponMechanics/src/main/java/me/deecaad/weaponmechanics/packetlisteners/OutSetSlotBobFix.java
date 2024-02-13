@@ -48,7 +48,8 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
     @EventHandler
     public void click(InventoryClickEvent event) {
         HumanEntity humanEntity = event.getWhoClicked();
-        if (!(humanEntity instanceof Player player)) return;
+        if (!(humanEntity instanceof Player player))
+            return;
         mainHand.put(player, null);
         offHand.put(player, null);
     }
@@ -56,7 +57,8 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
     @EventHandler
     public void click(InventoryDragEvent event) {
         HumanEntity humanEntity = event.getWhoClicked();
-        if (!(humanEntity instanceof Player player)) return;
+        if (!(humanEntity instanceof Player player))
+            return;
         mainHand.put(player, null);
         offHand.put(player, null);
     }
@@ -93,7 +95,8 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
         int slotNum = event.getPacket().getIntegers().read(ReflectionUtil.getMCVersion() >= 17 ? 2 : 1);
 
         boolean mainHand = slotNum == 36 + player.getInventory().getHeldItemSlot();
-        if (!mainHand && slotNum != 45) return;
+        if (!mainHand && slotNum != 45)
+            return;
 
         Map<Player, SimpleItemData> data = mainHand ? this.mainHand : this.offHand;
 
@@ -136,13 +139,17 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
             if (itemMeta == null)
                 return;
 
-            if (itemMeta.hasDisplayName()) this.displayName = itemMeta.getDisplayName();
-            if (itemMeta.hasLore()) this.lore = itemMeta.getLore();
-            if (ReflectionUtil.getMCVersion() >= 14 && itemMeta.hasCustomModelData()) this.customModelData = itemMeta.getCustomModelData();
+            if (itemMeta.hasDisplayName())
+                this.displayName = itemMeta.getDisplayName();
+            if (itemMeta.hasLore())
+                this.lore = itemMeta.getLore();
+            if (ReflectionUtil.getMCVersion() >= 14 && itemMeta.hasCustomModelData())
+                this.customModelData = itemMeta.getCustomModelData();
             if (ReflectionUtil.getMCVersion() < 13) {
                 this.durability = itemStack.getDurability();
             } else if (itemMeta instanceof Damageable damageableItemMeta) {
-                if (damageableItemMeta.hasDamage()) this.durability = ((Damageable) itemMeta).getDamage();
+                if (damageableItemMeta.hasDamage())
+                    this.durability = ((Damageable) itemMeta).getDamage();
             }
         }
 
@@ -152,8 +159,8 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
 
         public boolean isDifferent(SimpleItemData other) {
             return sentToSlot != other.sentToSlot || type != other.type || amount != other.amount || customModelData != other.customModelData
-                    || durability != other.durability || !Objects.equals(displayName, other.displayName)
-                    || !Objects.equals(lore, other.lore);
+                || durability != other.durability || !Objects.equals(displayName, other.displayName)
+                || !Objects.equals(lore, other.lore);
         }
     }
 }

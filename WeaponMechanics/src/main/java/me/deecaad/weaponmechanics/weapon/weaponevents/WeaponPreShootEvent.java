@@ -31,8 +31,7 @@ public class WeaponPreShootEvent extends WeaponEvent implements Cancellable {
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

@@ -26,8 +26,8 @@ public class DamageDropoff implements Serializer<DamageDropoff> {
     }
 
     /**
-     * Gets the damage modifier for given distance. If no damage
-     * modifier exists, the damage modifier is 0.0
+     * Gets the damage modifier for given distance. If no damage modifier exists, the damage modifier is
+     * 0.0
      *
      * @param distance How far away
      * @return Damage modifier
@@ -56,13 +56,12 @@ public class DamageDropoff implements Serializer<DamageDropoff> {
     }
 
     @Override
-    @NotNull
-    public DamageDropoff serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public DamageDropoff serialize(@NotNull SerializeData data) throws SerializerException {
 
         List<String[]> list = data.ofList()
-                .addArgument(double.class, true)
-                .addArgument(double.class, true)
-                .assertExists().assertList().get();
+            .addArgument(double.class, true)
+            .addArgument(double.class, true)
+            .assertExists().assertList().get();
 
         TreeMap<Double, Double> distances = new TreeMap<>();
 

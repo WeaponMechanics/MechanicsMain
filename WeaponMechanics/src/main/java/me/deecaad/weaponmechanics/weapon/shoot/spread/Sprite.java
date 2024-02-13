@@ -6,21 +6,20 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * This class parses an image input (Usually a .png file) and saves each pixel
- * in the image into a buffer. Each pixel can then be accessed, assuming you
- * have an x and y coordinate to use.
+ * This class parses an image input (Usually a .png file) and saves each pixel in the image into a
+ * buffer. Each pixel can then be accessed, assuming you have an x and y coordinate to use.
  */
 public class Sprite {
-    
+
     private final int[][] pixels;
     private final int height, width;
 
     public Sprite(File file) throws IOException {
         BufferedImage img = ImageIO.read(file);
-        
+
         height = img.getHeight();
         width = img.getWidth();
-        
+
         // Get the image raster (an int[] where each int represents 1 pixel)
         // then split the int[] into a int[][] that holds the pixel value of a
         // given set of (y, x) coordinates.
@@ -30,15 +29,15 @@ public class Sprite {
             System.arraycopy(array, y * width, pixels[y], 0, pixels[y].length);
         }
     }
-    
+
     public int[][] getPixels() {
         return pixels;
     }
-    
+
     public int getHeight() {
         return height;
     }
-    
+
     public int getWidth() {
         return width;
     }

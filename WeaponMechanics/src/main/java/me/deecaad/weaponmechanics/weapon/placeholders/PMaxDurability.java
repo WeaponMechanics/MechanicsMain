@@ -12,11 +12,10 @@ public class PMaxDurability extends PlaceholderHandler {
         super("custom_max_durability");
     }
 
-
-    @Nullable
-    @Override
+    @Nullable @Override
     public String onRequest(@NotNull PlaceholderData data) {
-        if (data.item() == null) return null;
+        if (data.item() == null)
+            return null;
 
         return String.valueOf(CustomTag.MAX_DURABILITY.getInteger(data.item()));
     }

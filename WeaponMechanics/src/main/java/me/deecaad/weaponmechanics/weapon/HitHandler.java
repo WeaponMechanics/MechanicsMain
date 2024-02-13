@@ -34,8 +34,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 public class HitHandler {
 
     /**
-     * Simple final modifier for front hit adjusting.
-     * Basically -0.2 means that 20% of hit box's front
+     * Simple final modifier for front hit adjusting. Basically -0.2 means that 20% of hit box's front
      */
     private static final double FRONT_HIT = -0.2;
 
@@ -96,16 +95,18 @@ public class HitHandler {
         }
 
         return !weaponHandler.getDamageHandler().tryUse(livingEntity, getConfigurations().getDouble(weaponTitle + ".Damage.Base_Damage"),
-                getDamagePoint(result, shooterDirection), backstab, shooter, weaponTitle, weaponStack, slot, result.getHitMinClamped());
+            getDamagePoint(result, shooterDirection), backstab, shooter, weaponTitle, weaponStack, slot, result.getHitMinClamped());
     }
 
     private boolean handleBlockHit(BlockTraceResult result, WeaponProjectile projectile) {
         ProjectileHitBlockEvent hitBlockEvent = new ProjectileHitBlockEvent(projectile, result.getBlock(), result.getHitFace(), result.getHitLocation().clone());
         Bukkit.getPluginManager().callEvent(hitBlockEvent);
-        if (hitBlockEvent.isCancelled()) return true;
+        if (hitBlockEvent.isCancelled())
+            return true;
 
         Explosion explosion = getConfigurations().getObject(projectile.getWeaponTitle() + ".Explosion", Explosion.class);
-        if (explosion != null) explosion.handleExplosion(projectile.getShooter(), result.getHitLocation().clone().toLocation(projectile.getWorld()), projectile, ExplosionTrigger.BLOCK);
+        if (explosion != null)
+            explosion.handleExplosion(projectile.getShooter(), result.getHitLocation().clone().toLocation(projectile.getWorld()), projectile, ExplosionTrigger.BLOCK);
 
         return false;
     }
@@ -131,7 +132,8 @@ public class HitHandler {
 
         ProjectileHitEntityEvent hitEntityEvent = new ProjectileHitEntityEvent(projectile, livingEntity, result.getHitLocation().clone(), hitPoint, backstab);
         Bukkit.getPluginManager().callEvent(hitEntityEvent);
-        if (hitEntityEvent.isCancelled()) return true;
+        if (hitEntityEvent.isCancelled())
+            return true;
 
         hitPoint = hitEntityEvent.getPoint();
         backstab = hitEntityEvent.isBackStab();
@@ -142,7 +144,8 @@ public class HitHandler {
         }
 
         Explosion explosion = getConfigurations().getObject(projectile.getWeaponTitle() + ".Explosion", Explosion.class);
-        if (explosion != null) explosion.handleExplosion(projectile.getShooter(), result.getHitLocation().clone().toLocation(projectile.getWorld()), projectile, ExplosionTrigger.ENTITY);
+        if (explosion != null)
+            explosion.handleExplosion(projectile.getShooter(), result.getHitLocation().clone().toLocation(projectile.getWorld()), projectile, ExplosionTrigger.ENTITY);
 
         return false;
     }
@@ -180,7 +183,8 @@ public class HitHandler {
                 Vector normalizedEntityDirection = livingEntity.getLocation().getDirection();
 
                 if (horizontalEntity && !hitBox.cloneDimensions().expand(normalizedEntityDirection, FRONT_HIT).collides(result.getHitLocation())) {
-                    // Basically removes directionally 0.2 from this entity hitbox and check if the hit location is still in the hitbox
+                    // Basically removes directionally 0.2 from this entity hitbox and check if the hit location is
+                    // still in the hitbox
                     return DamagePoint.HEAD;
                 }
 
@@ -205,8 +209,8 @@ public class HitHandler {
         }
 
         debug.log(LogLevel.WARN, "Something unexpected happened and HEAD, BODY, LEGS or FEET wasn't valid",
-                "This should never happen. Using BODY as default value...",
-                "This happened with entity type " + type + ".");
+            "This should never happen. Using BODY as default value...",
+            "This happened with entity type " + type + ".");
         return DamagePoint.BODY;
     }
 }

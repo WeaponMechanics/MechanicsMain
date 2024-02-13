@@ -11,7 +11,7 @@ public class TestCommand extends SubCommand {
 
     public TestCommand() {
         super("wm", "test", "Random test functions for devs", SUB_COMMANDS);
-        
+
         commands.register(new HitboxCommand());
         commands.register(new ExplosionCommand());
         commands.register(new RecoilCommand());

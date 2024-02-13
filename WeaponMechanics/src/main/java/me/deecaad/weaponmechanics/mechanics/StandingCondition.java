@@ -19,7 +19,8 @@ public class StandingCondition extends Condition {
 
     @Override
     protected boolean isAllowed0(CastData cast) {
-        if (cast.getTarget() == null) return false;
+        if (cast.getTarget() == null)
+            return false;
         EntityWrapper wrapper = WeaponMechanics.getEntityWrapper(cast.getTarget(), true);
 
         return wrapper != null && wrapper.isStanding();
@@ -35,8 +36,7 @@ public class StandingCondition extends Condition {
         return "https://cjcrafter.gitbook.io/mechanics/integrations/weaponmechanics#standing";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         return applyParentArgs(data, new StandingCondition());
     }

@@ -6,7 +6,6 @@ import java.io.File
  * A utility class for serializer exceptions.
  */
 object SerializerUtil {
-
     /**
      * Returns a string that describes the location of a file in a directory.
      *
@@ -17,7 +16,11 @@ object SerializerUtil {
      */
     @JvmStatic
     @JvmOverloads
-    fun foundAt(file: File, path: String, index: Int? = null): String {
+    fun foundAt(
+        file: File,
+        path: String,
+        index: Int? = null,
+    ): String {
         return when {
             index != null -> "Located in file '$file' at '$path' (The ${StringUtil.ordinal(index)} list item)"
             else -> "Located in file '$file' at '$path'"
@@ -33,7 +36,10 @@ object SerializerUtil {
      * @return The name of the most similar enum to the `input`.
      */
     @JvmStatic
-    fun <T : Enum<T>> didYouMeanEnum(input: String, enum: Class<T>): String {
+    fun <T : Enum<T>> didYouMeanEnum(
+        input: String,
+        enum: Class<T>,
+    ): String {
         return "Did you mean ${StringUtil.didYouMean(input, EnumUtil.getOptions(enum))} instead of $input?"
     }
 }

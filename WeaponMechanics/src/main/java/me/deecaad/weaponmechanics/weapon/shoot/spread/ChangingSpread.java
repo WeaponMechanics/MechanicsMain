@@ -29,13 +29,13 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
     }
 
     /**
-     * Applies all changes based on this changing spread.
-     * After changes are applied, also entity wrapper's {@link HandData#getSpreadChange()} is modified
-     * based on circumstances. This basically means that changes are always made for NEXT shot, not current.
+     * Applies all changes based on this changing spread. After changes are applied, also entity
+     * wrapper's {@link HandData#getSpreadChange()} is modified based on circumstances. This basically
+     * means that changes are always made for NEXT shot, not current.
      *
-     * @param entityWrapper      the entity wrapper used to check circumstances
-     * @param tempSpread         the spread
-     * @param mainHand           whether main hand was used
+     * @param entityWrapper the entity wrapper used to check circumstances
+     * @param tempSpread the spread
+     * @param mainHand whether main hand was used
      * @param updateSpreadChange whether to allow updating current spread change
      * @return the modifier holder with updated horizontal and vertical values
      */
@@ -43,11 +43,13 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
         HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
 
         // Reset if required
-        if (NumberUtil.hasMillisPassed(handData.getLastShotTime(), resetTime)) handData.setSpreadChange(startingAmount);
+        if (NumberUtil.hasMillisPassed(handData.getLastShotTime(), resetTime))
+            handData.setSpreadChange(startingAmount);
 
         // Check bounds of spread change
         boolean didReset = false;
-        if (bounds != null) didReset = bounds.checkBounds(handData, startingAmount);
+        if (bounds != null)
+            didReset = bounds.checkBounds(handData, startingAmount);
 
         // Add the current spread before doing modifications to it
         tempSpread += handData.getSpreadChange();
@@ -84,7 +86,7 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
 
         if (min > max) {
             throw data.exception(null, "Found 'Changing_Spread' where 'Minimum > Maximum'",
-                    "The 'Maximum' MUST be bigger then 'Minimum'");
+                "The 'Maximum' MUST be bigger then 'Minimum'");
         }
 
         boolean resetAfterReachingBound = data.of("Reset_After_Reaching_Bound").getBool(false);

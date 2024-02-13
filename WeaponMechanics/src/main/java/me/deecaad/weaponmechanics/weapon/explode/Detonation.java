@@ -41,8 +41,7 @@ public class Detonation implements Serializer<Detonation> {
     }
 
     @Override
-    @NotNull
-    public Detonation serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public Detonation serialize(@NotNull SerializeData data) throws SerializerException {
 
         Set<ExplosionTrigger> triggers = new HashSet<>(ExplosionTrigger.values().length, 1.0f);
         for (ExplosionTrigger trigger : ExplosionTrigger.values()) {

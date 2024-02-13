@@ -8,7 +8,6 @@ import kotlin.math.sqrt
  * A collection of utility functions for random generation.
  */
 object RandomUtil {
-
     /**
      * Helper function to test a random chance. The chance should be a floating point between
      * [0.0f, 1.0f]. If the chance is 1.0f, this method will always return true. If the chance
@@ -43,7 +42,10 @@ object RandomUtil {
      * @return The random number
      */
     @JvmStatic
-    fun range(min: Int, max: Int): Int {
+    fun range(
+        min: Int,
+        max: Int,
+    ): Int {
         return ThreadLocalRandom.current().nextInt(min, max + 1)
     }
 
@@ -55,7 +57,10 @@ object RandomUtil {
      * @return The random number
      */
     @JvmStatic
-    fun range(min: Float, max: Float): Float {
+    fun range(
+        min: Float,
+        max: Float,
+    ): Float {
         return ThreadLocalRandom.current().nextFloat() * (max - min) + min
     }
 
@@ -67,7 +72,10 @@ object RandomUtil {
      * @return The random number
      */
     @JvmStatic
-    fun range(min: Double, max: Double): Double {
+    fun range(
+        min: Double,
+        max: Double,
+    ): Double {
         return ThreadLocalRandom.current().nextDouble(min, max)
     }
 

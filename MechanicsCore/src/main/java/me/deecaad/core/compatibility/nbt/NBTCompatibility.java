@@ -436,7 +436,12 @@ public interface NBTCompatibility {
      */
     enum AttributeSlot {
 
-        MAIN_HAND(1), OFF_HAND(6), FEET(5), LEGS(4), CHEST(3), HEAD(2);
+        MAIN_HAND(1),
+        OFF_HAND(6),
+        FEET(5),
+        LEGS(4),
+        CHEST(3),
+        HEAD(2);
 
         private final EquipmentSlot slot;
         private final String slotName;

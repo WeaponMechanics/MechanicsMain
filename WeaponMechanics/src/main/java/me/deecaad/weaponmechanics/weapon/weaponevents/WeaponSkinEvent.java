@@ -10,9 +10,9 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Called whenever a {@link me.deecaad.weaponmechanics.weapon.skin.SkinHandler}
- * attempts to change the skin of a weapon. A skin may be changed when an
- * entity zooms in/out, reloads, sprints, runs out of ammo, etc.
+ * Called whenever a {@link me.deecaad.weaponmechanics.weapon.skin.SkinHandler} attempts to change
+ * the skin of a weapon. A skin may be changed when an entity zooms in/out, reloads, sprints, runs
+ * out of ammo, etc.
  */
 public class WeaponSkinEvent extends WeaponEvent implements Cancellable {
 
@@ -52,8 +52,8 @@ public class WeaponSkinEvent extends WeaponEvent implements Cancellable {
     }
 
     /**
-     * Returns the reason for the skin update. Returns <code>null</code> when
-     * the cause is unknown, or a plugin manually updated the skin.
+     * Returns the reason for the skin update. Returns <code>null</code> when the cause is unknown, or a
+     * plugin manually updated the skin.
      *
      * @return The cause of the skin update, or null.
      */
@@ -72,10 +72,9 @@ public class WeaponSkinEvent extends WeaponEvent implements Cancellable {
     }
 
     /**
-     * If only WeaponMechanics is installed, this method will always return
-     * <code>"Default"</code>. If WeaponMechanicsCosmetics is installed, this
-     * method may return a different value (Which you can find in the config
-     * for this weapon).
+     * If only WeaponMechanics is installed, this method will always return <code>"Default"</code>. If
+     * WeaponMechanicsCosmetics is installed, this method may return a different value (Which you can
+     * find in the config for this weapon).
      *
      * @return The non-null name of the skin.
      */
@@ -85,9 +84,9 @@ public class WeaponSkinEvent extends WeaponEvent implements Cancellable {
 
     /**
      * <ul>
-     *     <li>Only lowercase letters</li>
-     *     <li>Use null for default skin</li>
-     *     <li>Make sure skin exists</li>
+     * <li>Only lowercase letters</li>
+     * <li>Use null for default skin</li>
+     * <li>Make sure skin exists</li>
      * </ul>
      *
      * @param skin The nullable skin name.
@@ -110,8 +109,7 @@ public class WeaponSkinEvent extends WeaponEvent implements Cancellable {
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

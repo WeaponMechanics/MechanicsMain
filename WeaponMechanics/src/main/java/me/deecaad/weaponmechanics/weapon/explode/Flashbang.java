@@ -48,8 +48,8 @@ public class Flashbang implements Serializer<Flashbang> {
     }
 
     /**
-     * Triggers this flashbang at this location, effecting all living entities
-     * in the radius <code>distance</code>
+     * Triggers this flashbang at this location, effecting all living entities in the radius
+     * <code>distance</code>
      *
      * @param exposure The exposure type used
      * @param projectile The projectile used
@@ -98,8 +98,7 @@ public class Flashbang implements Serializer<Flashbang> {
     }
 
     @Override
-    @NotNull
-    public Flashbang serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public Flashbang serialize(@NotNull SerializeData data) throws SerializerException {
         double distance = data.of("Effect_Distance").assertExists().assertPositive().getDouble();
         Mechanics mechanics = data.of("Mechanics").assertExists().serialize(Mechanics.class);
 

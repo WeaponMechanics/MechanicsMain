@@ -7,7 +7,6 @@ import java.lang.IllegalStateException
  * https://www.spigotmc.org/wiki/spigot-nms-and-minecraft-versions-1-16/
  */
 object MinecraftVersions {
-
     private val allUpdates = LinkedHashMap<String, Update>()
     private val allVersions = LinkedHashMap<String, Version>()
 
@@ -32,99 +31,108 @@ object MinecraftVersions {
      * 1.12, the colorful blocks update (concrete)
      */
     @JvmField
-    val WORLD_OF_COLOR = Update(1, 12) {
-        add(Version(it, 0, 1)) // 1.12
-        add(Version(it, 1, 1)) // 1.12.1
-        add(Version(it, 2, 1)) // 1.12.2
-    }
+    val WORLD_OF_COLOR =
+        Update(1, 12) {
+            add(Version(it, 0, 1)) // 1.12
+            add(Version(it, 1, 1)) // 1.12.1
+            add(Version(it, 2, 1)) // 1.12.2
+        }
 
     /**
      * 1.13, ocean update (the flattening, waterloggable blocks, sprint swimming, brigadier commands)
      */
     @JvmField
-    val UPDATE_AQUATIC = Update(1, 13) {
-        add(Version(it, 0, 1)) // 1.13
-        add(Version(it, 1, 2)) // 1.13.1
-        add(Version(it, 2, 2)) // 1.13.2
-    }
+    val UPDATE_AQUATIC =
+        Update(1, 13) {
+            add(Version(it, 0, 1)) // 1.13
+            add(Version(it, 1, 2)) // 1.13.1
+            add(Version(it, 2, 2)) // 1.13.2
+        }
 
     /**
      * 1.14, villagers update (sneaking below slabs, new village generation)
      */
     @JvmField
-    val VILLAGE_AND_PILLAGE = Update(1, 14) {
-        add(Version(it, 0, 1)) // 1.14
-        add(Version(it, 1, 1)) // 1.14.1
-        add(Version(it, 2, 1)) // 1.14.2
-        add(Version(it, 3, 1)) // 1.14.3
-        add(Version(it, 4, 1)) // 1.14.4
-    }
+    val VILLAGE_AND_PILLAGE =
+        Update(1, 14) {
+            add(Version(it, 0, 1)) // 1.14
+            add(Version(it, 1, 1)) // 1.14.1
+            add(Version(it, 2, 1)) // 1.14.2
+            add(Version(it, 3, 1)) // 1.14.3
+            add(Version(it, 4, 1)) // 1.14.4
+        }
 
     /**
      * 1.15, bees update (bug fixes, bees)
      */
     @JvmField
-    val BUZZY_BEES = Update(1, 15) {
-        add(Version(it, 0, 1)) // 1.15
-        add(Version(it, 1, 1)) // 1.15.1
-        add(Version(it, 2, 1)) // 1.15.2
-    }
+    val BUZZY_BEES =
+        Update(1, 15) {
+            add(Version(it, 0, 1)) // 1.15
+            add(Version(it, 1, 1)) // 1.15.1
+            add(Version(it, 2, 1)) // 1.15.2
+        }
 
     /**
      * 1.16, nether update (crimson, fungus, nether generation, biome fogs)
      */
     @JvmField
-    val NETHER_UPDATE = Update(1, 16) {
-        add(Version(it, 0, 1)) // 1.16
-        add(Version(it, 1, 1)) // 1.16.1
-        add(Version(it, 2, 2)) // 1.16.2
-        add(Version(it, 3, 2)) // 1.16.3
-        add(Version(it, 4, 3)) // 1.16.4
-        add(Version(it, 5, 3)) // 1.16.5
-    }
+    val NETHER_UPDATE =
+        Update(1, 16) {
+            add(Version(it, 0, 1)) // 1.16
+            add(Version(it, 1, 1)) // 1.16.1
+            add(Version(it, 2, 2)) // 1.16.2
+            add(Version(it, 3, 2)) // 1.16.3
+            add(Version(it, 4, 3)) // 1.16.4
+            add(Version(it, 5, 3)) // 1.16.5
+        }
 
     /**
      * 1.17, caves and cliffs part 1 (tuff, new mobs, new blocks)
      */
     @JvmField
-    val CAVES_AND_CLIFFS_1 = Update(1, 17) {
-        add(Version(it, 0, 1)) // 1.17
-        add(Version(it, 1, 1)) // 1.17.1
-    }
+    val CAVES_AND_CLIFFS_1 =
+        Update(1, 17) {
+            add(Version(it, 0, 1)) // 1.17
+            add(Version(it, 1, 1)) // 1.17.1
+        }
 
     /**
      * 1.18, caves and cliffs part 2 (new generations)
      */
     @JvmField
-    val CAVES_AND_CLIFFS_2 = Update(1, 18) {
-        add(Version(it, 0, 1)) // 1.18
-        add(Version(it, 1, 1)) // 1.18.1
-        add(Version(it, 2, 2)) // 1.18.2
-    }
+    val CAVES_AND_CLIFFS_2 =
+        Update(1, 18) {
+            add(Version(it, 0, 1)) // 1.18
+            add(Version(it, 1, 1)) // 1.18.1
+            add(Version(it, 2, 2)) // 1.18.2
+        }
 
     /**
      * 1.19, the deep dark update (sculk, warden, mud, mangrove, etc.)
      */
     @JvmField
-    val WILD_UPDATE = Update(1, 19) {
-        add(Version(it, 0, 1)) // 1.19
-        add(Version(it, 1, 1)) // 1.19.1
-        add(Version(it, 2, 1)) // 1.19.2
-        add(Version(it, 3, 2)) // 1.19.3
-        add(Version(it, 4, 3)) // 1.19.4
-    }
+    val WILD_UPDATE =
+        Update(1, 19) {
+            add(Version(it, 0, 1)) // 1.19
+            add(Version(it, 1, 1)) // 1.19.1
+            add(Version(it, 2, 1)) // 1.19.2
+            add(Version(it, 3, 2)) // 1.19.3
+            add(Version(it, 4, 3)) // 1.19.4
+        }
 
     /**
      * 1.20, the archaeology update (cherry grove, sniffers, etc.)
      */
     @JvmField
-    val TRAILS_AND_TAILS = Update(1, 20) {
-        add(Version(it, 0, 1)) // 1.20
-        add(Version(it, 1, 1)) // 1.20.1
-        add(Version(it, 2, 2)) // 1.20.2
-        add(Version(it, 3, 3)) // 1.20.3
-        add(Version(it, 4, 3)) // 1.20.4
-    }
+    val TRAILS_AND_TAILS =
+        Update(1, 20) {
+            add(Version(it, 0, 1)) // 1.20
+            add(Version(it, 1, 1)) // 1.20.1
+            add(Version(it, 2, 2)) // 1.20.2
+            add(Version(it, 3, 3)) // 1.20.3
+            add(Version(it, 4, 3)) // 1.20.4
+        }
 
     /**
      * Represents a "big" Minecraft update, e.x. 1.13 -> 1.14
@@ -137,7 +145,7 @@ object MinecraftVersions {
         val major: Int,
         val minor: Int,
         versions: MutableList<Version>.(Update) -> Unit,
-    ): Comparable<Update> {
+    ) : Comparable<Update> {
         val versions: MutableList<Version> = mutableListOf<Version>().apply { versions(this@Update) }
 
         init {
@@ -169,8 +177,8 @@ object MinecraftVersions {
     data class Version(
         val update: Update,
         val patch: Int,
-        val protocol: Int
-    ): Comparable<Version> {
+        val protocol: Int,
+    ) : Comparable<Version> {
         val major = update.major
         val minor = update.minor
 

@@ -28,18 +28,21 @@ public class BlockDamage implements Serializer<BlockDamage> {
     /**
      * Determines whether a block is broken, cracked, or skip damage.
      */
-    public enum BreakMode { CANCEL, BREAK, CRACK }
+    public enum BreakMode {
+        CANCEL,
+        BREAK,
+        CRACK
+    }
 
     /**
      * Holds data from config for a material.
      *
-     * @param mode            How the block should be damaged (or not damaged).
+     * @param mode How the block should be damaged (or not damaged).
      * @param blockDurability The maximum number of hits the block can take.
-     * @param mask            if mode == BREAK, the broken block is replaced with this.
+     * @param mask if mode == BREAK, the broken block is replaced with this.
      */
     public record DamageConfig(BreakMode mode, int blockDurability, Material mask) {
     }
-
 
     private double dropBlockChance;
     private int damage;
@@ -50,7 +53,6 @@ public class BlockDamage implements Serializer<BlockDamage> {
 
     private Map<Material, DamageConfig> blocks;
 
-
     /**
      * Default constructor for serializers
      */
@@ -60,15 +62,15 @@ public class BlockDamage implements Serializer<BlockDamage> {
     /**
      * Constructor with arguments.
      *
-     * @param dropBlockChance        The [0, 1] chance to drop broken blocks as items.
-     * @param damage                 The damage (usually 1) each hit.
+     * @param dropBlockChance The [0, 1] chance to drop broken blocks as items.
+     * @param damage The damage (usually 1) each hit.
      * @param defaultBlockDurability The default health any block has.
-     * @param defaultMask            The default mask (usually AIR) any block has.
-     * @param defaultMode            The default breaking mode any block has.
-     * @param blocks                 Per-block overrides.
+     * @param defaultMask The default mask (usually AIR) any block has.
+     * @param defaultMode The default breaking mode any block has.
+     * @param blocks Per-block overrides.
      */
     public BlockDamage(double dropBlockChance, int damage, int defaultBlockDurability, Material defaultMask,
-                       BreakMode defaultMode, Map<Material, DamageConfig> blocks) {
+        BreakMode defaultMode, Map<Material, DamageConfig> blocks) {
         this.dropBlockChance = dropBlockChance;
         this.damage = damage;
         this.defaultBlockDurability = defaultBlockDurability;
@@ -130,8 +132,8 @@ public class BlockDamage implements Serializer<BlockDamage> {
     }
 
     /**
-     * Returns the behavior of the given material. Should it break? Should it
-     * crack? Or should it ignore all damage?
+     * Returns the behavior of the given material. Should it break? Should it crack? Or should it ignore
+     * all damage?
      *
      * @param material The non-null material to check.
      * @return The non-null break mode of the material.
@@ -146,8 +148,8 @@ public class BlockDamage implements Serializer<BlockDamage> {
     }
 
     /**
-     * Returns the number of hits before the block is broken, or <code>-1</code>
-     * if the block should not be broken.
+     * Returns the number of hits before the block is broken, or <code>-1</code> if the block should not
+     * be broken.
      *
      * @param material The non-null material to check.
      * @return The number of hits before the block breaks.
@@ -162,8 +164,8 @@ public class BlockDamage implements Serializer<BlockDamage> {
     }
 
     /**
-     * Returns the block the given material should be replaced with, or
-     * <code>null</code> if the block shouldn't be replaced.
+     * Returns the block the given material should be replaced with, or <code>null</code> if the block
+     * shouldn't be replaced.
      *
      * @param material The non-null material to check.
      * @return The nullable material to use as a mask.
@@ -175,8 +177,8 @@ public class BlockDamage implements Serializer<BlockDamage> {
 
     /**
      * Returns <code>true</code> if at least 1 block can be broken through the
-     * {@link #damage(Block, Player, boolean)} method. Useful for checking if
-     * a weapon can be used for griefing.
+     * {@link #damage(Block, Player, boolean)} method. Useful for checking if a weapon can be used for
+     * griefing.
      *
      * @return true if blocks can be broken.
      */
@@ -188,18 +190,19 @@ public class BlockDamage implements Serializer<BlockDamage> {
     }
 
     /**
-     * Applies damage to te given block. Any previous damage that was applied
-     * is STACKED to see if the block should be broken. Depending on the block,
-     * damage might be skipped, the block may be cracked, or the block may
-     * break.
+     * Applies damage to te given block. Any previous damage that was applied is STACKED to see if the
+     * block should be broken. Depending on the block, damage might be skipped, the block may be
+     * cracked, or the block may break.
      *
-     * <p>Regeneration is not handled automatically. You have to check the
-     * return value and handle regeneration in a schedules task. If you pass
-     * <code>true</code>, blocks will be broken WITHOUT block updates. If you
-     * pass <code>false</code>, blocks will be broken and neighboring blocks
-     * will be updated (making accurate regeneration impossible).
+     * <p>
+     * Regeneration is not handled automatically. You have to check the return value and handle
+     * regeneration in a schedules task. If you pass <code>true</code>, blocks will be broken WITHOUT
+     * block updates. If you pass <code>false</code>, blocks will be broken and neighboring blocks will
+     * be updated (making accurate regeneration impossible).
      *
-     * <blockquote><pre>{@code
+     * <blockquote>
+     * 
+     * <pre>{@code
      *      boolean regenerate = true;
      *      BlockDamageData.DamageData data = BlockDamage#damage(block, null, regenerate);
      *
@@ -215,15 +218,16 @@ public class BlockDamage implements Serializer<BlockDamage> {
      *      } else if (data.isBroken()) {
      *          data.remove();
      *      }
-     * }</pre></blockquote>
+     * }</pre>
+     * 
+     * </blockquote>
      *
-     * @param block        The non-null block to damage.
-     * @param player       The nullable player who is breaking block, explosions should always give null
+     * @param block The non-null block to damage.
+     * @param player The nullable player who is breaking block, explosions should always give null
      * @param isRegenerate Use true if you want to have perfect regeneration.
      * @return The DamageData wrapping the block, or null if no damage was applied.
      */
-    @Nullable
-    public BlockDamageData.DamageData damage(Block block, @Nullable Player player, boolean isRegenerate) {
+    @Nullable public BlockDamageData.DamageData damage(Block block, @Nullable Player player, boolean isRegenerate) {
         BreakMode blockBreakMode = getBreakMode(block);
         if (blockBreakMode != BreakMode.CANCEL && !BlockDamageData.isBroken(block)) {
 
@@ -300,13 +304,12 @@ public class BlockDamage implements Serializer<BlockDamage> {
     }
 
     @Override
-    @NotNull
-    public BlockDamage serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public BlockDamage serialize(@NotNull SerializeData data) throws SerializerException {
 
         // Added November 1st, 2022 to detect out-dated configurations
         if (data.has("Block_List") || data.has("Shots_To_Break_Blocks")) {
             throw data.exception(null, "Found an outdated configuration!",
-                    "You need to update your 'Block_Damage' to match the new format");
+                "You need to update your 'Block_Damage' to match the new format");
         }
 
         Double dropBlockChance = data.of("Drop_Broken_Block_Chance").serialize(new ChanceSerializer());
@@ -320,11 +323,11 @@ public class BlockDamage implements Serializer<BlockDamage> {
 
         Map<Material, DamageConfig> blocks = new EnumMap<>(Material.class);
         List<String[]> list = data.ofList("Blocks")
-                .addArgument(Material.class, true)
-                .addArgument(BreakMode.class, true)
-                .addArgument(int.class, false).assertArgumentPositive()
-                .addArgument(Material.class, false)
-                .assertExists().assertList().get();
+            .addArgument(Material.class, true)
+            .addArgument(BreakMode.class, true)
+            .addArgument(int.class, false).assertArgumentPositive()
+            .addArgument(Material.class, false)
+            .assertExists().assertList().get();
 
         for (int i = 0; i < list.size(); i++) {
             String[] split = list.get(i);
@@ -337,15 +340,15 @@ public class BlockDamage implements Serializer<BlockDamage> {
             // Cannot apply a mask to blocks that cannot be broken
             if (mode != BreakMode.BREAK && mask != null) {
                 throw data.listException("Blocks", i, "You cannot use material masks with '" + mode + "'",
-                        SerializerException.forValue(String.join(" ", split)),
-                        "In order to use masks, use 'BREAK' mode");
+                    SerializerException.forValue(String.join(" ", split)),
+                    "In order to use masks, use 'BREAK' mode");
             }
 
             // Cannot use durability or masks with blocks that cancel durability
             if (mode == BreakMode.CANCEL && blockDurability != -1) {
                 throw data.listException("Blocks", i, "You cannot use durability with 'CANCEL'",
-                        SerializerException.forValue(String.join(" ", split)),
-                        "In order to use durability, use 'BREAK' or 'CRACK'");
+                    SerializerException.forValue(String.join(" ", split)),
+                    "In order to use durability, use 'BREAK' or 'CRACK'");
             }
 
             // If user wants to break or crack this block, then they are
@@ -354,8 +357,8 @@ public class BlockDamage implements Serializer<BlockDamage> {
             if ((mode == BreakMode.CRACK || mode == BreakMode.BREAK) && blockDurability == -1) {
                 int goodNumber = ReflectionUtil.getMCVersion() < 13 ? 1 : (int) materials.get(0).getBlastResistance() + 1;
                 throw data.listException("Blocks", i, "When using '" + mode + "', you MUST also use durability",
-                        SerializerException.forValue(String.join(" ", split)),
-                        "For example, try '" + String.join(" ", split) + " " + goodNumber + "' instead");
+                    SerializerException.forValue(String.join(" ", split)),
+                    "For example, try '" + String.join(" ", split) + " " + goodNumber + "' instead");
             }
 
             // Illegal value... how can something have 0 health?

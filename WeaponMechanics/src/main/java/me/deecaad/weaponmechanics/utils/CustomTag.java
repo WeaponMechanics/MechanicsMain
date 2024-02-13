@@ -6,57 +6,53 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Locale;
 
 /**
- * This enum is used to keep a list of all NBT tags used by WeaponMechanics.
- * This enum also wraps the {@link me.deecaad.core.compatibility.nbt.NBTCompatibility}
- * api, making it easier to access data from items.
+ * This enum is used to keep a list of all NBT tags used by WeaponMechanics. This enum also wraps
+ * the {@link me.deecaad.core.compatibility.nbt.NBTCompatibility} api, making it easier to access
+ * data from items.
  */
 public enum CustomTag {
 
     /**
-     * The weapon title is stored as a String, and is used by WeaponMechanics
-     * to determine if an item is a weapon, and which weapon it is. The title
-     * can be used to retrieve values from config.
+     * The weapon title is stored as a String, and is used by WeaponMechanics to determine if an item is
+     * a weapon, and which weapon it is. The title can be used to retrieve values from config.
      */
     WEAPON_TITLE,
 
     /**
-     * Selective fire is stored as an int, and is used by WeaponMechanics to
-     * determine the current selective fire rate of the weapon. 0 = single,
-     * 1 = burst, and 2 = auto.
+     * Selective fire is stored as an int, and is used by WeaponMechanics to determine the current
+     * selective fire rate of the weapon. 0 = single, 1 = burst, and 2 = auto.
      */
     SELECTIVE_FIRE,
 
     /**
-     * Ammo left is stored as an int, and is used by WeaponMechanics to store
-     * the amount of ammo left in the gun.
+     * Ammo left is stored as an int, and is used by WeaponMechanics to store the amount of ammo left in
+     * the gun.
      */
     AMMO_LEFT,
 
     /**
-     * Ammo type index is stored as an int, and is used by WeaponMechanics to
-     * determine which ammo type that is currently loaded in the weapon. This
-     * is done since config allows for multiple ammo types to be loaded into
-     * the weapons. This is used by WeaponMechanicsPlus to add modifiers to
-     * different ammo types.
+     * Ammo type index is stored as an int, and is used by WeaponMechanics to determine which ammo type
+     * that is currently loaded in the weapon. This is done since config allows for multiple ammo types
+     * to be loaded into the weapons. This is used by WeaponMechanicsPlus to add modifiers to different
+     * ammo types.
      */
     AMMO_TYPE_INDEX,
 
     /**
-     * The ammo name is stored as a String, and is used by WeaponMechanics
-     * to determine if an item can be used as ammunition.
+     * The ammo name is stored as a String, and is used by WeaponMechanics to determine if an item can
+     * be used as ammunition.
      */
     AMMO_TITLE("ammo-name"),
 
     /**
-     * Ammo magazine is stored as an int, and is used by WeaponMechanics to
-     * determine if the ammo was loaded as a magazine, or as individual
-     * bullets. 0 = bullets, 1 = magazine.
+     * Ammo magazine is stored as an int, and is used by WeaponMechanics to determine if the ammo was
+     * loaded as a magazine, or as individual bullets. 0 = bullets, 1 = magazine.
      */
     AMMO_MAGAZINE,
 
     /**
-     * Firearm action state is stored as an int, and is used by WeaponMechanics
-     * to check if the weapon is open/closed. 0 = Ready, 1 = Open, 2 = Closed.
+     * Firearm action state is stored as an int, and is used by WeaponMechanics to check if the weapon
+     * is open/closed. 0 = Ready, 1 = Open, 2 = Closed.
      *
      * @see me.deecaad.weaponmechanics.weapon.firearm.FirearmAction#getState(ItemStack)
      */
@@ -69,60 +65,54 @@ public enum CustomTag {
     DURABILITY,
 
     /**
-     * Max durability is stored as an int, and is used by WeaponMechanics to
-     * prevent abusing repairs over and over.
+     * Max durability is stored as an int, and is used by WeaponMechanics to prevent abusing repairs
+     * over and over.
      */
     MAX_DURABILITY,
 
     /**
-     * Broken weapon is stored as a String, and is used by WeaponMechanics to
-     * determine which weapon this item was before breaking. The stored value
-     * is a weapon title.
+     * Broken weapon is stored as a String, and is used by WeaponMechanics to determine which weapon
+     * this item was before breaking. The stored value is a weapon title.
      */
     BROKEN_WEAPON,
 
     /**
-     * Repair kit title is stored as a String, and is used by WeaponMechanics
-     * to determine if an item is a repair kit. This title can be used to
-     * get repair kit information from config.
+     * Repair kit title is stored as a String, and is used by WeaponMechanics to determine if an item is
+     * a repair kit. This title can be used to get repair kit information from config.
      */
     REPAIR_KIT_TITLE,
 
     /**
-     * Attachment title is stored as a string, and is used by
-     * WeaponMechanicsPlus to determine if an item is an attachment. This title
-     * can be used to get attachment information from config (or the attachment
-     * registry, stored in WeaponMechanicsPlus).
+     * Attachment title is stored as a string, and is used by WeaponMechanicsPlus to determine if an
+     * item is an attachment. This title can be used to get attachment information from config (or the
+     * attachment registry, stored in WeaponMechanicsPlus).
      */
     ATTACHMENT_TITLE,
 
     /**
-     * Attachments are stored as a list of strings, and is used by
-     * WeaponMechanicsPlus to determine which attachments are attached to a
-     * weapon. Each string in the list is an {@link #ATTACHMENT_TITLE}, and can
-     * be used to pull information from config.
+     * Attachments are stored as a list of strings, and is used by WeaponMechanicsPlus to determine
+     * which attachments are attached to a weapon. Each string in the list is an
+     * {@link #ATTACHMENT_TITLE}, and can be used to pull information from config.
      */
     ATTACHMENTS,
 
     /**
-     * Weapon skin is stored as a string, and is used by WeaponMechanicsCosmetics
-     * to determine if a weapon has a set skin. This overrides the player's
-     * preferred skin.
+     * Weapon skin is stored as a string, and is used by WeaponMechanicsCosmetics to determine if a
+     * weapon has a set skin. This overrides the player's preferred skin.
      */
     WEAPON_SKIN,
 
     /**
-     * Armor title is stored as a string, and is used by ArmorMechanics to
-     * determine if an item is a custom armor added by the plugin.
+     * Armor title is stored as a string, and is used by ArmorMechanics to determine if an item is a
+     * custom armor added by the plugin.
      */
     ARMOR_TITLE(null, "armormechanics"),
 
     /**
-     * Prevent remove is stored as an int, and is used by ArmorMechanics as a
-     * marker to prevent armor from being unequipped.
+     * Prevent remove is stored as an int, and is used by ArmorMechanics as a marker to prevent armor
+     * from being unequipped.
      */
     PREVENT_REMOVE(null, "armormechanics");
-
 
     private final String owningPlugin;
     private final String id;
@@ -133,8 +123,8 @@ public enum CustomTag {
     }
 
     /**
-     * This is only used for backwards support. For example, AMMO_NAME ->
-     * {@link #AMMO_TITLE}. Use the default constructor.
+     * This is only used for backwards support. For example, AMMO_NAME -> {@link #AMMO_TITLE}. Use the
+     * default constructor.
      *
      * @param id The non-null id to be used as the NBT tag.
      */

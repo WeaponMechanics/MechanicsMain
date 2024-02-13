@@ -9,9 +9,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Wraps a {@link Player} object to simplify per-player data/methods that
- * are used by WeaponMechanics. Also contains useful API functionality for
- * plugins who want to check if an entity is scoped, reloading, etc.
+ * Wraps a {@link Player} object to simplify per-player data/methods that are used by
+ * WeaponMechanics. Also contains useful API functionality for plugins who want to check if an
+ * entity is scoped, reloading, etc.
  */
 public class PlayerWrapper extends EntityWrapper {
 
@@ -143,14 +143,13 @@ public class PlayerWrapper extends EntityWrapper {
     /**
      * @return the stats data or null if disabled or not yet synced
      */
-    @Nullable
-    public StatsData getStatsData() {
+    @Nullable public StatsData getStatsData() {
         return (statsData == null || !statsData.isSync()) ? null : statsData;
     }
 
     /**
-     * This method might not be safe to use nor should be used. Use {@link #getStatsData()} instead.
-     * By unsafe I mean that this object might not have been synced yet.
+     * This method might not be safe to use nor should be used. Use {@link #getStatsData()} instead. By
+     * unsafe I mean that this object might not have been synced yet.
      *
      * @return the unsafe stats data object
      */

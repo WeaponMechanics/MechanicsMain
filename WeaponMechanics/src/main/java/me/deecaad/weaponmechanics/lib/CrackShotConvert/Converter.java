@@ -60,8 +60,8 @@ public class Converter {
             if (directoryFile.isDirectory()) {
                 convertAllFiles(directoryFile, new File(outputDirectory, directoryFile.getName() + "/"));
             } else if (directoryFile.getName().endsWith(".yml")
-                    && !directoryFile.getName().startsWith("messages")
-                    && !directoryFile.getName().startsWith("general")) {
+                && !directoryFile.getName().startsWith("messages")
+                && !directoryFile.getName().startsWith("general")) {
                 convertOneFile(directoryFile, outputDirectory);
             }
         }
@@ -75,7 +75,8 @@ public class Converter {
 
             try {
                 cs.convertOneKey(configuration, key, outputConfiguration);
-                if (csp != null) csp.convertOneKey(configuration, key, outputConfiguration);
+                if (csp != null)
+                    csp.convertOneKey(configuration, key, outputConfiguration);
                 ++convertCounter;
             } catch (Exception e) {
                 e.printStackTrace();

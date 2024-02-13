@@ -28,14 +28,18 @@ public class StatsHandler {
      */
     public void load(PlayerWrapper playerWrapper) {
         Database database = WeaponMechanics.getDatabase();
-        if (database == null) return;
+        if (database == null)
+            return;
 
-        if (database.isClosed()) throw new IllegalArgumentException("Tried to load data when database was closed");
+        if (database.isClosed())
+            throw new IllegalArgumentException("Tried to load data when database was closed");
 
         StatsData statsData = playerWrapper.getStatsDataUnsafe();
-        if (statsData == null) return;
+        if (statsData == null)
+            return;
 
-        if (statsData.isSync()) throw new IllegalArgumentException("Tried to load data to already synced stats data");
+        if (statsData.isSync())
+            throw new IllegalArgumentException("Tried to load data to already synced stats data");
 
         fetchAndInsertPlayerStats(database, playerWrapper.getPlayer().getUniqueId(), statsData);
     }
@@ -48,25 +52,31 @@ public class StatsHandler {
      */
     public void save(PlayerWrapper playerWrapper, boolean forceSync) {
         Database database = WeaponMechanics.getDatabase();
-        if (database == null) return;
+        if (database == null)
+            return;
 
-        if (database.isClosed()) throw new IllegalArgumentException("Tried to save data when database was closed");
+        if (database.isClosed())
+            throw new IllegalArgumentException("Tried to save data when database was closed");
 
         StatsData statsData = playerWrapper.getStatsData();
         // This might be null if sync didn't occur...
-        if (statsData == null) return;
+        if (statsData == null)
+            return;
 
         database.executeUpdate(forceSync, getSaveStrings(playerWrapper));
     }
 
     private String[] getSaveStrings(PlayerWrapper playerWrapper) {
         StatsData statsData = playerWrapper.getStatsData();
-        if (statsData == null) return null;
+        if (statsData == null)
+            return null;
 
-        if (!statsData.isSync()) throw new IllegalArgumentException("Tried to use REPLACE when player stat data wasn't yet synced");
+        if (!statsData.isSync())
+            throw new IllegalArgumentException("Tried to use REPLACE when player stat data wasn't yet synced");
 
         Set<String> weapons = statsData.getWeapons();
-        if (weapons == null || weapons.isEmpty()) return new String[]{getPlayerStatReplaceString(playerWrapper)};
+        if (weapons == null || weapons.isEmpty())
+            return new String[]{getPlayerStatReplaceString(playerWrapper)};
 
         String[] batches = new String[weapons.size() + 1];
 
@@ -90,8 +100,8 @@ public class StatsHandler {
                         builder.append("NULL");
                     } else {
                         builder.append("'")
-                                .append(value)
-                                .append("'");
+                            .append(value)
+                            .append("'");
                     }
                 } else if (type == Set.class) {
                     Set<?> value = (Set<?>) statsData.get(weapon, stat);
@@ -139,8 +149,8 @@ public class StatsHandler {
                     builder.append("NULL");
                 } else {
                     builder.append("'")
-                            .append(value)
-                            .append("'");
+                        .append(value)
+                        .append("'");
                 }
             } else {
                 builder.append(statsData.get(stat));
@@ -186,20 +196,24 @@ public class StatsHandler {
                 Map<PlayerStat, Object> playerData = new HashMap<>();
                 while (playerSet.next()) {
                     for (PlayerStat stat : PlayerStat.VALUES) {
-                        if (stat == PlayerStat.UUID) continue;
+                        if (stat == PlayerStat.UUID)
+                            continue;
 
                         Class<?> type = stat.getClassType();
                         if (type == Integer.class) {
                             int data = playerSet.getInt(stat.name());
-                            if (data == 0) continue;
+                            if (data == 0)
+                                continue;
                             playerData.put(stat, data);
                         } else if (type == Float.class) {
                             float data = playerSet.getFloat(stat.name());
-                            if (data == 0.0) continue;
+                            if (data == 0.0)
+                                continue;
                             playerData.put(stat, data);
                         } else {
                             String data = playerSet.getString(stat.name());
-                            if (data == null) continue;
+                            if (data == null)
+                                continue;
                             playerData.put(stat, data);
                         }
                     }
@@ -225,20 +239,24 @@ public class StatsHandler {
                     weaponData.put(weaponTitle, newWeaponMap);
 
                     for (WeaponStat stat : WeaponStat.VALUES) {
-                        if (stat == WeaponStat.UUID || stat == WeaponStat.WEAPON_TITLE) continue;
+                        if (stat == WeaponStat.UUID || stat == WeaponStat.WEAPON_TITLE)
+                            continue;
                         Class<?> type = stat.getClassType();
 
                         if (type == Integer.class) {
                             int data = weaponSet.getInt(stat.name());
-                            if (data == 0) continue;
+                            if (data == 0)
+                                continue;
                             newWeaponMap.put(stat, data);
                         } else if (type == Float.class) {
                             float data = weaponSet.getFloat(stat.name());
-                            if (data == 0.0) continue;
+                            if (data == 0.0)
+                                continue;
                             newWeaponMap.put(stat, data);
                         } else {
                             String data = weaponSet.getString(stat.name());
-                            if (data == null) continue;
+                            if (data == null)
+                                continue;
 
                             if (type == String.class) {
                                 newWeaponMap.put(stat, data);

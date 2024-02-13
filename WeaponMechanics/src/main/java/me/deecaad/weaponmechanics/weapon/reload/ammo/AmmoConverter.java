@@ -36,8 +36,8 @@ public class AmmoConverter extends WeaponConverter {
 
         if (!type && !name && !lore && !enchantments && !cmd) {
             throw data.exception(null, "'Type', 'Name', 'Lore', 'Enchantments', 'Custom_Model_Data' are all 'false'",
-                    "One of them should be 'true' to allow ammo conversion",
-                    "If you want to remove the ammo conversion feature, remove the 'Ammo_Converter_Check' option from config");
+                "One of them should be 'true' to allow ammo conversion",
+                "If you want to remove the ammo conversion feature, remove the 'Ammo_Converter_Check' option from config");
         }
 
         if (cmd && ReflectionUtil.getMCVersion() < 14) {

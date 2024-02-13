@@ -17,9 +17,9 @@ public class WeaponAssistEvent extends PlayerEvent {
     private final Map<String, AssistData.DamageInfo> assists;
 
     /**
-     * Consider using {@link WeaponKillEntityEvent} instead. Only down-side of that event is
-     * that it isn't called when entity dies for other causes than weapon. This event is still
-     * called everytime entity dies for any reason.
+     * Consider using {@link WeaponKillEntityEvent} instead. Only down-side of that event is that it
+     * isn't called when entity dies for other causes than weapon. This event is still called everytime
+     * entity dies for any reason.
      */
     public WeaponAssistEvent(Player who, LivingEntity killed, Map<String, AssistData.DamageInfo> assists) {
         super(who);
@@ -35,9 +35,9 @@ public class WeaponAssistEvent extends PlayerEvent {
     }
 
     /**
-     * Return the map containing the weapon title as key and damage info as value.
-     * DamageInfo has methods {@link AssistData.DamageInfo#getDamage()},
-     * {@link AssistData.DamageInfo#getWeaponStack()} and {@link AssistData.DamageInfo#getLastHitTime()}.
+     * Return the map containing the weapon title as key and damage info as value. DamageInfo has
+     * methods {@link AssistData.DamageInfo#getDamage()}, {@link AssistData.DamageInfo#getWeaponStack()}
+     * and {@link AssistData.DamageInfo#getLastHitTime()}.
      *
      * @return the non-null map of assists
      */
@@ -46,8 +46,7 @@ public class WeaponAssistEvent extends PlayerEvent {
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

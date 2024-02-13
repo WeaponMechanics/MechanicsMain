@@ -35,7 +35,7 @@ public class LegacyListWeaponsCommand extends SubCommand {
                 int maxPerPage = 2 * 8;
                 int pages = 1 + info.getSortedWeaponList().size() / maxPerPage;
                 return IntStream.range(1, pages + 2).mapToObj(String::valueOf).collect(Collectors.toList());
-            default:
+            default :
                 return super.handleCustomTag(args, current);
         }
     }

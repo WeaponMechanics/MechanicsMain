@@ -1,11 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.shoot.spread;
 
 /**
- * This class encapsulates an (x, y) point
- * with a value.
+ * This class encapsulates an (x, y) point with a value.
  */
 public class Point {
-    
+
     private double yaw;
     private double pitch;
 
