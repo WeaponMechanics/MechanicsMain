@@ -7,6 +7,7 @@ import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.mechanics.PlayerEffectMechanic;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
+import me.deecaad.core.mechanics.targeters.WorldPlayersTargeter;
 import me.deecaad.core.mechanics.targeters.WorldTargeter;
 import me.deecaad.core.utils.NumberUtil;
 import org.bukkit.Location;
@@ -138,7 +139,7 @@ public class CustomSoundMechanic extends PlayerEffectMechanic {
         // If the user wants to use listener conditions, be sure to use a
         // targeter for listeners (Otherwise these conditions are ignored).
         if (!listenerConditions.isEmpty() && listeners == null)
-            listeners = new WorldTargeter();
+            listeners = new WorldPlayersTargeter();
 
         return applyParentArgs(data, new CustomSoundMechanic(sound, volume, pitch, noise, category, listeners, listenerConditions));
     }
