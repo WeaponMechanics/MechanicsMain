@@ -11,8 +11,7 @@ public class ChanceSerializer implements Serializer<Double> {
     public ChanceSerializer() {
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Double serialize(@NotNull SerializeData data) throws SerializerException {
         Object value = data.of().assertExists().get();
         double chance = 0.0;
@@ -31,7 +30,7 @@ public class ChanceSerializer implements Serializer<Double> {
                 chance = Double.parseDouble(str.substring(0, str.length() - 1)) / 100.0;
             } else {
                 throw data.exception(null, "Chance input had a '%' in the middle when it should have been on the end",
-                        SerializerException.forValue(value));
+                    SerializerException.forValue(value));
             }
         }
 
@@ -46,10 +45,9 @@ public class ChanceSerializer implements Serializer<Double> {
             throw new SerializerTypeException(data.serializer, Number.class, value.getClass(), value, data.of().getLocation());
         }
 
-
         if (chance < 0.0 || chance > 1.0) {
             throw new SerializerRangeException(data.serializer, 0.0, chance, 1.0, data.of().getLocation())
-                    .addMessage("When using percentages, make sure to stay between 0% and 100%");
+                .addMessage("When using percentages, make sure to stay between 0% and 100%");
         }
 
         return chance;

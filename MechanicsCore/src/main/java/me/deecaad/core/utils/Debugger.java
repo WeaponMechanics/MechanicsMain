@@ -9,11 +9,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.logging.Logger;
 
 /**
- * This class outlines an easier to use version of a {@link Logger}. Debuggers
- * have the advantage of only displaying specific messages based on which
- * {@link LogLevel} is currently being used. This means that debug messages are
- * only shown when the user wants to see debug messages, and errors are shown
- * if users want errors to be shown.
+ * This class outlines an easier to use version of a {@link Logger}. Debuggers have the advantage of
+ * only displaying specific messages based on which {@link LogLevel} is currently being used. This
+ * means that debug messages are only shown when the user wants to see debug messages, and errors
+ * are shown if users want errors to be shown.
  *
  * @see LogLevel
  */
@@ -65,8 +64,7 @@ public class Debugger {
     }
 
     /**
-     * Returns the backing {@link Logger} that belongs to the plugin that
-     * instantiated this debugger.
+     * Returns the backing {@link Logger} that belongs to the plugin that instantiated this debugger.
      *
      * @return The non-null {@link Logger}
      */
@@ -93,8 +91,8 @@ public class Debugger {
     }
 
     /**
-     * Returns <code>true</code> if the given {@link LogLevel} can be logged
-     * based on the currently set numeric logging level.
+     * Returns <code>true</code> if the given {@link LogLevel} can be logged based on the currently set
+     * numeric logging level.
      *
      * @param level The non-null {@link LogLevel} to test.
      * @return <code>true</code> if the <code>level</code> can be logged.
@@ -104,25 +102,25 @@ public class Debugger {
     }
 
     /**
-     * Shorthand for using {@link #log(LogLevel, String...)} at debugging
-     * level.
+     * Shorthand for using {@link #log(LogLevel, String...)} at debugging level.
      *
      * @param msg The non-null messages to log.
      * @see LogLevel#DEBUG
      */
     public void debug(String... msg) {
-        if (canLog(LogLevel.DEBUG)) log(LogLevel.DEBUG, msg);
+        if (canLog(LogLevel.DEBUG))
+            log(LogLevel.DEBUG, msg);
     }
 
     /**
-     * Shorthand for using {@link #log(LogLevel, String...)} at information
-     * level.
+     * Shorthand for using {@link #log(LogLevel, String...)} at information level.
      *
      * @param msg The non-null messages to log.
      * @see LogLevel#INFO
      */
     public void info(String... msg) {
-        if (canLog(LogLevel.INFO)) log(LogLevel.INFO, msg);
+        if (canLog(LogLevel.INFO))
+            log(LogLevel.INFO, msg);
     }
 
     /**
@@ -132,7 +130,8 @@ public class Debugger {
      * @see LogLevel#WARN
      */
     public void warn(String... msg) {
-        if (canLog(LogLevel.WARN)) log(LogLevel.WARN, msg);
+        if (canLog(LogLevel.WARN))
+            log(LogLevel.WARN, msg);
     }
 
     /**
@@ -142,17 +141,19 @@ public class Debugger {
      * @see LogLevel#ERROR
      */
     public void error(String... msg) {
-        if (canLog(LogLevel.ERROR)) log(LogLevel.ERROR, msg);
+        if (canLog(LogLevel.ERROR))
+            log(LogLevel.ERROR, msg);
     }
 
     /**
      * Logs the given messages to console at the given {@link LogLevel}.
      *
      * @param level The non-null level to log the messages.
-     * @param msg   The non-null messages to log.
+     * @param msg The non-null messages to log.
      */
     public void log(LogLevel level, String... msg) {
-        if (!canLog(level)) return;
+        if (!canLog(level))
+            return;
 
         for (String str : msg) {
             logger.log(level.getParallel(), str);
@@ -177,33 +178,34 @@ public class Debugger {
      * @param error The non-null exception to log.
      */
     public void log(LogLevel level, Throwable error) {
-        if (!canLog(level)) return;
+        if (!canLog(level))
+            return;
 
         logger.log(level.getParallel(), "", error);
     }
 
     /**
-     * Logs the given message and the given exception at the given
-     * {@link LogLevel}. If the exception does not have a message, the
-     * <code>msg</code> is used as the message. Otherwise, they are logged
+     * Logs the given message and the given exception at the given {@link LogLevel}. If the exception
+     * does not have a message, the <code>msg</code> is used as the message. Otherwise, they are logged
      * separately.
      *
      * @param level The non-null level to log the messages.
-     * @param msg   The message to log.
+     * @param msg The message to log.
      * @param error The exception to log.
      */
     public void log(LogLevel level, String msg, Throwable error) {
-        if (!canLog(level)) return;
+        if (!canLog(level))
+            return;
 
         logger.log(level.getParallel(), msg, error);
     }
 
     /**
-     * Logs the given messages as a {@link LogLevel#ERROR} if the given
-     * <code>bool</code> is <code>false</code>.
+     * Logs the given messages as a {@link LogLevel#ERROR} if the given <code>bool</code> is
+     * <code>false</code>.
      *
-     * @param bool     The condition to check for. If this is <code>true</code>,
-     *                 the messages are not logged.
+     * @param bool The condition to check for. If this is <code>true</code>, the messages are not
+     *        logged.
      * @param messages The messages to log as an error.
      */
     public void validate(boolean bool, String... messages) {
@@ -213,12 +215,12 @@ public class Debugger {
     }
 
     /**
-     * Logs the given messages at the given {@link LogLevel} if the given
-     * <code>bool</code> is <code>false</code>.
+     * Logs the given messages at the given {@link LogLevel} if the given <code>bool</code> is
+     * <code>false</code>.
      *
-     * @param level    The logging level to log the messages.
-     * @param bool     The condition to check for. If this is <code>true</code>,
-     *                 the messages are not logged.
+     * @param level The logging level to log the messages.
+     * @param bool The condition to check for. If this is <code>true</code>, the messages are not
+     *        logged.
      * @param messages The messages to log.
      */
     public void validate(LogLevel level, boolean bool, String... messages) {
@@ -228,13 +230,13 @@ public class Debugger {
     }
 
     /**
-     * Starts the warning runnable which warns opped users if an
-     * error occurs in console.
+     * Starts the warning runnable which warns opped users if an error occurs in console.
      *
      * @param plugin The plugin to schedule the task.
      */
     public synchronized void start(Plugin plugin) {
-        if (hasStarted) return;
+        if (hasStarted)
+            return;
 
         warningTask.runTaskTimerAsynchronously(plugin, 10L, updateTime);
 

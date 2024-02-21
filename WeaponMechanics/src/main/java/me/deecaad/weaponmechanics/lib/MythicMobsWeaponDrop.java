@@ -16,19 +16,20 @@ public class MythicMobsWeaponDrop implements IItemDrop {
     private final int amount;
 
     public MythicMobsWeaponDrop(MythicLineConfig config, String argument) {
-        String weaponTitle = config.getString(new String[]{ "weapon", "title", "weaponTitle", "w" }, "", "");
-        this.amount = config.getInteger(new String[]{ "amount", "a" }, 1);
+        String weaponTitle = config.getString(new String[]{"weapon", "title", "weaponTitle", "w"}, "", "");
+        this.amount = config.getInteger(new String[]{"amount", "a"}, 1);
 
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
         try {
             weaponTitle = info.getWeaponTitle(weaponTitle);
-        } catch (IllegalArgumentException ignore) {}
+        } catch (IllegalArgumentException ignore) {
+        }
         this.weaponTitle = weaponTitle;
 
         if (this.amount < 1) {
             WeaponMechanics.debug.error("MythicMobs expected positive integer, found: " + amount,
-                    "Located in file '" + config.getFileName() + "' at '" + config.getKey() + "'",
-                    SerializerException.forValue(argument));
+                "Located in file '" + config.getFileName() + "' at '" + config.getKey() + "'",
+                SerializerException.forValue(argument));
         }
     }
 

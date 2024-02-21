@@ -18,8 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AdventureTest {
 
     public static final Serializer<?> DUMMY = new Serializer<>() {
-        @NotNull
-        @Override
+        @NotNull @Override
         public Object serialize(@NotNull SerializeData data) {
             throw new RuntimeException();
         }

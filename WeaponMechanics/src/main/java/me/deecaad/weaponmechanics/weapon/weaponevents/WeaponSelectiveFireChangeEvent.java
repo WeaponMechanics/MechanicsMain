@@ -9,9 +9,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Event that occurs when a {@link org.bukkit.entity.Player} switches between
- * semi-automatic, burst, and automatic using WeaponMechanic's selective fire
- * feature.
+ * Event that occurs when a {@link org.bukkit.entity.Player} switches between semi-automatic, burst,
+ * and automatic using WeaponMechanic's selective fire feature.
  */
 public class WeaponSelectiveFireChangeEvent extends WeaponEvent implements Cancellable {
 
@@ -22,7 +21,7 @@ public class WeaponSelectiveFireChangeEvent extends WeaponEvent implements Cance
     private boolean cancelled;
 
     public WeaponSelectiveFireChangeEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand,
-                                          SelectiveFireState oldState, SelectiveFireState newState) {
+        SelectiveFireState oldState, SelectiveFireState newState) {
         super(weaponTitle, weaponStack, shooter, hand);
 
         this.oldState = oldState;
@@ -52,8 +51,7 @@ public class WeaponSelectiveFireChangeEvent extends WeaponEvent implements Cance
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

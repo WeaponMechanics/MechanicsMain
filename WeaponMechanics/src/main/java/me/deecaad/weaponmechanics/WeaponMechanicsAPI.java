@@ -37,16 +37,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Set;
 
 /**
- * This class outlines static utility methods to help developers find functions
- * of WeaponMechanics wrapped in one place. The following method's
- * implementations exclusively call "internal" methods to handle the function.
+ * This class outlines static utility methods to help developers find functions of WeaponMechanics
+ * wrapped in one place. The following method's implementations exclusively call "internal" methods
+ * to handle the function.
  *
- * <p>The methods in this class are designed for "general use." If you are
- * looking for a more specific method, you should look at the implementation
- * of the API method, and call the internal methods instead.
+ * <p>
+ * The methods in this class are designed for "general use." If you are looking for a more specific
+ * method, you should look at the implementation of the API method, and call the internal methods
+ * instead.
  *
- * <p>Are we missing a method you want? No problem, simply open an issue on
- * GitHub, and we will add it!
+ * <p>
+ * Are we missing a method you want? No problem, simply open an issue on GitHub, and we will add it!
  */
 public final class WeaponMechanicsAPI {
 
@@ -55,31 +56,28 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Gets the stats for the given player, or null if the stats have not been
-     * loaded (Which can happen randomly if the database falls out of sync, during
-     * reloads, player has never joined before, etc.)
+     * Gets the stats for the given player, or null if the stats have not been loaded (Which can happen
+     * randomly if the database falls out of sync, during reloads, player has never joined before, etc.)
      *
      * @param player The non-null player to get the stats for.
      * @return The nullable stats.
      */
-    @Nullable
-    public static StatsData getStats(@NotNull Player player) {
+    @Nullable public static StatsData getStats(@NotNull Player player) {
         return WeaponMechanics.getPlayerWrapper(player).getStatsData();
     }
 
     /**
-     * Gets the skin that will be applied to the weapon item for the given player.
-     * This takes the skin override ({@link #setSkin(ItemStack, String)}) into
-     * account.
+     * Gets the skin that will be applied to the weapon item for the given player. This takes the skin
+     * override ({@link #setSkin(ItemStack, String)}) into account.
      *
-     * <p>This method will throw an exception if the weapon does not use skins.
+     * <p>
+     * This method will throw an exception if the weapon does not use skins.
      *
      * @param player The player holding the weapon.
      * @param weaponStack The weapon item to get the skin for.
      * @return Which skin should be applied, or "default" for no skin.
      */
-    @NotNull
-    public static String getSkinFor(@NotNull Player player, @NotNull ItemStack weaponStack) {
+    @NotNull public static String getSkinFor(@NotNull Player player, @NotNull ItemStack weaponStack) {
         String weaponTitle = getWeaponTitle(weaponStack);
         if (weaponTitle == null) {
             throw new IllegalArgumentException("Item is not a weapon");
@@ -112,12 +110,13 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Sets the skin override for the given weapon item. This will override
-     * player preferences ({@link #setSkin(Player, String, String)}).
+     * Sets the skin override for the given weapon item. This will override player preferences
+     * ({@link #setSkin(Player, String, String)}).
      *
-     * <p>This method simply sets the skin override in the item's nbt data. You
-     * can set this value yourself using {@link CustomTag#WEAPON_SKIN}. This
-     * method will throw an exception if the weapon does not use skins.
+     * <p>
+     * This method simply sets the skin override in the item's nbt data. You can set this value yourself
+     * using {@link CustomTag#WEAPON_SKIN}. This method will throw an exception if the weapon does not
+     * use skins.
      *
      * @param weaponStack The weapon item to set the skin for.
      * @param skin The skin to set. If null, the default skin will be used.
@@ -144,8 +143,9 @@ public final class WeaponMechanicsAPI {
     /**
      * Attempts to set the player's skin preference for the given weapon.
      *
-     * <p>This method simply sets the player's skin preference in the database.
-     * For skins to work, WeaponMechanicsCosmetics must be installed.
+     * <p>
+     * This method simply sets the player's skin preference in the database. For skins to work,
+     * WeaponMechanicsCosmetics must be installed.
      *
      * @param player The player to set the skin preference for.
      * @param weaponTitle The weapon title to set the skin preference for.
@@ -204,18 +204,16 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Returns a copy of the skin set. This returned set may be empty if the
-     * weapon uses the Skins feature, but does not have any defined skins (Which
-     * is very common!).
+     * Returns a copy of the skin set. This returned set may be empty if the weapon uses the Skins
+     * feature, but does not have any defined skins (Which is very common!).
      *
-     * <p>Note that the default skin, <code>"default"</code>, is not included in
-     * the returned set.
+     * <p>
+     * Note that the default skin, <code>"default"</code>, is not included in the returned set.
      *
      * @param weaponTitle The non-null weapon title to get the skins for.
      * @return The non-null set of custom skins.
      */
-    @NotNull
-    public static Set<String> getCustomSkins(@NotNull String weaponTitle) {
+    @NotNull public static Set<String> getCustomSkins(@NotNull String weaponTitle) {
         SkinSelector skins = WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Skin", SkinSelector.class);
         if (skins == null)
             throw new IllegalArgumentException("Weapon " + weaponTitle + " does not use skins");
@@ -224,9 +222,8 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Attempts to set the full auto rate for the given entity. Will try to use
-     * the mainhand first, then the offhand. Use shotsPerSecond=0 to stop the
-     * full auto.
+     * Attempts to set the full auto rate for the given entity. Will try to use the mainhand first, then
+     * the offhand. Use shotsPerSecond=0 to stop the full auto.
      *
      * @param entity The non-null entity to set the full auto rate for.
      * @param shotsPerSecond The non-negative shots per second to set.
@@ -272,9 +269,8 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Returns how far the <code>entity</code> is zooming in. 0 means that the
-     * entity is not scoping at all. Any other number means that the entity is
-     * scoping.
+     * Returns how far the <code>entity</code> is zooming in. 0 means that the entity is not scoping at
+     * all. Any other number means that the entity is scoping.
      *
      * @param entity The non-null living entity to check the scope state of.
      * @return The non-negative zoom amount.
@@ -290,16 +286,14 @@ public final class WeaponMechanicsAPI {
             return 0;
 
         return Math.max(
-                wrapper.getMainHandData().getZoomData().getZoomAmount(),
-                wrapper.getOffHandData().getZoomData().getZoomAmount()
-        );
+            wrapper.getMainHandData().getZoomData().getZoomAmount(),
+            wrapper.getOffHandData().getZoomData().getZoomAmount());
     }
 
     /**
-     * Returns <code>true</code> if the given <code>entity</code> is zooming in
-     * with their weapon. It doesn't matter if the player is zoom-stacking or
-     * not, this method will return <code>true</code> if the entity is zoomed
-     * in at all.
+     * Returns <code>true</code> if the given <code>entity</code> is zooming in with their weapon. It
+     * doesn't matter if the player is zoom-stacking or not, this method will return <code>true</code>
+     * if the entity is zoomed in at all.
      *
      * @param entity The non-null living entity to check the scope state of.
      * @return <code>true</code> if the entity is scoping.
@@ -309,8 +303,7 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Returns <code>true</code> if the given <code>entity</code> is reloading
-     * their weapon.
+     * Returns <code>true</code> if the given <code>entity</code> is reloading their weapon.
      *
      * @param entity The non-null living entity to check the reload state of.
      * @return <code>true</code> if the entity is reloading.
@@ -324,22 +317,21 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Returns an item corresponding to the given <code>weaponTitle</code>. The
-     * item will have a custom name, lore, enchantments, flags, nbt data, etc.
+     * Returns an item corresponding to the given <code>weaponTitle</code>. The item will have a custom
+     * name, lore, enchantments, flags, nbt data, etc.
      *
      * @param weaponTitle The non-null weapon-title of the weapon to generate.
      * @return The non-null weapon item.
      * @see me.deecaad.weaponmechanics.weapon.info.InfoHandler
      */
-    @NotNull
-    public static ItemStack generateWeapon(@NotNull String weaponTitle) {
+    @NotNull public static ItemStack generateWeapon(@NotNull String weaponTitle) {
         return WeaponMechanics.getWeaponHandler().getInfoHandler().generateWeapon(weaponTitle, 1);
     }
 
     /**
-     * Gives an item corresponding to the given <code>weaponTitle</code> to the
-     * given <code>player</code>. If the player's inventory is full, the item
-     * will be dropped via {@link org.bukkit.World#dropItemNaturally(Location, ItemStack)}.
+     * Gives an item corresponding to the given <code>weaponTitle</code> to the given
+     * <code>player</code>. If the player's inventory is full, the item will be dropped via
+     * {@link org.bukkit.World#dropItemNaturally(Location, ItemStack)}.
      *
      * @param weaponTitle The non-null weapon-title of the weapon to generate.
      * @param player The non-null weapon item.
@@ -349,8 +341,7 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Adds the given projectile to the {@link ProjectilesRunnable}.
-     * Can be run async.
+     * Adds the given projectile to the {@link ProjectilesRunnable}. Can be run async.
      *
      * @param projectile The non-null projectile to add.
      * @see ProjectilesRunnable
@@ -361,8 +352,8 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Returns <code>true</code> if the block at the given location is broken
-     * by an explosion, block damage, or otherwise.
+     * Returns <code>true</code> if the block at the given location is broken by an explosion, block
+     * damage, or otherwise.
      *
      * @param block The non-null block to check.
      * @return <code>true</code> if the block is broken.
@@ -373,10 +364,9 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Regenerates all blocks broken by this plugin. This is a "dangerous"
-     * method to call because this may cause players/entities to get stuck
-     * underground, and may cause lag spikes if there are many blocks to
-     * regenerate. Consider regenerating a few chunks instead of all blocks
+     * Regenerates all blocks broken by this plugin. This is a "dangerous" method to call because this
+     * may cause players/entities to get stuck underground, and may cause lag spikes if there are many
+     * blocks to regenerate. Consider regenerating a few chunks instead of all blocks
      * {@link BlockDamageData#regenerate(Chunk)}.
      */
     public static void regenerateAllBlocks() {
@@ -384,18 +374,17 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Returns the weapon-title associated with the given item. If the given
-     * item is not a WeaponMechanics weapon, this method will return
-     * <code>null</code>.
+     * Returns the weapon-title associated with the given item. If the given item is not a
+     * WeaponMechanics weapon, this method will return <code>null</code>.
      *
-     * <p>Note that a weapon-title is the config name of a weapon, and you can
-     * use a weapon-title to pull values from config easily.
+     * <p>
+     * Note that a weapon-title is the config name of a weapon, and you can use a weapon-title to pull
+     * values from config easily.
      *
      * @param item The non-null item to get the weapon title from.
      * @return The item's weapon title, or null.
      */
-    @Nullable
-    public static String getWeaponTitle(@NotNull ItemStack item) {
+    @Nullable public static String getWeaponTitle(@NotNull ItemStack item) {
         if (!item.hasItemMeta())
             return null;
         else
@@ -403,31 +392,28 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Returns the ammo currently loaded in the weapon, or null if it doesn't
-     * use ammo.
+     * Returns the ammo currently loaded in the weapon, or null if it doesn't use ammo.
      *
      * @param weaponStack The non-null weapon item stack.
      * @return The current ammo, or null.
      */
-    @Nullable
-    public static Ammo getCurrentAmmo(@NotNull ItemStack weaponStack) {
+    @Nullable public static Ammo getCurrentAmmo(@NotNull ItemStack weaponStack) {
         String weaponTitle = getWeaponTitle(weaponStack);
         AmmoConfig ammo = WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Reload.Ammo", AmmoConfig.class);
-        if (ammo == null) return null;
+        if (ammo == null)
+            return null;
 
         return ammo.getCurrentAmmo(weaponStack);
     }
 
     /**
-     * Generates the item for the given ammo, or returns null if the ammo does
-     * not use items for ammo.
+     * Generates the item for the given ammo, or returns null if the ammo does not use items for ammo.
      *
      * @param ammoTitle The ammo to generate.
-     * @param magazine  true=generate magazine, false=generate bullet.
+     * @param magazine true=generate magazine, false=generate bullet.
      * @return The generated item, or null.
      */
-    @Nullable
-    public static ItemStack generateAmmo(@NotNull String ammoTitle, boolean magazine) {
+    @Nullable public static ItemStack generateAmmo(@NotNull String ammoTitle, boolean magazine) {
         Ammo ammo = AmmoRegistry.AMMO_REGISTRY.get(ammoTitle);
         if (ammo == null)
             return null;
@@ -451,8 +437,7 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Shorthand for an entity to shoot a weapon in the direction the entity
-     * is currently facing.
+     * Shorthand for an entity to shoot a weapon in the direction the entity is currently facing.
      *
      * @param shooter The non-null entity to shoot the weapon.
      * @param weaponTitle The non-null weapon title to shoot.
@@ -477,36 +462,32 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Returns MechanicsCore's compatibility version. Useful for dealing with
-     * NMS code or otherwise version dependent code.
+     * Returns MechanicsCore's compatibility version. Useful for dealing with NMS code or otherwise
+     * version dependent code.
      *
      * @return The non-null compatibility version.
      */
-    @NotNull
-    public static ICompatibility getCompatibility() {
+    @NotNull public static ICompatibility getCompatibility() {
         return CompatibilityAPI.getCompatibility();
     }
 
     /**
-     * Returns WeaponMechanics' compatibility version. Useful for dealing with
-     * NMS code or otherwise version dependent code.
+     * Returns WeaponMechanics' compatibility version. Useful for dealing with NMS code or otherwise
+     * version dependent code.
      *
      * @return The non-null weapon compatibility version.
      */
-    @NotNull
-    public static IWeaponCompatibility getWeaponCompatibility() {
+    @NotNull public static IWeaponCompatibility getWeaponCompatibility() {
         return WeaponCompatibilityAPI.getWeaponCompatibility();
     }
 
     /**
-     * Returns the current WeaponMechanics main plugin instance. If the plugin
-     * has not been loaded, or is current reloading, this method will return
-     * <code>null</code>.
+     * Returns the current WeaponMechanics main plugin instance. If the plugin has not been loaded, or
+     * is current reloading, this method will return <code>null</code>.
      *
      * @return The plugin instance.
      */
-    @NotNull
-    public static Plugin getPluginInstance() {
+    @NotNull public static Plugin getPluginInstance() {
         return WeaponMechanics.getPlugin();
     }
 
@@ -515,8 +496,7 @@ public final class WeaponMechanicsAPI {
      *
      * @return The plugin instance.
      */
-    @NotNull
-    public static WeaponMechanics getInstance() {
+    @NotNull public static WeaponMechanics getInstance() {
         return WeaponMechanics.getInstance();
     }
 }

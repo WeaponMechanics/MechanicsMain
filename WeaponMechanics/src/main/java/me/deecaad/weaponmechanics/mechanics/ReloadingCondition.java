@@ -31,8 +31,7 @@ public class ReloadingCondition extends Condition {
         return "https://cjcrafter.gitbook.io/mechanics/integrations/weaponmechanics#reloading";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         return applyParentArgs(data, new ReloadingCondition());
     }

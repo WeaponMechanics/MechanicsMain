@@ -8,8 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Called whenever a melee attack hits. Goes along with
- * {@link WeaponMeleeMissEvent}.
+ * Called whenever a melee attack hits. Goes along with {@link WeaponMeleeMissEvent}.
  */
 public class WeaponMeleeHitEvent extends WeaponEvent implements Cancellable {
 
@@ -37,8 +36,7 @@ public class WeaponMeleeHitEvent extends WeaponEvent implements Cancellable {
     }
 
     /**
-     * Returns the delay after the hit before the melee weapon can be swung
-     * again.
+     * Returns the delay after the hit before the melee weapon can be swung again.
      *
      * @return The delay you can swing again.
      */
@@ -74,8 +72,7 @@ public class WeaponMeleeHitEvent extends WeaponEvent implements Cancellable {
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

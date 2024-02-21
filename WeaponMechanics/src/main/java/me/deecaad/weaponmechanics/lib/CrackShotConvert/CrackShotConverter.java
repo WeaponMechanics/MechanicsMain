@@ -211,7 +211,8 @@ public class CrackShotConverter {
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             Object value = fromConfig.get(from);
-            if (value == null) return;
+            if (value == null)
+                return;
 
             if (fromConfig.isString(from)) {
                 value = StringUtil.colorAdventure((String) value);
@@ -226,7 +227,8 @@ public class CrackShotConverter {
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             Object value = fromConfig.get(from);
-            if (value == null) return;
+            if (value == null)
+                return;
 
             if (value instanceof Number) {
                 double dvalue = ((Number) value).doubleValue();
@@ -283,7 +285,8 @@ public class CrackShotConverter {
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             double value = fromConfig.getDouble(from, -55);
-            if (value == -55) return;
+            if (value == -55)
+                return;
 
             toConfig.set(to, function.apply(value));
         }
@@ -294,7 +297,8 @@ public class CrackShotConverter {
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String value = fromConfig.getString(from);
-            if (value == null) return;
+            if (value == null)
+                return;
 
             value = StringUtil.colorAdventure(value);
 
@@ -307,10 +311,12 @@ public class CrackShotConverter {
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String value = fromConfig.getString(from);
-            if (value == null) return;
+            if (value == null)
+                return;
 
             String material = getMaterial(value);
-            if (material == null) return;
+            if (material == null)
+                return;
 
             toConfig.set(to, material);
         }
@@ -331,7 +337,8 @@ public class CrackShotConverter {
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String value = fromConfig.getString(from);
-            if (value == null) return;
+            if (value == null)
+                return;
 
             // SOUND-VOLUME-PITCH-DELAY
 
@@ -419,7 +426,8 @@ public class CrackShotConverter {
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String value = fromConfig.getString(from);
-            if (value == null) return;
+            if (value == null)
+                return;
 
             List<String> mechanics = toConfig.getStringList(to);
 
@@ -437,7 +445,8 @@ public class CrackShotConverter {
 
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
-            if (!fromConfig.getBoolean(from)) return;
+            if (!fromConfig.getBoolean(from))
+                return;
 
             String weapon = from.split("\\.")[0];
 
@@ -453,7 +462,6 @@ public class CrackShotConverter {
             toConfig.set(to + "Shoot.Trigger.Main_Hand", "right_click");
             toConfig.set(to + "Shoot.Trigger.Off_Hand", "right_click");
 
-
             toConfig.set(to + "Reload.Trigger.Off_Hand", "drop_item");
 
             toConfig.set(to + "Shoot.Trigger.Dual_Wield.Main_Hand", "right_click");
@@ -466,7 +474,8 @@ public class CrackShotConverter {
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String value = fromConfig.getString(from);
-            if (value == null) return;
+            if (value == null)
+                return;
             value = StringUtil.colorAdventure(value).replaceAll(",", "\\\\,");
 
             List<String> mechanics = toConfig.getStringList(to);
@@ -486,7 +495,8 @@ public class CrackShotConverter {
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String type = fromConfig.getString(from + "Projectile_Type");
-            if (type == null) return;
+            if (type == null)
+                return;
 
             if (type.equalsIgnoreCase("splash")) {
                 WeaponMechanics.debug.error("Can't convert splash: " + from);
@@ -573,7 +583,8 @@ public class CrackShotConverter {
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String value = fromConfig.getString(from);
-            if (value == null) return;
+            if (value == null)
+                return;
 
             if (value.equalsIgnoreCase("break")) {
                 value = "revolver";
@@ -593,7 +604,8 @@ public class CrackShotConverter {
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String activations = fromConfig.getString(from + "Activation");
-            if (activations == null) return;
+            if (activations == null)
+                return;
 
             String shooter = fromConfig.getString(from + "Potion_Effect_Shooter");
             List<String> shooterEffects = new ArrayList<>();
@@ -635,8 +647,10 @@ public class CrackShotConverter {
                 if (mechanicsTo != null) {
                     List<String> mechanics = toConfig.getStringList(mechanicsTo);
 
-                    if (shooter != null) mechanics.addAll(shooterEffects);
-                    if (victim != null) mechanics.addAll(victimEffects);
+                    if (shooter != null)
+                        mechanics.addAll(shooterEffects);
+                    if (victim != null)
+                        mechanics.addAll(victimEffects);
 
                     toConfig.set(mechanicsTo, mechanics);
                 }
@@ -706,7 +720,8 @@ public class CrackShotConverter {
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String fireworks = fromConfig.getString(from);
-            if (fireworks == null) return;
+            if (fireworks == null)
+                return;
 
             List<String> mechanics = toConfig.getStringList(to);
 
@@ -818,7 +833,7 @@ public class CrackShotConverter {
             String type = fromConfig.getString(weapon + ".Shooting.Projectile_Type");
 
             if (type != null && (type.equalsIgnoreCase("grenade")
-                    || type.equalsIgnoreCase("flare"))) {
+                || type.equalsIgnoreCase("flare"))) {
                 toConfig.set(to + "Detonation.Impact_When.Spawn", true);
             } else if (fromConfig.getBoolean(from + "On_Impact_With_Anything", false)) {
                 toConfig.set(to + "Detonation.Impact_When.Entity", true);
@@ -845,7 +860,8 @@ public class CrackShotConverter {
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
 
             String value = fromConfig.getString(from);
-            if (value == null) return;
+            if (value == null)
+                return;
 
             List<String> mechanics = toConfig.getStringList(to);
 
@@ -910,7 +926,8 @@ public class CrackShotConverter {
             }
 
             int delayBetweenShots = fromConfig.getInt(from + "Shooting.Delay_Between_Shots");
-            if (delayBetweenShots < 1) return;
+            if (delayBetweenShots < 1)
+                return;
 
             toConfig.set(to, delayBetweenShots);
         }
@@ -921,7 +938,8 @@ public class CrackShotConverter {
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String removalOrDragDelay = fromConfig.getString(from);
-            if (removalOrDragDelay == null) return;
+            if (removalOrDragDelay == null)
+                return;
 
             String[] split = removalOrDragDelay.split("-");
 
@@ -938,11 +956,13 @@ public class CrackShotConverter {
     }
 
     private static String getMaterial(String type) {
-        if (type == null) return null;
+        if (type == null)
+            return null;
 
         try {
             Material material = MaterialManager.getMaterial(type);
-            if (material != null) return material.name();
+            if (material != null)
+                return material.name();
         } catch (NoClassDefFoundError | Exception e) {
             // If CrackShot is outdated... or other exception
             try {

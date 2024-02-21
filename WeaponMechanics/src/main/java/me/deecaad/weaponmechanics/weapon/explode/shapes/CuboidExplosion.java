@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -10,16 +10,14 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 /**
- * This explosion defines a rectangular prism shaped
- * explosion, where a valid (non-negative) width and
- * height are specified.
+ * This explosion defines a rectangular prism shaped explosion, where a valid (non-negative) width
+ * and height are specified.
  */
 public class CuboidExplosion implements ExplosionShape {
 
@@ -29,36 +27,30 @@ public class CuboidExplosion implements ExplosionShape {
     // values, kind of like radius
     private final double width;
     private final double height;
-    
+
     /**
-     * Constructs a <code>CuboidExplosion</code> object. The
-     * width and height are divided by 2 to get the "radius"
-     * of the rectangle.
+     * Constructs a <code>CuboidExplosion</code> object. The width and height are divided by 2 to get
+     * the "radius" of the rectangle.
      *
-     * This is used when finding points about the origin,
-     * the width input is the total width of the explosion.
-     * The width instance variable is the distance from one
-     * point to the origin.
+     * This is used when finding points about the origin, the width input is the total width of the
+     * explosion. The width instance variable is the distance from one point to the origin.
      *
-     * @param width  Total width of the explosion
+     * @param width Total width of the explosion
      * @param height Total height of the explosion
      */
     public CuboidExplosion(double width, double height) {
         this.width = width / 2.0;
         this.height = height / 2.0;
     }
-    
+
     /**
-     * Gets all blocks between 2 points, where the 2
-     * points are found using this width, and height
-     * as well as the method's origin parameter.
+     * Gets all blocks between 2 points, where the 2 points are found using this width, and height as
+     * well as the method's origin parameter.
      *
-     * @param origin The center of the explosion
-     *               Should not be null
+     * @param origin The center of the explosion Should not be null
      * @return The blocks within the explosion
      */
-    @NotNull
-    @Override
+    @NotNull @Override
     public List<Block> getBlocks(@NotNull Location origin) {
         List<Block> temp = new ArrayList<>((int) (2 * width + 2 * height) + 1);
 
@@ -79,7 +71,7 @@ public class CuboidExplosion implements ExplosionShape {
                 for (int z = (int) -width; z < width; z++) {
 
                     // Noise checker
-                    if (isNearEdge(x, y, z, noiseDistance) && NumberUtil.chance(noiseChance)) {
+                    if (isNearEdge(x, y, z, noiseDistance) && RandomUtil.chance(noiseChance)) {
                         debug.log(LogLevel.DEBUG, "Skipping block(" + x + ", " + y + ", " + z + ") due to noise.");
                         continue; // outer noise checker
                     }
@@ -90,40 +82,41 @@ public class CuboidExplosion implements ExplosionShape {
         }
         return temp;
     }
-    
+
     /**
-     * Gets any <code>LivingEntity</code>s inside this
-     * <code>CuboidExplosion</code> by getting the entity's
-     * (x, y, z) coordinates, and checking if that point
-     * is in between the 2 points. This is done via
+     * Gets any <code>LivingEntity</code>s inside this <code>CuboidExplosion</code> by getting the
+     * entity's (x, y, z) coordinates, and checking if that point is in between the 2 points. This is
+     * done via
      *
-     * <blockquote><pre>{@code
+     * <blockquote>
+     * 
+     * <pre>{@code
      *     point1.x <= entity.x <= point2.x
      *     point1.y <= entity.y <= point2.y
      *     point1.z <= entity.z <= point2.z
-     * }</pre></blockquote>
+     * }</pre>
+     * 
+     * </blockquote>
      *
-     * @param origin The center of the explosion
-     *               Should not be null
+     * @param origin The center of the explosion Should not be null
      * @return All entities within the explosion
      */
-    @NotNull
-    @Override
+    @NotNull @Override
     public List<LivingEntity> getEntities(@NotNull Location origin) {
-        double xMin = origin.getX() - width,  xMax = origin.getX() + width;
+        double xMin = origin.getX() - width, xMax = origin.getX() + width;
         double yMin = origin.getY() - height, yMax = origin.getY() + height;
-        double zMin = origin.getZ() - width,  zMax = origin.getZ() + width;
+        double zMin = origin.getZ() - width, zMax = origin.getZ() + width;
 
         List<LivingEntity> all = origin.getWorld().getLivingEntities();
         List<LivingEntity> temp = new ArrayList<>(all.size());
-        for  (LivingEntity entity : all) {
+        for (LivingEntity entity : all) {
             double x = entity.getLocation().getX();
             double y = entity.getLocation().getY();
             double z = entity.getLocation().getZ();
 
             boolean in = x >= xMin && x <= xMax &&
-                    y >= yMin && y <= yMax &&
-                    z >= zMin && z <= zMax;
+                y >= yMin && y <= yMax &&
+                z >= zMin && z <= zMax;
 
             if (in)
                 temp.add(entity);
@@ -155,8 +148,8 @@ public class CuboidExplosion implements ExplosionShape {
         double z2 = origin.getZ() + width;
 
         return point.getX() > x1 && point.getX() < x2 &&
-                point.getY() > y1 && point.getY() < y2 &&
-                point.getZ() > z1 && point.getZ() < z2;
+            point.getY() > y1 && point.getY() < y2 &&
+            point.getZ() > z1 && point.getZ() < z2;
     }
 
     public boolean isNearEdge(double x, double y, double z, double distance) {
@@ -164,16 +157,16 @@ public class CuboidExplosion implements ExplosionShape {
         y = height - Math.abs(y);
         z = width - Math.abs(z);
 
-        return  x < distance ||
-                y < distance ||
-                z < distance;
+        return x < distance ||
+            y < distance ||
+            z < distance;
     }
 
     @Override
     public String toString() {
         return "CuboidExplosion{" +
-                "width=" + width +
-                ", height=" + height +
-                '}';
+            "width=" + width +
+            ", height=" + height +
+            '}';
     }
 }

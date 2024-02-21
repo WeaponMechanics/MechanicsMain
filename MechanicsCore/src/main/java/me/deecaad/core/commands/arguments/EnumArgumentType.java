@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.StringUtil;
+import me.deecaad.core.utils.SerializerUtil;
 import org.bukkit.entity.EntityType;
 
 import java.util.Locale;
@@ -42,7 +42,7 @@ public class EnumArgumentType<T extends Enum<T>> extends CommandArgumentType<T> 
         if (optional.isPresent())
             return optional.get();
         else
-            throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherParseException().create("Did you mean: " + StringUtil.debugDidYouMean(str, clazz));
+            throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherParseException().create("Did you mean: " + SerializerUtil.didYouMeanEnum(str, clazz));
     }
 
     @Override

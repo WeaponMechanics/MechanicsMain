@@ -15,10 +15,10 @@ public class PAmmoType extends PlaceholderHandler {
         super("ammo_type");
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public String onRequest(@NotNull PlaceholderData data) {
-        if (data.item() == null || data.itemTitle() == null) return null;
+        if (data.item() == null || data.itemTitle() == null)
+            return null;
 
         AmmoConfig ammoTypes = getConfigurations().getObject(data.itemTitle() + ".Reload.Ammo", AmmoConfig.class);
 

@@ -20,14 +20,12 @@ public class WeaponStopShootingEvent extends WeaponEvent {
         return lastShootTime;
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public HandlerList getHandlers() {
         return handlers;
     }
 
-    @NotNull
-    public static HandlerList getHandlerList() {
+    @NotNull public static HandlerList getHandlerList() {
         return handlers;
     }
 }

@@ -11,8 +11,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Iterator;
 
 /**
- * A targeter returns a list of targets. A target can be a {@link org.bukkit.Location},
- * an {@link org.bukkit.entity.Entity}, or a {@link org.bukkit.entity.Player}.
+ * A targeter returns a list of targets. A target can be a {@link org.bukkit.Location}, an
+ * {@link org.bukkit.entity.Entity}, or a {@link org.bukkit.entity.Player}.
  */
 public abstract class Targeter implements InlineSerializer<Targeter> {
 
@@ -25,8 +25,7 @@ public abstract class Targeter implements InlineSerializer<Targeter> {
     public Targeter() {
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public String getWikiLink() {
         return "https://cjcrafter.gitbook.io/mechanics/#targeter";
     }
@@ -35,27 +34,25 @@ public abstract class Targeter implements InlineSerializer<Targeter> {
         return eye;
     }
 
-    @Nullable
-    public VectorSerializer getOffset() {
+    @Nullable public VectorSerializer getOffset() {
         return offset;
     }
 
     /**
-     * Returns <code>true</code> if this targeter specifically targets an
-     * entity. Entity targeters also target locations by default, but that
-     * location will always be the entity's location.
+     * Returns <code>true</code> if this targeter specifically targets an entity. Entity targeters also
+     * target locations by default, but that location will always be the entity's location.
      *
-     * <p>There is 1 caveat, when {@link #getOffset()} is non-null, the
-     * targeted location will be different from the targeted entity.
+     * <p>
+     * There is 1 caveat, when {@link #getOffset()} is non-null, the targeted location will be different
+     * from the targeted entity.
      *
      * @return true if this targeter targets entities, not specific locations.
      */
     public abstract boolean isEntity();
 
     /**
-     * Public method to get every possible target for the mechanic using this
-     * targeter. The returned targets will have the offset
-     * ({@link #getOffset()}) already applied.
+     * Public method to get every possible target for the mechanic using this targeter. The returned
+     * targets will have the offset ({@link #getOffset()}) already applied.
      *
      * @param cast The non-null origin of the cast.
      * @return The list of targets.
@@ -94,7 +91,7 @@ public abstract class Targeter implements InlineSerializer<Targeter> {
         VectorSerializer offset = data.of("Offset").serialize(VectorSerializer.class);
         if (!isEntity() && offset != null && offset.isRelative())
             throw data.exception("offset", "Did you try to use relative locations ('~') with '" + getInlineKeyword() + "'?",
-                    getInlineKeyword() + " is a LOCATION targeter, so it cannot use relative locations.");
+                getInlineKeyword() + " is a LOCATION targeter, so it cannot use relative locations.");
 
         targeter.offset = offset;
         targeter.eye = data.of("Eye").getBool(false);

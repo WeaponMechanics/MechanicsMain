@@ -87,10 +87,10 @@ public class MapArgumentType extends CommandArgumentType<Map<String, Object>> {
                 suggestions = Collections.singletonList(after + ":");
             } else {
                 suggestions = types.keySet()
-                        .stream()
-                        .filter(s -> s.startsWith(after))
-                        .filter(s -> !usesKeys.contains(s)) // filter out repeats
-                        .collect(Collectors.toList());
+                    .stream()
+                    .filter(s -> s.startsWith(after))
+                    .filter(s -> !usesKeys.contains(s)) // filter out repeats
+                    .collect(Collectors.toList());
             }
         }
 
@@ -103,9 +103,9 @@ public class MapArgumentType extends CommandArgumentType<Map<String, Object>> {
                 suggestions = Arrays.asList(after + ",", after + "}");
             } else {
                 suggestions = type.suggestions
-                        .stream()
-                        .filter(s -> s.startsWith(after))
-                        .collect(Collectors.toList());
+                    .stream()
+                    .filter(s -> s.startsWith(after))
+                    .collect(Collectors.toList());
             }
         }
 
@@ -130,8 +130,6 @@ public class MapArgumentType extends CommandArgumentType<Map<String, Object>> {
         MechanicsCore.debug.debug("Could not find any of '" + "{,:" + "' in '" + str + "' from '" + start + "'");
         return -1;
     }
-
-
 
     public static class MapValueType<T> {
 

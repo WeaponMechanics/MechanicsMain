@@ -4,7 +4,7 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
@@ -13,8 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Iterator;
 
 /**
- * Strictly speaking, a random assortment of points is not a shape. But the
- * shape targeter targets a list of points, not a shape, so this is fine.
+ * Strictly speaking, a random assortment of points is not a shape. But the shape targeter targets a
+ * list of points, not a shape, so this is fine.
  */
 public class ScatterTargeter extends ShapeTargeter {
 
@@ -67,9 +67,9 @@ public class ScatterTargeter extends ShapeTargeter {
                 int attempts = 0;
                 double x, y, z;
                 do {
-                    x = NumberUtil.random(-horizontalRange, +horizontalRange);
-                    y = NumberUtil.random(-verticalRange, +verticalRange);
-                    z = NumberUtil.random(-horizontalRange, +horizontalRange);
+                    x = RandomUtil.range(-horizontalRange, +horizontalRange);
+                    y = RandomUtil.range(-verticalRange, +verticalRange);
+                    z = RandomUtil.range(-horizontalRange, +horizontalRange);
                 } while (isTraceDown && attempts++ < maxAttempts && !isEmpty(world, origin, x, y, z));
 
                 // Trace down to either the ground or the bottom of the vertical range.
@@ -101,8 +101,7 @@ public class ScatterTargeter extends ShapeTargeter {
         return "Scatter";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Targeter serialize(@NotNull SerializeData data) throws SerializerException {
         int points = data.of("Points").assertExists().getInt();
         double horizontalRange = data.of("Horizontal_Range").getDouble(5.0);

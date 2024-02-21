@@ -7,7 +7,6 @@ import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -27,8 +26,8 @@ public class DamageDropoff implements Serializer<DamageDropoff> {
     }
 
     /**
-     * Gets the damage modifier for given distance. If no damage
-     * modifier exists, the damage modifier is 0.0
+     * Gets the damage modifier for given distance. If no damage modifier exists, the damage modifier is
+     * 0.0
      *
      * @param distance How far away
      * @return Damage modifier
@@ -41,13 +40,10 @@ public class DamageDropoff implements Serializer<DamageDropoff> {
             if (ceiling == null)
                 return floor == null ? 0.0 : floor.getValue();
 
-            // "Smooth Dropoff" is just a linear dropoff between the 2 points.
-            // Using inverse-lerp and lerp like this is called a remap
-            // function. 't' is a percentage of how far between 'distance' is
-            // between 'floor' and 'ceiling'. Then we just use that percentage
-            // to interpolate.
-            double t = NumberUtil.invLerp(floor == null ? 0.0 : floor.getKey(), ceiling.getKey(), distance);
-            return NumberUtil.lerp(floor == null ? 0.0 : floor.getValue(), ceiling.getValue(), t);
+            // "Smooth Dropoff" is just linear dropoff between the floor and ceiling keys
+            double floorDistance = floor == null ? 0.0 : floor.getKey();
+            double floorDamage = floor == null ? 0.0 : floor.getValue();
+            return NumberUtil.remap(distance, floorDistance, ceiling.getKey(), floorDamage, ceiling.getValue());
         }
 
         Map.Entry<Double, Double> floor = distances.floorEntry(distance);
@@ -60,13 +56,12 @@ public class DamageDropoff implements Serializer<DamageDropoff> {
     }
 
     @Override
-    @NotNull
-    public DamageDropoff serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public DamageDropoff serialize(@NotNull SerializeData data) throws SerializerException {
 
         List<String[]> list = data.ofList()
-                .addArgument(double.class, true)
-                .addArgument(double.class, true)
-                .assertExists().assertList().get();
+            .addArgument(double.class, true)
+            .addArgument(double.class, true)
+            .assertExists().assertList().get();
 
         TreeMap<Double, Double> distances = new TreeMap<>();
 

@@ -14,7 +14,6 @@ import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -26,10 +25,9 @@ public class NBT_1_17_R1 extends NBT_Persistent {
     static {
         if (ReflectionUtil.getMCVersion() != 17) {
             me.deecaad.core.MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + NBT_1_17_R1.class + " when not using Minecraft 17",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + NBT_1_17_R1.class + " when not using Minecraft 17",
+                new InternalError());
         }
     }
 
@@ -49,20 +47,17 @@ public class NBT_1_17_R1 extends NBT_Persistent {
         toItem.setItemMeta(getBukkitStack(nms).getItemMeta());
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public net.minecraft.world.item.ItemStack getNMSStack(@NotNull ItemStack bukkitStack) {
         return CraftItemStack.asNMSCopy(bukkitStack);
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public ItemStack getBukkitStack(@NotNull Object nmsStack) {
         return CraftItemStack.asBukkitCopy((net.minecraft.world.item.ItemStack) nmsStack);
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public String getNBTDebug(@NotNull ItemStack bukkitStack) {
         CompoundTag nbt = getNMSStack(bukkitStack).getTag();
         return nbt == null ? "null" : new TagColorVisitor().visit(nbt);
@@ -118,8 +113,8 @@ public class NBT_1_17_R1 extends NBT_Persistent {
                 String color = "&" + VALUE_COLORS.charAt((i + colorOffset) % VALUE_COLORS.length());
 
                 builder.append(color).append(handleEscape(key))
-                        .append("&f&l: ").append(color)
-                        .append(new TagColorVisitor(value instanceof CompoundTag ? indents + 1 : indents, colorOffset + i).visit(value));
+                    .append("&f&l: ").append(color)
+                    .append(new TagColorVisitor(value instanceof CompoundTag ? indents + 1 : indents, colorOffset + i).visit(value));
             }
 
             builder.append(braceColor).append("}\n");

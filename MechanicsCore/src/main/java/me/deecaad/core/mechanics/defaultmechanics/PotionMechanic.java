@@ -51,8 +51,7 @@ public class PotionMechanic extends Mechanic {
         return "https://cjcrafter.gitbook.io/mechanics/mechanics/potion";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         String potionStr = data.of("Potion").assertExists().assertType(String.class).get().toString().trim();
         String potionLower = potionStr.toLowerCase(Locale.ROOT);
@@ -94,10 +93,12 @@ public class PotionMechanic extends Mechanic {
     }
 
     /**
-     * This enum makes it easier for users to select ambient/hide/show instead
-     * of using 2 separate booleans.
+     * This enum makes it easier for users to select ambient/hide/show instead of using 2 separate
+     * booleans.
      */
     public enum ParticleMode {
-        HIDE, NORMAL, AMBIENT
+        HIDE,
+        NORMAL,
+        AMBIENT
     }
 }

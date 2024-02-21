@@ -15,20 +15,21 @@ import org.bukkit.scheduler.BukkitRunnable;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 /**
- * This task handles firing projectiles every <code>N</code> ticks. 1 of these
- * tasks is created every time you start firing a fully automatic weapon. The
- * task is cancelled when the user is no longer shooting.
+ * This task handles firing projectiles every <code>N</code> ticks. 1 of these tasks is created
+ * every time you start firing a fully automatic weapon. The task is cancelled when the user is no
+ * longer shooting.
  */
 public class FullAutoTask extends BukkitRunnable {
 
     /**
-     * Hardcoded full auto values. For every 1 in the array, the gun will fire
-     * on that tick. Some indexes are marked as <i>"perfect"</i>. This means
-     * that the delay between shots is exactly equal no matter what. Some
-     * indexes are marked as <i>"good"</i>. This means that the distance
-     * between zeros are equal.
+     * Hardcoded full auto values. For every 1 in the array, the gun will fire on that tick. Some
+     * indexes are marked as <i>"perfect"</i>. This means that the delay between shots is exactly equal
+     * no matter what. Some indexes are marked as <i>"good"</i>. This means that the distance between
+     * zeros are equal.
      * <p>
-     * Calculated using python: <blockquote><pre>{@code
+     * Calculated using python: <blockquote>
+     * 
+     * <pre>{@code
      *     from collections import deque
      *
      *     for shotsPerSecond in range(1, 21):
@@ -46,11 +47,13 @@ public class FullAutoTask extends BukkitRunnable {
      *             collection.rotate(-1)
      *
      *         print("\t{" + ", ".join(map(str, collection)) + "},")
-     * }</pre></blockquote>
+     * }</pre>
+     * 
+     * </blockquote>
      * <p>
      * TODO Switch from int -> boolean for 1.6kb -> 400bits of ram
      */
-    private static final int[][] AUTO = new int[][] {
+    private static final int[][] AUTO = new int[][]{
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 0 perfect
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 1 perfect
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 2 perfect
@@ -71,7 +74,7 @@ public class FullAutoTask extends BukkitRunnable {
             {1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0}, // 18 good
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0}, // 19 good
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}  // 20 good
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1} // 20 good
     };
 
     private final WeaponHandler weaponHandler;
@@ -93,7 +96,8 @@ public class FullAutoTask extends BukkitRunnable {
     // Updated in the run() method
     private int currentTick;
 
-    public FullAutoTask(WeaponHandler weaponHandler, EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, boolean mainHand, TriggerType triggerType, boolean dualWield, int shotsPerSecond) {
+    public FullAutoTask(WeaponHandler weaponHandler, EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, boolean mainHand, TriggerType triggerType, boolean dualWield,
+        int shotsPerSecond) {
         this.weaponHandler = weaponHandler;
         this.entityWrapper = entityWrapper;
         this.mainHand = mainHand;
@@ -179,7 +183,8 @@ public class FullAutoTask extends BukkitRunnable {
             return;
         }
 
-        // Determine if we should shoot on this tick. The AUTO array is a table of basically true/false values.
+        // Determine if we should shoot on this tick. The AUTO array is a table of basically true/false
+        // values.
         int shootAmount = perShot + AUTO[rate][currentTick];
 
         // START RELOAD STUFF

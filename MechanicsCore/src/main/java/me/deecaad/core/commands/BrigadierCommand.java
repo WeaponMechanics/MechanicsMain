@@ -58,7 +58,7 @@ public class BrigadierCommand implements Command<Object> {
         }
 
         try {
-            //noinspection unchecked
+            // noinspection unchecked
             ((CommandExecutor<CommandSender>) builder.executor).execute(sender, parseBrigadierArguments(context));
             return 0;
         } catch (CommandSyntaxException ex) {
@@ -103,7 +103,9 @@ public class BrigadierCommand implements Command<Object> {
                 // replaces/adds suggestions, some of these may be ignored.
                 final SuggestionProvider<Object> def = (context, suggestions) -> argument.getType().suggestions(context, suggestions);
                 final SuggestionProvider<Object> custom = buildSuggestionProvider(argument);
-                final SuggestionProvider<Object> label = (context, suggestions) -> suggestions.suggest("<" + argument.getName() + ">", argument.description == null ? null : new LiteralMessage(argument.description)).buildFuture();
+                final SuggestionProvider<Object> label = (context, suggestions) -> suggestions.suggest("<" + argument.getName() + ">", argument.description == null
+                    ? null
+                    : new LiteralMessage(argument.description)).buildFuture();
 
                 SuggestionProvider<Object> combined = (context, suggestions) -> {
 
@@ -121,12 +123,12 @@ public class BrigadierCommand implements Command<Object> {
 
                     CompletableFuture<Suggestions> result = new CompletableFuture<>();
                     CompletableFuture
-                            .allOf(all.toArray(new CompletableFuture[0]))
-                            .thenRun(() -> {
-                                List<Suggestions> list = all.stream().map(CompletableFuture::join).collect(Collectors.toList());
-                                Suggestions merged = Suggestions.merge(context.getInput(), list);
-                                result.complete(merged);
-                            });
+                        .allOf(all.toArray(new CompletableFuture[0]))
+                        .thenRun(() -> {
+                            List<Suggestions> list = all.stream().map(CompletableFuture::join).collect(Collectors.toList());
+                            Suggestions merged = Suggestions.merge(context.getInput(), list);
+                            result.complete(merged);
+                        });
                     return result;
                 };
 
@@ -176,10 +178,13 @@ public class BrigadierCommand implements Command<Object> {
         // Now we need to "unpack" the command. This means converting the
         // CommandBuilder format into a brigadier command format.
         // 1. Aliases do not exist in brigadier. We need to register multiple commands
-        // 2. Aliases do not exist for sub-commands, we need to register multiple sub-commands for each sub-command.
-        // 3. Sub-commands do not exist. Instead, sub-commands are registered as "LiteralArguments" (which are just strings).
+        // 2. Aliases do not exist for sub-commands, we need to register multiple sub-commands for each
+        // sub-command.
+        // 3. Sub-commands do not exist. Instead, sub-commands are registered as "LiteralArguments" (which
+        // are just strings).
         // 4. Arguments are registered as RequiredArguments
-        // 5. Optional arguments do not exist. Instead, we must register an additional command for each argument.
+        // 5. Optional arguments do not exist. Instead, we must register an additional command for each
+        // argument.
 
         // Used with HelpCommandBuilder
         if (builder.friend != null)
@@ -205,9 +210,9 @@ public class BrigadierCommand implements Command<Object> {
 
                     // Replace the multi-literal with the literal
                     Argument<?> replace = new Argument<>(literal, new LiteralArgumentType(literal))
-                            .withPermission(arg.permission)
-                            .withRequirements(arg.requirements)
-                            .setListed(arg.listed);
+                        .withPermission(arg.permission)
+                        .withRequirements(arg.requirements)
+                        .setListed(arg.listed);
 
                     copy.set(i, (Argument<Object>) replace);
                     CommandBuilder clone = builder.clone();
@@ -287,9 +292,9 @@ public class BrigadierCommand implements Command<Object> {
 
         MultiLiteralArgumentType literals = new MultiLiteralArgumentType(subcommand.label, subcommand.aliases.toArray(new String[0]));
         Argument<?> argument = new Argument<>("sub-command", literals)
-                .withPermission(subcommand.permission)
-                .withRequirements(subcommand.requirements)
-                .setListed(false);
+            .withPermission(subcommand.permission)
+            .withRequirements(subcommand.requirements)
+            .setListed(false);
 
         arguments.add(argument);
 

@@ -29,8 +29,7 @@ public class Square implements Serializer<Square> {
         return "Square";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Square serialize(@NotNull SerializeData data) throws SerializerException {
         Vec2 offset = data.of("Offset").serialize(Vec2.class);
         int length = data.of("Length").assertExists().assertPositive().get();
@@ -47,14 +46,13 @@ public class Square implements Serializer<Square> {
     @Override
     public String toString() {
         return "Square{" +
-                "offset=" + offset +
-                ", length=" + length +
-                ", r=" + r +
-                ", g=" + g +
-                ", b=" + b +
-                '}';
+            "offset=" + offset +
+            ", length=" + length +
+            ", r=" + r +
+            ", g=" + g +
+            ", b=" + b +
+            '}';
     }
-
 
     public static class Vec2 implements Serializer<Vec2> {
 
@@ -72,8 +70,7 @@ public class Square implements Serializer<Square> {
             this.y = y;
         }
 
-        @NotNull
-        @Override
+        @NotNull @Override
         public Vec2 serialize(@NotNull SerializeData data) throws SerializerException {
             int x = data.of("X").assertExists().assertType(int.class).getInt();
             int y = data.of("Y").assertExists().assertType(Integer.class).getInt();
@@ -85,9 +82,9 @@ public class Square implements Serializer<Square> {
         @Override
         public String toString() {
             return "Vec2{" +
-                    "x=" + x +
-                    ", y=" + y +
-                    '}';
+                "x=" + x +
+                ", y=" + y +
+                '}';
         }
     }
 }

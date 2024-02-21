@@ -15,12 +15,13 @@ public class ModifySpreadWhen extends AModifyWhen {
     /**
      * Empty constructor to be used as serializer
      */
-    public ModifySpreadWhen() { }
+    public ModifySpreadWhen() {
+    }
 
     public ModifySpreadWhen(NumberModifier always, NumberModifier zooming, NumberModifier sneaking,
-                            NumberModifier crawling, NumberModifier standing, NumberModifier walking,
-                            NumberModifier riding, NumberModifier sprinting, NumberModifier dualWielding,
-                            NumberModifier swimming, NumberModifier inMidair, NumberModifier gliding) {
+        NumberModifier crawling, NumberModifier standing, NumberModifier walking,
+        NumberModifier riding, NumberModifier sprinting, NumberModifier dualWielding,
+        NumberModifier swimming, NumberModifier inMidair, NumberModifier gliding) {
         super(always, zooming, sneaking, crawling, standing, walking, riding, sprinting, dualWielding, swimming, inMidair, gliding);
     }
 
@@ -35,8 +36,7 @@ public class ModifySpreadWhen extends AModifyWhen {
     }
 
     @Override
-    @NotNull
-    public ModifySpreadWhen serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public ModifySpreadWhen serialize(@NotNull SerializeData data) throws SerializerException {
         NumberModifier always = getModifierHandler(data.of("Always"));
         NumberModifier zooming = getModifierHandler(data.of("Zooming"));
         NumberModifier sneaking = getModifierHandler(data.of("Sneaking"));
@@ -51,8 +51,8 @@ public class ModifySpreadWhen extends AModifyWhen {
         NumberModifier gliding = getModifierHandler(data.of("Gliding"));
 
         if (always == null && zooming == null && sneaking == null && crawling == null
-                && standing == null && walking == null && riding == null && sprinting == null
-                && dualWielding == null && swimming == null && inMidair == null && gliding == null) {
+            && standing == null && walking == null && riding == null && sprinting == null
+            && dualWielding == null && swimming == null && inMidair == null && gliding == null) {
 
             throw data.exception(null, "Tried to use Modify_Spread_When without any arguments");
         }
@@ -61,7 +61,8 @@ public class ModifySpreadWhen extends AModifyWhen {
 
     private NumberModifier getModifierHandler(SerializeData.ConfigAccessor data) throws SerializerException {
         String value = Objects.toString(data.get(null), null);
-        if (value == null) return null;
+        if (value == null)
+            return null;
         try {
             boolean percentage = value.endsWith("%");
             double number = Double.parseDouble(value.split("%")[0]);

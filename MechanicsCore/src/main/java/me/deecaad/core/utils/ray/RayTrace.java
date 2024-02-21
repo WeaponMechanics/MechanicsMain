@@ -27,7 +27,8 @@ public class RayTrace {
     private boolean allowLiquid;
     private double raySize = 0.1;
 
-    public RayTrace() { }
+    public RayTrace() {
+    }
 
     public RayTrace disableEntityChecks() {
         this.disableEntityChecks = true;
@@ -91,9 +92,11 @@ public class RayTrace {
         if (!hits.isEmpty()) {
 
             // If more than 1 hit, sort based on distance travelled (lowest to highest)
-            if (hits.size() > 1) hits.sort(Comparator.comparingDouble(RayTraceResult::getHitMin));
+            if (hits.size() > 1)
+                hits.sort(Comparator.comparingDouble(RayTraceResult::getHitMin));
 
-            if (this.outlineHitPosition) hits.get(0).outlineOnlyHitPosition(entity);
+            if (this.outlineHitPosition)
+                hits.get(0).outlineOnlyHitPosition(entity);
             if (this.outlineHitBox) {
                 RayTraceResult firstHit = hits.get(0);
                 if (firstHit instanceof BlockTraceResult blockHit) {
@@ -111,7 +114,8 @@ public class RayTrace {
     }
 
     private void getBlockHits(List<RayTraceResult> hits, World world, Vector start, Vector end, Vector direction, double maximumBlockThrough) {
-        if (this.disableBlockChecks) return;
+        if (this.disableBlockChecks)
+            return;
 
         // Method based on NMS block traversing
 
@@ -119,9 +123,9 @@ public class RayTrace {
         double startY = NumberUtil.lerp(start.getY(), end.getY(), -1.0E-7);
         double startZ = NumberUtil.lerp(start.getZ(), end.getZ(), -1.0E-7);
 
-        int currentX = NumberUtil.intFloor(startX);
-        int currentY = NumberUtil.intFloor(startY);
-        int currentZ = NumberUtil.intFloor(startZ);
+        int currentX = NumberUtil.floorToInt(startX);
+        int currentY = NumberUtil.floorToInt(startY);
+        int currentZ = NumberUtil.floorToInt(startZ);
 
         Block startBlock = world.getBlockAt(currentX, currentY, currentZ);
         RayTraceResult rayStartBlock = rayBlock(startBlock, start, direction);
@@ -130,7 +134,8 @@ public class RayTrace {
 
             // Don't count liquid as actual hits along the path
             if (!allowLiquid || !startBlock.isLiquid()) {
-                if (maximumBlockThrough != -1.0 && (maximumBlockThrough -= rayStartBlock.getThroughDistance()) < 0) return;
+                if (maximumBlockThrough != -1.0 && (maximumBlockThrough -= rayStartBlock.getThroughDistance()) < 0)
+                    return;
             }
         }
 
@@ -141,15 +146,15 @@ public class RayTrace {
         double directionX = endX - startX;
         double directionY = endY - startY;
         double directionZ = endZ - startZ;
-        int blockX = NumberUtil.sign(directionX);
-        int blockY = NumberUtil.sign(directionY);
-        int blockZ = NumberUtil.sign(directionZ);
+        int blockX = NumberUtil.signum(directionX);
+        int blockY = NumberUtil.signum(directionY);
+        int blockZ = NumberUtil.signum(directionZ);
         double addX = blockX == 0 ? Double.MAX_VALUE : (double) blockX / directionX;
         double addY = blockY == 0 ? Double.MAX_VALUE : (double) blockY / directionY;
         double addZ = blockZ == 0 ? Double.MAX_VALUE : (double) blockZ / directionZ;
-        double maxX = addX * (blockX > 0 ? 1.0 - NumberUtil.frac(startX) : NumberUtil.frac(startX));
-        double maxY = addY * (blockY > 0 ? 1.0 - NumberUtil.frac(startY) : NumberUtil.frac(startY));
-        double maxZ = addZ * (blockZ > 0 ? 1.0 - NumberUtil.frac(startZ) : NumberUtil.frac(startZ));
+        double maxX = addX * (blockX > 0 ? 1.0 - NumberUtil.fraction(startX) : NumberUtil.fraction(startX));
+        double maxY = addY * (blockY > 0 ? 1.0 - NumberUtil.fraction(startY) : NumberUtil.fraction(startY));
+        double maxZ = addZ * (blockZ > 0 ? 1.0 - NumberUtil.fraction(startZ) : NumberUtil.fraction(startZ));
 
         while (maximumBlockThrough > -1) {
             if (maxX > 1.0 && maxY > 1.0 && maxZ > 1.0) {
@@ -179,7 +184,8 @@ public class RayTrace {
 
                 // Don't count liquid as actual hits along the path
                 if (!allowLiquid || !newBlock.isLiquid()) {
-                    if (--maximumBlockThrough < 0) break;
+                    if (--maximumBlockThrough < 0)
+                        break;
                 }
 
             }
@@ -187,22 +193,25 @@ public class RayTrace {
     }
 
     private RayTraceResult rayBlock(Block block, Vector start, Vector direction) {
-        if (blockFilter != null && blockFilter.test(block)) return null;
+        if (blockFilter != null && blockFilter.test(block))
+            return null;
 
         HitBox blockBox = CompatibilityAPI.getBlockCompatibility().getHitBox(block, allowLiquid);
-        if (blockBox == null) return null;
+        if (blockBox == null)
+            return null;
 
         return blockBox.rayTrace(start, direction);
     }
 
     private void getEntityHits(List<RayTraceResult> hits, World world, Vector start, Vector end, Vector direction) {
-        if (this.disableEntityChecks) return;
+        if (this.disableEntityChecks)
+            return;
         HitBox hitBox = new HitBox(start, end);
 
-        int minX = NumberUtil.intFloor((hitBox.getMinX() - 2.0) / 16.0);
-        int maxX = NumberUtil.intFloor((hitBox.getMaxX() + 2.0) / 16.0);
-        int minZ = NumberUtil.intFloor((hitBox.getMinZ() - 2.0) / 16.0);
-        int maxZ = NumberUtil.intFloor((hitBox.getMaxZ() + 2.0) / 16.0);
+        int minX = NumberUtil.floorToInt((hitBox.getMinX() - 2.0) / 16.0);
+        int maxX = NumberUtil.floorToInt((hitBox.getMaxX() + 2.0) / 16.0);
+        int minZ = NumberUtil.floorToInt((hitBox.getMinZ() - 2.0) / 16.0);
+        int maxZ = NumberUtil.floorToInt((hitBox.getMaxZ() + 2.0) / 16.0);
 
         for (int x = minX; x <= maxX; ++x) {
             for (int z = minZ; z <= maxZ; ++z) {
@@ -218,14 +227,18 @@ public class RayTrace {
     }
 
     private RayTraceResult rayEntity(HitBox hitBox, Entity entity, Vector start, Vector direction) {
-        if (!entity.getType().isAlive()) return null;
-        if (entityFilter != null && entityFilter.test((LivingEntity) entity)) return null;
+        if (!entity.getType().isAlive())
+            return null;
+        if (entityFilter != null && entityFilter.test((LivingEntity) entity))
+            return null;
 
         HitBox entityBox = CompatibilityAPI.getEntityCompatibility().getHitBox(entity);
-        if (entityBox == null) return null;
+        if (entityBox == null)
+            return null;
 
         entityBox.grow(raySize);
-        if (!hitBox.overlaps(entityBox)) return null;
+        if (!hitBox.overlaps(entityBox))
+            return null;
 
         return entityBox.rayTrace(start, direction);
     }

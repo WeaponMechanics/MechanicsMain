@@ -35,10 +35,9 @@ public class Block_1_20_R2 implements BlockCompatibility {
 
         if (ReflectionUtil.getMCVersion() != 20) {
             MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + Block_1_20_R2.class + " when not using Minecraft 20",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + Block_1_20_R2.class + " when not using Minecraft 20",
+                new InternalError());
         }
     }
 

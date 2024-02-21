@@ -8,7 +8,7 @@ import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.configuration.ConfigurationSection;
@@ -22,14 +22,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Handles breaking the weapon over a certain number of shots, so weapons do
- * not last forever.
+ * Handles breaking the weapon over a certain number of shots, so weapons do not last forever.
  */
 public class CustomDurability implements Serializer<CustomDurability> {
 
     // Cached common unbreaking values.
-    private static final double[] ARMOR_LEVELS = new double[] { 1.0, 0.80, 0.73, 0.70, 0.68, 0.67, 0.66, 0.65, 0.64, 0.64, 0.64 };
-    private static final double[] TOOL_LEVELS = new double[]  { 1.0, 0.50, 0.33, 0.25, 0.20, 0.17, 0.14, 0.12, 0.11, 0.10, 0.09 };
+    private static final double[] ARMOR_LEVELS = new double[]{1.0, 0.80, 0.73, 0.70, 0.68, 0.67, 0.66, 0.65, 0.64, 0.64, 0.64};
+    private static final double[] TOOL_LEVELS = new double[]{1.0, 0.50, 0.33, 0.25, 0.20, 0.17, 0.14, 0.12, 0.11, 0.10, 0.09};
 
     private int maxDurability;
     private int minMaxDurability;
@@ -54,9 +53,9 @@ public class CustomDurability implements Serializer<CustomDurability> {
     }
 
     public CustomDurability(int maxDurability, int minMaxDurability, int loseMaxDurabilityPerRepair, int durabilityPerShot,
-                            double chance, ItemStack replaceItem, Mechanics durabilityMechanics, Mechanics breakMechanics,
-                            Map<ItemStack, Integer> repairItems, int repairPerExp, Mechanics repairMechanics, Mechanics denyRepairMechanics,
-                            boolean repairOnlyBroken) {
+        double chance, ItemStack replaceItem, Mechanics durabilityMechanics, Mechanics breakMechanics,
+        Map<ItemStack, Integer> repairItems, int repairPerExp, Mechanics repairMechanics, Mechanics denyRepairMechanics,
+        boolean repairOnlyBroken) {
         this.maxDurability = maxDurability;
         this.minMaxDurability = minMaxDurability;
         this.loseMaxDurabilityPerRepair = loseMaxDurabilityPerRepair;
@@ -177,12 +176,12 @@ public class CustomDurability implements Serializer<CustomDurability> {
     }
 
     /**
-     * Returns the maximum possible durability that this item can be repaired
-     * up to. The more often you repair an item, the less max-durability it
-     * has. This prevents users from re-using the same item forever.
+     * Returns the maximum possible durability that this item can be repaired up to. The more often you
+     * repair an item, the less max-durability it has. This prevents users from re-using the same item
+     * forever.
      *
-     * <p>It is assumed that the given item is a weapon that uses THIS instance
-     * of custom durability.
+     * <p>
+     * It is assumed that the given item is a weapon that uses THIS instance of custom durability.
      *
      * @param item The non-null weapon to check.
      * @return The maximum repair durability.
@@ -207,12 +206,11 @@ public class CustomDurability implements Serializer<CustomDurability> {
     }
 
     /**
-     * Subtracts from the given weapon's max durability. This method should be
-     * called whenever the item is repaired. The item's current durability
-     * <b>WILL</b> exceed the max durability, since this subtraction occurs
-     * <b>AFTER</b> the item is repaired.
+     * Subtracts from the given weapon's max durability. This method should be called whenever the item
+     * is repaired. The item's current durability <b>WILL</b> exceed the max durability, since this
+     * subtraction occurs <b>AFTER</b> the item is repaired.
      *
-     * @param item   The item to modify.
+     * @param item The item to modify.
      * @param change The amount to subtract from max-durability.
      * @return The new max durability (might be negative)
      */
@@ -226,13 +224,12 @@ public class CustomDurability implements Serializer<CustomDurability> {
     }
 
     /**
-     * Applies the durability effects to the given item, as if the item has
-     * just been used. It is assumed that the given item is a weapon. If the
-     * weapon was broken by this usage, this method will return
-     * <code>true</code>.
+     * Applies the durability effects to the given item, as if the item has just been used. It is
+     * assumed that the given item is a weapon. If the weapon was broken by this usage, this method will
+     * return <code>true</code>.
      *
      * @param entity The non-null entity used for {@link Mechanics}.
-     * @param item   The non-null weapon to lose durability.
+     * @param item The non-null weapon to lose durability.
      * @return true if the item was broken.
      */
     public boolean use(LivingEntity entity, ItemStack item, String weaponTitle) {
@@ -240,7 +237,7 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
         // Check chance and unbreaking.
         int unbreakingLevel = meta == null ? 0 : meta.getEnchantLevel(Enchantment.DURABILITY);
-        if (!NumberUtil.chance(chance) || !isLoseDurability(unbreakingLevel, false))
+        if (!RandomUtil.chance(chance) || !isLoseDurability(unbreakingLevel, false))
             return false;
 
         // Durability has never been applied to the weapon, so we need to
@@ -253,14 +250,16 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
         int durability = CustomTag.DURABILITY.getInteger(item) - durabilityPerShot;
         if (durability > 0) {
-            if (durabilityMechanics != null) durabilityMechanics.use(new CastData(entity, weaponTitle, item));
+            if (durabilityMechanics != null)
+                durabilityMechanics.use(new CastData(entity, weaponTitle, item));
             CustomTag.DURABILITY.setInteger(item, durability);
             return false;
         }
 
         // When the item has broken, we have to either destroy it or replace
         // the broken item with the 'replaceItem'
-        if (breakMechanics != null) breakMechanics.use(new CastData(entity, weaponTitle, item));
+        if (breakMechanics != null)
+            breakMechanics.use(new CastData(entity, weaponTitle, item));
         if (replaceItem == null) {
             item.setAmount(0);
             return true;
@@ -278,11 +277,10 @@ public class CustomDurability implements Serializer<CustomDurability> {
     }
 
     /**
-     * Fully repairs the given weapon. This method assumes that the given
-     * weapon uses this custom durability. You should always manually check
-     * if the weapon actually does use custom durability.
+     * Fully repairs the given weapon. This method assumes that the given weapon uses this custom
+     * durability. You should always manually check if the weapon actually does use custom durability.
      *
-     * @param weapon              The non-null weapon to repair.
+     * @param weapon The non-null weapon to repair.
      * @param repairMaxDurability true to also repair max-durability.
      * @return true if changes were made to the weapon.
      * @throws IllegalArgumentException If the weapon has no meta or is null.
@@ -310,7 +308,8 @@ public class CustomDurability implements Serializer<CustomDurability> {
             CustomTag.BROKEN_WEAPON.remove(weapon);
 
             // Add durability back to the weapon
-            if (repairMaxDurability) CustomTag.MAX_DURABILITY.setInteger(weapon, getMaxDurability());
+            if (repairMaxDurability)
+                CustomTag.MAX_DURABILITY.setInteger(weapon, getMaxDurability());
             CustomTag.DURABILITY.setInteger(weapon, getMaxDurability(weapon));
 
             return true;
@@ -330,8 +329,7 @@ public class CustomDurability implements Serializer<CustomDurability> {
         return changes;
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public CustomDurability serialize(@NotNull SerializeData data) throws SerializerException {
         int maxDurability = data.of("Max_Durability").assertPositive().assertExists().getInt();
         int minMaxDurability = data.of("Min_Max_Durability").assertPositive().getInt(0);
@@ -344,8 +342,8 @@ public class CustomDurability implements Serializer<CustomDurability> {
         // Make sure users aren't entering tiny values.
         if (maxDurability <= durabilityPerShot) {
             throw data.exception("Max_Durability", "'Max_Durability' cannot be less than 'Durability_Per_Shot'",
-                    "Found Max_Durability: " + maxDurability,
-                    "Found Durability_Per_Shot: " + durabilityPerShot);
+                "Found Max_Durability: " + maxDurability,
+                "Found Durability_Per_Shot: " + durabilityPerShot);
         }
 
         ItemStack replaceItem = data.of("Broken_Item").serialize(new ItemSerializer());
@@ -371,14 +369,14 @@ public class CustomDurability implements Serializer<CustomDurability> {
         boolean repairOnlyBroken = data.of("Repair_Only_Broken").getBool(false);
 
         return new CustomDurability(maxDurability, minMaxDurability, loseMaxDurabilityPerRepair, durabilityPerShot,
-                chance, replaceItem, durabilityMechanics, breakMechanics, repairItems, repairPerExp, repairMechanics, denyRepairMechanics,
-                repairOnlyBroken);
+            chance, replaceItem, durabilityMechanics, breakMechanics, repairItems, repairPerExp, repairMechanics, denyRepairMechanics,
+            repairOnlyBroken);
     }
 
     /**
-     * Factory method to determine whether an item should lose durability based
-     * on the given level of the {@link org.bukkit.enchantments.Enchantment#DURABILITY}.
-     * For tools/weapons, the chance to lose durability is <i>LOWER</i> then for armor.
+     * Factory method to determine whether an item should lose durability based on the given level of
+     * the {@link org.bukkit.enchantments.Enchantment#DURABILITY}. For tools/weapons, the chance to lose
+     * durability is <i>LOWER</i> then for armor.
      *
      * @param level The unbreaking enchantment level.
      * @param armor true if the item is armor.
@@ -389,13 +387,13 @@ public class CustomDurability implements Serializer<CustomDurability> {
             return true;
 
         if (armor && level <= 10)
-            return NumberUtil.chance(ARMOR_LEVELS[level]);
+            return RandomUtil.chance(ARMOR_LEVELS[level]);
         if (armor)
-            return NumberUtil.chance(0.6 + 0.4 / (level + 1));
+            return RandomUtil.chance(0.6 + 0.4 / (level + 1));
 
         if (level <= 10)
-            return NumberUtil.chance(TOOL_LEVELS[level]);
+            return RandomUtil.chance(TOOL_LEVELS[level]);
 
-        return NumberUtil.chance(1.0 / (level + 1));
+        return RandomUtil.chance(1.0 / (level + 1));
     }
 }

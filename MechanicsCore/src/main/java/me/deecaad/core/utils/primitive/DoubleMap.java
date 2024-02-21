@@ -6,9 +6,8 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
- * An optimized implementation of a {@link java.util.HashMap} that maps a key
- * to a <code>double</code>. Has the advantage of not needing to wrap/unwrap
- * values.
+ * An optimized implementation of a {@link java.util.HashMap} that maps a key to a
+ * <code>double</code>. Has the advantage of not needing to wrap/unwrap values.
  *
  * @param <K> The key type, usually a {@link String}.
  */
@@ -32,8 +31,14 @@ public class DoubleMap<K> {
             this.hash = hash;
         }
 
-        @Override public K getKey() { return key; }
-        @Override public double getValue() { return value; }
+        @Override
+        public K getKey() {
+            return key;
+        }
+        @Override
+        public double getValue() {
+            return value;
+        }
 
         @Override
         public double setValue(double value) {
@@ -93,21 +98,18 @@ public class DoubleMap<K> {
             if (oldCap >= MAXIMUM_CAPACITY) {
                 threshold = Integer.MAX_VALUE;
                 return;
-            }
-            else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
-                    oldCap >= DEFAULT_INITIAL_CAPACITY)
+            } else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
+                oldCap >= DEFAULT_INITIAL_CAPACITY)
                 newThr = oldThr << 1; // double threshold
-        }
-        else if (oldThr > 0) // initial capacity was placed in threshold
+        } else if (oldThr > 0) // initial capacity was placed in threshold
             newCap = oldThr;
-        else {               // zero initial threshold signifies using defaults
+        else { // zero initial threshold signifies using defaults
             newCap = DEFAULT_INITIAL_CAPACITY;
-            newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
+            newThr = (int) (DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
         }
         if (newThr == 0) {
-            float ft = (float)newCap * loadFactor;
-            newThr = (newCap < MAXIMUM_CAPACITY && ft < (float)MAXIMUM_CAPACITY ?
-                    (int)ft : Integer.MAX_VALUE);
+            float ft = (float) newCap * loadFactor;
+            newThr = (newCap < MAXIMUM_CAPACITY && ft < (float) MAXIMUM_CAPACITY ? (int) ft : Integer.MAX_VALUE);
         }
         threshold = newThr;
         @SuppressWarnings("unchecked")
@@ -132,8 +134,7 @@ public class DoubleMap<K> {
                                 else
                                     loTail.next = node;
                                 loTail = node;
-                            }
-                            else {
+                            } else {
                                 if (hiTail == null)
                                     hiHead = node;
                                 else
@@ -172,7 +173,7 @@ public class DoubleMap<K> {
     public boolean containsValue(double value) {
         ValueIterator iterator = new ValueIterator();
         while (iterator.hasNext()) {
-            if (NumberUtil.equals(value, iterator.nextDouble())) {
+            if (NumberUtil.approximately(value, iterator.nextDouble())) {
                 return true;
             }
         }
@@ -291,26 +292,48 @@ public class DoubleMap<K> {
     }
 
     private class KeySet extends AbstractSet<K> {
-        public int size()                 { return size; }
-        public void clear()               { DoubleMap.this.clear(); }
-        public Iterator<K> iterator()     { return new KeyIterator(); }
-        public boolean contains(Object o) { return containsKey(o); }
-        public boolean remove(Object o)   { return DoubleMap.this.removeNode(o) != null; }
+        public int size() {
+            return size;
+        }
+        public void clear() {
+            DoubleMap.this.clear();
+        }
+        public Iterator<K> iterator() {
+            return new KeyIterator();
+        }
+        public boolean contains(Object o) {
+            return containsKey(o);
+        }
+        public boolean remove(Object o) {
+            return DoubleMap.this.removeNode(o) != null;
+        }
     }
 
     private class Values implements DoubleCollection {
 
-        public int size()                            { return size; }
-        public boolean isEmpty()                     { return DoubleMap.this.isEmpty(); }
-        public boolean contains(double num)          { return containsValue(num); }
-        public boolean add(double num)               { throw new UnsupportedOperationException(); }
-        public void clear()                          { DoubleMap.this.clear(); }
-        public PrimitiveIterator.OfDouble iterator() { return new ValueIterator(); }
+        public int size() {
+            return size;
+        }
+        public boolean isEmpty() {
+            return DoubleMap.this.isEmpty();
+        }
+        public boolean contains(double num) {
+            return containsValue(num);
+        }
+        public boolean add(double num) {
+            throw new UnsupportedOperationException();
+        }
+        public void clear() {
+            DoubleMap.this.clear();
+        }
+        public PrimitiveIterator.OfDouble iterator() {
+            return new ValueIterator();
+        }
 
         public boolean remove(double num) {
             PrimitiveIterator.OfDouble iterator = iterator();
             while (iterator.hasNext()) {
-                if (NumberUtil.equals(num, iterator.nextDouble())) {
+                if (NumberUtil.approximately(num, iterator.nextDouble())) {
                     iterator.remove();
                     return true;
                 }
@@ -321,9 +344,15 @@ public class DoubleMap<K> {
 
     private class EntrySet extends AbstractSet<DoubleEntry<K>> {
 
-        public int size()                          { return size; }
-        public void clear()                        { DoubleMap.this.clear(); }
-        public Iterator<DoubleEntry<K>> iterator() { return new EntryIterator(); }
+        public int size() {
+            return size;
+        }
+        public void clear() {
+            DoubleMap.this.clear();
+        }
+        public Iterator<DoubleEntry<K>> iterator() {
+            return new EntryIterator();
+        }
 
         public boolean contains(Object other) {
             if (!(other instanceof DoubleEntry<?> entry))
@@ -358,7 +387,8 @@ public class DoubleMap<K> {
             current = next = null;
             index = 0;
             if (table != null && size > 0) { // advance to first entry
-                do {} while (index < table.length && (next = table[index++]) == null);
+                do {
+                } while (index < table.length && (next = table[index++]) == null);
             }
         }
 
@@ -371,7 +401,8 @@ public class DoubleMap<K> {
             if (node == null)
                 throw new NoSuchElementException();
             if ((next = (current = node).next) == null && table != null) {
-                do {} while (index < table.length && (next = table[index++]) == null);
+                do {
+                } while (index < table.length && (next = table[index++]) == null);
             }
             return node;
         }
@@ -383,19 +414,28 @@ public class DoubleMap<K> {
     }
 
     final class KeyIterator extends HashIterator
-            implements Iterator<K> {
-        public K next() { return nextNode().getKey(); }
+        implements
+            Iterator<K> {
+        public K next() {
+            return nextNode().getKey();
+        }
     }
 
     final class ValueIterator extends HashIterator
-            implements PrimitiveIterator.OfDouble {
+        implements
+            PrimitiveIterator.OfDouble {
 
-        public double nextDouble() { return nextNode().getValue(); }
-        public Double next() { return nextNode().getValue(); }
+        public double nextDouble() {
+            return nextNode().getValue();
+        }
+        public Double next() {
+            return nextNode().getValue();
+        }
     }
 
     final class EntryIterator extends HashIterator
-            implements Iterator<DoubleEntry<K>> {
+        implements
+            Iterator<DoubleEntry<K>> {
 
         public DoubleEntry<K> next() {
             return new DoubleEntry<>() {

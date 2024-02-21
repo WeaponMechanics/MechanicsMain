@@ -3,10 +3,9 @@ package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,13 +45,12 @@ public class RecoilPattern implements Serializer<RecoilPattern> {
     }
 
     @Override
-    @NotNull
-    public RecoilPattern serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public RecoilPattern serialize(@NotNull SerializeData data) throws SerializerException {
         List<String[]> list = data.ofList("List")
-                .addArgument(double.class, true)
-                .addArgument(double.class, true)
-                .addArgument(String.class, false, true)
-                .assertList().assertExists().get();
+            .addArgument(double.class, true)
+            .addArgument(double.class, true)
+            .addArgument(String.class, false, true)
+            .assertList().assertExists().get();
 
         List<ExtraRecoilPatternData> recoilPatternList = new ArrayList<>();
         for (String[] split : list) {
@@ -63,7 +61,7 @@ public class RecoilPattern implements Serializer<RecoilPattern> {
 
             if (chanceToSkip > 100 || chanceToSkip < 0) {
                 throw data.exception(null, "Chance to skip should be between 0 and 100",
-                        SerializerException.forValue(split[2]));
+                    SerializerException.forValue(split[2]));
             }
 
             // Convert to 0-1 range
@@ -81,7 +79,7 @@ public class RecoilPattern implements Serializer<RecoilPattern> {
          * @return whether to skip this recoil pattern
          */
         public boolean shouldSkip() {
-            return NumberUtil.chance(this.chanceToSkip);
+            return RandomUtil.chance(this.chanceToSkip);
         }
     }
 }

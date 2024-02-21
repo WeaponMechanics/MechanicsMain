@@ -32,10 +32,9 @@ public class Entity_1_13_R2 implements EntityCompatibility {
     static {
         if (ReflectionUtil.getMCVersion() != 13) {
             me.deecaad.core.MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + Entity_1_13_R2.class + " when not using Minecraft 13",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + Entity_1_13_R2.class + " when not using Minecraft 13",
+                new InternalError());
         }
     }
 
@@ -140,4 +139,3 @@ public class Entity_1_13_R2 implements EntityCompatibility {
         item.a(data);
     }
 }
-

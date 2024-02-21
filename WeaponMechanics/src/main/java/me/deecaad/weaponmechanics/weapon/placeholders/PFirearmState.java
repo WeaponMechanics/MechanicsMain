@@ -16,15 +16,16 @@ public class PFirearmState extends PlaceholderHandler {
         super("firearm_state");
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public String onRequest(@NotNull PlaceholderData data) {
-        if (data.item() == null || data.itemTitle() == null) return null;
+        if (data.item() == null || data.itemTitle() == null)
+            return null;
 
         FirearmAction firearmAction = getConfigurations().getObject(data.itemTitle() + ".Firearm_Action", FirearmAction.class);
 
         // Simply don't show anything
-        if (firearmAction == null) return "";
+        if (firearmAction == null)
+            return "";
 
         FirearmState state = firearmAction.getState(data.item());
 

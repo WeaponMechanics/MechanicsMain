@@ -65,12 +65,7 @@ public class HandData {
     }
 
     /**
-     * Cancels following things
-     * - Full auto
-     * - Burst
-     * - Reload tasks
-     * - Shoot firearm action task
-     * - Zooming
+     * Cancels following things - Full auto - Burst - Reload tasks - Shoot firearm action task - Zooming
      *
      * Does not cancel recoil task.
      */
@@ -95,20 +90,25 @@ public class HandData {
         stopFirearmActionTasks();
         getZoomData().ifZoomingForceZoomOut();
 
-        // Tasks cancelled means a weapon switch or similar, so make sure we have fired a stop shooting event
+        // Tasks cancelled means a weapon switch or similar, so make sure we have fired a stop shooting
+        // event
         if (!firedWeaponStopShootEvent && lastWeaponShot != null && lastWeaponShotTitle != null) {
             firedWeaponStopShootEvent = true;
-            Bukkit.getPluginManager().callEvent(new WeaponStopShootingEvent(lastWeaponShotTitle, lastWeaponShot, entityWrapper.getEntity(), mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, lastShotTime));
+            Bukkit.getPluginManager().callEvent(new WeaponStopShootingEvent(lastWeaponShotTitle, lastWeaponShot, entityWrapper.getEntity(), mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND,
+                lastShotTime));
         }
 
-        if (!trySkinUpdate) return;
+        if (!trySkinUpdate)
+            return;
 
         // Try to update skin in given hand
         LivingEntity livingEntity = entityWrapper.getEntity();
-        if (livingEntity.getType() == EntityType.PLAYER && ((Player) livingEntity).getGameMode() == GameMode.SPECTATOR) return;
+        if (livingEntity.getType() == EntityType.PLAYER && ((Player) livingEntity).getGameMode() == GameMode.SPECTATOR)
+            return;
 
         EntityEquipment entityEquipment = livingEntity.getEquipment();
-        if (entityEquipment == null) return;
+        if (entityEquipment == null)
+            return;
 
         ItemStack weaponStack;
         String weaponTitle;
@@ -121,7 +121,8 @@ public class HandData {
 
         weaponTitle = WeaponMechanics.getWeaponHandler().getInfoHandler().getWeaponTitle(weaponStack, false);
 
-        if (weaponTitle == null) return;
+        if (weaponTitle == null)
+            return;
 
         WeaponMechanics.getWeaponHandler().getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
     }
@@ -131,8 +132,8 @@ public class HandData {
     }
 
     /**
-     * If you cancel this task, be sure to call {@link #setFullAutoTask(FullAutoTask, int)}
-     * with null and 0. Otherwise, WeaponMechanics will break.
+     * If you cancel this task, be sure to call {@link #setFullAutoTask(FullAutoTask, int)} with null
+     * and 0. Otherwise, WeaponMechanics will break.
      *
      * @return The full auto task, or null.
      */
@@ -263,7 +264,8 @@ public class HandData {
             }
             reloadTasks.clear();
 
-            Bukkit.getPluginManager().callEvent(new WeaponReloadCancelEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity(), mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, getReloadElapsedTime()));
+            Bukkit.getPluginManager().callEvent(new WeaponReloadCancelEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity(), mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND,
+                getReloadElapsedTime()));
 
             reloadWeaponStack = null;
             reloadWeaponTitle = null;
@@ -302,16 +304,14 @@ public class HandData {
     }
 
     /**
-     * Only used with shoot firearm actions.
-     * Reload firearm actions use addReloadTask()
+     * Only used with shoot firearm actions. Reload firearm actions use addReloadTask()
      */
     public void addFirearmActionTask(int firearmTask) {
         firearmActionTasks.add(firearmTask);
     }
 
     /**
-     * Only used with shoot firearm actions
-     * Reload firearm actions use addReloadTask()
+     * Only used with shoot firearm actions Reload firearm actions use addReloadTask()
      */
     public void addFirearmActionTasks(int... firearmTask) {
         for (int i : firearmTask) {
@@ -320,16 +320,14 @@ public class HandData {
     }
 
     /**
-     * Only used with shoot firearm actions
-     * Reload firearm actions use addReloadTask()
+     * Only used with shoot firearm actions Reload firearm actions use addReloadTask()
      */
     public boolean hasRunningFirearmAction() {
         return !firearmActionTasks.isEmpty();
     }
 
     /**
-     * Only used with shoot firearm actions
-     * Reload firearm actions use addReloadTask()
+     * Only used with shoot firearm actions Reload firearm actions use addReloadTask()
      */
     public void stopFirearmActionTasks() {
         if (!firearmActionTasks.isEmpty()) {

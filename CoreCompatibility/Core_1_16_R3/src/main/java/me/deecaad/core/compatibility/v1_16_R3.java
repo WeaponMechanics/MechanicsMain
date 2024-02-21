@@ -27,10 +27,9 @@ public class v1_16_R3 implements ICompatibility {
     static {
         if (ReflectionUtil.getMCVersion() != 16) {
             me.deecaad.core.MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + v1_16_R3.class + " when not using Minecraft 16",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + v1_16_R3.class + " when not using Minecraft 16",
+                new InternalError());
         }
     }
 
@@ -70,20 +69,17 @@ public class v1_16_R3 implements ICompatibility {
         return nbtCompatibility;
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public EntityCompatibility getEntityCompatibility() {
         return entityCompatibility;
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public BlockCompatibility getBlockCompatibility() {
         return blockCompatibility;
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public CommandCompatibility getCommandCompatibility() {
         return commandCompatibility;
     }

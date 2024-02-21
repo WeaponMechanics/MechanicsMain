@@ -51,15 +51,14 @@ public final class BlockDamageData {
     }
 
     /**
-     * Damages the given <code>block</code> for the given percentage of
-     * <code>damage</code>. Note that the returned value should be checked to
-     * schedule a block regeneration task.
+     * Damages the given <code>block</code> for the given percentage of <code>damage</code>. Note that
+     * the returned value should be checked to schedule a block regeneration task.
      *
-     * @param block        The non-null block to damage.
-     * @param damage       The percentage of damage [0.0, 1.0].
-     * @param isBreak      Whether the block will break or not.
+     * @param block The non-null block to damage.
+     * @param damage The percentage of damage [0.0, 1.0].
+     * @param isBreak Whether the block will break or not.
      * @param isRegenerate false is will cause inventories to drop and block updates.
-     * @param mask         The block to replace... Usually {@link #MASK}.
+     * @param mask The block to replace... Usually {@link #MASK}.
      * @return <code>true</code> if the block was broken.
      */
     public static DamageData damage(@NotNull Block block, double damage, boolean isBreak, boolean isRegenerate, Material mask) {
@@ -73,8 +72,7 @@ public final class BlockDamageData {
         return damageData;
     }
 
-    @Nullable
-    public static DamageData getBlockDamage(@NotNull Block block) {
+    @Nullable public static DamageData getBlockDamage(@NotNull Block block) {
         Map<Block, DamageData> map = DAMAGE_MAP.get(new ChunkPos(block));
         if (map == null)
             return null;
@@ -84,10 +82,9 @@ public final class BlockDamageData {
     }
 
     /**
-     * Returns true if the given block is broken by WeaponMechanics. Note that
-     * is only returns true if the block is scheduled to regenerate. When
-     * regeneration is turned off, this method will return false for any
-     * block.
+     * Returns true if the given block is broken by WeaponMechanics. Note that is only returns true if
+     * the block is scheduled to regenerate. When regeneration is turned off, this method will return
+     * false for any block.
      *
      * @param block The non-null block position to test.
      * @return true if the block is broken and going to regenerate.
@@ -98,9 +95,8 @@ public final class BlockDamageData {
     }
 
     /**
-     * Regenerates the given block by resetting it to the {@link BlockState}
-     * it had before being destroyed. This also resets the block's durability,
-     * and removes it from the damage map.
+     * Regenerates the given block by resetting it to the {@link BlockState} it had before being
+     * destroyed. This also resets the block's durability, and removes it from the damage map.
      *
      * @param block The non-null block to regenerate
      */
@@ -116,11 +112,11 @@ public final class BlockDamageData {
     }
 
     /**
-     * Regenerates all blocks in the given chunk. Note that the given chunk
-     * must have a world associated with it (such that {@link Chunk#getWorld()})
-     * will not return <code>null</code>.
+     * Regenerates all blocks in the given chunk. Note that the given chunk must have a world associated
+     * with it (such that {@link Chunk#getWorld()}) will not return <code>null</code>.
      *
-     * <p>After regeneration, the chunk will be removed from the cache.
+     * <p>
+     * After regeneration, the chunk will be removed from the cache.
      *
      * @param chunk The non-null chunk to regenerate all blocks.
      * @see #regenerate(Block)
@@ -135,8 +131,8 @@ public final class BlockDamageData {
     /**
      * Regenerates all blocks in the given world.
      *
-     * <p>After regeneration, all chunks from the world will be removed from
-     * the cache.
+     * <p>
+     * After regeneration, all chunks from the world will be removed from the cache.
      *
      * @param world The non-null world to regenerate all blocks.
      * @see #regenerate(Block)
@@ -176,8 +172,8 @@ public final class BlockDamageData {
     }
 
     /**
-     * The {@link org.bukkit.Chunk} class does not provide a hashing method,
-     * so we are stuck wrapping the chunk in order to use a {@link HashMap}
+     * The {@link org.bukkit.Chunk} class does not provide a hashing method, so we are stuck wrapping
+     * the chunk in order to use a {@link HashMap}
      */
     public static class ChunkPos {
 
@@ -197,8 +193,10 @@ public final class BlockDamageData {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
             ChunkPos chunkPos = (ChunkPos) o;
             return x == chunkPos.x && z == chunkPos.z && world.equals(chunkPos.world);
         }
@@ -215,7 +213,7 @@ public final class BlockDamageData {
         private double durability = 1.0; // Stores a value [0.0, 1.0]. 0.0 = broken
 
         private BlockState state = null; // Stores the BlockState of a block before it is broken
-        private int packetId = -1;       // Stores the ID used for the block cracking packet
+        private int packetId = -1; // Stores the ID used for the block cracking packet
 
         private DamageData(Block block) {
             this.block = block;
@@ -309,8 +307,8 @@ public final class BlockDamageData {
 
             // -1 will remove crack effect from block
             int crack = (durability >= 1.0 - EPSILON)
-                    ? -1
-                    : (int) NumberUtil.lerp(MAX_BLOCK_CRACK, 0, durability);
+                ? -1
+                : (int) NumberUtil.lerp(MAX_BLOCK_CRACK, 0, durability);
 
             Object packet = CompatibilityAPI.getBlockCompatibility().getCrackPacket(block, crack, packetId);
             DistanceUtil.sendPacket(block.getLocation(), packet);

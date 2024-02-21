@@ -40,8 +40,7 @@ public class IgniteMechanic extends Mechanic {
         cast.getTarget().setFireTicks(ticks);
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         int ticks = data.of("Time").getInt(100);
 

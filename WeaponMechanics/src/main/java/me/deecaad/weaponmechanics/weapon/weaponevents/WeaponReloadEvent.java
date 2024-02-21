@@ -8,8 +8,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Called when a weapon begins to reload. Usually the entity involved will be
- * a {@link org.bukkit.entity.Player}, but this may change in the future.
+ * Called when a weapon begins to reload. Usually the entity involved will be a
+ * {@link org.bukkit.entity.Player}, but this may change in the future.
  */
 public class WeaponReloadEvent extends WeaponEvent {
 
@@ -24,8 +24,8 @@ public class WeaponReloadEvent extends WeaponEvent {
     private Mechanics mechanics;
 
     public WeaponReloadEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser, EquipmentSlot hand,
-                             int reloadTime, int reloadAmount, int magazineSize, int firearmOpenTime, int firearmCloseTime,
-                             Mechanics mechanics) {
+        int reloadTime, int reloadAmount, int magazineSize, int firearmOpenTime, int firearmCloseTime,
+        Mechanics mechanics) {
         super(weaponTitle, weaponItem, weaponUser, hand);
         this.reloadTime = reloadTime;
         this.reloadAmount = reloadAmount;
@@ -91,8 +91,7 @@ public class WeaponReloadEvent extends WeaponEvent {
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

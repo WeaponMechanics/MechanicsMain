@@ -67,8 +67,7 @@ public class TitleMechanic extends Mechanic {
         return "https://cjcrafter.gitbook.io/mechanics/mechanics/title";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         String title = data.of("Title").getAdventure(null);
         String subtitle = data.of("Subtitle").getAdventure(null);

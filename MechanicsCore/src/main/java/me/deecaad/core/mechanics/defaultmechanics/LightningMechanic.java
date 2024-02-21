@@ -50,8 +50,7 @@ public class LightningMechanic extends Mechanic {
             world.strikeLightning(strikeLocation);
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         boolean isEffect = data.of("Effect").getBool(false);
 

@@ -3,9 +3,8 @@ package me.deecaad.core.utils;
 import java.util.logging.Level;
 
 /**
- * This enum outlines the different levels that messages can be logged at. Less
- * important messages have larger numeric levels, and more important messages
- * have smaller numeric levels.
+ * This enum outlines the different levels that messages can be logged at. Less important messages
+ * have larger numeric levels, and more important messages have smaller numeric levels.
  */
 public enum LogLevel {
 
@@ -23,8 +22,8 @@ public enum LogLevel {
     }
 
     /**
-     * Returns <code>true</code> if this level can be logged to console, given
-     * the number <code>level</code> from user input.
+     * Returns <code>true</code> if this level can be logged to console, given the number
+     * <code>level</code> from user input.
      *
      * @param level Non-negative numeric level. Should be defined by the user.
      * @return <code>true</code> if this level can be logged.

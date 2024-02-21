@@ -52,8 +52,8 @@ public class WeaponProjectile extends AProjectile {
     private final RayTrace rayTrace;
 
     public WeaponProjectile(ProjectileSettings projectileSettings, LivingEntity shooter, Location location,
-                            Vector motion, ItemStack weaponStack, String weaponTitle, EquipmentSlot hand,
-                            Sticky sticky, Through through, Bouncy bouncy) {
+        Vector motion, ItemStack weaponStack, String weaponTitle, EquipmentSlot hand,
+        Sticky sticky, Through through, Bouncy bouncy) {
         super(shooter, location, motion);
 
         this.projectileSettings = projectileSettings;
@@ -67,18 +67,18 @@ public class WeaponProjectile extends AProjectile {
 
         if (projectileSettings.isDisableEntityCollisions()) {
             this.rayTrace = new RayTrace()
-                    .withBlockFilter(this::equalToLastHit)
-                    .disableEntityChecks()
-                    .enableLiquidChecks()
-                    .withRaySize(projectileSettings.getSize());
+                .withBlockFilter(this::equalToLastHit)
+                .disableEntityChecks()
+                .enableLiquidChecks()
+                .withRaySize(projectileSettings.getSize());
         } else {
             this.rayTrace = new RayTrace()
-                    .withBlockFilter(this::equalToLastHit)
-                    .withEntityFilter(entity -> equalToLastHit(entity)
-                                    || (getShooter() != null && getAliveTicks() < 10 && entity.getEntityId() == getShooter().getEntityId())
-                                    || entity.getPassengers().contains(getShooter()))
-                    .enableLiquidChecks()
-                    .withRaySize(projectileSettings.getSize());
+                .withBlockFilter(this::equalToLastHit)
+                .withEntityFilter(entity -> equalToLastHit(entity)
+                    || (getShooter() != null && getAliveTicks() < 10 && entity.getEntityId() == getShooter().getEntityId())
+                    || entity.getPassengers().contains(getShooter()))
+                .enableLiquidChecks()
+                .withRaySize(projectileSettings.getSize());
         }
     }
 
@@ -107,7 +107,6 @@ public class WeaponProjectile extends AProjectile {
         isProjectileSettingsChanged = true;
     }
 
-
     public @Nullable Sticky getSticky() {
         if (isStickyChanged || sticky == null)
             return sticky;
@@ -122,12 +121,11 @@ public class WeaponProjectile extends AProjectile {
     }
 
     /**
-     * Sets the sticky properties of this projectile (whether it sticks to
-     * blocks/entities). If <code>isStickyChanged == true</code>, then no copy
-     * will be made. This means that the passed <code>sticky</code> instance
-     * must be mutable.
+     * Sets the sticky properties of this projectile (whether it sticks to blocks/entities). If
+     * <code>isStickyChanged == true</code>, then no copy will be made. This means that the passed
+     * <code>sticky</code> instance must be mutable.
      *
-     * @param sticky          The nullable sticky instance.
+     * @param sticky The nullable sticky instance.
      * @param isStickyChanged true if sticky is mutable.
      */
     public void setSticky(@Nullable Sticky sticky, boolean isStickyChanged) {
@@ -144,18 +142,16 @@ public class WeaponProjectile extends AProjectile {
         return through;
     }
 
-
     public void setThrough(@Nullable Through through) {
         setThrough(through, true);
     }
 
     /**
-     * Sets the through properties of this projectile (whether it passes through
-     * blocks/entities). If <code>isThroughChanged == true</code>, then no copy
-     * will be made. This means that the passed <code>through</code> instance
-     * must be mutable.
+     * Sets the through properties of this projectile (whether it passes through blocks/entities). If
+     * <code>isThroughChanged == true</code>, then no copy will be made. This means that the passed
+     * <code>through</code> instance must be mutable.
      *
-     * @param through          The nullable through instance.
+     * @param through The nullable through instance.
      * @param isThroughChanged true if through is mutable.
      */
     public void setThrough(@Nullable Through through, boolean isThroughChanged) {
@@ -177,12 +173,11 @@ public class WeaponProjectile extends AProjectile {
     }
 
     /**
-     * Sets the bouncy properties of this projectile (whether it bounces on
-     * blocks/entities). If <code>isBouncyChanged == true</code>, then no copy
-     * will be made. This means that the passed <code>through</code> instance
-     * must be mutable.
+     * Sets the bouncy properties of this projectile (whether it bounces on blocks/entities). If
+     * <code>isBouncyChanged == true</code>, then no copy will be made. This means that the passed
+     * <code>through</code> instance must be mutable.
      *
-     * @param bouncy          The nullable bouncy instance.
+     * @param bouncy The nullable bouncy instance.
      * @param isBouncyChanged true if bouncy is mutable.
      */
     public void setBouncy(@Nullable Bouncy bouncy, boolean isBouncyChanged) {
@@ -240,8 +235,7 @@ public class WeaponProjectile extends AProjectile {
      *
      * @return the item stack used to shoot this projectile
      */
-    @Nullable
-    public ItemStack getWeaponStack() {
+    @Nullable public ItemStack getWeaponStack() {
         return weaponStack;
     }
 
@@ -278,10 +272,9 @@ public class WeaponProjectile extends AProjectile {
             this.stickedData = null;
             // This basically removes sticky
             setMotion(new Vector(
-                    ThreadLocalRandom.current().nextFloat() * 0.2,
-                    ThreadLocalRandom.current().nextFloat() * 0.2,
-                    ThreadLocalRandom.current().nextFloat() * 0.2
-            ));
+                ThreadLocalRandom.current().nextFloat() * 0.2,
+                ThreadLocalRandom.current().nextFloat() * 0.2,
+                ThreadLocalRandom.current().nextFloat() * 0.2));
             return;
         }
 
@@ -321,7 +314,8 @@ public class WeaponProjectile extends AProjectile {
      * @param rolling the new rolling state
      */
     public void setRolling(boolean rolling) {
-        if (bouncy == null) return;
+        if (bouncy == null)
+            return;
 
         this.rolling = rolling;
     }
@@ -357,16 +351,18 @@ public class WeaponProjectile extends AProjectile {
         }
 
         // Don't check for new collisions if motion is empty
-        if (getMotionLength() < Vector.getEpsilon()) return false;
+        if (getMotionLength() < Vector.getEpsilon())
+            return false;
 
         // Returns sorted list of hits
 
         List<RayTraceResult> hits = rayTrace.cast(getWorld(), getLocation(), possibleNextLocation, getNormalizedMotion(),
-                through == null ? 0.0 : through.getMaximumThroughAmount());
+            through == null ? 0.0 : through.getMaximumThroughAmount());
         if (hits == null) {
 
             // Check if can't keep rolling
-            if (isRolling() && bouncy.checkForRollingCancel(this)) return true;
+            if (isRolling() && bouncy.checkForRollingCancel(this))
+                return true;
 
             // No hits, simply update location and distance travelled
             setRawLocation(possibleNextLocation);
@@ -397,7 +393,8 @@ public class WeaponProjectile extends AProjectile {
             }
 
             // Returned true and that most likely means that block hit was cancelled, skipping...
-            if (WeaponMechanics.getWeaponHandler().getHitHandler().handleHit(hit, this)) continue;
+            if (WeaponMechanics.getWeaponHandler().getHitHandler().handleHit(hit, this))
+                continue;
 
             // Sticky
             if (sticky != null && sticky.handleSticking(this, hit)) {
@@ -479,12 +476,12 @@ public class WeaponProjectile extends AProjectile {
     private boolean equalToLastHit(Block hit) {
         Location hitBlock = hit.getLocation();
         return lastBlock != null && lastBlock.getBlockX() == hitBlock.getBlockX() && lastBlock.getBlockY() == hitBlock.getBlockY() && lastBlock.getBlockZ() == hitBlock.getBlockZ() // Check block
-                && getAliveTicks() <= lastBlockUpdateTick; // Check hit tick
+            && getAliveTicks() <= lastBlockUpdateTick; // Check hit tick
     }
 
     private boolean equalToLastHit(LivingEntity entity) {
         return lastEntity != -1 && lastEntity == entity.getEntityId() // Check entity
-                && getAliveTicks() <= lastEntityUpdateTick; // Check hit tick
+            && getAliveTicks() <= lastEntityUpdateTick; // Check hit tick
     }
 
     @Override

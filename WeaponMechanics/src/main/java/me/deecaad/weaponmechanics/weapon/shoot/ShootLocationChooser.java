@@ -115,16 +115,15 @@ public class ShootLocationChooser implements Serializer<ShootLocationChooser> {
 
         if (def == null) {
             throw data.exception(null, "Somehow, the default shoot location in the ShootLocationChooser is null",
-                    "Your config is likely malformed. Try to format it correctly.");
+                "Your config is likely malformed. Try to format it correctly.");
         }
 
         return new ShootLocationChooser(def, vr, scope);
     }
 
     /**
-     * Gets the controller position of the given entity. If the entity is not a
-     * Vivecraft player, or the Vivecraft plugin is not installed, this will
-     * return <code>null</code>.
+     * Gets the controller position of the given entity. If the entity is not a Vivecraft player, or the
+     * Vivecraft plugin is not installed, this will return <code>null</code>.
      *
      * @param entity The entity to get the controller position from.
      * @param isMainHand <code>true</code> if the main hand is being used.
@@ -143,8 +142,8 @@ public class ShootLocationChooser implements Serializer<ShootLocationChooser> {
     }
 
     /**
-     * Keeps track of the left and right shoot locations, since the position
-     * should probably be different for each arm.
+     * Keeps track of the left and right shoot locations, since the position should probably be
+     * different for each arm.
      *
      * @param left The left arm, or {@link EquipmentSlot#OFF_HAND}
      * @param right The right arm, or {@link EquipmentSlot#HAND}
@@ -161,9 +160,8 @@ public class ShootLocationChooser implements Serializer<ShootLocationChooser> {
 
         public static @NotNull ShootLocation serialize(@NotNull SerializeData data) throws SerializerException {
             return new ShootLocation(
-                    data.of("Left_Hand").assertExists().serialize(new VectorSerializer()),
-                    data.of("Right_Hand").assertExists().serialize(new VectorSerializer())
-            );
+                data.of("Left_Hand").assertExists().serialize(new VectorSerializer()),
+                data.of("Right_Hand").assertExists().serialize(new VectorSerializer()));
         }
     }
 }

@@ -1,12 +1,13 @@
 plugins {
-    id("me.deecaad.java-conventions")
+    id("me.deecaad.mechanics-project")
     id("io.papermc.paperweight.userdev")
 }
 
 dependencies {
-    implementation(project(":MechanicsCore"))
-    implementation(project(":WeaponMechanics"))
-    paperDevBundle("1.17.1-R0.1-SNAPSHOT")
+    compileOnly(project(":MechanicsCore"))
+    compileOnly(project(":WeaponMechanics"))
+
+    paperweight.paperDevBundle("1.17.1-R0.1-SNAPSHOT")
 
     compileOnly(Dependencies.PROTOCOL_LIB)
 }

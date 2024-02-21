@@ -142,7 +142,7 @@ public interface CommandCompatibility {
     BiomeHolder getBiome(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
     Predicate<Block> getBlockPredicate(CommandContext<Object> context, String key)
-            throws CommandSyntaxException;
+        throws CommandSyntaxException;
 
     BlockData getBlockState(CommandContext<Object> context, String key);
 
@@ -167,27 +167,27 @@ public interface CommandCompatibility {
     ItemStack getItemStack(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
     Predicate<ItemStack> getItemStackPredicate(CommandContext<Object> context, String key)
-            throws CommandSyntaxException;
+        throws CommandSyntaxException;
 
     String getKeyedAsString(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
     Column getLocation2DBlock(CommandContext<Object> context, String key)
-            throws CommandSyntaxException;
+        throws CommandSyntaxException;
 
     Location2d getLocation2DPrecise(CommandContext<Object> context, String key)
-            throws CommandSyntaxException;
+        throws CommandSyntaxException;
 
     Block getLocationBlock(CommandContext<Object> context, String str) throws CommandSyntaxException;
 
     Location getLocationPrecise(CommandContext<Object> context, String str)
-            throws CommandSyntaxException;
+        throws CommandSyntaxException;
 
     LootTable getLootTable(CommandContext<Object> context, String key);
 
-    //NBTContainer getNBTCompound(CommandContext<Object> context, String key);
+    // NBTContainer getNBTCompound(CommandContext<Object> context, String key);
 
     String getObjective(CommandContext<Object> context, String key)
-            throws IllegalArgumentException, CommandSyntaxException;
+        throws IllegalArgumentException, CommandSyntaxException;
 
     String getObjectiveCriteria(CommandContext<Object> context, String key);
 
@@ -198,7 +198,7 @@ public interface CommandCompatibility {
     OfflinePlayer getOfflinePlayer(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
     PotionEffectType getPotionEffect(CommandContext<Object> context, String key)
-            throws CommandSyntaxException;
+        throws CommandSyntaxException;
 
     Recipe getRecipe(CommandContext<Object> context, String key) throws CommandSyntaxException;
 

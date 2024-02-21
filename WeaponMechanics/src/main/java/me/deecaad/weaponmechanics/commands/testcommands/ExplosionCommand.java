@@ -22,25 +22,23 @@ import static org.bukkit.ChatColor.GOLD;
 import static org.bukkit.ChatColor.GRAY;
 
 /**
- * Useful commands for testing different explosion
- * sizes and shapes. This is a player only command,
- * and <i>should</i> only be registered by the
- * <code>TestCommand</code>.
+ * Useful commands for testing different explosion sizes and shapes. This is a player only command,
+ * and <i>should</i> only be registered by the <code>TestCommand</code>.
  *
  * @see TestCommand
  */
 @CommandPermission(permission = "weaponmechanics.commands.test.explosion")
 public class ExplosionCommand extends SubCommand {
-    
+
     public ExplosionCommand() {
         super("wm test", "explosion", "Explode functions for devs", SUB_COMMANDS);
-        
+
         commands.register(new SphereExplosionCommand());
         commands.register(new CubeExplosionCommand());
         commands.register(new ParabolaExplosionCommand());
         commands.register(new DefaultExplosionCommand());
     }
-    
+
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (!(sender instanceof Player)) {
@@ -61,7 +59,7 @@ public class ExplosionCommand extends SubCommand {
                 RegenerationData regeneration = new RegenerationData(160, 2, 1);
                 BlockDamage blockDamage = new BlockDamage(0.0, 1, 1, Material.AIR, BlockDamage.BreakMode.BREAK, Map.of());
                 Explosion explosion = new Explosion(shape, new OptimizedExposure(), blockDamage, regeneration, null, 0.9, 1.0,
-                        null, null, new Flashbang(10.0, null), null);
+                    null, null, new Flashbang(10.0, null), null);
                 explosion.explode(player, loc, null);
             }
         }.runTaskLater(WeaponMechanics.getPlugin(), 100);
@@ -69,18 +67,18 @@ public class ExplosionCommand extends SubCommand {
 
     @CommandPermission(permission = "weaponmechanics.commands.test.explosion.sphere")
     private class SphereExplosionCommand extends SubCommand {
-        
+
         SphereExplosionCommand() {
             super("wm test explosion", "sphere", "Spherical explosion", "<3,5,16,32>");
         }
-        
+
         @Override
         public void execute(CommandSender sender, String[] args) {
             Player player = (Player) sender;
-            
+
             double radius = args.length > 0 ? Double.parseDouble(args[0]) : 5.0;
             player.sendMessage(GOLD + "Causing a " + GRAY + "sphere" + GOLD +
-                    " shaped explosion with a radius of " + GRAY + radius);
+                " shaped explosion with a radius of " + GRAY + radius);
 
             explode(new SphericalExplosion(radius), player, player.getLocation());
         }
@@ -88,39 +86,39 @@ public class ExplosionCommand extends SubCommand {
 
     @CommandPermission(permission = "weaponmechanics.commands.test.explosion.cube")
     private class CubeExplosionCommand extends SubCommand {
-        
+
         CubeExplosionCommand() {
             super("wm test explosion", "cube", "Cubical Explosion Test", INTEGERS + " " + INTEGERS);
         }
-    
+
         @Override
         public void execute(CommandSender sender, String[] args) {
             Player player = (Player) sender;
-            
-            int width  = (int)(args.length > 0 ? Double.parseDouble(args[0]) : 5.0);
-            int height = (int)(args.length > 1 ? Double.parseDouble(args[1]) : 5.0);
+
+            int width = (int) (args.length > 0 ? Double.parseDouble(args[0]) : 5.0);
+            int height = (int) (args.length > 1 ? Double.parseDouble(args[1]) : 5.0);
             player.sendMessage(GOLD + "Causing a " + GRAY + "cube" + GOLD + " shaped explosion with a width of "
-                    + GRAY + width + GOLD + " and a height of " + GRAY + height);
-            
+                + GRAY + width + GOLD + " and a height of " + GRAY + height);
+
             explode(new CuboidExplosion(width, height), player, player.getLocation());
         }
     }
 
     @CommandPermission(permission = "weaponmechanics.commands.test.explosion.parabola")
     private class ParabolaExplosionCommand extends SubCommand {
-        
+
         ParabolaExplosionCommand() {
             super("wm test explosion", "parabola", "Parabolic Explosion Test", "<angle> <depth>");
         }
-    
+
         @Override
         public void execute(CommandSender sender, String[] args) {
             Player player = (Player) sender;
-            
+
             double angle = args.length > 0 ? Double.parseDouble(args[0]) : 0.5;
             double depth = args.length > 1 ? Double.parseDouble(args[1]) : -3.0;
             player.sendMessage(GOLD + "Causing a " + GRAY + "parabola" + GOLD + " shaped explosion with an angle of "
-                    + GRAY + angle + GOLD + " and a depth of " + GRAY + depth);
+                + GRAY + angle + GOLD + " and a depth of " + GRAY + depth);
 
             explode(new ParabolicExplosion(depth, angle), player, player.getLocation());
         }

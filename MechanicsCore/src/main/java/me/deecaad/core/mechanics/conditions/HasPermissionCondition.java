@@ -40,8 +40,7 @@ public class HasPermissionCondition extends Condition {
         return "https://cjcrafter.gitbook.io/mechanics/conditions/has-permission";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         String permission = data.of("Permission").assertExists().get();
 

@@ -39,11 +39,13 @@ public class WeaponMechanicsLoader extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if (plugin != null) plugin.onDisable();
+        if (plugin != null)
+            plugin.onDisable();
     }
 
     @Override
     public void onEnable() {
-        if (plugin != null) plugin.onEnable();
+        if (plugin != null)
+            plugin.onEnable();
     }
 }

@@ -21,7 +21,8 @@ public class ExperienceAmmo implements IAmmoType {
     public int removeAmmo(ItemStack weaponStack, PlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
         Player player = playerWrapper.getPlayer();
         int experience = player.getTotalExperience();
-        if (experience == 0) return 0;
+        if (experience == 0)
+            return 0;
 
         int removeExperience = this.experienceAsAmmoCost * amount;
 
@@ -30,7 +31,8 @@ public class ExperienceAmmo implements IAmmoType {
 
             // Recalculate amount to match the maximum amount that can be taken
             amount = experience / experienceAsAmmoCost;
-            if (amount == 0) return 0;
+            if (amount == 0)
+                return 0;
 
             player.setTotalExperience(experience - (amount * experienceAsAmmoCost));
             return amount;
@@ -49,7 +51,8 @@ public class ExperienceAmmo implements IAmmoType {
     @Override
     public int getMaximumAmmo(PlayerWrapper playerWrapper, int maximumMagazineSize) {
         int experience = playerWrapper.getPlayer().getTotalExperience();
-        if (experience == 0) return 0;
+        if (experience == 0)
+            return 0;
 
         // Divide with experience cost
         return experience / experienceAsAmmoCost;

@@ -72,7 +72,8 @@ public class ShootHandler implements IValidator, TriggerListener {
         }
 
         Trigger trigger = getConfigurations().getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
-        if (trigger == null || !trigger.check(triggerType, slot, entityWrapper)) return false;
+        if (trigger == null || !trigger.check(triggerType, slot, entityWrapper))
+            return false;
 
         boolean result = shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
 
@@ -86,13 +87,15 @@ public class ShootHandler implements IValidator, TriggerListener {
         HandData handData = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
 
         // Don't even try if slot is already being used for full auto or burst
-        if (handData.isUsingFullAuto() || handData.isUsingBurst()) return false;
+        if (handData.isUsingFullAuto() || handData.isUsingBurst())
+            return false;
 
         Configuration config = getConfigurations();
 
         WeaponPreShootEvent preShootEvent = new WeaponPreShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot);
         Bukkit.getPluginManager().callEvent(preShootEvent);
-        if (preShootEvent.isCancelled()) return false;
+        if (preShootEvent.isCancelled())
+            return false;
 
         boolean isMelee = triggerType == TriggerType.MELEE;
 
@@ -102,7 +105,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         if (!worldGuard.testFlag(loc, entityWrapper instanceof PlayerWrapper ? ((PlayerWrapper) entityWrapper).getPlayer() : null, "weapon-shoot")) {
             Object obj = worldGuard.getValue(loc, "weapon-shoot-message");
             if (obj != null && !obj.toString().isEmpty()) {
-                entityWrapper.getEntity().sendMessage(StringUtil.color(obj.toString()));
+                entityWrapper.getEntity().sendMessage(StringUtil.colorBukkit(obj.toString()));
             }
 
             return false;
@@ -114,7 +117,8 @@ public class ShootHandler implements IValidator, TriggerListener {
         boolean hasPermission = weaponHandler.getInfoHandler().hasPermission(entityWrapper.getEntity(), weaponTitle);
         if (!hasPermission) {
             if (shooter.getType() == EntityType.PLAYER) {
-                PlaceholderMessage permissionMessage = new PlaceholderMessage(getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", ChatColor.RED + "You do not have permission to use " + weaponTitle));
+                PlaceholderMessage permissionMessage = new PlaceholderMessage(getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", ChatColor.RED + "You do not have permission to use "
+                    + weaponTitle));
                 Component component = permissionMessage.replaceAndDeserialize(PlaceholderData.of((Player) shooter, weaponStack, weaponTitle, slot));
                 MechanicsCore.getPlugin().adventure.sender(shooter).sendMessage(component);
             }
@@ -213,15 +217,15 @@ public class ShootHandler implements IValidator, TriggerListener {
             return switch (selectiveFireState) {
                 case BURST -> burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
                 case AUTO ->
-                        fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield);
+                    fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield);
                 default -> singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
             };
         }
 
         // First try full auto, then burst, then single fire
         return fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield)
-                || burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield)
-                || singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
+            || burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield)
+            || singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
     }
 
     private boolean singleShot(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot, boolean dualWield, boolean isMelee) {
@@ -259,7 +263,8 @@ public class ShootHandler implements IValidator, TriggerListener {
         int ticksBetweenEachShot = config.getInt(weaponTitle + ".Shoot.Burst.Ticks_Between_Each_Shot");
 
         // Not used
-        if (shotsPerBurst == 0 || ticksBetweenEachShot == 0) return false;
+        if (shotsPerBurst == 0 || ticksBetweenEachShot == 0)
+            return false;
 
         boolean mainhand = slot == EquipmentSlot.HAND;
         boolean consumeItemOnShoot = getConfigurations().getBool(weaponTitle + ".Shoot.Consume_Item_On_Shoot");
@@ -305,7 +310,6 @@ public class ShootHandler implements IValidator, TriggerListener {
                     return;
                 }
 
-
                 if (++shots >= shotsPerBurst) {
                     handData.setBurstTask(0);
                     cancel();
@@ -330,7 +334,8 @@ public class ShootHandler implements IValidator, TriggerListener {
         Bukkit.getPluginManager().callEvent(event);
 
         // When full auto is not used by this weapon
-        if (event.isCancelled()) return false;
+        if (event.isCancelled())
+            return false;
 
         boolean mainhand = slot == EquipmentSlot.HAND;
 
@@ -342,13 +347,14 @@ public class ShootHandler implements IValidator, TriggerListener {
 
     public void doShootFirearmActions(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot) {
         FirearmAction firearmAction = getConfigurations().getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
-        if (firearmAction == null || handData.hasRunningFirearmAction()) return;
+        if (firearmAction == null || handData.hasRunningFirearmAction())
+            return;
 
         FirearmState state = firearmAction.getState(weaponStack);
 
         // If state is ready, check if this shot should not cause firearm actions
         if (state == FirearmState.READY
-                && (weaponHandler.getReloadHandler().getAmmoLeft(weaponStack, weaponTitle) % firearmAction.getFirearmActionFrequency() != 0
+            && (weaponHandler.getReloadHandler().getAmmoLeft(weaponStack, weaponTitle) % firearmAction.getFirearmActionFrequency() != 0
                 || !firearmAction.getFirearmType().hasShootActions())) {
             return;
         }
@@ -369,7 +375,8 @@ public class ShootHandler implements IValidator, TriggerListener {
                 }
 
                 firearmAction.changeState(taskReference, FirearmState.READY);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
+                if (weaponInfoDisplay != null)
+                    weaponInfoDisplay.send(playerWrapper, slot);
                 handData.stopFirearmActionTasks();
             }
         };
@@ -387,7 +394,8 @@ public class ShootHandler implements IValidator, TriggerListener {
             // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
             event.useMechanics(castData, false);
 
-            if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
+            if (weaponInfoDisplay != null)
+                weaponInfoDisplay.send(playerWrapper, slot);
 
             handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), event.getTime()).getTaskId());
 
@@ -398,14 +406,16 @@ public class ShootHandler implements IValidator, TriggerListener {
         // Else start from OPEN State
 
         // Update state
-        if (state != FirearmState.OPEN) firearmAction.changeState(weaponStack, FirearmState.OPEN);
+        if (state != FirearmState.OPEN)
+            firearmAction.changeState(weaponStack, FirearmState.OPEN);
 
         WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, state);
         Bukkit.getPluginManager().callEvent(event);
 
         event.useMechanics(castData, true);
 
-        if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
+        if (weaponInfoDisplay != null)
+            weaponInfoDisplay.send(playerWrapper, slot);
 
         // Add the task to shoot firearm action tasks
         handData.addFirearmActionTask(new BukkitRunnable() {
@@ -424,7 +434,8 @@ public class ShootHandler implements IValidator, TriggerListener {
 
                 event.useMechanics(new CastData(shooter, weaponTitle, taskReference, handData::addFirearmActionTask), false);
 
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
+                if (weaponInfoDisplay != null)
+                    weaponInfoDisplay.send(playerWrapper, slot);
 
                 handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), event.getTime()).getTaskId());
 
@@ -455,7 +466,8 @@ public class ShootHandler implements IValidator, TriggerListener {
     }
 
     public void startReloadIfBothWeaponsEmpty(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {
-        if (entityWrapper.isReloading()) return;
+        if (entityWrapper.isReloading())
+            return;
 
         ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
 
@@ -471,10 +483,11 @@ public class ShootHandler implements IValidator, TriggerListener {
             return;
         }
 
-        if (slot == EquipmentSlot.HAND ?
-                reloadHandler.getAmmoLeft(entityWrapper.getEntity().getEquipment().getItemInOffHand(), null) == 0
-                : reloadHandler.getAmmoLeft(entityWrapper.getEntity().getEquipment().getItemInMainHand(), null) == 0) {
-            // Now we know that both weapons are empty assuming the other weapon's ammo amount is already checked before this
+        if (slot == EquipmentSlot.HAND
+            ? reloadHandler.getAmmoLeft(entityWrapper.getEntity().getEquipment().getItemInOffHand(), null) == 0
+            : reloadHandler.getAmmoLeft(entityWrapper.getEntity().getEquipment().getItemInMainHand(), null) == 0) {
+            // Now we know that both weapons are empty assuming the other weapon's ammo amount is already
+            // checked before this
 
             handData.cancelTasks();
 
@@ -486,8 +499,7 @@ public class ShootHandler implements IValidator, TriggerListener {
     }
 
     /**
-     * Shoots using weapon.
-     * Does not use ammo nor check for it.
+     * Shoots using weapon. Does not use ammo nor check for it.
      */
     public void shoot(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, Location shootLocation, boolean mainHand, boolean updateSpreadChange, boolean isMelee) {
         Configuration config = getConfigurations();
@@ -503,15 +515,14 @@ public class ShootHandler implements IValidator, TriggerListener {
         Recoil recoil = config.getObject(weaponTitle + ".Shoot.Recoil", Recoil.class);
 
         PrepareWeaponShootEvent prepareEvent = new PrepareWeaponShootEvent(
-                weaponTitle, weaponStack, entityWrapper.getEntity(), slot,
-                shootMechanics,
-                resetFallDistance,
-                projectile,
-                projectileSpeed,
-                projectileAmount,
-                spread,
-                recoil
-        );
+            weaponTitle, weaponStack, entityWrapper.getEntity(), slot,
+            shootMechanics,
+            resetFallDistance,
+            projectile,
+            projectileSpeed,
+            projectileAmount,
+            spread,
+            recoil);
         Bukkit.getPluginManager().callEvent(prepareEvent);
         if (prepareEvent.isCancelled())
             return;
@@ -614,18 +625,19 @@ public class ShootHandler implements IValidator, TriggerListener {
     }
 
     /**
-     * Shoots using weapon.
-     * Does not use ammo nor check for it.
-     * Does not apply recoil nor anything that would require EntityWrapper.
+     * Shoots using weapon. Does not use ammo nor check for it. Does not apply recoil nor anything that
+     * would require EntityWrapper.
      */
     public void shoot(LivingEntity livingEntity, String weaponTitle, Vector normalizedDirection) {
         Configuration config = getConfigurations();
 
         Mechanics shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", Mechanics.class);
-        if (shootMechanics != null) shootMechanics.use(new CastData(livingEntity, weaponTitle, null));
+        if (shootMechanics != null)
+            shootMechanics.use(new CastData(livingEntity, weaponTitle, null));
 
         Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);
-        if (projectile == null) return;
+        if (projectile == null)
+            return;
 
         EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(livingEntity);
         Location shootLocation = getShootLocation(entityWrapper, weaponTitle, true);
@@ -651,8 +663,7 @@ public class ShootHandler implements IValidator, TriggerListener {
     }
 
     /**
-     * Removes one from the amount of weapon stack.
-     * If stack is now empty also cancels all hand tasks.
+     * Removes one from the amount of weapon stack. If stack is now empty also cancels all hand tasks.
      *
      * @param weaponStack the weapon stack
      * @return true if weapon stack amount is now 0
@@ -672,8 +683,9 @@ public class ShootHandler implements IValidator, TriggerListener {
     /**
      * Gets the location to shoot from.
      *
-     * <p>The returned location will have its direction set to the desired shoot
-     * direction. For VR players, this will be the hand direction.
+     * <p>
+     * The returned location will have its direction set to the desired shoot direction. For VR players,
+     * this will be the hand direction.
      *
      * @param shooter the entity that is shooting
      * @param weaponTitle the weapon title
@@ -742,42 +754,48 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         String invalidTrigger = "";
         if (hasAuto) {
-            if (isInvalidFullAuto(trigger.getMainhand())) invalidTrigger += invalidTrigger.isEmpty() ? "Mainhand (" + trigger.getMainhand() + ")" : ", Mainhand (" + trigger.getMainhand() + ")";
-            if (isInvalidFullAuto(trigger.getOffhand())) invalidTrigger += invalidTrigger.isEmpty() ? "Offhand (" + trigger.getOffhand() + ")" : ", Offhand (" + trigger.getOffhand() + ")";
-            if (isInvalidFullAuto(trigger.getDualWieldMainHand())) invalidTrigger += invalidTrigger.isEmpty() ? "DualWield MainHand (" + trigger.getDualWieldMainHand() + ")" : ", DualWield MainHand (" + trigger.getDualWieldMainHand() + ")";
-            if (isInvalidFullAuto(trigger.getDualWieldOffHand())) invalidTrigger += invalidTrigger.isEmpty() ? "DualWield OffHand (" + trigger.getDualWieldOffHand() + ")" : ", DualWield OffHand (" + trigger.getDualWieldOffHand() + ")";
+            if (isInvalidFullAuto(trigger.getMainhand()))
+                invalidTrigger += invalidTrigger.isEmpty() ? "Mainhand (" + trigger.getMainhand() + ")" : ", Mainhand (" + trigger.getMainhand() + ")";
+            if (isInvalidFullAuto(trigger.getOffhand()))
+                invalidTrigger += invalidTrigger.isEmpty() ? "Offhand (" + trigger.getOffhand() + ")" : ", Offhand (" + trigger.getOffhand() + ")";
+            if (isInvalidFullAuto(trigger.getDualWieldMainHand()))
+                invalidTrigger += invalidTrigger.isEmpty() ? "DualWield MainHand (" + trigger.getDualWieldMainHand() + ")" : ", DualWield MainHand (" + trigger.getDualWieldMainHand() + ")";
+            if (isInvalidFullAuto(trigger.getDualWieldOffHand()))
+                invalidTrigger += invalidTrigger.isEmpty() ? "DualWield OffHand (" + trigger.getDualWieldOffHand() + ")" : ", DualWield OffHand (" + trigger.getDualWieldOffHand() + ")";
 
             if (!invalidTrigger.isEmpty()) {
                 throw data.exception("Trigger", "Full_Automatic cannot use the trigger: " + invalidTrigger,
-                        "Fully_Automatic can only use the following triggers:",
-                        "START_SNEAK, START_SPRINT, RIGHT_CLICK, START_SWIM, START_GLIDE, START_WALK, START_IN_MIDAIR and START_STAND.");
+                    "Fully_Automatic can only use the following triggers:",
+                    "START_SNEAK, START_SPRINT, RIGHT_CLICK, START_SWIM, START_GLIDE, START_WALK, START_IN_MIDAIR and START_STAND.");
             }
         }
-
 
         String defaultSelectiveFire = configuration.getString(data.key + ".Selective_Fire.Default");
         if (defaultSelectiveFire != null) {
             if (!defaultSelectiveFire.equalsIgnoreCase("SINGLE")
-                    && !defaultSelectiveFire.equalsIgnoreCase("BURST")
-                    && !defaultSelectiveFire.equalsIgnoreCase("AUTO")) {
+                && !defaultSelectiveFire.equalsIgnoreCase("BURST")
+                && !defaultSelectiveFire.equalsIgnoreCase("AUTO")) {
 
-                throw new SerializerOptionsException(data.serializer, "Selective Fire Default", Arrays.asList("SINGLE", "BURST", "AUTO"), defaultSelectiveFire, data.of("Selective_Fire.Default").getLocation());
+                throw new SerializerOptionsException(data.serializer, "Selective Fire Default", Arrays.asList("SINGLE", "BURST", "AUTO"), defaultSelectiveFire, data.of("Selective_Fire.Default")
+                    .getLocation());
             }
         }
 
         CustomDurability durability = data.of("Custom_Durability").serialize(CustomDurability.class);
-        if (durability != null) configuration.set(data.key + ".Custom_Durability", durability);
+        if (durability != null)
+            configuration.set(data.key + ".Custom_Durability", durability);
 
         configuration.set(data.key + ".Reset_Fall_Distance", data.of("Reset_Fall_Distance").getBool(false));
     }
 
     private boolean isInvalidFullAuto(TriggerType triggerType) {
-        if (triggerType == null) return false;
+        if (triggerType == null)
+            return false;
 
         return switch (triggerType) {
             case START_SNEAK, START_SPRINT, RIGHT_CLICK,
-                    START_SWIM, START_GLIDE, START_WALK,
-                    START_IN_MIDAIR, START_STAND -> false;
+                START_SWIM, START_GLIDE, START_WALK,
+                START_IN_MIDAIR, START_STAND -> false;
             default -> true;
         };
     }

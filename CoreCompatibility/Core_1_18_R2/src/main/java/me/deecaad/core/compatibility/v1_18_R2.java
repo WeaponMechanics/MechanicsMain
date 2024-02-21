@@ -28,10 +28,9 @@ public class v1_18_R2 implements ICompatibility {
     static {
         if (ReflectionUtil.getMCVersion() != 18) {
             MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + v1_18_R2.class + " when not using Minecraft 18",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + v1_18_R2.class + " when not using Minecraft 18",
+                new InternalError());
         }
     }
 
@@ -71,20 +70,17 @@ public class v1_18_R2 implements ICompatibility {
         return nbtCompatibility;
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public EntityCompatibility getEntityCompatibility() {
         return entityCompatibility;
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public BlockCompatibility getBlockCompatibility() {
         return blockCompatibility;
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public CommandCompatibility getCommandCompatibility() {
         return commandCompatibility;
     }

@@ -26,14 +26,13 @@ public class RayTraceResult {
     private @Nullable Vector exitLocation;
 
     public RayTraceResult(
-            @NotNull Vector origin,
-            @NotNull Vector direction,
-            @NotNull HitBox hitBox,
-            @NotNull BlockFace hitFace,
-            @NotNull BlockFace exitFace,
-            double hitMin,
-            double hitMax
-    ) {
+        @NotNull Vector origin,
+        @NotNull Vector direction,
+        @NotNull HitBox hitBox,
+        @NotNull BlockFace hitFace,
+        @NotNull BlockFace exitFace,
+        double hitMin,
+        double hitMax) {
         this.origin = origin;
         this.direction = direction;
         this.hitBox = hitBox;
@@ -48,48 +47,46 @@ public class RayTraceResult {
      *
      * @return The hitbox.
      */
-    @NotNull
-    public HitBox getHitBox() {
+    @NotNull public HitBox getHitBox() {
         return hitBox;
     }
 
     /**
      * Returns the hit face. Will be one of:
      * <ul>
-     *     <li>{@link BlockFace#NORTH}</li>
-     *     <li>{@link BlockFace#EAST}</li>
-     *     <li>{@link BlockFace#SOUTH}</li>
-     *     <li>{@link BlockFace#WEST}</li>
-     *     <li>{@link BlockFace#UP}</li>
-     *     <li>{@link BlockFace#DOWN}</li>
+     * <li>{@link BlockFace#NORTH}</li>
+     * <li>{@link BlockFace#EAST}</li>
+     * <li>{@link BlockFace#SOUTH}</li>
+     * <li>{@link BlockFace#WEST}</li>
+     * <li>{@link BlockFace#UP}</li>
+     * <li>{@link BlockFace#DOWN}</li>
      * </ul>
      *
-     * <p>Even when the raytrace starts within the hitbox, this will return the
-     * hit face as if it were "moved back" before ray tracing. This means that
-     * you might want to check {@link #getHitMin()} and check if it is negative.
+     * <p>
+     * Even when the raytrace starts within the hitbox, this will return the hit face as if it were
+     * "moved back" before ray tracing. This means that you might want to check {@link #getHitMin()} and
+     * check if it is negative.
      *
      * @return The hit hitface.
      */
-    @NotNull
-    public BlockFace getHitFace() {
+    @NotNull public BlockFace getHitFace() {
         return hitFace;
     }
 
     /**
      * Returns the exit face. Will be one of:
      * <ul>
-     *     <li>{@link BlockFace#NORTH}</li>
-     *     <li>{@link BlockFace#EAST}</li>
-     *     <li>{@link BlockFace#SOUTH}</li>
-     *     <li>{@link BlockFace#WEST}</li>
-     *     <li>{@link BlockFace#UP}</li>
-     *     <li>{@link BlockFace#DOWN}</li>
+     * <li>{@link BlockFace#NORTH}</li>
+     * <li>{@link BlockFace#EAST}</li>
+     * <li>{@link BlockFace#SOUTH}</li>
+     * <li>{@link BlockFace#WEST}</li>
+     * <li>{@link BlockFace#UP}</li>
+     * <li>{@link BlockFace#DOWN}</li>
      * </ul>
      *
      * @return The hit hitface.
      */
-    @NotNull
-    public BlockFace getExitFace() {
+    @NotNull public BlockFace getExitFace() {
         return exitFace;
     }
 
@@ -98,8 +95,7 @@ public class RayTraceResult {
      *
      * @return The hit location.
      */
-    @NotNull
-    public Vector getHitLocation() {
+    @NotNull public Vector getHitLocation() {
         if (hitLocation == null) {
             hitLocation = origin.clone();
             hitLocation.setX(hitLocation.getX() + direction.getX() * hitMin);
@@ -115,8 +111,7 @@ public class RayTraceResult {
      *
      * @return The exit location.
      */
-    @NotNull
-    public Vector getExitLocation() {
+    @NotNull public Vector getExitLocation() {
         if (exitLocation == null) {
             exitLocation = origin.clone();
             exitLocation.setX(exitLocation.getX() + direction.getX() * hitMax);
@@ -128,8 +123,8 @@ public class RayTraceResult {
     }
 
     /**
-     * Returns the distance between the origin of the ray and the hit location.
-     * Will return a negative number if the ray spawned within the hitbox.
+     * Returns the distance between the origin of the ray and the hit location. Will return a negative
+     * number if the ray spawned within the hitbox.
      *
      * @return The <i>entry wound</i> of the ray hit.
      */
@@ -138,8 +133,7 @@ public class RayTraceResult {
     }
 
     /**
-     * Same as {@link #getHitMin()}, except this method will always return a
-     * positive number.
+     * Same as {@link #getHitMin()}, except this method will always return a positive number.
      *
      * @return The <i>entry wound</i> of the ray hit (with 0 as a minimum bound).
      */
@@ -157,9 +151,8 @@ public class RayTraceResult {
     }
 
     /**
-     * Returns the distance travelled through the hitbox. For a block, this
-     * number will not exceed <code>sqrt(2)</code>. This method will always
-     * return a positive number.
+     * Returns the distance travelled through the hitbox. For a block, this number will not exceed
+     * <code>sqrt(2)</code>. This method will always return a positive number.
      *
      * @return The distance travelled through the hitbox.
      */
@@ -203,10 +196,10 @@ public class RayTraceResult {
     @Override
     public String toString() {
         return "RayTraceResult{" +
-                "hitFace=" + hitFace +
-                ", hitLocation=" + hitLocation +
-                ", hitMin=" + hitMin +
-                ", hitMax=" + hitMax +
-                '}';
+            "hitFace=" + hitFace +
+            ", hitLocation=" + hitLocation +
+            ", hitMin=" + hitMin +
+            ", hitMax=" + hitMax +
+            '}';
     }
 }

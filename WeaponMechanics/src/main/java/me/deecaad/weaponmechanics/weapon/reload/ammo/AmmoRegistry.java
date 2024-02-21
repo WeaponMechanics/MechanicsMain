@@ -44,7 +44,7 @@ public class AmmoRegistry {
                         config.load(new InputStreamReader(stream, StandardCharsets.UTF_8));
                     } catch (InvalidConfigurationException ex) {
                         WeaponMechanics.debug.warn("Could not read file '" + file.toFile() + "'... make sure it is valid YAML",
-                                ex.getMessage());
+                            ex.getMessage());
                         return FileVisitResult.CONTINUE;
                     }
 

@@ -22,10 +22,9 @@ public class Scope_1_15_R1 implements IScopeCompatibility {
 
         if (ReflectionUtil.getMCVersion() != 15) {
             WeaponMechanics.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + Scope_1_15_R1.class + " when not using Minecraft 15",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + Scope_1_15_R1.class + " when not using Minecraft 15",
+                new InternalError());
         }
     }
 

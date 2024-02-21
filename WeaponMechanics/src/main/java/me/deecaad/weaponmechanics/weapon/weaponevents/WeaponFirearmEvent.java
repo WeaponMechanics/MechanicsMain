@@ -32,8 +32,7 @@ public class WeaponFirearmEvent extends WeaponEvent {
     }
 
     /**
-     * The config options of the firearm. You probably do not want to modify
-     * this value.
+     * The config options of the firearm. You probably do not want to modify this value.
      *
      * @return The firearm config options.
      */
@@ -103,17 +102,20 @@ public class WeaponFirearmEvent extends WeaponEvent {
 
     public void useMechanics(CastData castData, boolean isOpen) {
         if (isOpen) {
-            if (mechanics != null) mechanics.use(castData);
-            else if (action.getOpen() != null) action.getOpen().use(castData);
+            if (mechanics != null)
+                mechanics.use(castData);
+            else if (action.getOpen() != null)
+                action.getOpen().use(castData);
         } else {
-            if (mechanics != null) mechanics.use(castData);
-            else if (action.getClose() != null) action.getClose().use(castData);
+            if (mechanics != null)
+                mechanics.use(castData);
+            else if (action.getClose() != null)
+                action.getClose().use(castData);
         }
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

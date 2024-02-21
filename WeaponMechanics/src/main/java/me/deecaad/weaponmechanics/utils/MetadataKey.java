@@ -10,10 +10,9 @@ import java.util.List;
 public enum MetadataKey {
 
     /**
-     * Set this metadata and check it on EntityDamageByEntityEvent to deny
-     * unintentional melee casts and unintentional damage cancel. LivingEntity.damage()
-     * always uses ENTITY_ATTACK as DamageCause. Using NMS to change damage cause would require
-     * spawning of actual entity projectile.
+     * Set this metadata and check it on EntityDamageByEntityEvent to deny unintentional melee casts and
+     * unintentional damage cancel. LivingEntity.damage() always uses ENTITY_ATTACK as DamageCause.
+     * Using NMS to change damage cause would require spawning of actual entity projectile.
      */
     VANILLA_DAMAGE("wm_vanilla_dmg"),
     CANCELLED_DAMAGE("wm_cancelled_dmg"),

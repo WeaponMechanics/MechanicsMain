@@ -38,8 +38,7 @@ public class PlayerJumpEvent extends Event {
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

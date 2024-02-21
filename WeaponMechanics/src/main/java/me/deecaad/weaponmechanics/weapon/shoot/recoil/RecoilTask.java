@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.wrappers.HandData;
@@ -18,8 +18,7 @@ public class RecoilTask extends TimerTask {
     private final HandData handData;
 
     /**
-     * True = rotating
-     * False = recovering
+     * True = rotating False = recovering
      */
     private boolean isRotating;
 
@@ -56,9 +55,11 @@ public class RecoilTask extends TimerTask {
         }
 
         // If this returns true, that means task is terminated
-        if (handleNewRecoil()) return;
+        if (handleNewRecoil())
+            return;
 
-        // This first check in case non-repeating pattern is used, and it has reached its end -> don't send unnecessary packets
+        // This first check in case non-repeating pattern is used, and it has reached its end -> don't send
+        // unnecessary packets
         if (!(yawPerIteration == 0 && pitchPerIteration == 0)) {
             if (isRotating) {
                 Location location = playerWrapper.getPlayer().getLocation();
@@ -82,9 +83,9 @@ public class RecoilTask extends TimerTask {
 
             // Rotation finished, start recovering
 
-
             if (yawPerIteration == 0 && pitchPerIteration == 0) {
-                // Non-repeating pattern which reached its end was used, meaning we don't really want to do recovery anymore
+                // Non-repeating pattern which reached its end was used, meaning we don't really want to do recovery
+                // anymore
                 yawPerIteration = 0;
                 pitchPerIteration = 0;
             } else {
@@ -109,7 +110,8 @@ public class RecoilTask extends TimerTask {
      * @return true ONLY if task is terminated
      */
     private boolean handleNewRecoil() {
-        if (tempRecoil == null) return false;
+        if (tempRecoil == null)
+            return false;
 
         float rotateYaw = 0;
         float rotatePitch = 0;
@@ -128,11 +130,11 @@ public class RecoilTask extends TimerTask {
 
         List<Float> horizontal = tempRecoil.getRandomHorizontal();
         if (rotateYaw == 0 && horizontal != null) {
-            rotateYaw = horizontal.get(NumberUtil.random(horizontal.size()));
+            rotateYaw = RandomUtil.element(horizontal);
         }
         List<Float> vertical = tempRecoil.getRandomVertical();
         if (rotatePitch == 0 && vertical != null) {
-            rotatePitch = vertical.get(NumberUtil.random(vertical.size()));
+            rotatePitch = RandomUtil.element(vertical);
         }
 
         // If its non-repeating pattern which reached end these would be 0
@@ -192,14 +194,16 @@ public class RecoilTask extends TimerTask {
         while (nextData == null) {
             nextData = list.get(currentIndexAtRecoilPattern);
 
-            if (nextData.shouldSkip()) nextData = null;
+            if (nextData.shouldSkip())
+                nextData = null;
 
             ++currentIndexAtRecoilPattern;
 
             if (currentIndexAtRecoilPattern >= list.size()) {
 
                 // Non-repeating pattern -> break
-                if (!pattern.isRepeatPattern()) break;
+                if (!pattern.isRepeatPattern())
+                    break;
 
                 // Repeating pattern, start again at 0
                 currentIndexAtRecoilPattern = 0;

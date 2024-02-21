@@ -24,28 +24,42 @@ public abstract class Database {
     }
 
     /**
-     * Closes all given variables.
-     * This has to be called after every query.
+     * Closes all given variables. This has to be called after every query.
      *
      * @param connection the connection used
      * @param statement the statement used
      * @param resultSet the result set used
      */
     public void close(@Nullable Connection connection, @Nullable Statement statement, @Nullable ResultSet resultSet) {
-        if (resultSet != null) try { resultSet.close(); } catch (SQLException e) { MechanicsCore.debug.log(LogLevel.ERROR, e); }
-        if (statement != null) try { statement.close(); } catch (SQLException e) { MechanicsCore.debug.log(LogLevel.ERROR, e); }
-        if (connection != null) try { connection.close(); } catch (SQLException e) { MechanicsCore.debug.log(LogLevel.ERROR, e); }
+        if (resultSet != null)
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                MechanicsCore.debug.log(LogLevel.ERROR, e);
+            }
+        if (statement != null)
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                MechanicsCore.debug.log(LogLevel.ERROR, e);
+            }
+        if (connection != null)
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                MechanicsCore.debug.log(LogLevel.ERROR, e);
+            }
     }
 
     /**
-     * Runs given SQL statement in async.
-     * Used to e.g. INSERT, UPDATE or DELETE.
+     * Runs given SQL statement in async. Used to e.g. INSERT, UPDATE or DELETE.
      *
      * @param forceSync should only be true on reload and disable
      * @param sql the sql statement to run
      */
     public void executeUpdate(boolean forceSync, String... sql) {
-        if (sql == null || sql.length == 0) throw new IllegalArgumentException("Empty statement");
+        if (sql == null || sql.length == 0)
+            throw new IllegalArgumentException("Empty statement");
 
         if (forceSync) {
             executeUpdate(sql);
@@ -105,18 +119,17 @@ public abstract class Database {
     }
 
     /**
-     * Runs given SQL query in async.
-     * Used to SELECT.
+     * Runs given SQL query in async. Used to SELECT.
      * <p>
-     * Keep in mind that the consumer is still ran in async.
-     * You should wrap the data first and then do what you
-     * wish with it using sync task.
+     * Keep in mind that the consumer is still ran in async. You should wrap the data first and then do
+     * what you wish with it using sync task.
      *
      * @param sql the sql query to run
      * @param consumer the consumer for result set of query
      */
     public void executeQuery(String sql, Consumer<ResultSet> consumer) {
-        if (sql == null || sql.isEmpty() || consumer == null) throw new IllegalArgumentException("Empty statement or null consumer");
+        if (sql == null || sql.isEmpty() || consumer == null)
+            throw new IllegalArgumentException("Empty statement or null consumer");
         new BukkitRunnable() {
             public void run() {
                 Connection connection = null;
@@ -137,8 +150,7 @@ public abstract class Database {
     }
 
     /**
-     * Simple method to print the result set to console.
-     * Requires LogLevel.DEBUG
+     * Simple method to print the result set to console. Requires LogLevel.DEBUG
      *
      * @param rs the query result
      */
@@ -163,9 +175,8 @@ public abstract class Database {
     }
 
     /**
-     * Allows getting connections to the database.
-     * When using MySQL this fetches one connection from the pool.
-     * When using SQLite this creates new connection in most cases.
+     * Allows getting connections to the database. When using MySQL this fetches one connection from the
+     * pool. When using SQLite this creates new connection in most cases.
      *
      * @return one connection to the database
      */

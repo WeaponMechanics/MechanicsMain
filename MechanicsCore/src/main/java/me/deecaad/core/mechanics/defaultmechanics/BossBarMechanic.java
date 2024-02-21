@@ -83,8 +83,7 @@ public class BossBarMechanic extends Mechanic {
         return "https://cjcrafter.gitbook.io/mechanics/mechanics/boss-bar";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         String title = data.of("Title").assertExists().getAdventure();
         BossBar.Color color = data.of("Color").getEnum(BossBar.Color.class, BossBar.Color.RED);

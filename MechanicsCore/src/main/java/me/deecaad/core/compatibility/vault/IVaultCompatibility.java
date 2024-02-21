@@ -6,10 +6,9 @@ import org.bukkit.entity.Player;
 public interface IVaultCompatibility {
 
     /**
-     * Gets the balance of the player. If the player does not
-     * yet have an account, a new one is created. If vault
-     * is not installed, this method will return 0. Getting
-     * 0 does not mean that vault is not installed!
+     * Gets the balance of the player. If the player does not yet have an account, a new one is created.
+     * If vault is not installed, this method will return 0. Getting 0 does not mean that vault is not
+     * installed!
      *
      * @param player The player to get the balance of
      * @return The balance of the player
@@ -17,9 +16,8 @@ public interface IVaultCompatibility {
     double getBalance(OfflinePlayer player);
 
     /**
-     * Sets the balance of a player utilizing withdraw and
-     * deposit methods. If the player does not yet have an
-     * account, a new one is created.
+     * Sets the balance of a player utilizing withdraw and deposit methods. If the player does not yet
+     * have an account, a new one is created.
      *
      * @param player The player to set the balance of
      * @param balance The balance to set
@@ -27,10 +25,8 @@ public interface IVaultCompatibility {
     void setBalance(OfflinePlayer player, double balance);
 
     /**
-     * Determines if the player has <code>amount</code> balance
-     * in their account. If the player does not yet have an
-     * account, this method will return false (No account is
-     * created)
+     * Determines if the player has <code>amount</code> balance in their account. If the player does not
+     * yet have an account, this method will return false (No account is created)
      *
      * @param player The player to check
      * @param amount The amount of money to check
@@ -39,9 +35,8 @@ public interface IVaultCompatibility {
     boolean hasBalance(OfflinePlayer player, double amount);
 
     /**
-     * Withdraws the given amount of money from the player.
-     * If the player does not have an account, a new one is
-     * created.
+     * Withdraws the given amount of money from the player. If the player does not have an account, a
+     * new one is created.
      *
      * @param player The player to take from
      * @param amount The amount of money to take
@@ -49,8 +44,8 @@ public interface IVaultCompatibility {
     void withdrawBalance(OfflinePlayer player, double amount);
 
     /**
-     * Gives the given amount of money to the player. If the
-     * player does not have an account, a new one is created.
+     * Gives the given amount of money to the player. If the player does not have an account, a new one
+     * is created.
      *
      * @param player The player to give money to
      * @param amount The amount of money to deposit
@@ -74,9 +69,8 @@ public interface IVaultCompatibility {
     String getSuffix(Player player);
 
     /**
-     * Gets all registered groups from the registered permission
-     * plugin. Useful for determining if player input for group
-     * is valid.
+     * Gets all registered groups from the registered permission plugin. Useful for determining if
+     * player input for group is valid.
      *
      * @return All registered groups
      */

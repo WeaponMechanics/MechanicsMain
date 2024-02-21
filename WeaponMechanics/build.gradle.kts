@@ -2,7 +2,7 @@ plugins {
     `maven-publish`
     signing
     id("io.codearte.nexus-staging") version "0.30.0"
-    id("me.deecaad.java-conventions")
+    id("me.deecaad.mechanics-project")
 }
 
 repositories {
@@ -26,11 +26,6 @@ dependencies {
     compileOnly(files(file("../lib/crackshot/CrackShotPlus.jar")))
     compileOnly(files(file("../lib/crackshot/CrackShot.jar")))
 }
-
-tasks.test {
-    useJUnitPlatform()
-}
-
 
 // Create javadocJar and sourcesJar tasks
 val javadocJar by tasks.registering(Jar::class) {

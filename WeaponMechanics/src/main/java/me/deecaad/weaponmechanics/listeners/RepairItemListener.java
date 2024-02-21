@@ -48,7 +48,6 @@ public class RepairItemListener implements Listener {
     }
     // end of singleton pattern
 
-
     public final Map<String, RepairKit> repairKits;
 
     private RepairItemListener() {
@@ -157,9 +156,8 @@ public class RepairItemListener implements Listener {
     }
 
     /**
-     * Handles repairing a completely broken item. Remember that when items are
-     * completely broken, their type and meta have been completely changed to
-     * a separate item.
+     * Handles repairing a completely broken item. Remember that when items are completely broken, their
+     * type and meta have been completely changed to a separate item.
      *
      * @param event The non-null click event involved.
      */
@@ -228,7 +226,8 @@ public class RepairItemListener implements Listener {
             else {
                 CustomTag.DURABILITY.setInteger(weapon, durability + availableRepair);
                 repairItem.setAmount(0);
-                if (kit.getBreakMechanics() != null) kit.getBreakMechanics().use(cast);
+                if (kit.getBreakMechanics() != null)
+                    kit.getBreakMechanics().use(cast);
             }
 
             if (kit.consumeOnUse) {
@@ -316,10 +315,9 @@ public class RepairItemListener implements Listener {
         CustomTag.DURABILITY.setInteger(weapon, Math.min(maxDurability, durability));
     }
 
-
     /**
-     * Repair-Kits are items that can be used to repair multiple different
-     * weapons/armors, instead of redefining a repair-item for every weapon.
+     * Repair-Kits are items that can be used to repair multiple different weapons/armors, instead of
+     * redefining a repair-item for every weapon.
      */
     public static class RepairKit implements Serializer<RepairKit> {
 
@@ -339,7 +337,7 @@ public class RepairItemListener implements Listener {
         }
 
         public RepairKit(ItemStack item, int totalDurability, int overrideMaxDurabilityLoss, boolean blacklist,
-                         Set<String> weapons, Set<String> armors, Mechanics breakMechanics, boolean consumeOnUse) {
+            Set<String> weapons, Set<String> armors, Mechanics breakMechanics, boolean consumeOnUse) {
             this.item = item;
             this.totalDurability = totalDurability;
             this.overrideMaxDurabilityLoss = overrideMaxDurabilityLoss;
@@ -387,8 +385,8 @@ public class RepairItemListener implements Listener {
         }
 
         /**
-         * Returns <code>true</code> if this repair-kit can be used on a weapon
-         * item with the given weapon-title.
+         * Returns <code>true</code> if this repair-kit can be used on a weapon item with the given
+         * weapon-title.
          *
          * @param weaponTitle The non-null weapon-title of the weapon.
          * @return true if this kit can repair the weapon.
@@ -398,8 +396,8 @@ public class RepairItemListener implements Listener {
         }
 
         /**
-         * Returns <code>true</code> if this repair-kit can be used on a piece
-         * of armor with the given armor-title.
+         * Returns <code>true</code> if this repair-kit can be used on a piece of armor with the given
+         * armor-title.
          *
          * @param armorTitle The non-null armor-title of the armor.
          * @return true if this kit can repair the armor.
@@ -408,8 +406,7 @@ public class RepairItemListener implements Listener {
             return isBlacklist() != armors.contains(armorTitle);
         }
 
-        @NotNull
-        @Override
+        @NotNull @Override
         public RepairKit serialize(@NotNull SerializeData data) throws SerializerException {
             String repairKitTitle = data.key.split("\\.")[0];
 

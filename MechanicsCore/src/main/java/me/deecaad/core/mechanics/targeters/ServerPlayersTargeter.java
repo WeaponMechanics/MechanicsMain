@@ -46,14 +46,12 @@ public class ServerPlayersTargeter extends Targeter {
         return "Server_Players";
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public String getWikiLink() {
         return "https://cjcrafter.gitbook.io/mechanics/targeters/serverplayers";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Targeter serialize(@NotNull SerializeData data) throws SerializerException {
         return applyParentArgs(data, new ServerPlayersTargeter());
     }

@@ -14,25 +14,24 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * This method should be called before a {@link me.deecaad.core.file.FileReader}
- * is instantiated by a plugin using MechanicsCore. This event allows us to
- * register our own {@link Serializer}s and {@link IValidator}s to be used
- * during data serialization.
+ * This method should be called before a {@link me.deecaad.core.file.FileReader} is instantiated by
+ * a plugin using MechanicsCore. This event allows us to register our own {@link Serializer}s and
+ * {@link IValidator}s to be used during data serialization.
  *
- * <p>Additionally, MechanicsCore listens for this method to add "common"
- * serializers. At the time of writing (30 July 2022), the following
- * serializers are added by MechanicsCore:
+ * <p>
+ * Additionally, MechanicsCore listens for this method to add "common" serializers. At the time of
+ * writing (30 July 2022), the following serializers are added by MechanicsCore:
  *
  * <ul>
- *     <li>{@link me.deecaad.core.file.serializers.ItemSerializer}</li>
- *     <li>{@link me.deecaad.core.file.serializers.ChanceSerializer}</li>
- *     <li>{@link me.deecaad.core.file.serializers.ColorSerializer}</li>
+ * <li>{@link me.deecaad.core.file.serializers.ItemSerializer}</li>
+ * <li>{@link me.deecaad.core.file.serializers.ChanceSerializer}</li>
+ * <li>{@link me.deecaad.core.file.serializers.ColorSerializer}</li>
  * </ul>
  *
- * <p>If you want to add, for example, the {@link me.deecaad.core.file.serializers.ItemSerializer}
- * <b>WITHOUT</b> the {@link me.deecaad.core.file.serializers.ColorSerializer},
- * then you will have to filter out the added serializers <b>AFTER</b> calling
- * this event.
+ * <p>
+ * If you want to add, for example, the {@link me.deecaad.core.file.serializers.ItemSerializer}
+ * <b>WITHOUT</b> the {@link me.deecaad.core.file.serializers.ColorSerializer}, then you will have
+ * to filter out the added serializers <b>AFTER</b> calling this event.
  */
 public class QueueSerializerEvent extends Event {
 
@@ -86,8 +85,7 @@ public class QueueSerializerEvent extends Event {
         this.validators.addAll(validators);
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public HandlerList getHandlers() {
         return HANDLER_LIST;
     }

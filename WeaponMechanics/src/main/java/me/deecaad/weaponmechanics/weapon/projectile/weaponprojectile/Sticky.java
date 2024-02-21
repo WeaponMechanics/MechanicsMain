@@ -55,8 +55,7 @@ public class Sticky implements Serializer<Sticky>, Cloneable {
     }
 
     @Override
-    @NotNull
-    public Sticky serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public Sticky serialize(@NotNull SerializeData data) throws SerializerException {
         ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class));
         ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
 

@@ -13,9 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * This event is called after {@link WeaponPreShootEvent} but right before
- * {@link WeaponShootEvent}. This can be used to modify mechanics, projectile
- * amount, etc.
+ * This event is called after {@link WeaponPreShootEvent} but right before {@link WeaponShootEvent}.
+ * This can be used to modify mechanics, projectile amount, etc.
  */
 public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable {
 
@@ -35,18 +34,17 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
     private boolean isCancelled;
 
     public PrepareWeaponShootEvent(
-            @NotNull String weaponTitle,
-            @NotNull ItemStack weaponStack,
-            @NotNull LivingEntity shooter,
-            @NotNull EquipmentSlot hand,
-            @Nullable Mechanics shootMechanics,
-            boolean resetFallDistance,
-            @NotNull Projectile projectile,
-            double projectileSpeed,
-            int projectileAmount,
-            @Nullable Spread spread,
-            @Nullable Recoil recoil
-    ) {
+        @NotNull String weaponTitle,
+        @NotNull ItemStack weaponStack,
+        @NotNull LivingEntity shooter,
+        @NotNull EquipmentSlot hand,
+        @Nullable Mechanics shootMechanics,
+        boolean resetFallDistance,
+        @NotNull Projectile projectile,
+        double projectileSpeed,
+        int projectileAmount,
+        @Nullable Spread spread,
+        @Nullable Recoil recoil) {
         super(weaponTitle, weaponStack, shooter, hand);
         this.shootMechanics = shootMechanics;
         this.resetFallDistance = resetFallDistance;
@@ -152,8 +150,7 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
         this.isCancelled = cancel;
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public HandlerList getHandlers() {
         return HANDLERS;
     }

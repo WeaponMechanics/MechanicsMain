@@ -59,7 +59,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
         Configuration config = getConfigurations();
 
         if (Bukkit.getPluginManager().getPlugin("VivecraftSpigot") != null
-                && entityWrapper.isPlayer() && VSE.isVive((Player) entityWrapper.getEntity())) {
+            && entityWrapper.isPlayer() && VSE.isVive((Player) entityWrapper.getEntity())) {
             // Don't try to use scope this way when player is in VR
             return false;
         }
@@ -79,7 +79,8 @@ public class ScopeHandler implements IValidator, TriggerListener {
         }
 
         Trigger trigger = config.getObject(weaponTitle + ".Scope.Trigger", Trigger.class);
-        if (trigger == null) return false;
+        if (trigger == null)
+            return false;
 
         LivingEntity shooter = entityWrapper.getEntity();
 
@@ -101,7 +102,8 @@ public class ScopeHandler implements IValidator, TriggerListener {
                 // Handle permissions
                 if (!hasPermission) {
                     if (shooter.getType() == EntityType.PLAYER) {
-                        PlaceholderMessage permissionMessage = new PlaceholderMessage(getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", ChatColor.RED + "You do not have permission to use " + weaponTitle));
+                        PlaceholderMessage permissionMessage = new PlaceholderMessage(getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", ChatColor.RED
+                            + "You do not have permission to use " + weaponTitle));
                         Component component = permissionMessage.replaceAndDeserialize(PlaceholderData.of((Player) shooter, weaponStack, weaponTitle, slot));
                         MechanicsCore.getPlugin().adventure.sender(shooter).sendMessage(component);
                     }
@@ -131,7 +133,8 @@ public class ScopeHandler implements IValidator, TriggerListener {
             // Handle permissions
             if (!hasPermission) {
                 if (shooter.getType() == EntityType.PLAYER) {
-                    PlaceholderMessage permissionMessage = new PlaceholderMessage(getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", ChatColor.RED + "You do not have permission to use " + weaponTitle));
+                    PlaceholderMessage permissionMessage = new PlaceholderMessage(getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", ChatColor.RED
+                        + "You do not have permission to use " + weaponTitle));
                     Component component = permissionMessage.replaceAndDeserialize(PlaceholderData.of((Player) shooter, weaponStack, weaponTitle, slot));
                     MechanicsCore.getPlugin().adventure.sender(shooter).sendMessage(component);
                 }
@@ -188,15 +191,16 @@ public class ScopeHandler implements IValidator, TriggerListener {
                 return true;
             } else {
                 debug.log(LogLevel.WARN, "For some reason zoom in was called on entity when it shouldn't have.",
-                        "Entity was already zooming so it should have stacked zoom, but now zoom stacking wasn't used at all?",
-                        "Ignoring this call, but this shouldn't even happen...",
-                        "Are you sure you have defined both Zoom_Stacking.Stacks for weapon " + weaponTitle + "?");
+                    "Entity was already zooming so it should have stacked zoom, but now zoom stacking wasn't used at all?",
+                    "Ignoring this call, but this shouldn't even happen...",
+                    "Are you sure you have defined both Zoom_Stacking.Stacks for weapon " + weaponTitle + "?");
                 return false;
             }
         }
 
         double zoomAmount = config.getDouble(weaponTitle + ".Scope.Zoom_Amount");
-        if (zoomAmount == 0) return false;
+        if (zoomAmount == 0)
+            return false;
 
         Mechanics scopeMechanics = config.getObject(weaponTitle + ".Scope.Mechanics", Mechanics.class);
 
@@ -227,7 +231,8 @@ public class ScopeHandler implements IValidator, TriggerListener {
      */
     private boolean zoomOut(ItemStack weaponStack, String weaponTitle, EntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
 
-        if (!zoomData.isZooming()) return false;
+        if (!zoomData.isZooming())
+            return false;
         LivingEntity entity = entityWrapper.getEntity();
 
         Mechanics zoomOffMechanics = getConfigurations().getObject(weaponTitle + ".Scope.Zoom_Off.Mechanics", Mechanics.class);

@@ -32,9 +32,8 @@ import java.util.*;
 import java.util.logging.Level;
 
 /**
- * This class triggers the {@link EntityEquipmentEvent}. This
- * event occurs when an {@link org.bukkit.inventory.EntityEquipment} is
- * changed.
+ * This class triggers the {@link EntityEquipmentEvent}. This event occurs when an
+ * {@link org.bukkit.inventory.EntityEquipment} is changed.
  */
 public class EquipListener implements Listener {
 
@@ -80,7 +79,7 @@ public class EquipListener implements Listener {
         inject(event.getPlayer());
     }
 
-    @EventHandler (ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onSwap(PlayerItemHeldEvent e) {
         Player player = e.getPlayer();
         Inventory inv = player.getInventory();
@@ -94,7 +93,7 @@ public class EquipListener implements Listener {
         }
     }
 
-    @EventHandler (ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onCommand(PlayerCommandPreprocessEvent event) {
 
         // The command line may look like "/give CJCrafter iron_ingot"
@@ -127,14 +126,14 @@ public class EquipListener implements Listener {
         }
     }
 
-    @EventHandler (ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onInventoryDrop(InventoryClickEvent event) {
         if (event.getSlot() == -999 && !isEmpty(event.getCursor()) && event.getWhoClicked() instanceof Player) {
             ignoreGiveDropPlayers.add((Player) event.getWhoClicked());
         }
     }
 
-    @EventHandler (priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onDrop(PlayerDropItemEvent event) {
         Player player = event.getPlayer();
 
@@ -159,7 +158,7 @@ public class EquipListener implements Listener {
         }
     }
 
-    @EventHandler (ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlace(BlockPlaceEvent event) {
         if (event.getItemInHand().getAmount() - 1 == 0) {
             Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(event.getPlayer(), event.getHand(), new ItemStack(event.getBlockPlaced().getType()), null));
@@ -234,10 +233,9 @@ public class EquipListener implements Listener {
     }
 
     /**
-     * Returns <code>true</code> when the inventory is modified asynchronously.
-     * Developers -- DO NOT MODIFY THE INVENTORY OF ANY ENTITY ASYNCHRONOUSLY.
-     * You obviously didn't look into spigot source code, or you just don't
-     * care about safety. This is an unsafe operation.
+     * Returns <code>true</code> when the inventory is modified asynchronously. Developers -- DO NOT
+     * MODIFY THE INVENTORY OF ANY ENTITY ASYNCHRONOUSLY. You obviously didn't look into spigot source
+     * code, or you just don't care about safety. This is an unsafe operation.
      *
      * @return true if the inventory was modified async.
      */
@@ -263,7 +261,7 @@ public class EquipListener implements Listener {
         // channel INSTEAD OF the WeaponMechanics support channel. It is not
         // our job to fix other people's bad code.
         plugin.getLogger().log(Level.SEVERE, String.format("Nag author(s) %s of %s-%s about their async inventory modification at %s",
-                desc.getAuthors(), desc.getName(), desc.getVersion(), location));
+            desc.getAuthors(), desc.getName(), desc.getVersion(), location));
         MechanicsCore.debug.error("Found a bad plugin '" + desc.getName() + "' for modifying inventory async.");
         return true;
     }

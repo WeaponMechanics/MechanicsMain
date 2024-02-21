@@ -20,7 +20,7 @@ public class MythicMobsArmedCondition implements IEntityCondition {
 
     public MythicMobsArmedCondition(MythicLineConfig config) {
         this.weapons = new HashSet<>();
-        String weapons = config.getString(new String[]{ "weapons", "weapon", "title", "weaponTitle", "w"}, "*");
+        String weapons = config.getString(new String[]{"weapons", "weapon", "title", "weaponTitle", "w"}, "*");
 
         this.wildcard = "*".equals(weapons.trim());
         if (wildcard)

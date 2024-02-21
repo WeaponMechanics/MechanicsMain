@@ -19,7 +19,8 @@ public class RightClickingCondition extends Condition {
 
     @Override
     protected boolean isAllowed0(CastData cast) {
-        if (cast.getTarget() == null) return false;
+        if (cast.getTarget() == null)
+            return false;
         EntityWrapper wrapper = WeaponMechanics.getEntityWrapper(cast.getTarget(), true);
 
         return wrapper != null && wrapper.isRightClicking();
@@ -35,8 +36,7 @@ public class RightClickingCondition extends Condition {
         return "https://cjcrafter.gitbook.io/mechanics/integrations/weaponmechanics#right-clicking";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         return applyParentArgs(data, new RightClickingCondition());
     }

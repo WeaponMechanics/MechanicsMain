@@ -1,6 +1,6 @@
 package me.deecaad.core.file;
 
-import me.deecaad.core.utils.StringUtil;
+import me.deecaad.core.utils.SerializerUtil;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
@@ -36,6 +36,6 @@ public class BukkitConfig implements ConfigLike {
 
     @Override
     public String getLocation(File localFile, String localPath) {
-        return StringUtil.foundAt(localFile, localPath);
+        return SerializerUtil.foundAt(localFile, localPath);
     }
 }

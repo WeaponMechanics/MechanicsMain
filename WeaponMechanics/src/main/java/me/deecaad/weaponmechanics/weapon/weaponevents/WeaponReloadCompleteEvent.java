@@ -18,8 +18,7 @@ public class WeaponReloadCompleteEvent extends WeaponEvent {
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

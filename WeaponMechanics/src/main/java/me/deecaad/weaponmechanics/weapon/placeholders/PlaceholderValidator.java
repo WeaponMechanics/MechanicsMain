@@ -22,7 +22,7 @@ public class PlaceholderValidator implements IValidator {
     @Override
     public void validate(Configuration configuration, SerializeData data) throws SerializerException {
 
-        for (String firearm : new String[] { "REVOLVER", "PUMP", "LEVER", "SLIDE" }) {
+        for (String firearm : new String[]{"REVOLVER", "PUMP", "LEVER", "SLIDE"}) {
             convert(configuration, "Placeholder_Symbols." + firearm + ".Open");
             convert(configuration, "Placeholder_Symbols." + firearm + ".Close");
         }

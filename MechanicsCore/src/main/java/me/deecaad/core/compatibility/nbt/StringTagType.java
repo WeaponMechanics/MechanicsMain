@@ -16,18 +16,15 @@ public class StringTagType implements ItemTagType<byte[], String[]> {
     private StringTagType() {
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Class<byte[]> getPrimitiveType() {
         return byte[].class;
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Class<String[]> getComplexType() {
         return String[].class;
     }
-
 
     @Override
     public byte @NotNull [] toPrimitive(String[] complex, @NotNull ItemTagAdapterContext context) {
@@ -39,7 +36,7 @@ public class StringTagType implements ItemTagType<byte[], String[]> {
             total += bytes.length;
         }
 
-        final ByteBuffer buffer = ByteBuffer.allocate(total + allBytes.length * 4); //stores integers
+        final ByteBuffer buffer = ByteBuffer.allocate(total + allBytes.length * 4); // stores integers
         for (final byte[] bytes : allBytes) {
             buffer.putInt(bytes.length);
             buffer.put(bytes);
@@ -54,9 +51,11 @@ public class StringTagType implements ItemTagType<byte[], String[]> {
         final List<String> list = new ArrayList<>();
 
         while (buffer.remaining() > 0) {
-            if (buffer.remaining() < 4) break;
+            if (buffer.remaining() < 4)
+                break;
             final int stringLength = buffer.getInt();
-            if (buffer.remaining() < stringLength) break;
+            if (buffer.remaining() < stringLength)
+                break;
 
             final byte[] stringBytes = new byte[stringLength];
             buffer.get(stringBytes);

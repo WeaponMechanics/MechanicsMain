@@ -54,8 +54,8 @@ public abstract class ActivateBlockMechanic<T extends BlockState> extends Mechan
                     double dzState = state.getZ() - origin.getZ();
 
                     if (dxState >= -searchRadius && dxState <= searchRadius &&
-                            dyState >= -searchRadius && dyState <= searchRadius &&
-                            dzState >= -searchRadius && dzState <= searchRadius) {
+                        dyState >= -searchRadius && dyState <= searchRadius &&
+                        dzState >= -searchRadius && dzState <= searchRadius) {
 
                         double squaredDistance = dxState * dxState + dyState * dyState + dzState * dzState;
                         closestEntities.add(new TileEntityDistance<>(blockClass.cast(state), squaredDistance));
@@ -80,9 +80,8 @@ public abstract class ActivateBlockMechanic<T extends BlockState> extends Mechan
     }
 
     private record TileEntityDistance<T>(
-            T tileEntity,
-            double squaredDistance
-    ) implements Comparable<TileEntityDistance<T>> {
+        T tileEntity,
+        double squaredDistance) implements Comparable<TileEntityDistance<T>> {
         @Override
         public int compareTo(TileEntityDistance<T> other) {
             return Double.compare(this.squaredDistance, other.squaredDistance);

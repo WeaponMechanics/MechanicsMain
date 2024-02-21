@@ -1,6 +1,7 @@
 package me.deecaad.core.file;
 
 import me.deecaad.core.mechanics.Registry;
+import me.deecaad.core.utils.SerializerUtil;
 import me.deecaad.core.utils.StringUtil;
 
 import java.io.File;
@@ -72,12 +73,12 @@ public class MapConfigLike implements ConfigLike {
     public String getLocation(File localFile, String localPath) {
         Holder holder = config.get(Registry.toKey(localPath));
         if (holder == null)
-            return StringUtil.foundAt(file, path);
+            return SerializerUtil.foundAt(file, path);
 
         String indent = "    ";
-        return StringUtil.foundAt(file, path) + "\n"
-                + indent + fullLine + "\n"
-                + StringUtil.repeat(" ", indent.length() + holder.index()) + "^";
+        return SerializerUtil.foundAt(file, path) + "\n"
+            + indent + fullLine + "\n"
+            + StringUtil.repeat(" ", indent.length() + holder.index()) + "^";
     }
 
     public record Holder(Object value, int index) {

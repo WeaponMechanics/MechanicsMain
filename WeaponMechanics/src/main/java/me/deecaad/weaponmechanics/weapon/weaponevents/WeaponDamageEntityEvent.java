@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.mechanics.Mechanics;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageDropoff;
 import me.deecaad.weaponmechanics.weapon.damage.DamageModifier;
@@ -20,9 +20,8 @@ import java.util.List;
 
 /**
  * Called whenever an entity is damaged by a weapon. For deaths, use the
- * {@link WeaponKillEntityEvent} instead. The calculations for final damage
- * can be quite extensive, so be user to change values before using
- * {@link #getFinalDamage()}.
+ * {@link WeaponKillEntityEvent} instead. The calculations for final damage can be quite extensive,
+ * so be user to change values before using {@link #getFinalDamage()}.
  */
 public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable {
 
@@ -56,12 +55,12 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     private boolean isCancelled;
 
     public WeaponDamageEntityEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser, EquipmentSlot hand,
-                                   LivingEntity victim, double baseDamage, boolean isBackstab, double critChance,
-                                   DamagePoint point, int armorDamage, int fireTicks, boolean isExplosion,
-                                   double distanceTravelled, DamageModifier damageModifier, Mechanics damageMechanics,
-                                   Mechanics killMechanics, Mechanics backstabMechanics, Mechanics criticalHitMechanics,
-                                   Mechanics headMechanics, Mechanics bodyMechanics, Mechanics armsMechanics,
-                                   Mechanics legsMechanics, Mechanics feetMechanics) {
+        LivingEntity victim, double baseDamage, boolean isBackstab, double critChance,
+        DamagePoint point, int armorDamage, int fireTicks, boolean isExplosion,
+        double distanceTravelled, DamageModifier damageModifier, Mechanics damageMechanics,
+        Mechanics killMechanics, Mechanics backstabMechanics, Mechanics criticalHitMechanics,
+        Mechanics headMechanics, Mechanics bodyMechanics, Mechanics armsMechanics,
+        Mechanics legsMechanics, Mechanics feetMechanics) {
 
         super(weaponTitle, weaponItem, weaponUser, hand);
 
@@ -111,8 +110,8 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     }
 
     /**
-     * Sets the base damage amount (before calculations). Resets the result
-     * of {@link #getFinalDamage()}.
+     * Sets the base damage amount (before calculations). Resets the result of
+     * {@link #getFinalDamage()}.
      *
      * @param baseDamage The base damage.
      */
@@ -140,10 +139,11 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
                 damage += dropoff.getDamage(distanceTravelled);
             if (point != null)
                 damage += config.getDouble(weaponTitle + ".Damage." + point.getReadable() + ".Bonus_Damage");
-            if (NumberUtil.chance(critChance)) {
+            if (RandomUtil.chance(critChance)) {
                 damage += critDamage;
                 wasCritical = true;
-            } if (isBackstab)
+            }
+            if (isBackstab)
                 damage += config.getDouble(weaponTitle + ".Damage.Backstab.Bonus_Damage");
 
             EntityWrapper victimWrapper = WeaponMechanics.getEntityWrapper(victim);
@@ -163,8 +163,8 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     }
 
     /**
-     * Overrides the final damage and skips calculations. Probably don't want
-     * to use this method, as it will skip headshots, backstabs, armor, etc.
+     * Overrides the final damage and skips calculations. Probably don't want to use this method, as it
+     * will skip headshots, backstabs, armor, etc.
      *
      * @param finalDamage The final damage amount.
      */
@@ -182,8 +182,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     }
 
     /**
-     * Sets whether this was a backstab. Resets the result of
-     * {@link #getFinalDamage()}.
+     * Sets whether this was a backstab. Resets the result of {@link #getFinalDamage()}.
      *
      * @param backstab true if this is a backstab.
      */
@@ -200,12 +199,11 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
      */
     @Deprecated(forRemoval = true)
     public boolean isCritical() {
-        return NumberUtil.chance(critChance);
+        return RandomUtil.chance(critChance);
     }
 
     /**
-     * Sets whether this is a critical hit. Resets the result of
-     * {@link #getFinalDamage()}.
+     * Sets whether this is a critical hit. Resets the result of {@link #getFinalDamage()}.
      *
      * @param isCritical true if this is a critical hit.
      */
@@ -243,8 +241,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     }
 
     /**
-     * Sets the bonus damage from a critical hit. Resets the result of
-     * {@link #getFinalDamage()}.
+     * Sets the bonus damage from a critical hit. Resets the result of {@link #getFinalDamage()}.
      *
      * @param critDamage The bonus damage from a critical hit.
      */
@@ -255,8 +252,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     }
 
     /**
-     * Sets the chance of a critical hit. Resets the result of
-     * {@link #getFinalDamage()}.
+     * Sets the chance of a critical hit. Resets the result of {@link #getFinalDamage()}.
      *
      * @param critChance The chance of a critical hit.
      */
@@ -276,8 +272,8 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     }
 
     /**
-     * Sets the body part that was hit (head/arms/chest/etc). Resets the result
-     * of {@link #getFinalDamage()}.
+     * Sets the body part that was hit (head/arms/chest/etc). Resets the result of
+     * {@link #getFinalDamage()}.
      *
      * @param point The nullable damage point.
      */
@@ -288,8 +284,8 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     }
 
     /**
-     * Returns the amount of damage to armor. There is a chance for this number
-     * to be ignored (if the armor has unbreaking).
+     * Returns the amount of damage to armor. There is a chance for this number to be ignored (if the
+     * armor has unbreaking).
      *
      * @return the amount of damage to armor.
      */
@@ -298,8 +294,8 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     }
 
     /**
-     * Sets the amount of damage to armor. There is a chance for this number to
-     * be ignored (if the armor has unbreaking).
+     * Sets the amount of damage to armor. There is a chance for this number to be ignored (if the armor
+     * has unbreaking).
      *
      * @param armorDamage Sets the amount of damage to the armor.
      */
@@ -461,8 +457,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

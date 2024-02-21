@@ -1,9 +1,6 @@
 package me.deecaad.core.file;
 
-import me.deecaad.core.utils.Debugger;
-import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtil;
+import me.deecaad.core.utils.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -26,8 +23,9 @@ public class SerializerException extends Exception {
 
     /**
      * @param serializer The serializer that generated the exception.
-     * @param messages   The messages telling the user the error and how to fix it.
-     * @param location   The file + path location to the issue {@link StringUtil#foundAt(File, String)}
+     * @param messages The messages telling the user the error and how to fix it.
+     * @param location The file + path location to the issue
+     *        {@link SerializerUtil#foundAt(File, String)}
      */
     public SerializerException(@NotNull Serializer<?> serializer, String[] messages, @NotNull String location) {
         this.messages = messages;
@@ -86,7 +84,6 @@ public class SerializerException extends Exception {
         return this;
     }
 
-
     public static String forValue(Object value) {
         return "Found value: " + value;
     }
@@ -119,12 +116,12 @@ public class SerializerException extends Exception {
         // but it is important for the USER to know that there are more than 5 or 6.
         ArrayList<String> arr = new ArrayList<>();
         options.forEach(arr::add);
-        int[] table = StringUtil.mapToCharTable(actual);
+        int[] table = StringUtil.toCharTable(actual);
 
         // Sort the list based on what is most similar to 'actual'.
         arr.sort((a, b) -> {
-            int[] localA = StringUtil.mapToCharTable(a);
-            int[] localB = StringUtil.mapToCharTable(b);
+            int[] localA = StringUtil.toCharTable(a);
+            int[] localB = StringUtil.toCharTable(b);
 
             int differenceA = Math.abs(actual.length() - a.length());
             int differenceB = Math.abs(actual.length() - b.length());

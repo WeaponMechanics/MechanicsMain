@@ -38,12 +38,13 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
     }
 
     /**
-     * Checks whether or not weapon stack is matching with the other item stack.
-     * If this returns true, then other item should he converted to weapon stack
+     * Checks whether or not weapon stack is matching with the other item stack. If this returns true,
+     * then other item should he converted to weapon stack
      *
      * @param weaponStack the weapon item
      * @param other the other item
-     * @return true only if weapon stack matches with other item enough (depending on this converter variable values)
+     * @return true only if weapon stack matches with other item enough (depending on this converter
+     *         variable values)
      */
     public boolean isMatch(ItemStack weaponStack, ItemStack other) {
         double version = CompatibilityAPI.getVersion();
@@ -62,13 +63,13 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
 
         if (this.name) {
             if (weaponMeta.hasDisplayName() != otherMeta.hasDisplayName()
-                    || (weaponMeta.hasDisplayName() && !weaponMeta.getDisplayName().equals(otherMeta.getDisplayName()))) {
+                || (weaponMeta.hasDisplayName() && !weaponMeta.getDisplayName().equals(otherMeta.getDisplayName()))) {
                 return false;
             }
         }
         if (this.lore) {
             if (weaponMeta.hasLore() != otherMeta.hasLore()
-                    || (weaponMeta.hasLore() && !weaponMeta.getLore().equals(otherMeta.getLore()))) {
+                || (weaponMeta.hasLore() && !weaponMeta.getLore().equals(otherMeta.getLore()))) {
                 return false;
             }
         }
@@ -86,7 +87,7 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
             // OR
             // If weapon and other enchantments doesn't match
             return weaponMeta.hasEnchants() == otherMeta.hasEnchants()
-                    && (!weaponMeta.hasEnchants() || equals(weaponMeta.getEnchants(), otherMeta.getEnchants()));
+                && (!weaponMeta.hasEnchants() || equals(weaponMeta.getEnchants(), otherMeta.getEnchants()));
         }
         return true;
     }
@@ -129,8 +130,8 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
 
         if (!type && !name && !lore && !enchantments && !cmd) {
             throw data.exception(null, "'Type', 'Name', 'Lore', 'Enchantments', 'Custom_Model_Data' are all 'false'",
-                    "One of them should be 'true' to allow weapon conversion",
-                    "If you want to remove the weapon conversion feature, remove the '" + getKeyword() + "' option from config");
+                "One of them should be 'true' to allow weapon conversion",
+                "If you want to remove the weapon conversion feature, remove the '" + getKeyword() + "' option from config");
         }
 
         if (cmd && ReflectionUtil.getMCVersion() < 14) {

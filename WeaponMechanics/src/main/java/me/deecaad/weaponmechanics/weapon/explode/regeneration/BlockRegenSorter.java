@@ -7,9 +7,8 @@ import org.bukkit.block.Block;
 import java.util.Comparator;
 
 /**
- * This class outlines a sorter to define the order that blocks should
- * regenerate from an explosion. For most cases, generating the lowest layers
- * before the highest layers is a good idea.
+ * This class outlines a sorter to define the order that blocks should regenerate from an explosion.
+ * For most cases, generating the lowest layers before the highest layers is a good idea.
  */
 public abstract class BlockRegenSorter implements Comparator<Block> {
 

@@ -16,8 +16,7 @@ public class Location2d extends Location {
         super(world, x, 0.0, z, yaw, pitch);
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Block getBlock() {
         throw new Location2Exception();
     }

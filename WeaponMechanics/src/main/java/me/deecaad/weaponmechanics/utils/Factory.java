@@ -19,8 +19,8 @@ public class Factory<T> {
     private final Class<T> clazz;
 
     /**
-     * Only subclasses should be able to instantiate this class. It does not
-     * make sense to instantiate a factory otherwise.
+     * Only subclasses should be able to instantiate this class. It does not make sense to instantiate a
+     * factory otherwise.
      */
     protected Factory(@NotNull Class<T> clazz) {
         this.map = new HashMap<>();
@@ -28,15 +28,14 @@ public class Factory<T> {
     }
 
     /**
-     * Returns a constructed object of who inherits from <code>T</code>,
-     * constructed from the given <code>arguments</code>. In order to add a
-     * new type, use {@link #set(String, Arguments)}.
+     * Returns a constructed object of who inherits from <code>T</code>, constructed from the given
+     * <code>arguments</code>. In order to add a new type, use {@link #set(String, Arguments)}.
      *
-     * <p>The given <code>arguments</code> <i>MUST</i> explicitly contain
-     * <i>ALL</i> objects defined by the {@link Arguments#arguments}. If an
-     * argument is missing, a {@link SerializerException} is thrown. The given
-     * objects are type-casted to their expected type. Ensure that the
-     * constructors for your defined arguments exist.
+     * <p>
+     * The given <code>arguments</code> <i>MUST</i> explicitly contain <i>ALL</i> objects defined by the
+     * {@link Arguments#arguments}. If an argument is missing, a {@link SerializerException} is thrown.
+     * The given objects are type-casted to their expected type. Ensure that the constructors for your
+     * defined arguments exist.
      *
      * @param key The non-null, non-case-sensitive name of the class to instantiate.
      * @param arguments The non-null map of arguments.
@@ -49,7 +48,7 @@ public class Factory<T> {
         Arguments args = map.get(key);
 
         if (args == null) {
-            String name = StringUtil.splitCapitalLetters(getClass().getSimpleName())[0];
+            String name = StringUtil.splitCapitalLetters(getClass().getSimpleName()).get(0);
             throw new SerializerOptionsException(name, clazz.getSimpleName(), getOptions(), key, "FILL_ME");
         }
 
@@ -62,9 +61,9 @@ public class Factory<T> {
             Class<?> clazz = args.argumentTypes[i];
 
             if (!arguments.containsKey(argument)) {
-                String name = StringUtil.splitCapitalLetters(args.manufacturedType.getSimpleName())[0];
+                String name = StringUtil.splitCapitalLetters(args.manufacturedType.getSimpleName()).get(0);
                 throw new SerializerMissingKeyException(name, argument, "FILL_ME")
-                        .addMessage("You specified: " + arguments);
+                    .addMessage("You specified: " + arguments);
             }
 
             // The Integer.class should be allowed to be assigned to a Double.class
@@ -79,7 +78,7 @@ public class Factory<T> {
                     else
                         throw new NumberFormatException();
                 } catch (NumberFormatException ex) {
-                    String name = StringUtil.splitCapitalLetters(args.manufacturedType.getSimpleName())[0];
+                    String name = StringUtil.splitCapitalLetters(args.manufacturedType.getSimpleName()).get(0);
                     throw new SerializerTypeException(name, clazz, arguments.get(argument).getClass(), arguments.get(argument), "FILL_ME");
                 }
             } else {

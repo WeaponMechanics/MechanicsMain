@@ -13,14 +13,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Called whenever a projectile hits an entity. This may be called
- * multiple times for some projectiles (that use
- * {@link me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Through}
- * or {@link me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Bouncy}).
+ * Called whenever a projectile hits an entity. This may be called multiple times for some
+ * projectiles (that use
+ * {@link me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Through} or
+ * {@link me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Bouncy}).
  *
- * <p>For more control over the projectile, consider using a
- * {@link me.deecaad.weaponmechanics.weapon.projectile.ProjectileScript}
- * instead.
+ * <p>
+ * For more control over the projectile, consider using a
+ * {@link me.deecaad.weaponmechanics.weapon.projectile.ProjectileScript} instead.
  */
 public class ProjectileHitEntityEvent extends ProjectileEvent implements Cancellable {
 
@@ -40,13 +40,11 @@ public class ProjectileHitEntityEvent extends ProjectileEvent implements Cancell
         this.isBackStab = isBackStab;
     }
 
-    @NotNull
-    public LivingEntity getEntity() {
+    @NotNull public LivingEntity getEntity() {
         return entity;
     }
 
-    @NotNull
-    public EntityType getEntityType() {
+    @NotNull public EntityType getEntityType() {
         return entity.getType();
     }
 
@@ -91,8 +89,7 @@ public class ProjectileHitEntityEvent extends ProjectileEvent implements Cancell
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

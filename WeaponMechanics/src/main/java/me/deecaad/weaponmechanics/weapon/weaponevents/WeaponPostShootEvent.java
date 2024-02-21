@@ -7,9 +7,9 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Called after all the {@link WeaponShootEvent}s are called. This is useful
- * for weapons like shotguns, which fire multiple pellets in the same shot (and
- * therefor call multiple {@link WeaponShootEvent}s).
+ * Called after all the {@link WeaponShootEvent}s are called. This is useful for weapons like
+ * shotguns, which fire multiple pellets in the same shot (and therefor call multiple
+ * {@link WeaponShootEvent}s).
  */
 public class WeaponPostShootEvent extends WeaponEvent {
 
@@ -31,8 +31,7 @@ public class WeaponPostShootEvent extends WeaponEvent {
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

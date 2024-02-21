@@ -61,11 +61,11 @@ public class MechanicsCore extends JavaPlugin {
                 JarSearcher searcher = new JarSearcher(new JarFile(getFile()));
 
                 searcher.findAllSubclasses(Mechanic.class, getClassLoader(), true)
-                        .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.MECHANICS::add);
+                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.MECHANICS::add);
                 searcher.findAllSubclasses(Targeter.class, getClassLoader(), true)
-                        .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.TARGETERS::add);
+                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.TARGETERS::add);
                 searcher.findAllSubclasses(Condition.class, getClassLoader(), true)
-                        .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
+                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
 
                 // Sculk methods were added in 1.20.1
                 if (ReflectionUtil.getMCVersion() >= 20) {
@@ -94,7 +94,7 @@ public class MechanicsCore extends JavaPlugin {
 
                 // Placeholders
                 searcher.findAllSubclasses(PlaceholderHandler.class, getClassLoader(), true)
-                        .stream().map(ReflectionUtil::newInstance).forEach(PlaceholderHandler.REGISTRY::add);
+                    .stream().map(ReflectionUtil::newInstance).forEach(PlaceholderHandler.REGISTRY::add);
 
             } catch (IOException ex) {
                 debug.log(LogLevel.ERROR, "Error while searching Jar", ex);
@@ -217,7 +217,6 @@ public class MechanicsCore extends JavaPlugin {
         }
         return added;
     }
-
 
     /**
      * @return the MechanicsCore plugin instance

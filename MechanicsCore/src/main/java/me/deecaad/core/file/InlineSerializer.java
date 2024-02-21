@@ -28,9 +28,8 @@ public interface InlineSerializer<T> extends Serializer<T>, Keyable {
     }
 
     /**
-     * Reformats the <u>Upper_Snake_Case</u> YAML config key to
-     * <u>UpperCamelCase</u> inline key. This helps make inline serialization
-     * less sensitive to errors.
+     * Reformats the <u>Upper_Snake_Case</u> YAML config key to <u>UpperCamelCase</u> inline key. This
+     * helps make inline serialization less sensitive to errors.
      *
      * @return The non-null lowerCamelCase keyword.
      */
@@ -42,10 +41,9 @@ public interface InlineSerializer<T> extends Serializer<T>, Keyable {
         }
 
         String[] split = keyword.split("_");
-        //split[0] = split[0].toLowerCase(Locale.ROOT); // lower camel case
+        // split[0] = split[0].toLowerCase(Locale.ROOT); // lower camel case
         return String.join("", split);
     }
-
 
     static Map<String, MapConfigLike.Holder> inlineFormat(String line) throws FormatException {
 
@@ -85,16 +83,16 @@ public interface InlineSerializer<T> extends Serializer<T>, Keyable {
         // Every opening '{' needs a closing '}'
         if (curlyBrackets != 0) {
             int index = trailingWhitespace + (curlyBrackets > 0
-                    ? index(line, '{', 0, line.lastIndexOf('}'), 1)
-                    : index(line, '}', line.length() - 1, line.indexOf('{'), -1));
+                ? index(line, '{', 0, line.lastIndexOf('}'), 1)
+                : index(line, '}', line.length() - 1, line.indexOf('{'), -1));
             throw new FormatException(index, "Missing" + (curlyBrackets > 0 ? " closing '}'" : " opening '{'"));
         }
 
         // Every opening '[' needs a closing ']'
         if (squareBrackets != 0) {
             int index = trailingWhitespace + (squareBrackets > 0
-                    ? index(line, '[', 0, line.lastIndexOf(']'), 1)
-                    : index(line, ']', line.length() - 1, line.indexOf('['), -1));
+                ? index(line, '[', 0, line.lastIndexOf(']'), 1)
+                : index(line, ']', line.length() - 1, line.indexOf('['), -1));
             throw new FormatException(index, "Missing" + (squareBrackets > 0 ? " closing ']'" : " opening '['"));
         }
 
@@ -122,7 +120,7 @@ public interface InlineSerializer<T> extends Serializer<T>, Keyable {
             // When a character is escaped, we should skip the special parsing.
             char c = line.charAt(i);
             if (StringUtil.isEscaped(line, i)) {
-                if (StringUtil.isEscapedAndInclude(line, i))
+                if (StringUtil.isEscaped(line, i, true))
                     value.append(c);
 
                 // If the escaped character was the last character, we need an
@@ -214,7 +212,7 @@ public interface InlineSerializer<T> extends Serializer<T>, Keyable {
             // When a character is escaped, we should skip the special parsing.
             char c = line.charAt(i);
             if (StringUtil.isEscaped(line, i)) {
-                if (StringUtil.isEscapedAndInclude(line, i))
+                if (StringUtil.isEscaped(line, i, true))
                     value.append(c);
 
                 // If the escaped character was the last character, we need an
@@ -303,8 +301,8 @@ public interface InlineSerializer<T> extends Serializer<T>, Keyable {
     }
 
     /**
-     * This exception is used whenever the user inputs an improperly formatted
-     * string. This is basically a Syntax Error.
+     * This exception is used whenever the user inputs an improperly formatted string. This is basically
+     * a Syntax Error.
      */
     class FormatException extends Exception {
         private final int index;

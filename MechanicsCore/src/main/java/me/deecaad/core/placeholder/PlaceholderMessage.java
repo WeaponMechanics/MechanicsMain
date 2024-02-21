@@ -17,8 +17,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Represents a message template that can contain placeholders.
- * This class is used to process and replace these placeholders with desired values.
+ * Represents a message template that can contain placeholders. This class is used to process and
+ * replace these placeholders with desired values.
  */
 public class PlaceholderMessage {
 
@@ -31,10 +31,11 @@ public class PlaceholderMessage {
     /**
      * Constructs a new PlaceholderMessage based on the provided template string.
      *
-     * <p>Custom placeholders (placeholders not registered with a {@link PlaceholderHandler})
-     * may be used if you add them.
+     * <p>
+     * Custom placeholders (placeholders not registered with a {@link PlaceholderHandler}) may be used
+     * if you add them.
      *
-     * @param template                  The template string containing potential placeholders.
+     * @param template The template string containing potential placeholders.
      */
     public PlaceholderMessage(@NotNull String template) {
         Set<String> presentPlaceholders = new LinkedHashSet<>();
@@ -74,9 +75,8 @@ public class PlaceholderMessage {
     }
 
     /**
-     * Generates a map where the keys are the identified placeholders in the template,
-     * and the values are all set to null. The placeholders are added to the map stored
-     * in <code>data</code>.
+     * Generates a map where the keys are the identified placeholders in the template, and the values
+     * are all set to null. The placeholders are added to the map stored in <code>data</code>.
      *
      * @param data The data to pass to the placeholder handlers.
      */

@@ -10,6 +10,7 @@ public class VersionSetup {
 
     /**
      * Example return values:
+     * 
      * <pre>
      * v1_8_R2
      * v1_11_R1
@@ -30,6 +31,7 @@ public class VersionSetup {
     /**
      *
      * Example return values when version string is:
+     * 
      * <pre>{@code
      * v1_8_R2 -> 1.082
      * v1_11_R1 -> 1.111

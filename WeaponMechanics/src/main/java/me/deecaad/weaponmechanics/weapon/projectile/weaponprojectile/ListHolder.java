@@ -37,11 +37,11 @@ public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> 
      * @param key the key
      * @return the speed modifier of key or null if it's not valid
      */
-    @Nullable
-    public Double isValid(T key) {
+    @Nullable public Double isValid(T key) {
         if (allowAny) {
             // Since all values are valid, simply return speed modifier
-            if (list == null) return defaultSpeedMultiplier;
+            if (list == null)
+                return defaultSpeedMultiplier;
 
             // The value of key might be null if it doesn't have value defined
             Double value = list.getOrDefault(key, defaultSpeedMultiplier);
@@ -60,7 +60,8 @@ public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> 
         // If whitelist and list DOES NOT contain key
         // -> Can't use
         // Else return speed modifier
-        if (!list.containsKey(key)) return null;
+        if (!list.containsKey(key))
+            return null;
 
         // The value of key might be null if it doesn't have value defined
         Double value = list.getOrDefault(key, defaultSpeedMultiplier);
@@ -68,15 +69,14 @@ public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> 
     }
 
     @Override
-    @NotNull
-    public ListHolder<T> serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public ListHolder<T> serialize(@NotNull SerializeData data) throws SerializerException {
         boolean allowAny = data.of("Allow_Any").getBool(false);
 
         Map<T, Double> mapList = new HashMap<>();
         List<String[]> list = data.ofList("List")
-                .addArgument(clazz, true)
-                .addArgument(double.class, false)
-                .assertList().get();
+            .addArgument(clazz, true)
+            .addArgument(double.class, false)
+            .assertList().get();
 
         for (String[] split : list) {
             Double speedMultiplier = null;
@@ -97,7 +97,7 @@ public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> 
         if (mapList.isEmpty()) {
             if (!allowAny) {
                 throw data.exception(null, "'List' found without any valid options",
-                        "This happens when 'Allow_Any: false' and 'List' is empty");
+                    "This happens when 'Allow_Any: false' and 'List' is empty");
             }
             mapList = null;
         }

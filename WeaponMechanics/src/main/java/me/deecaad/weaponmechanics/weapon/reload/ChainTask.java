@@ -40,7 +40,8 @@ public abstract class ChainTask extends BukkitRunnable {
     public void run() {
         task();
 
-        if (nextTask == null) return;
+        if (nextTask == null)
+            return;
         this.nextTask.runTaskLater(WeaponMechanics.getPlugin(), this.nextTask.getDelay());
         this.nextTask.setup();
     }

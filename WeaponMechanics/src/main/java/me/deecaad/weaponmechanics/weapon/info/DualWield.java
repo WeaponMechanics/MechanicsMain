@@ -55,9 +55,8 @@ public class DualWield implements Serializer<DualWield> {
     }
 
     /**
-     * Simply sends dual wield denied message for player.
-     * Message is only sent if dual wield check cause is same as
-     * weapon's shoot, scope or reload trigger type.
+     * Simply sends dual wield denied message for player. Message is only sent if dual wield check cause
+     * is same as weapon's shoot, scope or reload trigger type.
      *
      * @param checkCause the cause of this dual wield check
      * @param player the player for who to send
@@ -66,11 +65,12 @@ public class DualWield implements Serializer<DualWield> {
     public void sendDeniedMessage(TriggerType checkCause, @Nullable Player player, String weaponTitle) {
         if (player != null) {
             Configuration config = WeaponMechanics.getConfigurations();
-            for (String type : new String[]{ ".Shoot", ".Reload", ".Scope" }) {
+            for (String type : new String[]{".Shoot", ".Reload", ".Scope"}) {
                 Trigger trigger = config.getObject(weaponTitle + type + ".Trigger", Trigger.class);
                 if (trigger != null && (trigger.getMainhand() == checkCause || trigger.getOffhand() == checkCause)) {
 
-                    if (mechanics != null) mechanics.use(new CastData(player, weaponTitle, null));
+                    if (mechanics != null)
+                        mechanics.use(new CastData(player, weaponTitle, null));
 
                     break;
                 }
@@ -84,11 +84,10 @@ public class DualWield implements Serializer<DualWield> {
     }
 
     @Override
-    @NotNull
-    public DualWield serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public DualWield serialize(@NotNull SerializeData data) throws SerializerException {
         List<String[]> weaponsList = data.ofList("Weapons")
-                .addArgument(String.class, true, true)
-                .assertExists().assertList().get();
+            .addArgument(String.class, true, true)
+            .assertExists().assertList().get();
         Set<String> weapons = new HashSet<>();
 
         // Saves weapons in lower case

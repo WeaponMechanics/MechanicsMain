@@ -15,7 +15,8 @@ public class HitBoxValidator implements IValidator {
     /**
      * Default constructor for validator
      */
-    public HitBoxValidator() { }
+    public HitBoxValidator() {
+    }
 
     @Override
     public String getKeyword() {
@@ -25,7 +26,8 @@ public class HitBoxValidator implements IValidator {
     @Override
     public void validate(Configuration configuration, SerializeData data) throws SerializerException {
         for (EntityType entityType : EntityType.values()) {
-            if (!entityType.isAlive()) continue;
+            if (!entityType.isAlive())
+                continue;
 
             double head = data.of(entityType.name() + "." + DamagePoint.HEAD.name()).getDouble(-1.0);
             double body = data.of(entityType.name() + "." + DamagePoint.BODY.name()).getDouble(-1.0);
@@ -34,8 +36,8 @@ public class HitBoxValidator implements IValidator {
 
             if (head < 0 || body < 0 || legs < 0 || feet < 0) {
                 debug.log(LogLevel.WARN, "Entity type " + entityType.name() + " is missing some of its damage point values, please add it",
-                        "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
-                        "Its missing one of these: HEAD, BODY, LEGS or FEET");
+                    "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
+                    "Its missing one of these: HEAD, BODY, LEGS or FEET");
 
                 putDefaults(configuration, entityType);
                 continue;
@@ -44,8 +46,8 @@ public class HitBoxValidator implements IValidator {
             boolean horizontalEntity = configuration.getBool("Entity_Hitboxes." + entityType.name() + ".Horizontal_Entity", false);
             if (horizontalEntity && head > 0.0) {
                 debug.log(LogLevel.WARN, "Entity type " + entityType.name() + " hit box had horizontal entity true and HEAD was not 0.0",
-                        "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
-                        "When using horizontal entity true HEAD should be set to 0.0!");
+                    "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
+                    "When using horizontal entity true HEAD should be set to 0.0!");
 
                 // Set default value to BODY
                 putDefaults(configuration, entityType);
@@ -55,8 +57,8 @@ public class HitBoxValidator implements IValidator {
             double sumOf = head + body + legs + feet;
             if (Math.abs(sumOf - 1.0) > 1e-5) { // If the numbers are not super close together (floating point issues)
                 debug.log(LogLevel.WARN, "Entity type " + entityType.name() + " hit box values sum doesn't match 1.0",
-                        "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
-                        "Now the total sum was " + sumOf + ", please make it 1.0.");
+                    "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
+                    "Now the total sum was " + sumOf + ", please make it 1.0.");
 
                 putDefaults(configuration, entityType);
             }

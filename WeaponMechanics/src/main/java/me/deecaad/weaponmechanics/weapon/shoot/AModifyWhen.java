@@ -25,9 +25,9 @@ public abstract class AModifyWhen implements Serializer<AModifyWhen> {
     }
 
     public AModifyWhen(NumberModifier always, NumberModifier zooming, NumberModifier sneaking,
-                       NumberModifier crawling, NumberModifier standing, NumberModifier walking,
-                       NumberModifier riding, NumberModifier sprinting, NumberModifier dualWielding,
-                       NumberModifier swimming, NumberModifier inMidair, NumberModifier gliding) {
+        NumberModifier crawling, NumberModifier standing, NumberModifier walking,
+        NumberModifier riding, NumberModifier sprinting, NumberModifier dualWielding,
+        NumberModifier swimming, NumberModifier inMidair, NumberModifier gliding) {
         this.always = always;
         this.zooming = zooming;
         this.sneaking = sneaking;

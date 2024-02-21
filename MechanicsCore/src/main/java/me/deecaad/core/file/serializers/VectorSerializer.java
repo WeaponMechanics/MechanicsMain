@@ -9,18 +9,19 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.function.Function;
 
 /**
  * Parse a vector from a string. Add ~ for relative input.
  *
  * <ul>
- *     <li>0</li>
- *     <li>r1.0</li>
- *     <li>1 1 1</li>
- *     <li>left</li>
- *     <li>down</li>
- *     <li>~1 1 0</li>
+ * <li>0</li>
+ * <li>r1.0</li>
+ * <li>1 1 1</li>
+ * <li>left</li>
+ * <li>down</li>
+ * <li>~1 1 0</li>
  * </ul>
  */
 public class VectorSerializer implements Serializer<VectorSerializer> {
@@ -50,15 +51,15 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
     }
 
     /**
-     * Returns the vector using the given entity to determine relative
-     * directions. If the given entity is null, relativity is ignored.
+     * Returns the vector using the given entity to determine relative directions. If the given entity
+     * is null, relativity is ignored.
      *
      * @param entity The nullable entity.
      * @return The non-null vector.
      */
     public Vector getVector(LivingEntity entity) {
         if (randomLength >= 0)
-            return VectorUtil.random(randomLength);
+            return RandomUtil.onUnitSphere().multiply(randomLength);
 
         if (direction != null)
             return direction.getRelative(entity == null ? null : entity.getLocation().getDirection());
@@ -74,15 +75,15 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
     }
 
     /**
-     * Returns the vector using the given vector to determine relative
-     * directions. If the given entity is null, relativity is ignored.
+     * Returns the vector using the given vector to determine relative directions. If the given entity
+     * is null, relativity is ignored.
      *
      * @param view The nullable relative direction.
      * @return The non-null vector.
      */
     public Vector getVector(Vector view) {
         if (randomLength >= 0)
-            return VectorUtil.random(randomLength);
+            return RandomUtil.onUnitSphere().multiply(randomLength);
 
         if (direction != null)
             return direction.getRelative(view);
@@ -99,8 +100,7 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
         return raw;
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public VectorSerializer serialize(@NotNull SerializeData data) throws SerializerException {
         String input = data.of().assertExists().get().toString().trim();
 
@@ -130,16 +130,16 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
             if (relative)
                 input = input.substring(1);
 
-            String[] split = StringUtil.split(input);
-            if (split.length != 3) {
-                throw data.exception(null, "Expected 3 numbers in left~up~forward format, instead got '" + split.length + "'",
-                        SerializerException.forValue(input));
+            List<String> split = StringUtil.split(input);
+            if (split.size() != 3) {
+                throw data.exception(null, "Expected 3 numbers in left~up~forward format, instead got '" + split.size() + "'",
+                    SerializerException.forValue(input));
             }
 
             try {
-                double x = Double.parseDouble(split[0]);
-                double y = Double.parseDouble(split[1]);
-                double z = Double.parseDouble(split[2]);
+                double x = Double.parseDouble(split.get(0));
+                double y = Double.parseDouble(split.get(1));
+                double z = Double.parseDouble(split.get(2));
 
                 raw = new Vector(x, y, z);
             } catch (NumberFormatException ex) {
@@ -150,10 +150,9 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
         return new VectorSerializer(randomLength, direction, relative, raw);
     }
 
-
     /**
-     * Helper method to always return a raw vector from a vector serializer.
-     * This is helpful for zeroing input.
+     * Helper method to always return a raw vector from a vector serializer. This is helpful for zeroing
+     * input.
      *
      * @param vector The non-null vector.
      * @return The wrapped vector.

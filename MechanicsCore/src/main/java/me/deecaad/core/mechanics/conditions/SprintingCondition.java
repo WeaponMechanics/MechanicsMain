@@ -21,8 +21,8 @@ public class SprintingCondition extends Condition {
     protected boolean isAllowed0(CastData cast) {
         LivingEntity target = cast.getTarget();
         return target != null
-                && target.getType() == EntityType.PLAYER
-                && ((Player) target).isSprinting();
+            && target.getType() == EntityType.PLAYER
+            && ((Player) target).isSprinting();
     }
 
     @Override
@@ -35,8 +35,7 @@ public class SprintingCondition extends Condition {
         return "https://cjcrafter.gitbook.io/mechanics/conditions/sprinting";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         return applyParentArgs(data, new SprintingCondition());
     }

@@ -37,13 +37,14 @@ public class Quaternion implements Cloneable {
     }
 
     /**
-     * Get the Euler Angles (in radians). You can get the yaw, pitch, and roll
-     * by accessing the returned vector's x, y, and z components respectively.
-     * In general, converting to euler angles from quaternions (and vice versa)
-     * is a slow operation, and should be avoided if possible.
+     * Get the Euler Angles (in radians). You can get the yaw, pitch, and roll by accessing the returned
+     * vector's x, y, and z components respectively. In general, converting to euler angles from
+     * quaternions (and vice versa) is a slow operation, and should be avoided if possible.
      *
      * @return The yaw, pitch, and roll, respectively.
-     * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm">Euler Angles</a>
+     * @see <a href=
+     *      "http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm">Euler
+     *      Angles</a>
      */
     public Vector getEulerAngles() {
         Vector temp = new Vector();
@@ -56,11 +57,11 @@ public class Quaternion implements Cloneable {
         double test = x * y + z * w;
         if (test > 0.499 * unit) { // singularity at north pole
             temp.setY(2 * Math.atan2(x, w));
-            temp.setZ(VectorUtil.HALF_PI);
+            temp.setZ(NumberUtil.HALF_PI);
             temp.setX(0);
         } else if (test < -0.499 * unit) { // singularity at south pole
             temp.setY(-2 * Math.atan2(x, w));
-            temp.setZ(-VectorUtil.HALF_PI);
+            temp.setZ(-NumberUtil.HALF_PI);
             temp.setX(0);
         } else {
             temp.setY(Math.atan2(2 * y * w - 2 * x * z, sqx - sqy - sqz + sqw));
@@ -71,14 +72,15 @@ public class Quaternion implements Cloneable {
     }
 
     /**
-     * Set the Euler Angles (in radians). angles.x is yaw, angles.y is pitch,
-     * and angles.z is roll. In general, converting from euler angles to
-     * quaternions (and vice versa) is a slow operation, and should be avoided
-     * if possible.
+     * Set the Euler Angles (in radians). angles.x is yaw, angles.y is pitch, and angles.z is roll. In
+     * general, converting from euler angles to quaternions (and vice versa) is a slow operation, and
+     * should be avoided if possible.
      *
      * @param angles The yaw, pitch, and roll, respectively.
      * @return A non-null reference to this (builder pattern)
-     * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm">Euler Angles</a>
+     * @see <a href=
+     *      "http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm">Euler
+     *      Angles</a>
      */
     public Quaternion setEulerAngles(Vector angles) {
         double yaw = angles.getX();
@@ -113,9 +115,8 @@ public class Quaternion implements Cloneable {
     }
 
     /**
-     * Interpolates this quaternion with the given  When t=0, this
-     * quaternion is returned. When t is 0, the given quaternion is returned.
-     * See {@link NumberUtil#lerp(double, double, double)} for more
+     * Interpolates this quaternion with the given When t=0, this quaternion is returned. When t is 0,
+     * the given quaternion is returned. See {@link NumberUtil#lerp(double, double, double)} for more
      * information on interpolation.
      *
      * @param other The other
@@ -123,7 +124,7 @@ public class Quaternion implements Cloneable {
      * @return A non-null reference to this (builder pattern).
      */
     public Quaternion lerp(Quaternion other, double t) {
-        t = NumberUtil.minMax(0.0, t, 1.0);
+        t = NumberUtil.clamp01(t);
 
         // If the 2 quaternions are equal, then don't do any math.
         if (equals(other))
@@ -132,7 +133,7 @@ public class Quaternion implements Cloneable {
         double dot = dot(other);
 
         if (dot < 0.0) {
-// todo math
+            // todo math
         }
         return this;
     }
@@ -153,12 +154,12 @@ public class Quaternion implements Cloneable {
 
     public Vector multiply(Vector vector) {
         double tempX = w * w * vector.getX() + 2 * y * w * vector.getZ() - 2 * z * w * vector.getY() + x * x * vector.getX()
-                + 2 * y * x * vector.getY() + 2 * z * x * vector.getZ() - z * z * vector.getX() - y * y * vector.getX();
+            + 2 * y * x * vector.getY() + 2 * z * x * vector.getZ() - z * z * vector.getX() - y * y * vector.getX();
         double tempY = 2 * x * y * vector.getX() + y * y * vector.getY() + 2 * z * y * vector.getZ() + 2 * w * z
-                * vector.getX() - z * z * vector.getY() + w * w * vector.getY() - 2 * x * w * vector.getZ() - x * x
+            * vector.getX() - z * z * vector.getY() + w * w * vector.getY() - 2 * x * w * vector.getZ() - x * x
                 * vector.getY();
         double tempZ = 2 * x * z * vector.getX() + 2 * y * z * vector.getY() + z * z * vector.getZ() - 2 * w * y * vector.getX()
-                - y * y * vector.getZ() + 2 * w * x * vector.getY() - x * x * vector.getZ() + w * w * vector.getZ();
+            - y * y * vector.getZ() + 2 * w * x * vector.getY() - x * x * vector.getZ() + w * w * vector.getZ();
         return new Vector(tempX, tempY, tempZ);
     }
 
@@ -191,17 +192,19 @@ public class Quaternion implements Cloneable {
     }
 
     @Override
-    protected Quaternion clone()  {
+    protected Quaternion clone() {
         return new Quaternion(this);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Quaternion that = (Quaternion) o;
         return Double.compare(that.x, x) == 0 && Double.compare(that.y, y) == 0
-                && Double.compare(that.z, z) == 0 && Double.compare(that.w, w) == 0;
+            && Double.compare(that.z, z) == 0 && Double.compare(that.w, w) == 0;
     }
 
     @Override
@@ -210,9 +213,8 @@ public class Quaternion implements Cloneable {
     }
 
     /**
-     * Returns <code>true</code> when the "length" of the quaternion is zero.
-     * Generally, you need a unit quaternion in order to do math. Use
-     * {@link #normalize()} to make this quaternion a unit
+     * Returns <code>true</code> when the "length" of the quaternion is zero. Generally, you need a unit
+     * quaternion in order to do math. Use {@link #normalize()} to make this quaternion a unit
      *
      * @return true if this is a unit
      */
@@ -221,8 +223,8 @@ public class Quaternion implements Cloneable {
     }
 
     /**
-     * Returns <code>true</code> when the scalar component (<code>w</code>) is
-     * zero. Pure quaternions usually hold a vector.
+     * Returns <code>true</code> when the scalar component (<code>w</code>) is zero. Pure quaternions
+     * usually hold a vector.
      *
      * @return true if this is a pure
      */
@@ -275,16 +277,14 @@ public class Quaternion implements Cloneable {
             x = (m12 - m21) * num;
             y = (m20 - m02) * num;
             z = (m01 - m10) * num;
-        }
-        else if ((m00 >= m11) && (m00 >= m22)) {
+        } else if ((m00 >= m11) && (m00 >= m22)) {
             double num7 = Math.sqrt(((1f + m00) - m11) - m22);
             double num4 = 0.5f / num7;
             x = 0.5f * num7;
             y = (m01 + m10) * num4;
             z = (m02 + m20) * num4;
             w = (m12 - m21) * num4;
-        }
-        else if (m11 > m22) {
+        } else if (m11 > m22) {
             double num6 = Math.sqrt(((1f + m11) - m00) - m22);
             double num3 = 0.5f / num6;
             x = (m10 + m01) * num3;
@@ -307,7 +307,7 @@ public class Quaternion implements Cloneable {
      * Creates a quaternion that rotates between the 2 given vectors.
      *
      * @param from From direction.
-     * @param to   To direction.
+     * @param to To direction.
      * @return A new quaternion rotation from -> to.
      */
     public static Quaternion fromTo(Vector from, Vector to) {
@@ -319,10 +319,10 @@ public class Quaternion implements Cloneable {
         // we cannot rotate about that axis. So we try to find an arbitrary
         // perpendicular vector. In the off chance that it's still zero, we try
         // again (The second time, it is impossible for it to still be zero)
-        if (VectorUtil.isEmpty(axis) || angle > 3.1401) {
+        if (VectorUtil.isZero(axis) || angle > 3.1401) {
             Vector arbitrary = from.crossProduct(RIGHT);
             axis = arbitrary.crossProduct(from);
-            if (VectorUtil.isEmpty(axis))
+            if (VectorUtil.isZero(axis))
                 axis = UP;
         }
 
@@ -343,12 +343,12 @@ public class Quaternion implements Cloneable {
     /**
      * Creates a new Quaternion from the given axis and rotation.
      *
-     * @param axis  The normalized axis.
+     * @param axis The normalized axis.
      * @param angle The angle, in radians, to rotate.
      * @return A non-null reference to this (builder pattern).
      */
     public static Quaternion angleAxis(double angle, Vector axis) {
-        if (VectorUtil.isEmpty(axis))
+        if (VectorUtil.isZero(axis))
             throw new IllegalArgumentException("Divide by zero");
 
         double s = Math.sin(angle / 2.0);

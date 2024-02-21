@@ -54,8 +54,7 @@ public class LightLevelCondition extends Condition {
         return "https://cjcrafter.gitbook.io/mechanics/conditions/light-level";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         LightLevelMode mode = data.of("Mode").getEnum(LightLevelMode.class, LightLevelMode.BOTH);
         int min = data.of("Min").getInt(0);

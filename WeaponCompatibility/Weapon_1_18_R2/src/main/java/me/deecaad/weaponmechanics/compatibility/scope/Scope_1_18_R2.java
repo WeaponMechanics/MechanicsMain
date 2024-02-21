@@ -18,10 +18,9 @@ public class Scope_1_18_R2 implements IScopeCompatibility {
     static {
         if (ReflectionUtil.getMCVersion() != 18) {
             WeaponMechanics.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + Scope_1_18_R2.class + " when not using Minecraft 18",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + Scope_1_18_R2.class + " when not using Minecraft 18",
+                new InternalError());
         }
     }
 
@@ -34,7 +33,8 @@ public class Scope_1_18_R2 implements IScopeCompatibility {
     @Override
     public void addNightVision(org.bukkit.entity.Player player) {
         // 6000 = 5min
-        ClientboundUpdateMobEffectPacket entityEffect = new ClientboundUpdateMobEffectPacket(-player.getEntityId(), new MobEffectInstance(MobEffect.byId(PotionEffectType.NIGHT_VISION.getId()), 6000, 2));
+        ClientboundUpdateMobEffectPacket entityEffect = new ClientboundUpdateMobEffectPacket(-player.getEntityId(), new MobEffectInstance(MobEffect.byId(PotionEffectType.NIGHT_VISION.getId()), 6000,
+            2));
         ((CraftPlayer) player).getHandle().connection.send(entityEffect);
     }
 

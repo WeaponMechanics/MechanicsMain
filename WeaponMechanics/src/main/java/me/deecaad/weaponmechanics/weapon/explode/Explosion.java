@@ -11,7 +11,7 @@ import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.core.utils.primitive.DoubleEntry;
 import me.deecaad.core.utils.primitive.DoubleMap;
@@ -45,9 +45,8 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nonnull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -78,28 +77,25 @@ public class Explosion implements Serializer<Explosion> {
     /**
      * The main constructor for explosions. See parameters.
      *
-     * @param shape         The non-null shape that determines the pattern in
-     *                      which all blocks are destroyed.
-     * @param exposure      The non-null method to determine how exposed each
-     *                      entity is to the origin of this explosion.
-     * @param blockDamage   The nullable data to determine how each block is
-     *                      damaged. If null is used, blocks will not be damaged.
-     * @param regeneration  The nullable data to determine how blocks are
-     *                      regenerated after being broken by {@link BlockDamage}.
-     * @param detonation    The object containing information about when
-     *                      explosion should detonate.
-     * @param blockChance   The chance [0, 1] for block from {@link BlockDamage}
-     *                      to spawn a packet based falling block.
+     * @param shape The non-null shape that determines the pattern in which all blocks are destroyed.
+     * @param exposure The non-null method to determine how exposed each entity is to the origin of this
+     *        explosion.
+     * @param blockDamage The nullable data to determine how each block is damaged. If null is used,
+     *        blocks will not be damaged.
+     * @param regeneration The nullable data to determine how blocks are regenerated after being broken
+     *        by {@link BlockDamage}.
+     * @param detonation The object containing information about when explosion should detonate.
+     * @param blockChance The chance [0, 1] for block from {@link BlockDamage} to spawn a packet based
+     *        falling block.
      * @param knockbackRate Use true to enable vanilla MC explosion knockback.
-     * @param clusterBomb   The nullable cluster bomb (Children explosions).
-     * @param airStrike     The nullable airstrike (Explosions from the air).
-     * @param flashbang     The nullable flashbang (To blind players).
-     * @param mechanics     The nullable mechanics, spawned at the origin of the
-     *                      explosion.
+     * @param clusterBomb The nullable cluster bomb (Children explosions).
+     * @param airStrike The nullable airstrike (Explosions from the air).
+     * @param flashbang The nullable flashbang (To blind players).
+     * @param mechanics The nullable mechanics, spawned at the origin of the explosion.
      */
     public Explosion(ExplosionShape shape, ExplosionExposure exposure, BlockDamage blockDamage,
-                     RegenerationData regeneration, Detonation detonation, double blockChance, double knockbackRate,
-                     ClusterBomb clusterBomb, AirStrike airStrike, Flashbang flashbang, Mechanics mechanics) {
+        RegenerationData regeneration, Detonation detonation, double blockChance, double knockbackRate,
+        ClusterBomb clusterBomb, AirStrike airStrike, Flashbang flashbang, Mechanics mechanics) {
 
         this.shape = shape;
         this.exposure = exposure;
@@ -167,7 +163,8 @@ public class Explosion implements Serializer<Explosion> {
     }
 
     public void handleExplosion(LivingEntity cause, @Nullable Location origin, WeaponProjectile projectile, ExplosionTrigger trigger) {
-        if (projectile.getIntTag("explosion-detonation") == 1) return;
+        if (projectile.getIntTag("explosion-detonation") == 1)
+            return;
 
         Detonation currentDetonation;
         if (airStrike != null && airStrike.getDetonation() != null && projectile.getIntTag("airstrike-bomb") == 1) {
@@ -181,7 +178,8 @@ public class Explosion implements Serializer<Explosion> {
             currentDetonation = detonation;
         }
 
-        if (!currentDetonation.getTriggers().contains(trigger)) return;
+        if (!currentDetonation.getTriggers().contains(trigger))
+            return;
 
         // Set to 1 to indicate that this projectile has been detonated
         projectile.setIntTag("explosion-detonation", 1);
@@ -190,7 +188,8 @@ public class Explosion implements Serializer<Explosion> {
             public void run() {
                 ProjectilePreExplodeEvent event = new ProjectilePreExplodeEvent(projectile, Explosion.this);
                 Bukkit.getPluginManager().callEvent(event);
-                if (event.isCancelled()) return;
+                if (event.isCancelled())
+                    return;
 
                 event.getExplosion().explode(cause, origin != null ? origin : projectile.getLocation().toLocation(projectile.getWorld()), projectile);
 
@@ -282,7 +281,7 @@ public class Explosion implements Serializer<Explosion> {
             }
         } catch (IllegalArgumentException e) {
             debug.log(LogLevel.ERROR, "A plugin modified the explosion block sorter with an illegal sorter! " +
-                    "Please report this error to the developers of that plugin. Sorter: " + sorter.getClass(), e);
+                "Please report this error to the developers of that plugin. Sorter: " + sorter.getClass(), e);
         }
 
         // When blockDamage is null, we should not attempt to damage blocks or
@@ -316,7 +315,8 @@ public class Explosion implements Serializer<Explosion> {
                 }
             }
 
-            if (cluster != null) cluster.trigger(projectile, cause, origin);
+            if (cluster != null)
+                cluster.trigger(projectile, cause, origin);
 
         } else {
 
@@ -331,7 +331,8 @@ public class Explosion implements Serializer<Explosion> {
             }
         }
 
-        if (flashbang != null) flashbang.trigger(exposure, projectile, origin);
+        if (flashbang != null)
+            flashbang.trigger(exposure, projectile, origin);
         if (mechanics != null) { // NOT this.mechanics for event
             CastData cast = new CastData(cause, projectile == null ? null : projectile.getWeaponTitle(), projectile == null ? null : projectile.getWeaponStack());
             cast.setTargetLocation(origin);
@@ -411,7 +412,7 @@ public class Explosion implements Serializer<Explosion> {
                 // For stat tracking
                 blocksBroken += 1;
 
-                if (NumberUtil.chance(blockChance)) {
+                if (RandomUtil.chance(blockChance)) {
                     Location loc = block.getLocation().add(0.5, 0.5, 0.5);
                     Vector velocity = loc.toVector().subtract(origin.toVector()).normalize(); // normalize to slow down
 
@@ -428,7 +429,7 @@ public class Explosion implements Serializer<Explosion> {
         }
 
         if (blocksBroken != 0 && playerWrapper != null && playerWrapper.getStatsData() != null
-                && projectile != null && projectile.getWeaponTitle() != null)
+            && projectile != null && projectile.getWeaponTitle() != null)
             playerWrapper.getStatsData().add(projectile.getWeaponTitle(), WeaponStat.BLOCKS_DESTROYED, blocksBroken);
     }
 
@@ -451,8 +452,7 @@ public class Explosion implements Serializer<Explosion> {
     }
 
     @Override
-    @NotNull
-    public Explosion serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public Explosion serialize(@NotNull SerializeData data) throws SerializerException {
 
         // We don't need to get the values here since we add them to the map
         // later. We should still make sure these are positive numbers, though.
@@ -491,7 +491,7 @@ public class Explosion implements Serializer<Explosion> {
         // 'Regeneration' config, not this option from WMC.
         if (data.has("Block_Damage.Ticks_Before_Regenerate")) {
             throw data.exception("Block_Damage.Ticks_Before_Regenerate", "You cannot use 'Ticks_Before_Regenerate' in Explosions",
-                    "Use the 'Explosion.Regeneration' section instead", "Wiki: https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/explosion#regeneration");
+                "Use the 'Explosion.Regeneration' section instead", "Wiki: https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/explosion#regeneration");
         }
 
         // This check determines if the player tried to use Block Regeneration
@@ -499,7 +499,7 @@ public class Explosion implements Serializer<Explosion> {
         // to make when copying/pasting and deleting chunks of config.
         if ((blockDamage == null || !blockDamage.canBreakBlocks()) && regeneration != null) {
             throw data.exception(null, "Found an Explosion that defines 'Regeneration' when 'Block_Damage' cannot break blocks!",
-                    "This happens when 'Block_Damage.Break_Blocks: false' or when 'Block_Damage' was not added AND you tried to add 'Regeneration'");
+                "This happens when 'Block_Damage.Break_Blocks: false' or when 'Block_Damage' was not added AND you tried to add 'Regeneration'");
         }
 
         // This is a required argument to determine when a projectile using this
@@ -520,6 +520,6 @@ public class Explosion implements Serializer<Explosion> {
         Mechanics mechanics = data.of("Mechanics").serialize(Mechanics.class);
 
         return new Explosion(shape, exposure, blockDamage, regeneration, detonation, blockChance,
-                knockbackRate, clusterBomb, airStrike, flashbang, mechanics);
+            knockbackRate, clusterBomb, airStrike, flashbang, mechanics);
     }
 }

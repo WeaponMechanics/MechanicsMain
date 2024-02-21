@@ -38,7 +38,8 @@ public class Circumstance implements Serializer<Circumstance> {
      * @return whether to deny
      */
     public boolean deny(@Nullable EntityWrapper entityWrapper) {
-        if (entityWrapper == null) return true;
+        if (entityWrapper == null)
+            return true;
 
         for (CircumstanceData circumstance : this.circumstances) {
             if (circumstance.deny(entityWrapper)) {
@@ -53,8 +54,7 @@ public class Circumstance implements Serializer<Circumstance> {
         return false;
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Circumstance serialize(@NotNull SerializeData data) throws SerializerException {
         ConfigurationSection circumstanceSection = data.of().assertExists().assertType(ConfigurationSection.class).get();
         List<CircumstanceData> circumstances = new ArrayList<>(1);
@@ -83,21 +83,21 @@ public class Circumstance implements Serializer<Circumstance> {
 
     public record CircumstanceData(CircumstanceType circumstanceType, boolean required) {
         public boolean deny(EntityWrapper entityWrapper) {
-                return required != switch (circumstanceType) {
-                    case RELOADING -> entityWrapper.isReloading();
-                    case ZOOMING -> entityWrapper.isZooming();
-                    case SNEAKING -> entityWrapper.isSneaking();
-                    case STANDING -> entityWrapper.isStanding();
-                    case WALKING -> entityWrapper.isWalking();
-                    case RIDING -> entityWrapper.isRiding();
-                    case SPRINTING -> entityWrapper.isSprinting();
-                    case DUAL_WIELDING -> entityWrapper.isDualWielding();
-                    case SWIMMING -> entityWrapper.isSwimming();
-                    case IN_MIDAIR -> entityWrapper.isInMidair();
-                    case GLIDING -> entityWrapper.isGliding();
-                };
-            }
+            return required != switch (circumstanceType) {
+                case RELOADING -> entityWrapper.isReloading();
+                case ZOOMING -> entityWrapper.isZooming();
+                case SNEAKING -> entityWrapper.isSneaking();
+                case STANDING -> entityWrapper.isStanding();
+                case WALKING -> entityWrapper.isWalking();
+                case RIDING -> entityWrapper.isRiding();
+                case SPRINTING -> entityWrapper.isSprinting();
+                case DUAL_WIELDING -> entityWrapper.isDualWielding();
+                case SWIMMING -> entityWrapper.isSwimming();
+                case IN_MIDAIR -> entityWrapper.isInMidair();
+                case GLIDING -> entityWrapper.isGliding();
+            };
         }
+    }
 
     private enum CircumstanceType {
         RELOADING,

@@ -29,8 +29,7 @@ public class WeaponItemSerializer extends ItemSerializer {
     }
 
     @Override
-    @NotNull
-    public ItemStack serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public ItemStack serialize(@NotNull SerializeData data) throws SerializerException {
         ItemStack weaponStack = super.serializeWithoutRecipe(data);
 
         // Crossbows are not allowed to be used as the weapon's type. WMC
@@ -39,8 +38,8 @@ public class WeaponItemSerializer extends ItemSerializer {
         // time in the long run.
         if (weaponStack.getType().name().equals("CROSSBOW"))
             throw data.exception("Type", "You cannot use 'CROSSBOW' as a WeaponMechanics weapon!",
-                    "YES! We know that you want weapons to be 'held up' like a minecraft crossbow",
-                    "Purchase WMC to 'fake' the crossbow animation for other players: https://www.spigotmc.org/resources/104539/");
+                "YES! We know that you want weapons to be 'held up' like a minecraft crossbow",
+                "Purchase WMC to 'fake' the crossbow animation for other players: https://www.spigotmc.org/resources/104539/");
 
         String weaponTitle = data.key.split("\\.")[0];
 
@@ -48,9 +47,9 @@ public class WeaponItemSerializer extends ItemSerializer {
         Pattern pattern = Pattern.compile("[A-Za-z0-9_]+");
         if (!pattern.matcher(weaponTitle).matches()) {
             throw data.exception(null, "Weapon title must only contain letters, numbers, and underscores!",
-                    "For example, AK-47 is not allowed, but AK_47 is fine",
-                    "This is only for the weapon title (the name defined in config), NOT the display name of the weapon. The display can be whatever you want.",
-                    SerializerException.forValue(weaponTitle));
+                "For example, AK-47 is not allowed, but AK_47 is fine",
+                "This is only for the weapon title (the name defined in config), NOT the display name of the weapon. The display can be whatever you want.",
+                SerializerException.forValue(weaponTitle));
         }
 
         WeaponMechanics.getWeaponHandler().getInfoHandler().addWeapon(weaponTitle);
@@ -68,8 +67,7 @@ public class WeaponItemSerializer extends ItemSerializer {
                 CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, state.ordinal());
             } catch (IllegalArgumentException e) {
                 throw data.exception(null, SerializerException.forValue(defaultSelectiveFire),
-                        SerializerException.didYouMean(defaultSelectiveFire, Arrays.asList("SINGLE", "BURST", "AUTO"))
-                );
+                    SerializerException.didYouMean(defaultSelectiveFire, Arrays.asList("SINGLE", "BURST", "AUTO")));
             }
         }
 

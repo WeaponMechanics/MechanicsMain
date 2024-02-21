@@ -30,8 +30,8 @@ public class SerializerInstancer extends JarSearcher {
                 try {
                     validClass.getDeclaredMethod("getKeyword");
                     debug.log(LogLevel.ERROR,
-                            "Found a serializer that uses getKeyword() but is missing an empty constructor!",
-                            "Please add empty constructor for class " + validClass.getSimpleName());
+                        "Found a serializer that uses getKeyword() but is missing an empty constructor!",
+                        "Please add empty constructor for class " + validClass.getSimpleName());
                 } catch (NoSuchMethodException ex) {
                     // we can ignore this
                 }
@@ -39,7 +39,8 @@ public class SerializerInstancer extends JarSearcher {
                 continue;
             } catch (Throwable ex) {
                 // this exception occurs when dependencies like MythicMobs are not installed
-                //debug.log(LogLevel.ERROR, validClass + " serializer failed to load. Perhaps a version mismatch?", ex);
+                // debug.log(LogLevel.ERROR, validClass + " serializer failed to load. Perhaps a version mismatch?",
+                // ex);
                 continue;
             }
 

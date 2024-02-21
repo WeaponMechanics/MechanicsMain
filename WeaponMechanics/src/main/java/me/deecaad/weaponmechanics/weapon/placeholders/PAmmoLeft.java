@@ -13,10 +13,10 @@ public class PAmmoLeft extends PlaceholderHandler {
         super("ammo_left");
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public String onRequest(@NotNull PlaceholderData data) {
-        if (data.item() == null) return null;
+        if (data.item() == null)
+            return null;
 
         return String.valueOf(CustomTag.AMMO_LEFT.getInteger(data.item()));
     }

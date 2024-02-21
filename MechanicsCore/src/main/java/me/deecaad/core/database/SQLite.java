@@ -12,7 +12,8 @@ public class SQLite extends HikariBased {
     public SQLite(String absolutePath) throws IOException, SQLException {
         super(DatabaseType.SQLITE);
 
-        if (!absolutePath.endsWith(".db")) throw new IllegalArgumentException("Database has to end in .db " + "(" + absolutePath + ")");
+        if (!absolutePath.endsWith(".db"))
+            throw new IllegalArgumentException("Database has to end in .db " + "(" + absolutePath + ")");
 
         File db = new File(absolutePath);
         if (!db.exists()) {

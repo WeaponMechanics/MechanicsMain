@@ -6,7 +6,6 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -42,12 +41,11 @@ public class Detonation implements Serializer<Detonation> {
     }
 
     @Override
-    @NotNull
-    public Detonation serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public Detonation serialize(@NotNull SerializeData data) throws SerializerException {
 
         Set<ExplosionTrigger> triggers = new HashSet<>(ExplosionTrigger.values().length, 1.0f);
         for (ExplosionTrigger trigger : ExplosionTrigger.values()) {
-            String key = StringUtil.upperSnakeCase(trigger.name().toLowerCase(Locale.ROOT));
+            String key = StringUtil.snakeToUpperSnake(trigger.name().toLowerCase(Locale.ROOT));
             boolean enable = data.of("Impact_When." + key).getBool(false);
 
             if (enable)

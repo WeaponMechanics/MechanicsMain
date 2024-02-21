@@ -23,10 +23,12 @@ public class MoneyAmmo implements IAmmoType {
     @Override
     public int removeAmmo(ItemStack weaponStack, PlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
         IVaultCompatibility vault = CompatibilityAPI.getVaultCompatibility();
-        if (amount == 0) return 0;
+        if (amount == 0)
+            return 0;
         Player player = playerWrapper.getPlayer();
         double balance = vault.getBalance(player);
-        if (balance == 0) return 0;
+        if (balance == 0)
+            return 0;
 
         double removeMoney = this.moneyAsAmmoCost * amount;
 
@@ -35,7 +37,8 @@ public class MoneyAmmo implements IAmmoType {
 
             // Recalculate amount to match the maximum amount that can be withdrawed
             amount = (int) (balance / moneyAsAmmoCost);
-            if (amount == 0) return 0;
+            if (amount == 0)
+                return 0;
 
             vault.withdrawBalance(player, amount * moneyAsAmmoCost);
             return amount;
@@ -48,7 +51,8 @@ public class MoneyAmmo implements IAmmoType {
     @Override
     public void giveAmmo(ItemStack weaponStack, PlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
         IVaultCompatibility vault = CompatibilityAPI.getVaultCompatibility();
-        if (amount == 0) return;
+        if (amount == 0)
+            return;
         vault.depositBalance(playerWrapper.getPlayer(), this.moneyAsAmmoCost * amount);
     }
 
@@ -56,7 +60,8 @@ public class MoneyAmmo implements IAmmoType {
     public int getMaximumAmmo(PlayerWrapper playerWrapper, int maximumMagazineSize) {
         IVaultCompatibility vault = CompatibilityAPI.getVaultCompatibility();
         double balance = vault.getBalance(playerWrapper.getPlayer());
-        if (balance == 0) return 0;
+        if (balance == 0)
+            return 0;
 
         // Divide with money cost and convert to int
         return (int) (balance / moneyAsAmmoCost);

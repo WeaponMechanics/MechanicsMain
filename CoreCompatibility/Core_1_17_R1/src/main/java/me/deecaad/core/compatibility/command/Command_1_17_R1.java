@@ -90,7 +90,7 @@ public class Command_1_17_R1 implements CommandCompatibility {
     public void generateFile(File file) {
         try {
             Files.asCharSink(file, StandardCharsets.UTF_8).write(new GsonBuilder().setPrettyPrinting().create()
-                    .toJson(ArgumentTypes.serializeNodeToJson(getCommandDispatcher(), getCommandDispatcher().getRoot())));
+                .toJson(ArgumentTypes.serializeNodeToJson(getCommandDispatcher(), getCommandDispatcher().getRoot())));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -370,7 +370,7 @@ public class Command_1_17_R1 implements CommandCompatibility {
     public Predicate<Block> getBlockPredicate(CommandContext<Object> context, String key) throws CommandSyntaxException {
         Predicate<BlockInWorld> predicate = BlockPredicateArgument.getBlockPredicate(cast(context), key);
         return block -> predicate.test(new BlockInWorld(cast(context).getSource().getLevel(),
-                new BlockPos(block.getX(), block.getY(), block.getZ()), true));
+            new BlockPos(block.getX(), block.getY(), block.getZ()), true));
     }
 
     @Override
@@ -412,8 +412,8 @@ public class Command_1_17_R1 implements CommandCompatibility {
 
         CommandSourceStack source = (CommandSourceStack) context.getSource();
         return selector.findEntities(source).stream()
-                .map(Entity::getBukkitEntity)
-                .collect(Collectors.toList());
+            .map(Entity::getBukkitEntity)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -440,8 +440,8 @@ public class Command_1_17_R1 implements CommandCompatibility {
 
         CommandSourceStack source = (CommandSourceStack) context.getSource();
         return selector.findPlayers(source).stream()
-                .map(ServerPlayer::getBukkitEntity)
-                .collect(Collectors.toList());
+            .map(ServerPlayer::getBukkitEntity)
+            .collect(Collectors.toList());
     }
 
     @Override

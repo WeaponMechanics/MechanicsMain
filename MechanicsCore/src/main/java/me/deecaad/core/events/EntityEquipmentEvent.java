@@ -9,11 +9,12 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * An event that fires when a {@link org.bukkit.entity.LivingEntity} changes an
- * item in their equipment. An entity's equipment is a structure mapping an
+ * An event that fires when a {@link org.bukkit.entity.LivingEntity} changes an item in their
+ * equipment. An entity's equipment is a structure mapping an
  * {@link org.bukkit.inventory.EquipmentSlot} to an item.
  *
- * <p>As of writing this comment, this event is only fired for bukkit
+ * <p>
+ * As of writing this comment, this event is only fired for bukkit
  * {@link org.bukkit.entity.Player}s. This is subject to change.
  */
 public class EntityEquipmentEvent extends EntityEvent {
@@ -33,19 +34,18 @@ public class EntityEquipmentEvent extends EntityEvent {
     }
 
     /**
-     * Returns the slot that the item is being equipped to. Note that prior to
-     * 1.9, {@link EquipmentSlot#OFF_HAND} did not exist.
+     * Returns the slot that the item is being equipped to. Note that prior to 1.9,
+     * {@link EquipmentSlot#OFF_HAND} did not exist.
      *
      * @return The non-null slot the item is being equipped to/from.
      */
-    @NotNull
-    public EquipmentSlot getSlot() {
+    @NotNull public EquipmentSlot getSlot() {
         return slot;
     }
 
     /**
-     * Returns <code>true</code> if an item is being removed from the slot.
-     * Note that an item may be dequipped at the same time one is equipped.
+     * Returns <code>true</code> if an item is being removed from the slot. Note that an item may be
+     * dequipped at the same time one is equipped.
      *
      * @return <code>true</code> if an item is removed.
      * @see #isEquipping()
@@ -55,8 +55,8 @@ public class EntityEquipmentEvent extends EntityEvent {
     }
 
     /**
-     * Returns <code>true</code> if an item is being equipped to the slot.
-     * Note that an item may be equipped at the same time one is dequipped.
+     * Returns <code>true</code> if an item is being equipped to the slot. Note that an item may be
+     * equipped at the same time one is dequipped.
      *
      * @return <code>true</code>
      * @see #isDequipping()
@@ -102,10 +102,10 @@ public class EntityEquipmentEvent extends EntityEvent {
     @Override
     public String toString() {
         return "EquipEvent{" +
-                "slot=" + slot +
-                ", dequipped=" + dequipped +
-                ", equipped=" + equipped +
-                '}';
+            "slot=" + slot +
+            ", dequipped=" + dequipped +
+            ", equipped=" + equipped +
+            '}';
     }
 
     @Override

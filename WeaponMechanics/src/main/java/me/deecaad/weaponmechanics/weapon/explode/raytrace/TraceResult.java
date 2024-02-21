@@ -23,35 +23,30 @@ public class TraceResult {
         this.blocks = blocks;
     }
 
-    @NotNull
-    public Set<Entity> getEntities() {
+    @NotNull public Set<Entity> getEntities() {
         return entities;
     }
 
     /**
      * @return The first Entity found in the RayTrace
      */
-    @Nullable
-    public Entity getOneEntity() {
+    @Nullable public Entity getOneEntity() {
         return entities.stream().findFirst().orElse(null);
     }
 
-    @NotNull
-    public Set<Block> getBlocks() {
+    @NotNull public Set<Block> getBlocks() {
         return blocks;
     }
 
     /**
      * @return The first Block found in the RayTrace
      */
-    @Nullable
-    public Block getOneBlock() {
+    @Nullable public Block getOneBlock() {
         return blocks.stream().findFirst().orElse(null);
     }
 
     /**
-     * Returns <code>true</code> if no blocks and no entities were hit during
-     * the ray trace.
+     * Returns <code>true</code> if no blocks and no entities were hit during the ray trace.
      *
      * @return true if nothing was hit
      */

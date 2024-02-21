@@ -6,8 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation outlines which permission should be used for a command. All
- * subclasses of the {@link SubCommand} class should utilise this annotation.
+ * This annotation outlines which permission should be used for a command. All subclasses of the
+ * {@link SubCommand} class should utilise this annotation.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
@@ -16,8 +16,8 @@ public @interface CommandPermission {
 
     /**
      * Returns the non-null {@link String} permission. It should follow a
-     * <samp>plugin.command.subcommand</samp> format, and the subcommand should
-     * be the same as the annotated class' name.
+     * <samp>plugin.command.subcommand</samp> format, and the subcommand should be the same as the
+     * annotated class' name.
      *
      * @return The string value of a permission
      */

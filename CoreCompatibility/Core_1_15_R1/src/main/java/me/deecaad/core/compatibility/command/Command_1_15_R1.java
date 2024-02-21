@@ -63,7 +63,7 @@ public class Command_1_15_R1 implements CommandCompatibility {
     public void generateFile(File file) {
         try {
             Files.asCharSink(file, StandardCharsets.UTF_8).write(new GsonBuilder().setPrettyPrinting().create()
-                    .toJson(ArgumentRegistry.a(getCommandDispatcher(), getCommandDispatcher().getRoot())));
+                .toJson(ArgumentRegistry.a(getCommandDispatcher(), getCommandDispatcher().getRoot())));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -344,7 +344,7 @@ public class Command_1_15_R1 implements CommandCompatibility {
         Predicate<ShapeDetectorBlock> predicate = ArgumentBlockPredicate.a(cast(context), key);
         return (Block block) -> {
             return predicate.test(new ShapeDetectorBlock(cast(context).getSource().getWorld(),
-                    new BlockPosition(block.getX(), block.getY(), block.getZ()), true));
+                new BlockPosition(block.getX(), block.getY(), block.getZ()), true));
         };
     }
 
@@ -387,8 +387,8 @@ public class Command_1_15_R1 implements CommandCompatibility {
 
         CommandListenerWrapper source = (CommandListenerWrapper) context.getSource();
         return selector.getEntities(source).stream()
-                .map(Entity::getBukkitEntity)
-                .collect(Collectors.toList());
+            .map(Entity::getBukkitEntity)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -415,8 +415,8 @@ public class Command_1_15_R1 implements CommandCompatibility {
 
         CommandListenerWrapper source = (CommandListenerWrapper) context.getSource();
         return selector.d(source).stream()
-                .map(EntityPlayer::getBukkitEntity)
-                .collect(Collectors.toList());
+            .map(EntityPlayer::getBukkitEntity)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -500,7 +500,6 @@ public class Command_1_15_R1 implements CommandCompatibility {
         return ArgumentScoreboardCriteria.a(cast(context), key).getName();
     }
 
-
     @Override
     public ParticleHolder getParticle(CommandContext<Object> context, String key) {
         ParticleParam particle = ArgumentParticle.a(cast(context), key);
@@ -569,17 +568,24 @@ public class Command_1_15_R1 implements CommandCompatibility {
     @SuppressWarnings("unchecked")
     private Object convert(NBTBase tag) {
         switch (tag.getTypeId()) {
-            case 1: case 2: case 3: case 4:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
                 return ((NBTNumber) tag).asInt();
-            case 5: case 6:
+            case 5:
+            case 6:
                 return ((NBTNumber) tag).asDouble();
             case 8:
                 return ((NBTTagString) tag).asString();
-            case 7: case 11: case 12: case 9:
+            case 7:
+            case 11:
+            case 12:
+            case 9:
                 return convertList((NBTList<NBTBase>) tag);
             case 10:
                 return convertMap((NBTTagCompound) tag);
-            default:
+            default :
                 throw new IllegalStateException("Unexpected value: " + tag);
         }
     }

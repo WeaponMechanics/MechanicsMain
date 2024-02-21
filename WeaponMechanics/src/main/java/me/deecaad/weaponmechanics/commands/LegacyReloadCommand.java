@@ -10,11 +10,11 @@ import org.bukkit.command.CommandSender;
 @CommandPermission(permission = "weaponmechanics.commands.reload")
 @Deprecated
 public class LegacyReloadCommand extends SubCommand {
-    
+
     public LegacyReloadCommand() {
         super("wm", "reload", "Reloads the plugin's config");
     }
-    
+
     @Override
     public void execute(CommandSender sender, String[] args) {
         WeaponMechanics plugin = WeaponMechanicsAPI.getInstance();

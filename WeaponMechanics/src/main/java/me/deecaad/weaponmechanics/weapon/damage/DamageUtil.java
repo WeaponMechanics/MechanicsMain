@@ -2,38 +2,37 @@ package me.deecaad.weaponmechanics.weapon.damage;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.events.WeaponMechanicsEntityDamageByEntityEvent;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Statistic;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.damage.DamageSource;
-import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.metadata.LazyMetadataValue;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 
 public class DamageUtil {
-    
+
     /**
      * Do not let anyone instantiate this class
      */
@@ -128,16 +127,16 @@ public class DamageUtil {
         // try-catch New damage source API added in later 1.20.4 versions
         EntityDamageByEntityEvent entityDamageByEntityEvent;
         try {
-            DamageSource damageSource = DamageSource.builder(DamageType.MOB_PROJECTILE)
-                    .withCausingEntity(cause)
-                    .build();
-            entityDamageByEntityEvent = new WeaponMechanicsEntityDamageByEntityEvent(cause, victim, EntityDamageEvent.DamageCause.PROJECTILE, damageSource, damage);
+            victim.setMetadata("doing-weapon-damage", new LazyMetadataValue(WeaponMechanics.getPlugin(), () -> true));
+            entityDamageByEntityEvent = WeaponCompatibilityAPI.getWeaponCompatibility().newEntityDamageByEntityEvent(victim, cause, damage, true);
             Bukkit.getPluginManager().callEvent(entityDamageByEntityEvent);
+            victim.removeMetadata("doing-weapon-damage", WeaponMechanics.getPlugin());
             if (entityDamageByEntityEvent.isCancelled())
                 return true;
         } catch (LinkageError ex) {
             debug.error("You are using an outdated version of Spigot 1.20.4. Please update to the latest version.",
-                    "This is required for the new damage source API to work.", "");
+                "This is required for the new damage source API to work.",
+                "Detected version: " + MinecraftVersions.getCURRENT(), "");
             return true;
         }
 
@@ -170,7 +169,7 @@ public class DamageUtil {
         victim.setLastDamage(damage);
         victim.setLastDamageCause(entityDamageByEntityEvent);
 
-        double newHealth = NumberUtil.minMax(0, oldHealth - damage, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+        double newHealth = NumberUtil.clamp(oldHealth - damage, 0, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
         boolean killed = newHealth <= 0.0;
         boolean resurrected = false;
 
@@ -186,21 +185,29 @@ public class DamageUtil {
 
         // Statistics
         if (victim instanceof Player player) {
-            if (ReflectionUtil.getMCVersion() >= 13 && absorbed >= 0.1) player.incrementStatistic(Statistic.DAMAGE_ABSORBED, Math.round((float) absorbed * 10));
-            if (damage >= 0.1) player.incrementStatistic(Statistic.DAMAGE_TAKEN, Math.round((float) damage * 10));
-            if (killed && isWhitelisted(cause.getType())) player.incrementStatistic(Statistic.ENTITY_KILLED_BY, cause.getType());
+            if (ReflectionUtil.getMCVersion() >= 13 && absorbed >= 0.1)
+                player.incrementStatistic(Statistic.DAMAGE_ABSORBED, Math.round((float) absorbed * 10));
+            if (damage >= 0.1)
+                player.incrementStatistic(Statistic.DAMAGE_TAKEN, Math.round((float) damage * 10));
+            if (killed && isWhitelisted(cause.getType()))
+                player.incrementStatistic(Statistic.ENTITY_KILLED_BY, cause.getType());
         }
         if (cause instanceof Player player) {
-            if (ReflectionUtil.getMCVersion() >= 13 && absorbed >= 0.1) player.incrementStatistic(Statistic.DAMAGE_DEALT_ABSORBED, Math.round((float) absorbed * 10));
-            if (damage >= 0.1) player.incrementStatistic(Statistic.DAMAGE_DEALT, Math.round((float) damage * 10));
+            if (ReflectionUtil.getMCVersion() >= 13 && absorbed >= 0.1)
+                player.incrementStatistic(Statistic.DAMAGE_DEALT_ABSORBED, Math.round((float) absorbed * 10));
+            if (damage >= 0.1)
+                player.incrementStatistic(Statistic.DAMAGE_DEALT, Math.round((float) damage * 10));
             if (killed) {
-                if (isWhitelisted(victim.getType())) player.incrementStatistic(Statistic.KILL_ENTITY, victim.getType());
+                if (isWhitelisted(victim.getType()))
+                    player.incrementStatistic(Statistic.KILL_ENTITY, victim.getType());
 
                 // In newer versions (probably 1.13, but only confirmed in 1.18.2+),
                 // these statistics are automatically tracked.
                 if (ReflectionUtil.getMCVersion() < 13) {
-                    if (victim.getType() == EntityType.PLAYER) player.incrementStatistic(Statistic.PLAYER_KILLS);
-                    else player.incrementStatistic(Statistic.MOB_KILLS);
+                    if (victim.getType() == EntityType.PLAYER)
+                        player.incrementStatistic(Statistic.PLAYER_KILLS);
+                    else
+                        player.incrementStatistic(Statistic.MOB_KILLS);
                 }
             }
         }
@@ -209,8 +216,8 @@ public class DamageUtil {
     }
 
     /**
-     * Mobs without spawn eggs didn't have statistics associated with them
-     * before 1.13. See https://bugs.mojang.com/browse/MC-33710.
+     * Mobs without spawn eggs didn't have statistics associated with them before 1.13. See
+     * https://bugs.mojang.com/browse/MC-33710.
      *
      * @param type The entity type.
      * @return false if there is no statistic.
@@ -280,7 +287,7 @@ public class DamageUtil {
 
         // Formula taken from Unbreaking enchant code
         int level = meta.getEnchantLevel(Enchantment.DURABILITY);
-        boolean skipDamage = !NumberUtil.chance(0.6 + 0.4 / (level + 1));
+        boolean skipDamage = !RandomUtil.chance(0.6 + 0.4 / (level + 1));
         if (skipDamage)
             return;
 
@@ -308,7 +315,7 @@ public class DamageUtil {
             case FEET -> equipment.setBoots(armor);
         }
     }
-    
+
     /**
      * @param cause the cause entity (shooter of projectile)
      * @param victim the victim
@@ -321,22 +328,27 @@ public class DamageUtil {
             return true;
 
         // Only check scoreboard teams for players
-        if (cause.getType() != EntityType.PLAYER || victim.getType() != EntityType.PLAYER) return true;
+        if (cause.getType() != EntityType.PLAYER || victim.getType() != EntityType.PLAYER)
+            return true;
 
         Scoreboard shooterScoreboard = ((Player) cause).getScoreboard();
-        if (shooterScoreboard == null) return true;
+        if (shooterScoreboard == null)
+            return true;
 
         Set<Team> teams = shooterScoreboard.getTeams();
-        if (teams == null || teams.isEmpty()) return true;
+        if (teams == null || teams.isEmpty())
+            return true;
 
         for (Team team : teams) {
             Set<String> entries = team.getEntries();
 
             // Seems like this has to be also checked...
-            if (!entries.contains(cause.getName())) continue;
+            if (!entries.contains(cause.getName()))
+                continue;
 
             // If not in same team -> continue
-            if (!entries.contains(victim.getName())) continue;
+            if (!entries.contains(victim.getName()))
+                continue;
 
             // Now we know they're in same team.
             // -> If friendly is not enabled

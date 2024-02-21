@@ -33,10 +33,9 @@ public class Block_1_12_R1 implements BlockCompatibility {
 
         if (ReflectionUtil.getMCVersion() != 12) {
             me.deecaad.core.MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + Block_1_12_R1.class + " when not using Minecraft 12",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + Block_1_12_R1.class + " when not using Minecraft 12",
+                new InternalError());
         }
 
         soundFields = new Field[SoundType.values().length]; // 5
@@ -47,10 +46,12 @@ public class Block_1_12_R1 implements BlockCompatibility {
 
     @Override
     public HitBox getHitBox(Block block, boolean allowLiquid) {
-        if (block.isEmpty()) return null;
+        if (block.isEmpty())
+            return null;
 
         boolean isLiquid = block.isLiquid();
-        if (!allowLiquid && isLiquid) return null;
+        if (!allowLiquid && isLiquid)
+            return null;
 
         if (isLiquid) {
             HitBox hitBox = new HitBox(block.getX(), block.getY(), block.getZ(), block.getX() + 1, block.getY() + 1, block.getZ() + 1);
@@ -64,7 +65,8 @@ public class Block_1_12_R1 implements BlockCompatibility {
         net.minecraft.server.v1_12_R1.Block nmsBlock = blockData.getBlock();
 
         // Passable block check -> false means passable (thats why !)
-        if (!(blockData.d(worldServer, blockPosition) != net.minecraft.server.v1_12_R1.Block.k && nmsBlock.a(blockData, false))) return null;
+        if (!(blockData.d(worldServer, blockPosition) != net.minecraft.server.v1_12_R1.Block.k && nmsBlock.a(blockData, false)))
+            return null;
 
         AxisAlignedBB aabb = blockData.e(worldServer, blockPosition);
         // 1.12 -> e
@@ -151,8 +153,7 @@ public class Block_1_12_R1 implements BlockCompatibility {
 
         // Setup default information
         PacketPlayOutMultiBlockChange packet = new PacketPlayOutMultiBlockChange(0, new short[0], chunk);
-        PacketPlayOutMultiBlockChange.MultiBlockChangeInfo[] changes
-                = new PacketPlayOutMultiBlockChange.MultiBlockChangeInfo[blocks.size()];
+        PacketPlayOutMultiBlockChange.MultiBlockChangeInfo[] changes = new PacketPlayOutMultiBlockChange.MultiBlockChangeInfo[blocks.size()];
 
         for (int i = 0; i < blocks.size(); i++) {
             Block block = blocks.get(i);

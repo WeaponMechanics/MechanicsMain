@@ -19,8 +19,7 @@ public abstract class AttributePlaceholderHandler extends NumericPlaceholderHand
         this.attribute = attribute;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public Number requestValue(@NotNull PlaceholderData data) {
         ItemStack item = data.item();
         if (item == null || !item.hasItemMeta())

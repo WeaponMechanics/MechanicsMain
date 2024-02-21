@@ -48,7 +48,7 @@ public class BaseSkinSelector implements SkinSelector, Serializer<SkinSelector> 
     }
 
     @Override
-        public @Nullable Set<SkinAction> getActions(@Nullable String skin) {
+    public @Nullable Set<SkinAction> getActions(@Nullable String skin) {
         Map<SkinAction, BaseSkin> actions = map.get(skin);
         return actions == null ? null : new HashSet<>(actions.keySet());
     }
@@ -78,8 +78,7 @@ public class BaseSkinSelector implements SkinSelector, Serializer<SkinSelector> 
         return "Skin";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public SkinSelector serialize(@NotNull SerializeData data) throws SerializerException {
         Map<String, Map<SkinAction, BaseSkin>> map = new HashMap<>();
         Map<SkinAction, BaseSkin> defaultSkinData = new HashMap<>();
@@ -102,7 +101,7 @@ public class BaseSkinSelector implements SkinSelector, Serializer<SkinSelector> 
 
                 if ("Attachments".equals(key)) {
                     throw data.exception(null, "If you want to use Attachments in skins, you cannot use the legacy format",
-                            "Wiki: https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/skin");
+                        "Wiki: https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/skin");
                 }
 
                 // Hand skin requires 'Item'.
@@ -145,9 +144,9 @@ public class BaseSkinSelector implements SkinSelector, Serializer<SkinSelector> 
 
             if (action == null) {
                 throw data.exception(key, "Found an unknown skin identifier",
-                        SerializerException.forValue(key),
-                        SerializerException.didYouMean(key, Arrays.stream(SkinAction.getValues()).map(SkinAction::getKey).collect(Collectors.toList())),
-                        "Wiki: https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/skin");
+                    SerializerException.forValue(key),
+                    SerializerException.didYouMean(key, Arrays.stream(SkinAction.getValues()).map(SkinAction::getKey).collect(Collectors.toList())),
+                    "Wiki: https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/skin");
             }
 
             // Since SCOPE_STACK matches to different keys, we need to handle

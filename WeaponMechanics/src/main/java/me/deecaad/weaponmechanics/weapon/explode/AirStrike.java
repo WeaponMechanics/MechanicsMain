@@ -5,7 +5,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
@@ -16,7 +16,6 @@ import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,20 +46,18 @@ public class AirStrike implements Serializer<AirStrike> {
      * See arguments.
      *
      * @param projectile The non-null projectile to spawn for each bomb.
-     * @param min        The minimum number of bombs to spawn (per layer).
-     * @param max        The maximum number of bombs to spawn (per layer).
-     * @param height     The vertical distance above the initial projectile to
-     *                   spawn the layers.
+     * @param min The minimum number of bombs to spawn (per layer).
+     * @param max The maximum number of bombs to spawn (per layer).
+     * @param height The vertical distance above the initial projectile to spawn the layers.
      * @param yVariation The random variations in the <code>height</code> parameter.
-     * @param distance   The minimum distance between bombs.
-     * @param radius     The maximum horizontal distance away from the initial
-     *                   projectile that a bomb is allowed to spawn. Larger numbers
-     *                   means higher spread.
-     * @param loops      The number of layers of bombs to spawn.
-     * @param delay      The amount of time (in ticks) between each layer of bombs.
+     * @param distance The minimum distance between bombs.
+     * @param radius The maximum horizontal distance away from the initial projectile that a bomb is
+     *        allowed to spawn. Larger numbers means higher spread.
+     * @param loops The number of layers of bombs to spawn.
+     * @param delay The amount of time (in ticks) between each layer of bombs.
      */
     public AirStrike(Projectile projectile, int min, int max, double height, double yVariation,
-                     double distance, double radius, int loops, int delay, Detonation detonation, Mechanics mechanics) {
+        double distance, double radius, int loops, int delay, Detonation detonation, Mechanics mechanics) {
 
         this.projectile = projectile;
         this.min = min;
@@ -168,18 +165,17 @@ public class AirStrike implements Serializer<AirStrike> {
             @Override
             public void run() {
 
-                int bombs = NumberUtil.random(min, max);
+                int bombs = RandomUtil.range(min, max);
                 int checks = bombs * bombs;
 
                 // Used to make sure we don't spawn bombs too close to
                 // each other. Uses distanceBetweenSquared
                 List<Vector2d> spawnLocations = new ArrayList<>(bombs);
 
-                locationFinder:
-                for (int i = 0; i < checks && spawnLocations.size() < bombs; i++) {
+                locationFinder : for (int i = 0; i < checks && spawnLocations.size() < bombs; i++) {
 
-                    double x = flareLocation.getX() + NumberUtil.random(-radius, radius);
-                    double z = flareLocation.getZ() + NumberUtil.random(-radius, radius);
+                    double x = flareLocation.getX() + RandomUtil.range(-radius, radius);
+                    double z = flareLocation.getZ() + RandomUtil.range(-radius, radius);
 
                     Vector2d vector = new Vector2d(x, z);
 
@@ -191,15 +187,16 @@ public class AirStrike implements Serializer<AirStrike> {
 
                     spawnLocations.add(vector);
 
-                    double y = flareLocation.getY() + height + NumberUtil.random(-yVariation, yVariation);
+                    double y = flareLocation.getY() + height + RandomUtil.range(-yVariation, yVariation);
                     Location location = new Location(flareLocation.getWorld(), x, y, z);
 
                     // Either use the projectile settings from the "parent" projectile,
                     // or use the projectile settings for this airstrike
                     Projectile projectileHandler = getProjectile() != null ? getProjectile() : getConfigurations().getObject(projectile.getWeaponTitle() + ".Projectile", Projectile.class);
                     if (projectileHandler != null) {
-                        WeaponProjectile newProjectile = getProjectile() != null ? projectileHandler.create(shooter, location, new Vector(0, 0, 0), projectile.getWeaponStack(), projectile.getWeaponTitle(), projectile.getHand())
-                                : projectile.clone(location, new Vector(0, 0, 0));
+                        WeaponProjectile newProjectile = getProjectile() != null
+                            ? projectileHandler.create(shooter, location, new Vector(0, 0, 0), projectile.getWeaponStack(), projectile.getWeaponTitle(), projectile.getHand())
+                            : projectile.clone(location, new Vector(0, 0, 0));
                         newProjectile.setIntTag("airstrike-bomb", 1);
                         projectileHandler.shoot(newProjectile, location);
                     }
@@ -213,8 +210,7 @@ public class AirStrike implements Serializer<AirStrike> {
     }
 
     @Override
-    @NotNull
-    public AirStrike serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public AirStrike serialize(@NotNull SerializeData data) throws SerializerException {
 
         int min = data.of("Minimum_Bombs").assertExists().assertPositive().getInt();
         int max = data.of("Maximum_Bombs").assertExists().assertPositive().getInt();

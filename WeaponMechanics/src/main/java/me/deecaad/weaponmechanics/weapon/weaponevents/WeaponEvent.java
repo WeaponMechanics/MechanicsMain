@@ -28,19 +28,18 @@ public abstract class WeaponEvent extends EntityEvent {
     }
 
     /**
-     * Returns the weapon-title associated with the weapon involved. This is
-     * the same as`CustomTag.WEAPON_TITLE.getString(event.getWeaponStack())`.
+     * Returns the weapon-title associated with the weapon involved. This is the same
+     * as`CustomTag.WEAPON_TITLE.getString(event.getWeaponStack())`.
      *
      * @return The non-null weapon title.
      */
-    @NotNull
-    public String getWeaponTitle() {
+    @NotNull public String getWeaponTitle() {
         return weaponTitle;
     }
 
     /**
-     * Returns the weapon item which caused the event. This should always be an
-     * item in the player's main hand, or off hand.
+     * Returns the weapon item which caused the event. This should always be an item in the player's
+     * main hand, or off hand.
      *
      * @return The non-null weapon item.
      */
@@ -49,36 +48,32 @@ public abstract class WeaponEvent extends EntityEvent {
     }
 
     /**
-     * Returns the shooter involved in this event. This is the same as
-     * {@link #getEntity()} but without the added overhead from casting it
-     * to a {@link LivingEntity}.
+     * Returns the shooter involved in this event. This is the same as {@link #getEntity()} but without
+     * the added overhead from casting it to a {@link LivingEntity}.
      *
-     * @return The non-null entity that fired the weapon. This will not
-     * always be a player!
+     * @return The non-null entity that fired the weapon. This will not always be a player!
      */
-    @NotNull
-    public LivingEntity getShooter() {
+    @NotNull public LivingEntity getShooter() {
         return this.shooter;
     }
 
     /**
-     * Returns the hand involved in the event. WeaponMechanics will only ever
-     * set this to {@link EquipmentSlot#HAND} or {@link EquipmentSlot#OFF_HAND}
-     * (Other plugins may change that). This value will be <code>null</code>
-     * when no hand was involved (Some explosions and some API methods).
+     * Returns the hand involved in the event. WeaponMechanics will only ever set this to
+     * {@link EquipmentSlot#HAND} or {@link EquipmentSlot#OFF_HAND} (Other plugins may change that).
+     * This value will be <code>null</code> when no hand was involved (Some explosions and some API
+     * methods).
      *
      * @return The nullable hand involved.
      * @see #isMainHand()
      * @see #isOffHand()
      */
-    @Nullable
-    public EquipmentSlot getHand() {
+    @Nullable public EquipmentSlot getHand() {
         return hand;
     }
 
     /**
-     * Returns <code>true</code> if the weapon involved in this event was in
-     * the main hand. <code>false</code> means the weapon was in the offhand.
+     * Returns <code>true</code> if the weapon involved in this event was in the main hand.
+     * <code>false</code> means the weapon was in the offhand.
      *
      * @return true if weapon is in main hand.
      */
@@ -87,8 +82,8 @@ public abstract class WeaponEvent extends EntityEvent {
     }
 
     /**
-     * Returns <code>false</code> if the weapon involved in this event was in
-     * the main hand. <code>true</code> means the weapon was in the offhand.
+     * Returns <code>false</code> if the weapon involved in this event was in the main hand.
+     * <code>true</code> means the weapon was in the offhand.
      *
      * @return true if weapon is in offhand.
      */
@@ -97,9 +92,8 @@ public abstract class WeaponEvent extends EntityEvent {
     }
 
     /**
-     * Helper method to the {@link HandData} involved in this event. For player
-     * shooters, the returned value will never be null. For entities, the value
-     * <i>might</i> be null.
+     * Helper method to the {@link HandData} involved in this event. For player shooters, the returned
+     * value will never be null. For entities, the value <i>might</i> be null.
      *
      * @return The nullable hand data involved.
      */

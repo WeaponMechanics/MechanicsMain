@@ -111,8 +111,7 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
         weapon.setItemMeta(meta);
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public RelativeSkinSelector serialize(@NotNull SerializeData data) throws SerializerException {
 
         Map<String, RelativeSkin> skins = new LinkedHashMap<>();
@@ -128,7 +127,7 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
             // base skin should be [1, 999]
             if (base.getCustomModelData() < 1 || base.getCustomModelData() > 999) {
                 throw data.exception("Default", "Your 'Default: " + base.getCustomModelData() + "' is incorrect",
-                        "The default skin should be a number between 1 and 999");
+                    "The default skin should be a number between 1 and 999");
             }
         }
 
@@ -170,7 +169,7 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
                 RelativeSkin relativeSkin = data.of("Attachments." + attachment).serialize(RelativeSkin.class);
                 if (relativeSkin == null) {
                     throw data.exception("Attachments." + attachment, "Some error occurred when making the relative skin",
-                            "Please make sure you formatted things correctly... An example value is something like '+10' or '+100'");
+                        "Please make sure you formatted things correctly... An example value is something like '+10' or '+100'");
                 }
 
                 attachments.put(attachment, relativeSkin);

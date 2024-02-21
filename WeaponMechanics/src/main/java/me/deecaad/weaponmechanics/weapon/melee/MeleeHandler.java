@@ -43,7 +43,6 @@ public class MeleeHandler implements IValidator {
 
     private static final IWeaponCompatibility weaponCompatibility = WeaponCompatibilityAPI.getWeaponCompatibility();
 
-
     private WeaponHandler weaponHandler;
 
     /**
@@ -60,15 +59,16 @@ public class MeleeHandler implements IValidator {
      * Tries to use melee
      *
      * @param entityWrapper the entity who used trigger
-     * @param weaponTitle   the weapon title
-     * @param weaponStack   the weapon stack
-     * @param slot          the slot used on trigger
-     * @param triggerType   the trigger type trying to activate melee
-     * @param dualWield     whether this was dual wield
+     * @param weaponTitle the weapon title
+     * @param weaponStack the weapon stack
+     * @param slot the slot used on trigger
+     * @param triggerType the trigger type trying to activate melee
+     * @param dualWield whether this was dual wield
      * @return true if was able to melee
      */
     public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity knownVictim) {
-        if (triggerType != TriggerType.MELEE) return false;
+        if (triggerType != TriggerType.MELEE)
+            return false;
         Configuration config = getConfigurations();
         if (!config.getBool(weaponTitle + ".Melee.Enable_Melee")) {
 
@@ -76,13 +76,15 @@ public class MeleeHandler implements IValidator {
             weaponTitle = config.getString(weaponTitle + ".Melee.Melee_Attachment");
 
             // Melee isn't used for this weapon nor the melee attachment is defined
-            if (weaponTitle == null) return false;
+            if (weaponTitle == null)
+                return false;
         }
 
         HandData handData = entityWrapper.getMainHandData();
 
         int meleeHitDelay = config.getInt(weaponTitle + ".Melee.Melee_Hit_Delay");
-        if (meleeHitDelay != 0 && !NumberUtil.hasMillisPassed(handData.getLastMeleeTime(), meleeHitDelay)) return false;
+        if (meleeHitDelay != 0 && !NumberUtil.hasMillisPassed(handData.getLastMeleeTime(), meleeHitDelay))
+            return false;
 
         int meleeMissDelay = config.getInt(weaponTitle + ".Melee.Melee_Miss.Melee_Miss_Delay");
         if (meleeMissDelay != 0 && !NumberUtil.hasMillisPassed(handData.getLastMeleeMissTime(), meleeMissDelay))
@@ -113,7 +115,6 @@ public class MeleeHandler implements IValidator {
             }
             return false;
         }
-
 
         boolean consumeOnMiss = getConfigurations().getBool(weaponTitle + ".Melee.Melee_Miss.Consume_On_Miss");
         Mechanics missMechanics = getConfigurations().getObject(weaponTitle + ".Melee.Melee_Miss.Mechanics", Mechanics.class);
@@ -150,25 +151,29 @@ public class MeleeHandler implements IValidator {
             }
 
             RayTrace rayTrace = new RayTrace()
-                    .withEntityFilter(entity -> entity.getEntityId() == shooter.getEntityId() || entity.getPassengers().contains(shooter));
+                .withEntityFilter(entity -> entity.getEntityId() == shooter.getEntityId() || entity.getPassengers().contains(shooter));
             List<RayTraceResult> hits = rayTrace.cast(eyeLocation.getWorld(), eyeLocationToVector, direction, range);
 
-            if (hits == null) return null;
+            if (hits == null)
+                return null;
 
             RayTraceResult firstHit = hits.get(0);
 
             // If first hit isn't entity
-            if (!(firstHit instanceof EntityTraceResult entityHit)) return null;
+            if (!(firstHit instanceof EntityTraceResult entityHit))
+                return null;
 
             // If first entity hit isn't in range
-            if (entityHit.getHitMin() > range) return null;
+            if (entityHit.getHitMin() > range)
+                return null;
 
             return entityHit;
         }
 
         // Simply check where known victim was hit and whether it was in range
         HitBox entityBox = CompatibilityAPI.getEntityCompatibility().getHitBox(knownVictim);
-        if (entityBox == null) return null;
+        if (entityBox == null)
+            return null;
 
         RayTraceResult rayTraceResult = entityBox.rayTrace(eyeLocationToVector, direction);
         if (rayTraceResult == null || (range > 0 && rayTraceResult.getHitMin() > range))
@@ -192,7 +197,7 @@ public class MeleeHandler implements IValidator {
         String meleeAttachment = data.of("Melee_Attachment").get(null);
         if (!enableMelee && meleeAttachment == null) {
             throw data.exception(null, "You must use either 'Enable_Melee: true' or 'Melee_Attachment: <weapon>'",
-                    "You cannot use the 'Melee' key without 1 of those 2 options");
+                "You cannot use the 'Melee' key without 1 of those 2 options");
         }
 
         int meleeHitDelay = data.of("Melee_Hit_Delay").assertPositive().getInt(0);

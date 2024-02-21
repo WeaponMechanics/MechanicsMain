@@ -16,12 +16,11 @@ import java.util.function.BiConsumer;
 import static me.deecaad.core.MechanicsCore.debug;
 
 /**
- * This class outlines an ordered configuration. Elements are added in
- * insertion order, which may be useful for saving key-value pairs
- * back to hard files.
+ * This class outlines an ordered configuration. Elements are added in insertion order, which may be
+ * useful for saving key-value pairs back to hard files.
  *
- * {@link LinkedHashMap} seems to have a faster {@link Map#get(Object)} method
- * then the {@link java.util.HashMap}.
+ * {@link LinkedHashMap} seems to have a faster {@link Map#get(Object)} method then the
+ * {@link java.util.HashMap}.
  */
 public class LinkedConfig extends LinkedHashMap<String, Object> implements Configuration {
 
@@ -68,8 +67,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
         }
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public Object set(String key, Object value) {
         return super.put(key, value);
     }
@@ -139,8 +137,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
         }
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     @SuppressWarnings("unchecked")
     public List<String> getList(@NotNull String key) {
         Object value = super.get(key);
@@ -162,8 +159,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
         }
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public String getString(@NotNull String key) {
         Object value = super.get(key);
         if (!(value instanceof String)) {
@@ -183,8 +179,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
         }
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public Object getObject(@NotNull String key) {
         return super.get(key);
     }
@@ -194,8 +189,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
         return super.getOrDefault(key, def);
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public <T> T getObject(@NotNull String key, @NotNull Class<T> clazz) {
         Object value = super.get(key);
         if (!clazz.isInstance(value)) {
@@ -227,17 +221,19 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
 
     @Override
     public void forEach(@NotNull String basePath, @NotNull BiConsumer<String, Object> consumer, boolean deep) {
-        int memorySections = StringUtil.countChars('.', basePath);
-        if (basePath.isEmpty()) memorySections--;
+        int memorySections = StringUtil.countOccurrences(basePath, '.');
+        if (basePath.isEmpty())
+            memorySections--;
 
         // Avoiding lambda for debugging
         for (Map.Entry<String, Object> entry : entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
 
-            if (!key.startsWith(basePath)) continue;
+            if (!key.startsWith(basePath))
+                continue;
 
-            int currentMemorySections = StringUtil.countChars('.', key);
+            int currentMemorySections = StringUtil.countOccurrences(key, '.');
             if (!deep && currentMemorySections == memorySections + 1) {
                 consumer.accept(key, value);
             } else if (deep && currentMemorySections > memorySections) {

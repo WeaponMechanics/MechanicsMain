@@ -52,7 +52,7 @@ public class WorldTargeter extends Targeter {
 
         // User may have typed the name of the world wrong... It is case-sensitive
         if (worldCache == null) {
-            MechanicsCore.debug.warn("There was an error getting the world for '" + worldName  + "'");
+            MechanicsCore.debug.warn("There was an error getting the world for '" + worldName + "'");
             return Collections.emptyIterator();
         }
 
@@ -77,24 +77,21 @@ public class WorldTargeter extends Targeter {
         return "World";
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public String getWikiLink() {
         return "https://cjcrafter.gitbook.io/mechanics/targeters/world";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Targeter serialize(@NotNull SerializeData data) throws SerializerException {
         String worldName = data.of("World").assertType(String.class).get(null);
         return applyParentArgs(data, new WorldTargeter(worldName));
     }
 
     /**
-     * Returns <code>true</code> if this targeter uses the default values. This
-     * is checked in the {@link me.deecaad.core.mechanics.PlayerEffectMechanicList}
-     * to determine if a mechanic is eligible to have its targeters cached for
-     * improved performance.
+     * Returns <code>true</code> if this targeter uses the default values. This is checked in the
+     * {@link me.deecaad.core.mechanics.PlayerEffectMechanicList} to determine if a mechanic is eligible
+     * to have its targeters cached for improved performance.
      *
      * @return true if this has default values.
      */

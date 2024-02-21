@@ -16,16 +16,16 @@ import java.util.Objects;
 import java.util.Set;
 
 public class SpreadImage implements Serializer<SpreadImage> {
-    
+
     private ProbabilityMap<Point> points;
     private int height, width;
-    
+
     /**
      * Default constructor for serializer
      */
     public SpreadImage() {
     }
-    
+
     public SpreadImage(Sprite sprite, double fovWidth, double fovHeight) {
         this.points = new ProbabilityMap<>();
         this.width = sprite.getWidth();
@@ -36,7 +36,7 @@ public class SpreadImage implements Serializer<SpreadImage> {
 
         double xMiddle = width / 2.0;
         double yMiddle = height / 2.0;
-        
+
         int[][] pixels = sprite.getPixels();
         for (int y = 0; y < pixels.length; y++) {
             for (int x = 0; x < pixels[y].length; x++) {
@@ -49,7 +49,7 @@ public class SpreadImage implements Serializer<SpreadImage> {
 
                 if (r != g || r != b) {
                     throw new IllegalArgumentException("Found an image that used colors instead of a shade " +
-                            "of gray at pixel x:" + x + " y:" + y);
+                        "of gray at pixel x:" + x + " y:" + y);
                 }
 
                 int grayScale = 255 - r;
@@ -64,30 +64,28 @@ public class SpreadImage implements Serializer<SpreadImage> {
             }
         }
     }
-    
+
     public int getHeight() {
         return height;
     }
-    
+
     public int getWidth() {
         return width;
     }
 
     /**
-     * Gets a given number of random points (x, y) from
-     * <code>this.points</code> using the value of that
+     * Gets a given number of random points (x, y) from <code>this.points</code> using the value of that
      * point as the chance for that point to be selected.
      *
-     * If not enough points are found in the allowed number
-     * of checks, then random points are selected, not taking
-     * the point's value into account
+     * If not enough points are found in the allowed number of checks, then random points are selected,
+     * not taking the point's value into account
      *
      * @param amount Number of points to get
      * @return The found points
      */
     public Set<Point> getLocations(int amount) {
         Set<Point> points = new HashSet<>();
-        
+
         while (points.size() < amount) {
             points.add(this.points.get());
         }
@@ -105,8 +103,7 @@ public class SpreadImage implements Serializer<SpreadImage> {
     }
 
     @Override
-    @NotNull
-    public SpreadImage serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public SpreadImage serialize(@NotNull SerializeData data) throws SerializerException {
         String imageName = data.of("Name").assertExists().assertType(String.class).get();
 
         // 9/10, people will be using a png. If no file extension is provided,
@@ -114,7 +111,7 @@ public class SpreadImage implements Serializer<SpreadImage> {
         if (!imageName.contains("\\."))
             imageName += ".png";
 
-        double FOVWidth  = data.of("Field_Of_View_Width").assertExists().assertRange(0.0, 360.0).getDouble();
+        double FOVWidth = data.of("Field_Of_View_Width").assertExists().assertRange(0.0, 360.0).getDouble();
         double FOVHeight = data.of("Field_Of_View_Height").assertExists().assertRange(0.0, 360.0).getDouble();
 
         File dataFolder = WeaponMechanics.getPlugin().getDataFolder();
@@ -124,16 +121,16 @@ public class SpreadImage implements Serializer<SpreadImage> {
         if (!spritesFolder.exists()) {
             spritesFolder.mkdirs();
             WeaponMechanics.debug.warn("The spread image folder seems to be missing",
-                    "Perhaps you accidentally deleted it? Or perhaps the plugin failed on first load?",
-                    "We'll add one back for you, make sure you drag and drop your images into it.",
-                    "You are going to see an error on the next line. This is because the folder is empty.",
-                    ""); // + empty line for spacing
+                "Perhaps you accidentally deleted it? Or perhaps the plugin failed on first load?",
+                "We'll add one back for you, make sure you drag and drop your images into it.",
+                "You are going to see an error on the next line. This is because the folder is empty.",
+                ""); // + empty line for spacing
         }
 
         if (!spriteFile.exists()) {
             throw data.exception("Name", "No spread image '" + spriteFile + "' exists",
-                    "Make sure you spelled the name correctly",
-                    SerializerException.didYouMean(imageName, Arrays.asList(Objects.requireNonNull(spritesFolder.list()))));
+                "Make sure you spelled the name correctly",
+                SerializerException.didYouMean(imageName, Arrays.asList(Objects.requireNonNull(spritesFolder.list()))));
         }
 
         Sprite sprite;
@@ -141,14 +138,14 @@ public class SpreadImage implements Serializer<SpreadImage> {
             sprite = new Sprite(spriteFile);
         } catch (IOException ex) {
             throw data.exception("Name", "There was an error while reading the file '" + spriteFile + "'",
-                    "Are you sure it is an image? Was it corrupted? Can you open the image normally?",
-                    ex.getClass() + ": " + ex.getMessage());
+                "Are you sure it is an image? Was it corrupted? Can you open the image normally?",
+                ex.getClass() + ": " + ex.getMessage());
         }
 
         SpreadImage image = new SpreadImage(sprite, FOVWidth, FOVHeight);
         if (image.points.isEmpty()) {
             throw data.exception("Name", "The spread image '" + imageName + "' is either blank, or colored",
-                    "Make sure '" + imageName + "' is black and white");
+                "Make sure '" + imageName + "' is black and white");
         }
 
         return image;

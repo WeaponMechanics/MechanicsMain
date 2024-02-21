@@ -12,9 +12,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.tags.CustomItemTagContainer;
 import org.bukkit.inventory.meta.tags.ItemTagType;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nonnull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,10 +25,9 @@ public class NBT_1_13_R2 implements NBTCompatibility {
     static {
         if (ReflectionUtil.getMCVersion() != 13) {
             me.deecaad.core.MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + NBT_1_13_R2.class + " when not using Minecraft 13",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + NBT_1_13_R2.class + " when not using Minecraft 13",
+                new InternalError());
         }
     }
 
@@ -167,20 +165,17 @@ public class NBT_1_13_R2 implements NBTCompatibility {
         nbt.removeCustomTag(getKey(plugin, key));
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public net.minecraft.server.v1_13_R2.ItemStack getNMSStack(@NotNull ItemStack bukkitStack) {
         return CraftItemStack.asNMSCopy(bukkitStack);
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public ItemStack getBukkitStack(@NotNull Object nmsStack) {
         return CraftItemStack.asBukkitCopy((net.minecraft.server.v1_13_R2.ItemStack) nmsStack);
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public String getNBTDebug(@NotNull ItemStack bukkitStack) {
         NBTTagCompound nbt = getNMSStack(bukkitStack).getTag();
         if (nbt == null)

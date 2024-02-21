@@ -38,8 +38,7 @@ public class EntityToggleInMidairEvent extends Event {
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

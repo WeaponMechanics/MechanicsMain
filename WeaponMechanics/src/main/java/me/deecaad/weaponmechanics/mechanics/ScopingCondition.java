@@ -31,8 +31,7 @@ public class ScopingCondition extends Condition {
         return "https://cjcrafter.gitbook.io/mechanics/integrations/weaponmechanics#scoping";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         return applyParentArgs(data, new ScopingCondition());
     }

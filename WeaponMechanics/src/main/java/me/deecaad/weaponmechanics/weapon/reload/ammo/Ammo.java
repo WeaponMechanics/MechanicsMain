@@ -52,8 +52,7 @@ public class Ammo implements Keyable, Serializer<Ammo> {
         return ammoTitle;
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Ammo serialize(@NotNull SerializeData data) throws SerializerException {
         String[] split = data.key.split("\\.");
         String ammoTitle = split[split.length - 1];
@@ -61,8 +60,8 @@ public class Ammo implements Keyable, Serializer<Ammo> {
 
         if (data.has("Ammo_Types")) {
             throw data.exception("Ammo_Types", "Ammo_Types is outdated since WeaponMechanics 3.0.0",
-                    "In order to use Ammo, you should update your configs. Check the wiki for more info:",
-                    "https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/reload/ammo");
+                "In order to use Ammo, you should update your configs. Check the wiki for more info:",
+                "https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/reload/ammo");
         }
 
         // Ammo can use 1 of Experience, Money, or Items.
@@ -128,8 +127,10 @@ public class Ammo implements Keyable, Serializer<Ammo> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Ammo ammo = (Ammo) o;
         return Objects.equals(ammoTitle, ammo.ammoTitle);
     }

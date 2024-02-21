@@ -41,9 +41,9 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
     }
 
     public ProjectileSettings(EntityType projectileDisguise, Object disguiseData, double gravity,
-                              boolean removeAtMinimumSpeed, double minimumSpeed, boolean removeAtMaximumSpeed, double maximumSpeed,
-                              double decrease, double decreaseInWater, double decreaseWhenRainingOrSnowing, boolean disableEntityCollisions,
-                              int maximumAliveTicks, double maximumTravelDistance, double size) {
+        boolean removeAtMinimumSpeed, double minimumSpeed, boolean removeAtMaximumSpeed, double maximumSpeed,
+        double decrease, double decreaseInWater, double decreaseWhenRainingOrSnowing, boolean disableEntityCollisions,
+        int maximumAliveTicks, double maximumTravelDistance, double size) {
         this.projectileDisguise = projectileDisguise;
         this.disguiseData = disguiseData;
         this.gravity = gravity;
@@ -63,8 +63,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
     /**
      * @return the entity type this projectile should be disguised as
      */
-    @Nullable
-    public EntityType getProjectileDisguise() {
+    @Nullable public EntityType getProjectileDisguise() {
         return this.projectileDisguise;
     }
 
@@ -73,15 +72,12 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
     }
 
     /**
-     * Only certain entities need this. For example falling block, entity item and so on.
-     * FALLING_BLOCK -> Material
-     * ENTITY_ITEM -> ItemStack
-     * FIREWORK -> ItemStack with FireworkMeta
+     * Only certain entities need this. For example falling block, entity item and so on. FALLING_BLOCK
+     * -> Material ENTITY_ITEM -> ItemStack FIREWORK -> ItemStack with FireworkMeta
      *
      * @return the item stack which may be used when spawning projectile disguise
      */
-    @Nullable
-    public Object getDisguiseData() {
+    @Nullable public Object getDisguiseData() {
         return disguiseData;
     }
 
@@ -227,8 +223,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
     }
 
     @Override
-    @NotNull
-    public ProjectileSettings serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public ProjectileSettings serialize(@NotNull SerializeData data) throws SerializerException {
 
         String type = data.of("Type").assertExists().get().toString().trim().toUpperCase(Locale.ROOT);
         boolean isInvisible = type.equals("INVISIBLE");
@@ -240,8 +235,8 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
             projectileType = data.of("Type").assertExists().getEnum(EntityType.class);
             ItemStack projectileItem = data.of("Projectile_Item_Or_Block").serialize(new ItemSerializer());
             if ((projectileType == EntityType.DROPPED_ITEM
-                    || projectileType == EntityType.FALLING_BLOCK)
-                    && projectileItem == null) {
+                || projectileType == EntityType.FALLING_BLOCK)
+                && projectileItem == null) {
 
                 throw data.exception(null, "When using " + projectileType + ", you MUST use Projectile_Item_Or_Block");
             }
@@ -250,7 +245,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
                 if (projectileType == EntityType.FIREWORK && !(projectileItem.getItemMeta() instanceof FireworkMeta)) {
 
                     throw data.exception(null, "When using " + projectileType + ", the item must be a firework",
-                            SerializerException.forValue(projectileItem));
+                        SerializerException.forValue(projectileItem));
                 }
 
                 if (projectileType == EntityType.FALLING_BLOCK) {
@@ -260,13 +255,13 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
                 }
 
                 if (projectileType != EntityType.DROPPED_ITEM
-                        && projectileType != EntityType.FALLING_BLOCK
-                        && projectileType != EntityType.FIREWORK
-                        && projectileType != EntityType.ARMOR_STAND
-                        && (ReflectionUtil.getMCVersion() >= 19 && projectileType != EntityType.ITEM_DISPLAY && projectileType != EntityType.BLOCK_DISPLAY)) {
+                    && projectileType != EntityType.FALLING_BLOCK
+                    && projectileType != EntityType.FIREWORK
+                    && projectileType != EntityType.ARMOR_STAND
+                    && (ReflectionUtil.getMCVersion() >= 19 && projectileType != EntityType.ITEM_DISPLAY && projectileType != EntityType.BLOCK_DISPLAY)) {
 
                     throw data.exception(null, "When using " + projectileType + ", you CAN'T use Projectile_Item_Or_Block",
-                            SerializerException.forValue(projectileItem));
+                        SerializerException.forValue(projectileItem));
                 }
             }
         }
@@ -289,8 +284,8 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
         double size = data.of("Size").assertPositive().getDouble(0.1);
 
         return new ProjectileSettings(projectileType, disguiseData, gravity, removeAtMinimumSpeed, minimumSpeed,
-                removeAtMaximumSpeed, maximumSpeed, decrease, decreaseInWater, decreaseWhenRainingOrSnowing,
-                disableEntityCollisions, maximumAliveTicks, maximumTravelDistance, size);
+            removeAtMaximumSpeed, maximumSpeed, decrease, decreaseInWater, decreaseWhenRainingOrSnowing,
+            disableEntityCollisions, maximumAliveTicks, maximumTravelDistance, size);
     }
 
     @Override

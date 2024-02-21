@@ -66,8 +66,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
     }
 
     @Override
-    @NotNull
-    public ItemStack serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public ItemStack serialize(@NotNull SerializeData data) throws SerializerException {
         return serializeWithTags(data, Collections.emptyMap());
     }
 
@@ -142,7 +141,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             Collection<String> options = ex.getOptions();
             options.addAll(ITEM_REGISTRY.keySet());
             throw new SerializerOptionsException(ex.getSerializerName(), "Material", options, ex.getActual(), data.of().getLocation())
-                    .addMessage("https://github.com/WeaponMechanics/MechanicsMain/wiki/References#materials");
+                .addMessage("https://github.com/WeaponMechanics/MechanicsMain/wiki/References#materials");
         }
 
         return null;
@@ -157,7 +156,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null) {
             throw data.exception("Type", "Did you use air as a material? This is not allowed!",
-                    SerializerException.forValue(type));
+                SerializerException.forValue(type));
         }
 
         String name = data.of("Name").getAdventure(null);
@@ -187,7 +186,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 itemMeta.setLore(temp);
             else
                 ReflectionUtil.setField(loreField, itemMeta, temp);
-            //ReflectionUtil.invokeMethod(safelyAdd, null, ReflectionUtil.invokeField(loreField, itemMeta), temp, true);
+            // ReflectionUtil.invokeMethod(safelyAdd, null, ReflectionUtil.invokeField(loreField, itemMeta),
+            // temp, true);
         }
 
         short durability = (short) data.of("Durability").assertPositive().getInt(-99);
@@ -217,10 +217,9 @@ public class ItemSerializer implements Serializer<ItemStack> {
         }
 
         List<String[]> enchantments = data.ofList("Enchantments")
-                .addArgument(Enchantment.class, true, true)
-                .addArgument(int.class, true)
-                .assertList().get();
-
+            .addArgument(Enchantment.class, true, true)
+            .addArgument(int.class, true)
+            .assertList().get();
 
         if (enchantments != null) {
             for (String[] split : enchantments) {
@@ -232,8 +231,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 }
                 if (enchant == null) {
                     throw new SerializerOptionsException("Item", "Enchantment",
-                            Arrays.stream(Enchantment.values()).map(ench -> ReflectionUtil.getMCVersion() < 13 ? ench.getName() : ench.getKey().getKey()).collect(Collectors.toList()),
-                            split[0], data.of("Enchantments").getLocation());
+                        Arrays.stream(Enchantment.values()).map(ench -> ReflectionUtil.getMCVersion() < 13 ? ench.getName() : ench.getKey().getKey()).collect(Collectors.toList()),
+                        split[0], data.of("Enchantments").getLocation());
                 }
                 int enchantmentLevel = Integer.parseInt(split[1]);
                 itemMeta.addEnchant(enchant, enchantmentLevel - 1, true);
@@ -244,17 +243,17 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
         // #198
         data.ofList("Tags")
-                .addArgument(String.class, true)
-                .addArgument(int.class, true)
-                .assertList().stream().forEach(split -> {
-                    CompatibilityAPI.getNBTCompatibility().setInt(itemStack, "Custom", split[0], Integer.parseInt(split[1]));
-                });
+            .addArgument(String.class, true)
+            .addArgument(int.class, true)
+            .assertList().stream().forEach(split -> {
+                CompatibilityAPI.getNBTCompatibility().setInt(itemStack, "Custom", split[0], Integer.parseInt(split[1]));
+            });
 
         List<String[]> attributes = data.ofList("Attributes")
-                .addArgument(AttributeType.class, true)
-                .addArgument(double.class, true)
-                .addArgument(NBTCompatibility.AttributeSlot.class, false)
-                .assertList().get();
+            .addArgument(AttributeType.class, true)
+            .addArgument(double.class, true)
+            .addArgument(NBTCompatibility.AttributeSlot.class, false)
+            .assertList().get();
 
         if (attributes != null) {
             for (String[] split : attributes) {
@@ -284,7 +283,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 }
 
                 // Custom skull format... "UUID URL"
-                // "970e0a59-b95d-45a9-9039-b43ac4fbfc7c https://textures.minecraft.net/texture/a0564817fcc8dd51bc1957c0b7ea142db687dd6f1caafd35bb4dcfee592421c"
+                // "970e0a59-b95d-45a9-9039-b43ac4fbfc7c
+                // https://textures.minecraft.net/texture/a0564817fcc8dd51bc1957c0b7ea142db687dd6f1caafd35bb4dcfee592421c"
                 // https://www.spigotmc.org/threads/create-a-skull-item-stack-with-a-custom-texture-base64.82416/
                 if (uuid != null && url != null) {
                     GameProfile dummy = new GameProfile(uuid, "ArmorMechanicsSkull");
@@ -308,7 +308,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 itemStack.setItemMeta(skullMeta);
             } catch (ClassCastException e) {
                 throw data.exception("Skull_Owning_Player", "Tried to use Skulls when the item wasn't a player head!",
-                        SerializerException.forValue(type));
+                    SerializerException.forValue(type));
             }
         }
 
@@ -320,7 +320,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 itemStack.setItemMeta(potionMeta);
             } catch (ClassCastException e) {
                 throw data.exception("Potion_Color", "Tried to use Potion Color when the item wasn't a potion!",
-                        SerializerException.forValue(type));
+                    SerializerException.forValue(type));
             }
         }
 
@@ -332,7 +332,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 itemStack.setItemMeta(meta);
             } catch (ClassCastException e) {
                 throw data.exception("Leather_Color", "Tried to use Leather Color when the item wasn't leather armor!",
-                        SerializerException.forValue(type));
+                    SerializerException.forValue(type));
             }
         }
 
@@ -355,12 +355,12 @@ public class ItemSerializer implements Serializer<ItemStack> {
             try {
                 // <FireworkEffect.Type>-<Color>-<Boolean=Trail>-<Boolean=Flicker>-<Color=Fade>
                 List<String[]> list = data.ofList("Firework.Effects")
-                        .addArgument(FireworkEffect.Type.class, true)
-                        .addArgument(ColorSerializer.class, true, true)
-                        .addArgument(boolean.class, false)
-                        .addArgument(boolean.class, false)
-                        .addArgument(ColorSerializer.class, false)
-                        .assertExists().assertList().get();
+                    .addArgument(FireworkEffect.Type.class, true)
+                    .addArgument(ColorSerializer.class, true, true)
+                    .addArgument(boolean.class, false)
+                    .addArgument(boolean.class, false)
+                    .addArgument(ColorSerializer.class, false)
+                    .assertExists().assertList().get();
 
                 FireworkMeta meta = (FireworkMeta) itemMeta;
                 meta.setPower(data.of("Firework.Power").assertPositive().getInt(1));
@@ -388,14 +388,14 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 itemStack.setItemMeta(meta);
             } catch (ClassCastException ex) {
                 throw data.exception("Firework", "Tried to use Firework when the item wasn't a firework rocket!",
-                        SerializerException.forValue(type));
+                    SerializerException.forValue(type));
             }
         }
 
         if (data.has("Light_Level")) {
             if (ReflectionUtil.getMCVersion() < 17) {
                 throw data.exception("Light_Level", "Tried to use light level before MC 1.17!",
-                        "The light block was added in Minecraft version 1.17!");
+                    "The light block was added in Minecraft version 1.17!");
             }
 
             try {
@@ -442,9 +442,9 @@ public class ItemSerializer implements Serializer<ItemStack> {
         }
 
         // The Recipe.Shape should be a list looking similar to:
-        //   - ABC
-        //   - DEF
-        //   - GHI
+        // - ABC
+        // - DEF
+        // - GHI
         List<Object> shape = data.of("Recipe.Shape").assertExists().assertType(List.class).get();
         String[] shapeArr = shape.stream().map(Object::toString).toArray(String[]::new);
         if (shape.size() < 1 || shape.size() > 3)
@@ -471,7 +471,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             recipe.shape(shapeArr);
         } catch (Throwable ex) {
             throw data.exception("Recipe.Shape", "Recipe Shape was formatted incorrectly",
-                    ex.getMessage(), SerializerException.forValue(shape));
+                ex.getMessage(), SerializerException.forValue(shape));
         }
 
         // Shaped recipes in 1.12 and lower just use a map of

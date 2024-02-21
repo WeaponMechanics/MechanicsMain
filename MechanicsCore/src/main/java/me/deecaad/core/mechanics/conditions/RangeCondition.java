@@ -46,8 +46,7 @@ public class RangeCondition extends Condition {
         return "https://cjcrafter.gitbook.io/mechanics/conditions/range";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         double minNum = data.of("Min").assertPositive().getDouble(-1.0);
         double maxNum = data.of("Max").assertPositive().getDouble(-1.0);

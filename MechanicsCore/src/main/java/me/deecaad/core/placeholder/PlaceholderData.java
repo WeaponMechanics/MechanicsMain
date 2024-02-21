@@ -15,52 +15,44 @@ import java.util.Map;
  */
 public interface PlaceholderData {
 
-    @Nullable
-    default Player player() {
+    @Nullable default Player player() {
         return null;
     }
 
-    @Nullable
-    default ItemStack item() {
+    @Nullable default ItemStack item() {
         return null;
     }
 
-    @Nullable
-    default String itemTitle() {
+    @Nullable default String itemTitle() {
         return null;
     }
 
-    @Nullable
-    default EquipmentSlot slot() {
+    @Nullable default EquipmentSlot slot() {
         return null;
     }
 
-    @NotNull
-    Map<String, String> placeholders();
+    @NotNull Map<String, String> placeholders();
 
     static Builder builder() {
         return new Builder();
     }
 
     static PlaceholderData of(
-            @Nullable Player player,
-            @Nullable ItemStack item,
-            @Nullable String itemTitle,
-            @Nullable EquipmentSlot slot
-    ) {
+        @Nullable Player player,
+        @Nullable ItemStack item,
+        @Nullable String itemTitle,
+        @Nullable EquipmentSlot slot) {
         return new Direct(player, item, itemTitle, slot, new HashMap<>());
     }
 
     static PlaceholderData of(
-            @Nullable Player player,
-            @Nullable ItemStack item,
-            @Nullable String itemTitle,
-            @Nullable EquipmentSlot slot,
-            @NotNull Map<String, String> tempPlaceholders
-    ) {
+        @Nullable Player player,
+        @Nullable ItemStack item,
+        @Nullable String itemTitle,
+        @Nullable EquipmentSlot slot,
+        @NotNull Map<String, String> tempPlaceholders) {
         return new Direct(player, item, itemTitle, slot, tempPlaceholders);
     }
-
 
     class Builder implements PlaceholderData {
         @Nullable private Player player;
@@ -71,36 +63,31 @@ public interface PlaceholderData {
 
         // Setter methods for each field
         @Contract("_ -> this")
-        @NotNull
-        public Builder setPlayer(@Nullable Player player) {
+        @NotNull public Builder setPlayer(@Nullable Player player) {
             this.player = player;
             return this;
         }
 
         @Contract("_ -> this")
-        @NotNull
-        public Builder setItem(@Nullable ItemStack item) {
+        @NotNull public Builder setItem(@Nullable ItemStack item) {
             this.item = item;
             return this;
         }
 
         @Contract("_ -> this")
-        @NotNull
-        public Builder setItemTitle(@Nullable String itemTitle) {
+        @NotNull public Builder setItemTitle(@Nullable String itemTitle) {
             this.itemTitle = itemTitle;
             return this;
         }
 
         @Contract("_ -> this")
-        @NotNull
-        public Builder setSlot(@Nullable EquipmentSlot slot) {
+        @NotNull public Builder setSlot(@Nullable EquipmentSlot slot) {
             this.slot = slot;
             return this;
         }
 
         @Contract("_, _ -> this")
-        @NotNull
-        public Builder setPlaceholder(@NotNull String placeholder, @NotNull String value) {
+        @NotNull public Builder setPlaceholder(@NotNull String placeholder, @NotNull String value) {
             placeholders.put(placeholder, value);
             return this;
         }
@@ -132,13 +119,11 @@ public interface PlaceholderData {
         }
     }
 
-
     record Direct(
-            @Nullable Player player,
-            @Nullable ItemStack item,
-            @Nullable String itemTitle,
-            @Nullable EquipmentSlot slot,
-            @NotNull Map<String, String> placeholders
-    ) implements PlaceholderData {
+        @Nullable Player player,
+        @Nullable ItemStack item,
+        @Nullable String itemTitle,
+        @Nullable EquipmentSlot slot,
+        @NotNull Map<String, String> placeholders) implements PlaceholderData {
     }
 }

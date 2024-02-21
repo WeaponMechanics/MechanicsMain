@@ -10,9 +10,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 
 /**
- * Called whenever a weapon is generated via command or API. This event can be
- * used to modify weapons as players generate them. WeaponMechanicsPlus does this
- * to automatically add attachments based on arguments.
+ * Called whenever a weapon is generated via command or API. This event can be used to modify
+ * weapons as players generate them. WeaponMechanicsPlus does this to automatically add attachments
+ * based on arguments.
  */
 public class WeaponGenerateEvent extends WeaponEvent {
 
@@ -39,8 +39,7 @@ public class WeaponGenerateEvent extends WeaponEvent {
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

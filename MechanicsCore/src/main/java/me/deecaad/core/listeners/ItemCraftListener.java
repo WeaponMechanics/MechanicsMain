@@ -21,16 +21,18 @@ public class ItemCraftListener implements Listener {
 
         // LAST UPDATE IN VERSION 1.18
         craftingInventories = new HashSet<>(Arrays.asList("ANVIL", "BEACON",
-                "BLAST_FURNACE", "BREWING", "CARTOGRAPHY", "COMPOSTER", "CRAFTING", "ENCHANTING", "FURNACE",
-                "GRINDSTONE", "LOOM", "MERCHANT", "SMITHING", "SMOKER", "STONECUTTER", "WORKBENCH"));
+            "BLAST_FURNACE", "BREWING", "CARTOGRAPHY", "COMPOSTER", "CRAFTING", "ENCHANTING", "FURNACE",
+            "GRINDSTONE", "LOOM", "MERCHANT", "SMITHING", "SMOKER", "STONECUTTER", "WORKBENCH"));
     }
 
     @EventHandler
     public void click(InventoryClickEvent event) {
-        if (event.isCancelled()) return;
+        if (event.isCancelled())
+            return;
 
         InventoryType.SlotType slotType = event.getSlotType();
-        if (slotType == InventoryType.SlotType.OUTSIDE) return;
+        if (slotType == InventoryType.SlotType.OUTSIDE)
+            return;
 
         ClickType clickType = event.getClick();
         Inventory clickedInventory = event.getClickedInventory();
@@ -43,17 +45,17 @@ public class ItemCraftListener implements Listener {
 
         // 1) Deny shift + click from player inventory
         if ((clickType.isShiftClick() || event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) // Check if shift click
-                && clickedInventory == playerInventory // Check if clicked in player inventory
-                && isCraftingInventory(topInventoryType) // Check if the top inventory is crafting inventory
-                && isDenyCraftingItem(event.getCurrentItem())) { // Check if clicked item should be denied from moving
+            && clickedInventory == playerInventory // Check if clicked in player inventory
+            && isCraftingInventory(topInventoryType) // Check if the top inventory is crafting inventory
+            && isDenyCraftingItem(event.getCurrentItem())) { // Check if clicked item should be denied from moving
             event.setCancelled(true);
             return;
         }
 
         // 2) Deny basic inventory click
         if (clickedInventory != playerInventory // Check if clicked inventory isn't player inventory
-                && isCraftingSlotType(slotType) // Check if clicked slot type was something that can be in crafting inventory
-                && isDenyCraftingItem(event.getCursor())) { // Check if cursor item should be denied from moving
+            && isCraftingSlotType(slotType) // Check if clicked slot type was something that can be in crafting inventory
+            && isDenyCraftingItem(event.getCursor())) { // Check if cursor item should be denied from moving
             event.setCancelled(true);
             return;
         }
@@ -62,26 +64,29 @@ public class ItemCraftListener implements Listener {
 
         // 3) Deny hotbar swap
         if (clickedInventory != playerInventory
-                && clickType == ClickType.NUMBER_KEY
-                && isCraftingSlotType(slotType)
-                && isDenyCraftingItem(playerInventory.getItem(hotbarButton))) {
+            && clickType == ClickType.NUMBER_KEY
+            && isCraftingSlotType(slotType)
+            && isDenyCraftingItem(playerInventory.getItem(hotbarButton))) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
     public void drag(InventoryDragEvent event) {
-        if (event.isCancelled()) return;
+        if (event.isCancelled())
+            return;
         // 4) Deny when dragging
 
         // If "external" inventory is not open, this is player's CRAFTING inventory
         Inventory topInventory = event.getView().getTopInventory();
 
         // Check if top inventory is crafting inventory
-        if (!isCraftingInventory(topInventory.getType())) return;
+        if (!isCraftingInventory(topInventory.getType()))
+            return;
 
         // Check if the item should be denied
-        if (!isDenyCraftingItem(event.getOldCursor())) return;
+        if (!isDenyCraftingItem(event.getOldCursor()))
+            return;
 
         // Now we iterate raw slots where item was being dragged to
         for (int rawSlot : event.getRawSlots()) {
@@ -100,20 +105,21 @@ public class ItemCraftListener implements Listener {
 
     @EventHandler
     public void moveItem(InventoryMoveItemEvent event) {
-        if (event.isCancelled()) return;
+        if (event.isCancelled())
+            return;
 
         // 5) Deny when anything (hopper mostly) tries to move item
 
         if (isCraftingInventory(event.getDestination().getType())
-                && isDenyCraftingItem(event.getItem())) {
+            && isDenyCraftingItem(event.getItem())) {
             event.setCancelled(true);
         }
     }
 
     private boolean isCraftingSlotType(InventoryType.SlotType slotType) {
         return slotType == InventoryType.SlotType.CRAFTING
-                || slotType == InventoryType.SlotType.FUEL
-                || slotType == InventoryType.SlotType.RESULT;
+            || slotType == InventoryType.SlotType.FUEL
+            || slotType == InventoryType.SlotType.RESULT;
     }
 
     private boolean isCraftingInventory(InventoryType inventoryType) {
@@ -121,7 +127,8 @@ public class ItemCraftListener implements Listener {
     }
 
     private boolean isDenyCraftingItem(ItemStack itemStack) {
-        if (itemStack == null || !itemStack.hasItemMeta()) return false;
+        if (itemStack == null || !itemStack.hasItemMeta())
+            return false;
         return CompatibilityAPI.getNBTCompatibility().getInt(itemStack, "MechanicsCore", "deny-crafting") == 1;
     }
 }

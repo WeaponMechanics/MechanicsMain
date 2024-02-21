@@ -36,7 +36,6 @@ public class CommandBuilder implements Cloneable {
     TextComponent cache;
     CommandBuilder friend;
 
-
     public CommandBuilder(String label) {
         if (label == null || label.trim().isEmpty())
             throw new IllegalArgumentException("null or empty string: " + label);
@@ -128,14 +127,12 @@ public class CommandBuilder implements Cloneable {
 
         if (ReflectionUtil.getMCVersion() >= 13) {
             BrigadierCommand.register(this);
-        }
-        else {
+        } else {
             throw new IllegalStateException("oops forgot to add legacy");
         }
 
         return this;
     }
-
 
     public CommandBuilder registerHelp(HelpCommandBuilder.HelpColor color) {
         HelpCommandBuilder.register(this, color);
@@ -143,9 +140,8 @@ public class CommandBuilder implements Cloneable {
     }
 
     /**
-     * A command not can have both <b>arguments</b> and <b>sub-commands</b>.
-     * If a command is without sub-commands, it must have an executor.
-     * These rules apply to sub-commands.
+     * A command not can have both <b>arguments</b> and <b>sub-commands</b>. If a command is without
+     * sub-commands, it must have an executor. These rules apply to sub-commands.
      */
     private void validate() {
         if (!args.isEmpty() && !subcommands.isEmpty())
@@ -184,10 +180,10 @@ public class CommandBuilder implements Cloneable {
     @Override
     public String toString() {
         return "/" + label + " " + args.stream()
-                .map(arg -> LiteralArgumentType.class.isInstance(arg.getType()) ? arg.getName() : "<" + arg.getName() + ">")
-                .collect(Collectors.joining(" "))
-                + " "
-                + Arrays.stream(optionalDefaultValues)
+            .map(arg -> LiteralArgumentType.class.isInstance(arg.getType()) ? arg.getName() : "<" + arg.getName() + ">")
+            .collect(Collectors.joining(" "))
+            + " "
+            + Arrays.stream(optionalDefaultValues)
                 .map(Objects::toString)
                 .collect(Collectors.joining(" "));
     }

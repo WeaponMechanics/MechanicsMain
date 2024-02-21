@@ -1,13 +1,7 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
-    id("me.deecaad.java-conventions")
-    id("com.github.johnrengelman.shadow") version "7.1.0"
+    id("me.deecaad.mechanics-project")
+    id("com.github.johnrengelman.shadow") version "8.1.1"
     id("net.minecrell.plugin-yml.bukkit") version "0.5.1"
-}
-
-configurations {
-    compileClasspath.get().extendsFrom(create("shadeOnly"))
 }
 
 dependencies {
@@ -16,17 +10,24 @@ dependencies {
     implementation(project(":WorldGuardV6"))
     implementation(project(":WorldGuardV7"))
 
-    implementation(project(":Core_1_12_R1"))
-    implementation(project(":Core_1_13_R2"))
-    implementation(project(":Core_1_14_R1"))
-    implementation(project(":Core_1_15_R1"))
-    implementation(project(":Core_1_16_R3"))
-    implementation(project(":Core_1_17_R1", "reobf"))
-    implementation(project(":Core_1_18_R2", "reobf"))
-    implementation(project(":Core_1_19_R3", "reobf"))
-    implementation(project(":Core_1_20_R1", "reobf"))
-    implementation(project(":Core_1_20_R2", "reobf"))
-    implementation(project(":Core_1_20_R3", "reobf"))
+    // Add all compatibility modules
+    val devMode = findProperty("devMode") == "true"
+    var addedOne = false
+    file("../CoreCompatibility").listFiles()?.forEach {
+        if (it.isDirectory && it.name.matches(Regex("Core_\\d+_\\d+_R\\d+"))) {
+            // Use check the reobf variant for all modules 1.17+
+            val major = it.name.split("_")[2].toInt()
+
+            if (major >= 17) {
+                implementation(project(":${it.name}", "reobf"))
+            } else if (!devMode) {
+                implementation(project(":${it.name}"))
+            }
+            addedOne = true
+        }
+    }
+    if (!addedOne)
+        throw IllegalArgumentException("No CoreCompatibility modules found!")
 }
 
 tasks {
@@ -41,7 +42,7 @@ bukkit {
     val mechanicsCoreVersion = findProperty("mechanicsCoreVersion") as? String ?: throw IllegalArgumentException("weaponMechanicsVersion was null")
 
     main = "me.deecaad.core.MechanicsCore"
-    name = "MechanicsCore" // Since we don't want to use "BuildMechanicsCore"\
+    name = "MechanicsCore" // Since we don't want to use "BuildMechanicsCore"
     version = mechanicsCoreVersion
     apiVersion = "1.13"
 
@@ -50,12 +51,11 @@ bukkit {
     loadBefore = listOf("WorldEdit", "WorldGuard", "PlaceholderAPI", "MythicMobs", "Geyser-Spigot")
 }
 
-tasks.named<ShadowJar>("shadowJar") {
+tasks.shadowJar {
     val mechanicsCoreVersion = findProperty("mechanicsCoreVersion") as? String ?: throw IllegalArgumentException("weaponMechanicsVersion was null")
 
     destinationDirectory.set(file("../build"))
     archiveFileName.set("MechanicsCore-$mechanicsCoreVersion.jar")
-    configurations = listOf(project.configurations["shadeOnly"], project.configurations["runtimeClasspath"])
 
     dependencies {
         include(project(":MechanicsCore"))
@@ -63,17 +63,26 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":WorldGuardV6"))
         include(project(":WorldGuardV7"))
 
-        include(project(":Core_1_12_R1"))
-        include(project(":Core_1_13_R2"))
-        include(project(":Core_1_14_R1"))
-        include(project(":Core_1_15_R1"))
-        include(project(":Core_1_16_R3"))
-        include(project(":Core_1_17_R1"))
-        include(project(":Core_1_18_R2"))
-        include(project(":Core_1_19_R3"))
-        include(project(":Core_1_20_R1"))
-        include(project(":Core_1_20_R2"))
-        include(project(":Core_1_20_R3"))
+        // Add all compatibility modules
+        val devMode = findProperty("devMode") == "true"
+        var addedOne = false
+        file("../CoreCompatibility").listFiles()?.forEach {
+            if (it.isDirectory && it.name.matches(Regex("Core_\\d+_\\d+_R\\d+"))) {
+                // Filter out projects when in devMode
+                val major = it.name.split("_")[2].toInt()
+                if (devMode && major < 17)
+                    return@forEach
+
+                include(project(":${it.name}"))
+                addedOne = true
+            }
+        }
+        if (!addedOne)
+            throw IllegalArgumentException("No CoreCompatibility modules found!")
+
+        relocate("kotlin.", "me.deecaad.core.lib.kotlin.") {
+            include(dependency("org.jetbrains.kotlin:"))
+        }
 
         relocate ("net.kyori", "me.deecaad.core.lib") {
             include(dependency("net.kyori::"))
@@ -87,12 +96,4 @@ tasks.named<ShadowJar>("shadowJar") {
             include(dependency("org.slf4j::"))
         }
     }
-
-    doFirst {
-        println("Compile MechanicsCore")
-    }
-}
-
-tasks.named("assemble").configure {
-    dependsOn("shadowJar")
 }

@@ -8,23 +8,20 @@ import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A condition is a simple true/false statement that decides whether a
- * {@link Mechanic} is allowed to be used (on a specific entity, in a specific
- * world, etc.).
+ * A condition is a simple true/false statement that decides whether a {@link Mechanic} is allowed
+ * to be used (on a specific entity, in a specific world, etc.).
  */
 public abstract class Condition implements InlineSerializer<Condition> {
 
     private boolean isInverted;
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public String getWikiLink() {
         return "https://cjcrafter.gitbook.io/mechanics/#conditions";
     }
 
     /**
-     * Returns <code>true</code> if {@link Mechanic} that holds this condition
-     * is allowed to be used.
+     * Returns <code>true</code> if {@link Mechanic} that holds this condition is allowed to be used.
      *
      * @param cast The non-null data involving the who/what/where.
      * @return true if the mechanic can be used.

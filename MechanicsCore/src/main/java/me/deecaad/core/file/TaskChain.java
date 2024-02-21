@@ -128,7 +128,10 @@ public class TaskChain {
         if (runnable == null)
             throw new IllegalArgumentException("Function cannot be null");
 
-        Task task = new Task((ignore) -> { runnable.run(); return null; }, false);
+        Task task = new Task((ignore) -> {
+            runnable.run();
+            return null;
+        }, false);
         run(task);
         return this;
     }
@@ -137,7 +140,10 @@ public class TaskChain {
         if (runnable == null)
             throw new IllegalArgumentException("Function cannot be null");
 
-        Task task = new Task((ignore) -> { runnable.run(); return null; }, true);
+        Task task = new Task((ignore) -> {
+            runnable.run();
+            return null;
+        }, true);
         run(task);
         return this;
     }

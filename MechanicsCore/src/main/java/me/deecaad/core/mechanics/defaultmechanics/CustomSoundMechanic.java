@@ -8,7 +8,7 @@ import me.deecaad.core.mechanics.PlayerEffectMechanic;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.mechanics.targeters.WorldTargeter;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import org.bukkit.Location;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
@@ -78,7 +78,7 @@ public class CustomSoundMechanic extends PlayerEffectMechanic {
         if (listeners == null) {
             Location loc = cast.getTargetLocation();
 
-            loc.getWorld().playSound(loc, sound, category, volume, pitch + NumberUtil.random(-noise, noise));
+            loc.getWorld().playSound(loc, sound, category, volume, pitch + RandomUtil.range(-noise, noise));
             return;
         }
 
@@ -94,13 +94,12 @@ public class CustomSoundMechanic extends PlayerEffectMechanic {
 
         // Cache to avoid overhead
         Location targetLocation = cast.getTargetLocation();
-        float pitch = this.pitch + NumberUtil.random(-noise, noise);
+        float pitch = this.pitch + RandomUtil.range(-noise, noise);
 
         // When listeners != null, only targeted Players will be able to hear
         // this sound. In this case, we have to loop through every player and
         // manually play the sound packet for them.
-        OUTER:
-        for (Iterator<CastData> it = listeners.getTargets(center); it.hasNext(); ) {
+        OUTER : for (Iterator<CastData> it = listeners.getTargets(center); it.hasNext();) {
             CastData target = it.next();
             if (!(target.getTarget() instanceof Player player))
                 continue;
@@ -123,8 +122,7 @@ public class CustomSoundMechanic extends PlayerEffectMechanic {
         return "https://cjcrafter.gitbook.io/mechanics/mechanics/custom-sound";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         String sound = data.of("Sound").assertExists().assertType(String.class).get();
         float volume = (float) data.of("Volume").assertPositive().getDouble(1.0);
@@ -148,7 +146,7 @@ public class CustomSoundMechanic extends PlayerEffectMechanic {
 
         // Cache to avoid overhead
         Location targetLocation = cast.getTargetLocation();
-        float pitch = this.pitch + NumberUtil.random(-noise, noise);
+        float pitch = this.pitch + RandomUtil.range(-noise, noise);
 
         for (Player player : viewers) {
             player.playSound(targetLocation, sound, category, volume, pitch);

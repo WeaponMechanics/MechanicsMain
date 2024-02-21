@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static net.kyori.adventure.text.Component.*;
 import static org.bukkit.ChatColor.GOLD;
@@ -44,56 +43,56 @@ public final class MechanicsCoreCommand {
 
     public static void build() {
         CommandBuilder command = new CommandBuilder("mechanicscore")
-                .withPermission("mechanicscore.admin")
-                .withDescription("MechanicsCore debug/test commands")
+            .withPermission("mechanicscore.admin")
+            .withDescription("MechanicsCore debug/test commands")
 
-                .withSubcommand(new CommandBuilder("table")
-                        .withPermission("mechanicscore.commands.table")
-                        .withDescription("Helpful tables that are used on the wiki")
+            .withSubcommand(new CommandBuilder("table")
+                .withPermission("mechanicscore.commands.table")
+                .withDescription("Helpful tables that are used on the wiki")
 
-                        .withSubcommand(new CommandBuilder("colors")
-                                .withPermission("mechanicscore.commands.table.colors")
-                                .withDescription("Shows legacy color codes and the adventure version")
-                                .executes(CommandExecutor.any((sender, args) -> {
-                                    tableColors(sender);
-                                }))))
+                .withSubcommand(new CommandBuilder("colors")
+                    .withPermission("mechanicscore.commands.table.colors")
+                    .withDescription("Shows legacy color codes and the adventure version")
+                    .executes(CommandExecutor.any((sender, args) -> {
+                        tableColors(sender);
+                    }))))
 
-                .withSubcommand(new CommandBuilder("item")
-                        .withPermission("mechanicscore.commands.item")
-                        .withDescription("Gives an item from the MechanicsCore > Items folder")
-                        .withArgument(new Argument<>("type", new StringArgumentType()).replace(SuggestionsBuilder.from(ItemSerializer.ITEM_REGISTRY.keySet())))
-                        .executes(CommandExecutor.player((sender, args) -> {
-                            Supplier<ItemStack> item = ItemSerializer.ITEM_REGISTRY.get((String) args[0]);
+            .withSubcommand(new CommandBuilder("item")
+                .withPermission("mechanicscore.commands.item")
+                .withDescription("Gives an item from the MechanicsCore > Items folder")
+                .withArgument(new Argument<>("type", new StringArgumentType()).replace(SuggestionsBuilder.from(ItemSerializer.ITEM_REGISTRY.keySet())))
+                .executes(CommandExecutor.player((sender, args) -> {
+                    Supplier<ItemStack> item = ItemSerializer.ITEM_REGISTRY.get((String) args[0]);
 
-                            if (item == null) {
-                                sender.sendMessage(ChatColor.RED + "Unknown item " + args[0]);
-                                return;
-                            }
+                    if (item == null) {
+                        sender.sendMessage(ChatColor.RED + "Unknown item " + args[0]);
+                        return;
+                    }
 
-                            sender.getInventory().addItem(item.get());
-                        })))
+                    sender.getInventory().addItem(item.get());
+                })))
 
-                .withSubcommand(new CommandBuilder("reloadcommands")
-                        .withPermission("mechanicscore.commands.reloadcommands")
-                        .withDescription("Resends command registry to all online players")
-                        .executes(CommandExecutor.any((sender, args) -> {
-                            reloadCommands(sender);
-                        })))
+            .withSubcommand(new CommandBuilder("reloadcommands")
+                .withPermission("mechanicscore.commands.reloadcommands")
+                .withDescription("Resends command registry to all online players")
+                .executes(CommandExecutor.any((sender, args) -> {
+                    reloadCommands(sender);
+                })))
 
-                .withSubcommand(new CommandBuilder("printcommands")
-                        .withPermission("mechanicscore.commands.printcommands")
-                        .withDescription("Prints the server's entire command registry to json file")
-                        .withArgument(new Argument<>("file", new StringArgumentType(), "commands").append(SuggestionsBuilder.from("file", "commands")))
-                        .executes(CommandExecutor.any((sender, args) -> {
-                            printCommands(sender, (String) args[0]);
-                        })))
+            .withSubcommand(new CommandBuilder("printcommands")
+                .withPermission("mechanicscore.commands.printcommands")
+                .withDescription("Prints the server's entire command registry to json file")
+                .withArgument(new Argument<>("file", new StringArgumentType(), "commands").append(SuggestionsBuilder.from("file", "commands")))
+                .executes(CommandExecutor.any((sender, args) -> {
+                    printCommands(sender, (String) args[0]);
+                })))
 
-                .withSubcommand(new CommandBuilder("plugins")
-                        .withPermission("mechanicscore.commands.plugins")
-                        .withDescription("Shows all plugins currently using MechanicsCore")
-                        .executes(CommandExecutor.any((sender, args) -> {
-                            listPlugins(sender);
-                        })));
+            .withSubcommand(new CommandBuilder("plugins")
+                .withPermission("mechanicscore.commands.plugins")
+                .withDescription("Shows all plugins currently using MechanicsCore")
+                .executes(CommandExecutor.any((sender, args) -> {
+                    listPlugins(sender);
+                })));
 
         HelpCommandBuilder.register(command, HelpCommandBuilder.HelpColor.from(GOLD, GRAY, SYM));
         command.register();
@@ -115,43 +114,43 @@ public final class MechanicsCoreCommand {
 
     public static void listPlugins(CommandSender sender) {
         List<Plugin> plugins = Arrays.stream(Bukkit.getPluginManager().getPlugins())
-                .filter(plugin -> {
-                    PluginDescriptionFile desc = plugin.getDescription();
-                    return desc.getDepend().contains("MechanicsCore") || desc.getSoftDepend().contains("MechanicsCore");
-                }).toList();
+            .filter(plugin -> {
+                PluginDescriptionFile desc = plugin.getDescription();
+                return desc.getDepend().contains("MechanicsCore") || desc.getSoftDepend().contains("MechanicsCore");
+            }).toList();
 
         Style gold = Style.style(NamedTextColor.GOLD);
         Style gray = Style.style(NamedTextColor.GRAY);
         TextComponent table = new TableBuilder()
-                .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS)
-                .withElementChar('-')
-                .withElementCharStyle(gold)
-                .withFillChar('=')
-                .withFillCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH))
-                .withHeader("Plugins using MechanicsCore")
-                .withHeaderStyle(gold)
-                .withElementStyle(gray)
-                .withAttemptSinglePixelFix()
-                .withSupplier(i -> {
-                    if (plugins.size() <= i)
-                        return empty();
+            .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS)
+            .withElementChar('-')
+            .withElementCharStyle(gold)
+            .withFillChar('=')
+            .withFillCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH))
+            .withHeader("Plugins using MechanicsCore")
+            .withHeaderStyle(gold)
+            .withElementStyle(gray)
+            .withAttemptSinglePixelFix()
+            .withSupplier(i -> {
+                if (plugins.size() <= i)
+                    return empty();
 
-                    Plugin plugin = plugins.get(i);
-                    PluginDescriptionFile desc = plugin.getDescription();
+                Plugin plugin = plugins.get(i);
+                PluginDescriptionFile desc = plugin.getDescription();
 
-                    // When the player hovers over the plugin, we should see some
-                    // general plugin info (version, authors)
-                    // TODO All MechanicsCore plugins should inherit from a base class
-                    // TODO to provide more info, like commands and updates. "One stop shopping"
-                    TextComponent.Builder hover = text();
-                    hover.append(text("Version: ", gray)).append(text(desc.getVersion(), gold)).append(newline());
-                    hover.append(text("Authors: ", gray)).append(text(desc.getAuthors().toString(), gold))/*.append(newline())*/;
+                // When the player hovers over the plugin, we should see some
+                // general plugin info (version, authors)
+                // TODO All MechanicsCore plugins should inherit from a base class
+                // TODO to provide more info, like commands and updates. "One stop shopping"
+                TextComponent.Builder hover = text();
+                hover.append(text("Version: ", gray)).append(text(desc.getVersion(), gold)).append(newline());
+                hover.append(text("Authors: ", gray)).append(text(desc.getAuthors().toString(), gold))/* .append(newline()) */;
 
-                    return text().content(plugin.getName().toUpperCase(Locale.ROOT))
-                            .hoverEvent(hover.build())
-                            .build();
-                })
-                .build();
+                return text().content(plugin.getName().toUpperCase(Locale.ROOT))
+                    .hoverEvent(hover.build())
+                    .build();
+            })
+            .build();
 
         MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(table);
     }
@@ -185,48 +184,49 @@ public final class MechanicsCoreCommand {
         decorations.add(new ColorData("&r", "<reset>", NamedTextColor.WHITE));
 
         Component colorComponent = new TableBuilder()
-                .withFillChar('=')
-                .withFillCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH))
-                .withHeader("COLORS")
-                .withHeaderStyle(Style.style(NamedTextColor.GOLD))
-                .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS.setRows(8))
-                .withSupplier(i -> {
-                    return colors.get(i).build();
-                })
-                .build();
+            .withFillChar('=')
+            .withFillCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH))
+            .withHeader("COLORS")
+            .withHeaderStyle(Style.style(NamedTextColor.GOLD))
+            .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS.setRows(8))
+            .withSupplier(i -> {
+                return colors.get(i).build();
+            })
+            .build();
 
         Component decorationComponent = new TableBuilder()
-                .withFillChar('=')
-                .withFillCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH))
-                .withHeader("DECORATIONS")
-                .withHeaderStyle(Style.style(NamedTextColor.GOLD))
-                .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS.setRows(3))
-                .withSupplier(i -> {
-                    return decorations.get(i).build();
-                })
-                .build();
+            .withFillChar('=')
+            .withFillCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH))
+            .withHeader("DECORATIONS")
+            .withHeaderStyle(Style.style(NamedTextColor.GOLD))
+            .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS.setRows(3))
+            .withSupplier(i -> {
+                return decorations.get(i).build();
+            })
+            .build();
 
         Component miscComponent = new TableBuilder()
-                .withFillChar('=')
-                .withFillCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH))
-                .withHeader("MISCELLANEOUS")
-                .withHeaderStyle(Style.style(NamedTextColor.GOLD))
-                .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS.setRows(3).setColumns(1))
-                .withSupplier(i -> {
-                    return switch (i) {
-                        case 0 ->
-                                new ColorData("&#7D5A2D", "<#7D5A2D>", TextColor.color(125, 90, 45)).alt("The five boxing wizards jump quickly").build();
-                        case 1 ->
-                                text("<rainbow> = ").append(MechanicsCore.getPlugin().message.deserialize("<rainbow>The quick brown fox jumps over the lazy dog"));
-                        case 2 ->
-                                text("<gradient:green:#ff0000> = ").append(MechanicsCore.getPlugin().message.deserialize("<gradient:green:#ff0000>A wizard's job is to vex chumps"));
-                        default -> throw new RuntimeException("unreachable code");
-                    };
-                })
-                .build();
+            .withFillChar('=')
+            .withFillCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH))
+            .withHeader("MISCELLANEOUS")
+            .withHeaderStyle(Style.style(NamedTextColor.GOLD))
+            .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS.setRows(3).setColumns(1))
+            .withSupplier(i -> {
+                return switch (i) {
+                    case 0 ->
+                        new ColorData("&#7D5A2D", "<#7D5A2D>", TextColor.color(125, 90, 45)).alt("The five boxing wizards jump quickly").build();
+                    case 1 ->
+                        text("<rainbow> = ").append(MechanicsCore.getPlugin().message.deserialize("<rainbow>The quick brown fox jumps over the lazy dog"));
+                    case 2 ->
+                        text("<gradient:green:#ff0000> = ").append(MechanicsCore.getPlugin().message.deserialize("<gradient:green:#ff0000>A wizard's job is to vex chumps"));
+                    default -> throw new RuntimeException("unreachable code");
+                };
+            })
+            .build();
 
         Audience audience = MechanicsCore.getPlugin().adventure.sender(sender);
-        audience.sendMessage(colorComponent.append(decorationComponent).append(miscComponent).append(new TableBuilder.Line('=', Style.style(NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH)).build()));
+        audience.sendMessage(colorComponent.append(decorationComponent).append(miscComponent).append(new TableBuilder.Line('=', Style.style(NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH))
+            .build()));
     }
 
     private static class ColorData {
@@ -259,7 +259,7 @@ public final class MechanicsCoreCommand {
             TextComponent.Builder builder = text();
             builder.append(text(adventure + " = "));
 
-            String readable = altText != null ? altText : StringUtil.keyToRead(adventure.substring(1, adventure.length() - 1));
+            String readable = altText != null ? altText : StringUtil.snakeToReadable(adventure.substring(1, adventure.length() - 1));
             if (color != null)
                 builder.append(text(readable).color(color));
             else

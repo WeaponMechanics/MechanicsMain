@@ -3,7 +3,7 @@ package me.deecaad.weaponmechanics.weapon.shoot.spread;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
@@ -85,8 +85,10 @@ public class Spread implements Serializer<Spread> {
             pitch += point.getPitch();
         }
 
-        if (modifySpreadWhen != null) spread = modifySpreadWhen.applyChanges(entityWrapper, spread);
-        if (changingSpread != null) spread = changingSpread.applyChanges(entityWrapper, spread, mainHand, updateSpreadChange);
+        if (modifySpreadWhen != null)
+            spread = modifySpreadWhen.applyChanges(entityWrapper, spread);
+        if (changingSpread != null)
+            spread = changingSpread.applyChanges(entityWrapper, spread, mainHand, updateSpreadChange);
 
         return getNormalizedSpreadDirection(yaw, pitch, spread);
     }
@@ -102,17 +104,17 @@ public class Spread implements Serializer<Spread> {
     private Vector getNormalizedSpreadDirection(double yaw, double pitch, double spread) {
 
         // Create random numbers for horizontal and vertical spread
-        double randomX = NumberUtil.random(-spread, spread);
-        double randomY = NumberUtil.random(-spread, spread);
-        double randomZ = NumberUtil.random(-spread, spread);
+        double randomX = RandomUtil.range(-spread, spread);
+        double randomY = RandomUtil.range(-spread, spread);
+        double randomZ = RandomUtil.range(-spread, spread);
 
         double xz = Math.cos(pitch);
 
         // Last calculate the direction and add randomness to it
         // Then normalize it.
         return new Vector(-xz * Math.sin(yaw) + randomX,
-                -Math.sin(pitch) + randomY,
-                xz * Math.cos(yaw) + randomZ).normalize();
+            -Math.sin(pitch) + randomY,
+            xz * Math.cos(yaw) + randomZ).normalize();
     }
 
     @Override
@@ -121,8 +123,7 @@ public class Spread implements Serializer<Spread> {
     }
 
     @Override
-    @NotNull
-    public Spread serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public Spread serialize(@NotNull SerializeData data) throws SerializerException {
         SpreadImage spreadImage = data.of("Spread_Image").serialize(SpreadImage.class);
 
         double baseSpread = data.of("Base_Spread").assertExists(spreadImage == null).assertPositive().getDouble(0.0);

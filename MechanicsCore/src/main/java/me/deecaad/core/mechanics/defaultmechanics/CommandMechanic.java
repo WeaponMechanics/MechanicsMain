@@ -56,8 +56,7 @@ public class CommandMechanic extends Mechanic {
         return "https://cjcrafter.gitbook.io/mechanics/mechanics/command";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         boolean console = data.of("Console").getBool(false);
         String command = data.of("Command").assertType(String.class).assertExists().get();

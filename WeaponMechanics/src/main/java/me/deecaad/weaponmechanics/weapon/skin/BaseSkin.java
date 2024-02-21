@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-public class BaseSkin implements Skin, Serializer<BaseSkin>  {
+public class BaseSkin implements Skin, Serializer<BaseSkin> {
 
     private Optional<Material> type;
     private OptionalInt data;
@@ -33,11 +33,10 @@ public class BaseSkin implements Skin, Serializer<BaseSkin>  {
     }
 
     public BaseSkin(
-            @NotNull Optional<Material> type,
-            @NotNull OptionalInt data,
-            @NotNull OptionalInt durability,
-            @NotNull OptionalInt customModelData
-    ) {
+        @NotNull Optional<Material> type,
+        @NotNull OptionalInt data,
+        @NotNull OptionalInt durability,
+        @NotNull OptionalInt customModelData) {
         this.type = type;
         this.data = data;
         this.durability = durability;
@@ -120,8 +119,7 @@ public class BaseSkin implements Skin, Serializer<BaseSkin>  {
     }
 
     @Override
-    @NotNull
-    public BaseSkin serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public BaseSkin serialize(@NotNull SerializeData data) throws SerializerException {
         int version = ReflectionUtil.getMCVersion();
         boolean shouldUseCmd = version >= 14;
 
@@ -132,21 +130,21 @@ public class BaseSkin implements Skin, Serializer<BaseSkin>  {
 
         if (legacyData.isPresent() && version > 12) {
             throw data.exception("Legacy_Data", "Cannot use 'Legacy_Data' on MC version 1." + version,
-                    "Instead, use the '" + (shouldUseCmd ? "Custom_Model_Data" : "Durability") + "' feature",
-                    "Wiki: https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/skin");
+                "Instead, use the '" + (shouldUseCmd ? "Custom_Model_Data" : "Durability") + "' feature",
+                "Wiki: https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/skin");
         }
 
         // Cannot use Custom_Model_Data before 1.14
         if (!shouldUseCmd && customModelData.isPresent()) {
             throw data.exception("Custom_Model_Data", "Cannot use 'Custom_Model_Data' on MC version 1." + version,
-                    "Custom_Model_Data was added in Minecraft 1.14",
-                    "To fix, you can either update your server, or use 'Durability' instead");
+                "Custom_Model_Data was added in Minecraft 1.14",
+                "To fix, you can either update your server, or use 'Durability' instead");
         }
 
         // Should use at least 1
         if (type.isEmpty() && legacyData.isEmpty() && durability.isEmpty() && customModelData.isEmpty()) {
             throw data.exception(null, "Tried to create a skin without using 'Durability' or 'Custom_Model_Data'... did you misspell something?",
-                    "Double check your configs to make sure it is spelled right.");
+                "Double check your configs to make sure it is spelled right.");
         }
 
         return new BaseSkin(type, legacyData, durability, customModelData);

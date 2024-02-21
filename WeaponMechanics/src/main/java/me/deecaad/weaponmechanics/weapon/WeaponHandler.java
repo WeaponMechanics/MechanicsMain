@@ -64,11 +64,10 @@ public class WeaponHandler {
     }
 
     /**
-     * Checks main and off hand items if they're weapons and uses them based on trigger.
-     * This is used with the exceptions off 
-     * {@link TriggerPlayerListeners#dropItem(PlayerDropItemEvent)}, 
-     * {@link TriggerPlayerListeners#interact(PlayerInteractEvent)}
-     * and {@link TriggerPlayerListeners#swapHandItems(PlayerSwapHandItemsEvent)}.
+     * Checks main and off hand items if they're weapons and uses them based on trigger. This is used
+     * with the exceptions off {@link TriggerPlayerListeners#dropItem(PlayerDropItemEvent)},
+     * {@link TriggerPlayerListeners#interact(PlayerInteractEvent)} and
+     * {@link TriggerPlayerListeners#swapHandItems(PlayerSwapHandItemsEvent)}.
      *
      * @param livingEntity the living entity which caused trigger
      * @param triggerType the trigger type
@@ -77,14 +76,18 @@ public class WeaponHandler {
     public void useTrigger(LivingEntity livingEntity, TriggerType triggerType, boolean autoConvert) {
 
         // This because for all players this should be always nonnull
-        // -> No auto add true to deny entity wrappers being added for unnecessary entities (they can also trigger certain
+        // -> No auto add true to deny entity wrappers being added for unnecessary entities (they can also
+        // trigger certain
         EntityWrapper entityWrapper = getEntityWrapper(livingEntity, true);
-        if (entityWrapper == null) return;
+        if (entityWrapper == null)
+            return;
 
-        if (livingEntity.getType() == EntityType.PLAYER && ((Player) livingEntity).getGameMode() == GameMode.SPECTATOR) return;
+        if (livingEntity.getType() == EntityType.PLAYER && ((Player) livingEntity).getGameMode() == GameMode.SPECTATOR)
+            return;
 
         EntityEquipment entityEquipment = livingEntity.getEquipment();
-        if (entityEquipment == null) return;
+        if (entityEquipment == null)
+            return;
 
         ItemStack mainStack = entityEquipment.getItemInMainHand();
         String mainWeapon = infoHandler.getWeaponTitle(mainStack, autoConvert);
@@ -92,19 +95,24 @@ public class WeaponHandler {
         ItemStack offStack = entityEquipment.getItemInOffHand();
         String offWeapon = infoHandler.getWeaponTitle(offStack, autoConvert);
 
-        if (mainWeapon == null && offWeapon == null) return;
+        if (mainWeapon == null && offWeapon == null)
+            return;
 
-        if (infoHandler.denyDualWielding(triggerType, livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon)) return;
+        if (infoHandler.denyDualWielding(triggerType, livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon))
+            return;
 
         boolean dualWield = mainWeapon != null && offWeapon != null;
 
-        if (mainWeapon != null) tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, triggerType, dualWield, null);
+        if (mainWeapon != null)
+            tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, triggerType, dualWield, null);
 
-        if (offWeapon != null) tryUses(entityWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, triggerType, dualWield, null);
+        if (offWeapon != null)
+            tryUses(entityWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, triggerType, dualWield, null);
     }
 
     /**
      * Tries all uses in this exact order
+     * 
      * <pre>{@code
      * 1) Shoot
      * 2) Reload
@@ -123,13 +131,15 @@ public class WeaponHandler {
      * @param victim if there is known victim
      */
     public void tryUses(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
-        if (!weaponStack.hasItemMeta()) return;
+        if (!weaponStack.hasItemMeta())
+            return;
 
         try {
             for (TriggerListener listener : triggerListeners) {
 
                 // If trigger isn't valid, continue
-                if (!listener.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield, victim)) continue;
+                if (!listener.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield, victim))
+                    continue;
 
                 // Most of the time other triggers aren't allowed during same loop
                 if (!listener.allowOtherTriggers()) {
@@ -156,13 +166,13 @@ public class WeaponHandler {
     }
 
     /**
-     * Add new trigger listener to list.
-     * Trigger listeners are used in order they're given
+     * Add new trigger listener to list. Trigger listeners are used in order they're given
      *
      * @param triggerListener the new trigger listener
      */
     public void addTriggerListener(TriggerListener triggerListener) {
-        if (triggerListener == null) throw new NullPointerException("Plugin gave null trigger listener...?");
+        if (triggerListener == null)
+            throw new NullPointerException("Plugin gave null trigger listener...?");
         triggerListeners.add(triggerListener);
     }
 

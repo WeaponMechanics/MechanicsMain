@@ -29,10 +29,9 @@ public class Entity_1_14_R1 implements EntityCompatibility {
     static {
         if (ReflectionUtil.getMCVersion() != 14) {
             me.deecaad.core.MechanicsCore.debug.log(
-                    LogLevel.ERROR,
-                    "Loaded " + Entity_1_14_R1.class + " when not using Minecraft 14",
-                    new InternalError()
-            );
+                LogLevel.ERROR,
+                "Loaded " + Entity_1_14_R1.class + " when not using Minecraft 14",
+                new InternalError());
         }
     }
 

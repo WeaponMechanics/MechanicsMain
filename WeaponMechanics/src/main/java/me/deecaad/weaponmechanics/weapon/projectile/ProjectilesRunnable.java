@@ -16,11 +16,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 /**
- * This class is run once for every Minecraft Server tick (ideally 20 ticks per
- * second). This class stores the entities we need to tick, and the methods of
- * this class are thread safe. The order in which the projectiles are ticked
- * is undefined, but every projectile is guaranteed to tick once for every MC
- * server tick.
+ * This class is run once for every Minecraft Server tick (ideally 20 ticks per second). This class
+ * stores the entities we need to tick, and the methods of this class are thread safe. The order in
+ * which the projectiles are ticked is undefined, but every projectile is guaranteed to tick once
+ * for every MC server tick.
  */
 public class ProjectilesRunnable extends BukkitRunnable {
 
@@ -29,13 +28,13 @@ public class ProjectilesRunnable extends BukkitRunnable {
     private final List<ProjectileScriptManager> managers;
 
     /**
-     * Initializes and registers this runnable. This runnable can be cancelled
-     * using {@link #cancel()} or by cancelling all tasks for <code>plugin</code>
-     * using <code>Bukkit.getScheduler().cancelTasks(plugin)</code>.
+     * Initializes and registers this runnable. This runnable can be cancelled using {@link #cancel()}
+     * or by cancelling all tasks for <code>plugin</code> using
+     * <code>Bukkit.getScheduler().cancelTasks(plugin)</code>.
      *
-     * <p> WeaponMechanics initializes one of these by default. You probably
-     * do not want to instantiate this class unless you know what you are
-     * doing. Use {@link WeaponMechanics#getProjectilesRunnable()}.
+     * <p>
+     * WeaponMechanics initializes one of these by default. You probably do not want to instantiate this
+     * class unless you know what you are doing. Use {@link WeaponMechanics#getProjectilesRunnable()}.
      *
      * @param plugin The non-null plugin
      */
@@ -52,9 +51,9 @@ public class ProjectilesRunnable extends BukkitRunnable {
     }
 
     /**
-     * Adds the given projectiles to be ticked. Projectile is instantly
-     * ticked once. On async call ticking starts during the next tick.
-     * This method is threadsafe, and you may call this method async.
+     * Adds the given projectiles to be ticked. Projectile is instantly ticked once. On async call
+     * ticking starts during the next tick. This method is threadsafe, and you may call this method
+     * async.
      *
      * @param projectile The non-null projectile to tick.
      */
@@ -62,7 +61,8 @@ public class ProjectilesRunnable extends BukkitRunnable {
         if (projectile == null)
             throw new IllegalArgumentException("Cannot add null projectile!");
 
-        if (projectile.isDead()) return;
+        if (projectile.isDead())
+            return;
 
         if (Bukkit.getServer().isPrimaryThread()) {
             tickOnAdd(projectile);
@@ -73,16 +73,17 @@ public class ProjectilesRunnable extends BukkitRunnable {
     }
 
     /**
-     * Adds the given projectiles to be ticked. Projectile is instantly
-     * ticked once. On async call ticking starts during the next tick.
-     * This method is threadsafe, and you may call this method async.
+     * Adds the given projectiles to be ticked. Projectile is instantly ticked once. On async call
+     * ticking starts during the next tick. This method is threadsafe, and you may call this method
+     * async.
      *
      * @param projectiles The non-null collection of non-null projectiles.
      */
     public void addProjectiles(Collection<? extends AProjectile> projectiles) {
         if (Bukkit.getServer().isPrimaryThread()) {
             for (AProjectile projectile : projectiles) {
-                if (projectile == null || projectile.isDead()) continue;
+                if (projectile == null || projectile.isDead())
+                    continue;
 
                 tickOnAdd(projectile);
             }

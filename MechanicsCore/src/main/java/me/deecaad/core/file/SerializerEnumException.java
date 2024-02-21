@@ -19,7 +19,7 @@ public class SerializerEnumException extends SerializerException {
     private final boolean allowWildcard;
 
     public <T extends Enum<T>> SerializerEnumException(@NotNull String name, Class<T> enumClass,
-                                                       String actual, boolean allowWildcard, @NotNull String location) {
+        String actual, boolean allowWildcard, @NotNull String location) {
 
         super(name, getMessages(enumClass, actual, allowWildcard), location);
 
@@ -29,7 +29,7 @@ public class SerializerEnumException extends SerializerException {
     }
 
     public <T extends Enum<T>> SerializerEnumException(@NotNull Serializer<?> serializer, Class<T> enumClass,
-                                                       String actual, boolean allowWildcard, @NotNull String location) {
+        String actual, boolean allowWildcard, @NotNull String location) {
 
         super(serializer, getMessages(enumClass, actual, allowWildcard), location);
 
@@ -62,7 +62,7 @@ public class SerializerEnumException extends SerializerException {
         // the user about that.
         boolean usesWildcard = actual.startsWith("$");
         if (usesWildcard && !allowWildcard) {
-            return new String[] {
+            return new String[]{
                     "You tried to use a wildcard ('$') when wildcards aren't allowed to be used!",
                     forValue(actual),
                     didYouMean(actual, enumClass)

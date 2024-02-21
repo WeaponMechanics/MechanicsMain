@@ -83,8 +83,7 @@ public class ActionBarMechanic extends Mechanic {
         return "https://cjcrafter.gitbook.io/mechanics/mechanics/action-bar";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         String message = data.of("Message").assertExists().getAdventure();
         int time = data.of("Time").assertRange(40, Integer.MAX_VALUE).getInt(40);

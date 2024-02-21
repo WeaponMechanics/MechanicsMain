@@ -13,7 +13,7 @@ public class SerializerNegativeException extends SerializerException {
     }
 
     private static String[] getMessages(Object value) {
-        return new String[] {
+        return new String[]{
                 "Expected a positive number, but got a negative number",
                 forValue(value)
         };

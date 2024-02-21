@@ -38,8 +38,8 @@ public abstract class CommandExecutor<T extends CommandSender> {
     /**
      * Shorthand to create an entity only command using lambda expressions.
      *
-     * @param command The non-null command to execute (which takes the entity
-     *                who sent the command and the Object[] arguments).
+     * @param command The non-null command to execute (which takes the entity who sent the command and
+     *        the Object[] arguments).
      * @return The non-null constructed CommandExecutor.
      */
     public static CommandExecutor<Entity> entity(BiConsumer<Entity, Object[]> command) {
@@ -54,8 +54,8 @@ public abstract class CommandExecutor<T extends CommandSender> {
     /**
      * Shorthand to create a player only command using lambda expressions.
      *
-     * @param command The non-null command to execute (which takes the player
-     *                who sent the command and the Object[] arguments).
+     * @param command The non-null command to execute (which takes the player who sent the command and
+     *        the Object[] arguments).
      * @return The non-null constructed CommandExecutor.
      */
     public static CommandExecutor<Player> player(BiConsumer<Player, Object[]> command) {

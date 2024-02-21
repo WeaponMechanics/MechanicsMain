@@ -15,10 +15,10 @@ public class PSelectiveFireState extends PlaceholderHandler {
         super("selective_fire_state");
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public String onRequest(@NotNull PlaceholderData data) {
-        if (data.item() == null) return null;
+        if (data.item() == null)
+            return null;
 
         int selectiveFireState = CustomTag.SELECTIVE_FIRE.getInteger(data.item());
         SelectiveFireState state = SelectiveFireState.getState(selectiveFireState);

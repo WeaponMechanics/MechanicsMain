@@ -55,10 +55,12 @@ public class SelectiveFireTriggerListener implements TriggerListener {
         entityWrapper.getOffHandData().cancelTasks();
 
         Mechanics selectiveFireMechanics = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Mechanics", Mechanics.class);
-        if (selectiveFireMechanics != null) selectiveFireMechanics.use(new CastData(entityWrapper.getEntity(), weaponTitle, weaponStack));
+        if (selectiveFireMechanics != null)
+            selectiveFireMechanics.use(new CastData(entityWrapper.getEntity(), weaponTitle, weaponStack));
 
         WeaponInfoDisplay weaponInfoDisplay = config.getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
+        if (weaponInfoDisplay != null)
+            weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
 
         getWeaponHandler().getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
 

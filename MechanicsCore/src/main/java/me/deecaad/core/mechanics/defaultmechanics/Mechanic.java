@@ -8,17 +8,17 @@ import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Iterator;
 import java.util.List;
 
 /**
- * A Mechanic is the most powerful tool available to server-admins through
- * config. A Mechanic is an action, basically a block of code, that the admin
- * writes in YAML format. These actions can be executed conditionally using
- * {@link Condition} and can get specifically targeted using {@link me.deecaad.core.mechanics.targeters.Targeter}.
+ * A Mechanic is the most powerful tool available to server-admins through config. A Mechanic is an
+ * action, basically a block of code, that the admin writes in YAML format. These actions can be
+ * executed conditionally using {@link Condition} and can get specifically targeted using
+ * {@link me.deecaad.core.mechanics.targeters.Targeter}.
  */
 public abstract class Mechanic implements InlineSerializer<Mechanic> {
 
@@ -62,17 +62,17 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
     /**
      * This method will trigger this Mechanic.
      *
-     * <p>This method <i>probably shouldn't</i> be overridden. It handles the
-     * global repeat, delay, targeter, and condition code. The behavior of the
-     * specific Mechanic is handled by the protected {@link #use0(CastData)}
-     * method.
+     * <p>
+     * This method <i>probably shouldn't</i> be overridden. It handles the global repeat, delay,
+     * targeter, and condition code. The behavior of the specific Mechanic is handled by the protected
+     * {@link #use0(CastData)} method.
      *
      * @param cast The non-null cast data.
      */
     public final void use(CastData cast) {
 
         // Chance to execute mechanic
-        if (!NumberUtil.chance(chance))
+        if (!RandomUtil.chance(chance))
             return;
 
         // If there is no need to schedule event, skip the event process.
@@ -104,8 +104,7 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
 
     protected void handleTargetersAndConditions(CastData cast) {
 
-        OUTER:
-        for (Iterator<CastData> it = targeter.getTargets(cast); it.hasNext(); ) {
+        OUTER : for (Iterator<CastData> it = targeter.getTargets(cast); it.hasNext();) {
             CastData target = it.next();
             for (Condition condition : conditions)
                 if (!condition.isAllowed(target))
@@ -116,9 +115,8 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
     }
 
     /**
-     * This method should be overridden to define the behavior of the Mechanic.
-     * For example, a Potion mechanic may use the {@link CastData#getTarget()}
-     * method to apply a potion effect.
+     * This method should be overridden to define the behavior of the Mechanic. For example, a Potion
+     * mechanic may use the {@link CastData#getTarget()} method to apply a potion effect.
      *
      * @param cast The non-null data including source/target information.
      */

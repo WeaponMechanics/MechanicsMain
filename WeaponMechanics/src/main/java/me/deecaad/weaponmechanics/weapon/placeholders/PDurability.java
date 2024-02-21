@@ -13,10 +13,10 @@ public class PDurability extends PlaceholderHandler {
         super("custom_durability");
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public String onRequest(@NotNull PlaceholderData data) {
-        if (data.item() == null) return null;
+        if (data.item() == null)
+            return null;
 
         return String.valueOf(CustomTag.DURABILITY.getInteger(data.item()));
     }

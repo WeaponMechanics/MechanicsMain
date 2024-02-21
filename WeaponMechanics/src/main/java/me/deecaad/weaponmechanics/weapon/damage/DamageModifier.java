@@ -57,7 +57,6 @@ public class DamageModifier implements Serializer<DamageModifier> {
     private DoubleMap<EntityType> entityTypeModifiers;
     private DoubleMap<PotionEffectType> potionEffectModifiers;
 
-
     /**
      * Default constructor for serializer
      */
@@ -65,9 +64,9 @@ public class DamageModifier implements Serializer<DamageModifier> {
     }
 
     public DamageModifier(double min, double max, double perArmorPoint, DoubleMap<Material> armorModifiers, DoubleMap<Enchantment> enchantmentModifiers,
-                          double headModifier, double bodyModifier, double armsModifier, double legsModifier, double feetModifier, double backModifier,
-                          double sneakingModifier, double walkingModifier, double swimmingModifier, double sprintingModifier, double inMidairModifier,
-                          double shieldModifier, DoubleMap<EntityType> entityTypeModifiers, DoubleMap<PotionEffectType> potionEffectModifiers) {
+        double headModifier, double bodyModifier, double armsModifier, double legsModifier, double feetModifier, double backModifier,
+        double sneakingModifier, double walkingModifier, double swimmingModifier, double sprintingModifier, double inMidairModifier,
+        double shieldModifier, DoubleMap<EntityType> entityTypeModifiers, DoubleMap<PotionEffectType> potionEffectModifiers) {
         this.min = min;
         this.max = max;
         this.perArmorPoint = perArmorPoint;
@@ -234,11 +233,11 @@ public class DamageModifier implements Serializer<DamageModifier> {
     }
 
     /**
-     * Accumulates each rate that should be applied to the damage. The result
-     * is clamped between {@link #getMin()} and {@link #getMax()}.
+     * Accumulates each rate that should be applied to the damage. The result is clamped between
+     * {@link #getMin()} and {@link #getMax()}.
      *
-     * @param wrapper    The victim being damaged.
-     * @param point      Where the victim was hit.
+     * @param wrapper The victim being damaged.
+     * @param point Where the victim was hit.
      * @param isBackStab If the hit came from behind.
      * @return The clamped rate to multiply damage by. Defaults to 1.0.
      */
@@ -320,11 +319,11 @@ public class DamageModifier implements Serializer<DamageModifier> {
         }
 
         // Clamp the rate within bounds
-        return NumberUtil.minMax(min, rate, max);
+        return NumberUtil.clamp(rate, min, max);
     }
 
     public double clamp(double rate) {
-        return NumberUtil.minMax(min, rate, max);
+        return NumberUtil.clamp(rate, min, max);
     }
 
     public double applyRates(double damage, EntityWrapper wrapper, DamagePoint point, boolean isBackStab) {
@@ -336,8 +335,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
         return "Damage_Modifiers";
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public DamageModifier serialize(@NotNull SerializeData data) throws SerializerException {
         double min = serializePercentage(data.of("Min"), "20%");
         double max = serializePercentage(data.of("Max"), "1000%");
@@ -347,8 +345,8 @@ public class DamageModifier implements Serializer<DamageModifier> {
         // Per material armor modifiers
         DoubleMap<Material> armorModifiers = new DoubleMap<>();
         List<String[]> armorSplitList = data.ofList("Armor")
-                .addArgument(Material.class, true)
-                .addArgument(String.class, true).assertList().get();
+            .addArgument(Material.class, true)
+            .addArgument(String.class, true).assertList().get();
         for (int i = 0; i < armorSplitList.size(); i++) {
             String[] split = armorSplitList.get(i);
 
@@ -362,8 +360,8 @@ public class DamageModifier implements Serializer<DamageModifier> {
         // Per enchantment armor modifiers
         DoubleMap<Enchantment> enchantmentModifiers = new DoubleMap<>();
         List<String[]> enchantmentSplitList = data.ofList("Enchantments")
-                .addArgument(Enchantment.class, true, true)
-                .addArgument(String.class, true).assertList().get();
+            .addArgument(Enchantment.class, true, true)
+            .addArgument(String.class, true).assertList().get();
         for (int i = 0; i < enchantmentSplitList.size(); i++) {
             String[] split = enchantmentSplitList.get(i);
 
@@ -399,8 +397,8 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
         DoubleMap<EntityType> entityTypeModifiers = new DoubleMap<>();
         List<String[]> entitySplitList = data.ofList("Entities")
-                .addArgument(EntityType.class, true)
-                .addArgument(String.class, true).assertList().get();
+            .addArgument(EntityType.class, true)
+            .addArgument(String.class, true).assertList().get();
         for (int i = 0; i < entitySplitList.size(); i++) {
             String[] split = entitySplitList.get(i);
 
@@ -413,8 +411,8 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
         DoubleMap<PotionEffectType> potionEffectModifiers = new DoubleMap<>();
         List<String[]> potionSplitList = data.ofList("Potions")
-                .addArgument(PotionEffectType.class, true, true)
-                .addArgument(String.class, true).assertList().get();
+            .addArgument(PotionEffectType.class, true, true)
+            .addArgument(String.class, true).assertList().get();
         for (int i = 0; i < potionSplitList.size(); i++) {
             String[] split = potionSplitList.get(i);
 
@@ -434,7 +432,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
         }
 
         return new DamageModifier(min, max, perArmorPoint, armorModifiers, enchantmentModifiers, headModifier, bodyModifier, armsModifier, legsModifier, feetModifier, backModifier,
-                sneakingModifier, walkingModifier, swimmingModifier, sprintingModifier, inMidairModifier, shieldModifier, entityTypeModifiers, potionEffectModifiers);
+            sneakingModifier, walkingModifier, swimmingModifier, sprintingModifier, inMidairModifier, shieldModifier, entityTypeModifiers, potionEffectModifiers);
     }
 
     /**

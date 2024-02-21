@@ -38,8 +38,8 @@ public class Trigger implements Serializer<Trigger> {
     /**
      * Checks if trigger is valid
      *
-     * @param triggerType   the trigger type
-     * @param slot          the slot used
+     * @param triggerType the trigger type
+     * @param slot the slot used
      * @param entityWrapper the entity's wrapper from whom to check
      * @return true if trigger is valid
      */
@@ -70,7 +70,8 @@ public class Trigger implements Serializer<Trigger> {
             }
         }
 
-        if (typeCheck == null || typeCheck != triggerType) return false;
+        if (typeCheck == null || typeCheck != triggerType)
+            return false;
 
         return checkCircumstances(entityWrapper);
     }
@@ -111,8 +112,7 @@ public class Trigger implements Serializer<Trigger> {
     }
 
     @Override
-    @NotNull
-    public Trigger serialize(@NotNull SerializeData data) throws SerializerException {
+    @NotNull public Trigger serialize(@NotNull SerializeData data) throws SerializerException {
         TriggerType main = data.of("Main_Hand").getEnum(TriggerType.class, null);
         TriggerType off = data.of("Off_Hand").getEnum(TriggerType.class, null);
 
@@ -123,8 +123,10 @@ public class Trigger implements Serializer<Trigger> {
         TriggerType dualMain = data.of("Dual_Wield.Main_Hand").getEnum(TriggerType.class, null);
         TriggerType dualOff = data.of("Dual_Wield.Off_Hand").getEnum(TriggerType.class, null);
 
-        if (isDisabled(main)) throw data.exception("Main_Hand", "Tried to use trigger which is disabled in config.yml");
-        if (isDisabled(off)) throw data.exception("Off_Hand", "Tried to use trigger which is disabled in config.yml");
+        if (isDisabled(main))
+            throw data.exception("Main_Hand", "Tried to use trigger which is disabled in config.yml");
+        if (isDisabled(off))
+            throw data.exception("Off_Hand", "Tried to use trigger which is disabled in config.yml");
         if (isDisabled(dualMain))
             throw data.exception("Dual_Wield.Main_Hand", "Tried to use trigger which is disabled in config.yml");
         if (isDisabled(dualOff))
@@ -139,7 +141,7 @@ public class Trigger implements Serializer<Trigger> {
 
             if (data.config.get(weaponTitle + ".Info.Cancel.Swap_Hands", false) instanceof Boolean bool && !bool) {
                 throw data.exception(null, "When using 'SWAP_HANDS', make sure that '" + weaponTitle + ".Info.Cancel.Swap_Hands: true'",
-                        SerializerException.forValue(dualMain) + " & " + SerializerException.forValue(dualOff));
+                    SerializerException.forValue(dualMain) + " & " + SerializerException.forValue(dualOff));
             }
         }
 
@@ -147,13 +149,14 @@ public class Trigger implements Serializer<Trigger> {
     }
 
     private boolean isDisabled(TriggerType trigger) {
-        if (trigger == null) return false;
+        if (trigger == null)
+            return false;
         return switch (trigger) {
             case START_SNEAK, END_SNEAK, DOUBLE_SNEAK ->
-                    getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sneak");
+                getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sneak");
             case START_SPRINT, END_SPRINT -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sprint");
             case RIGHT_CLICK, LEFT_CLICK, MELEE ->
-                    getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click");
+                getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click");
             case DROP_ITEM -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Drop_Item");
             case JUMP -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Jump");
             case DOUBLE_JUMP -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump");
@@ -161,9 +164,9 @@ public class Trigger implements Serializer<Trigger> {
             case START_GLIDE, END_GLIDE -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Glide");
             case SWAP_HANDS -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swap_Hand_Items");
             case START_WALK, END_WALK, START_STAND, END_STAND ->
-                    getBasicConfigurations().getBool("Disabled_Trigger_Checks.Standing_And_Walking");
+                getBasicConfigurations().getBool("Disabled_Trigger_Checks.Standing_And_Walking");
             case START_IN_MIDAIR, END_IN_MIDAIR ->
-                    getBasicConfigurations().getBool("Disabled_Trigger_Checks.In_Midair");
+                getBasicConfigurations().getBool("Disabled_Trigger_Checks.In_Midair");
         };
     }
 }

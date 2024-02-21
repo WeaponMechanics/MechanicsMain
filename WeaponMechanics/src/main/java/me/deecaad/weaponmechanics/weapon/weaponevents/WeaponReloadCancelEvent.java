@@ -7,8 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Called if a reload was cancelled early (Usually because the player swapped
- * hands).
+ * Called if a reload was cancelled early (Usually because the player swapped hands).
  */
 public class WeaponReloadCancelEvent extends WeaponEvent {
 
@@ -22,8 +21,7 @@ public class WeaponReloadCancelEvent extends WeaponEvent {
     }
 
     /**
-     * Returns the amount of time, in ticks, that elapsed since the reload
-     * started.
+     * Returns the amount of time, in ticks, that elapsed since the reload started.
      *
      * @return The elapsed time.
      */
@@ -32,8 +30,7 @@ public class WeaponReloadCancelEvent extends WeaponEvent {
     }
 
     @Override
-    @NotNull
-    public HandlerList getHandlers() {
+    @NotNull public HandlerList getHandlers() {
         return HANDLERS;
     }
 

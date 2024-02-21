@@ -20,8 +20,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 /**
- * This explosion uses the minecraft explosion system,
- * instead of using a shape.
+ * This explosion uses the minecraft explosion system, instead of using a shape.
  *
  * https://minecraft.gamepedia.com/Explosion
  */
@@ -33,7 +32,7 @@ public class DefaultExplosion implements ExplosionShape {
     private final float yield;
     private final int gridSize;
     private final int bound;
-    
+
     public DefaultExplosion(double yield) {
         this(yield, 16);
     }
@@ -44,8 +43,7 @@ public class DefaultExplosion implements ExplosionShape {
         this.bound = gridSize - 1;
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public List<Block> getBlocks(@NotNull Location origin) {
         if (origin.getWorld() == null)
             throw new IllegalArgumentException("origin is null");
@@ -78,7 +76,6 @@ public class DefaultExplosion implements ExplosionShape {
 
                         while (intensity > 0.0f) {
                             Block block = world.getBlockAt((int) x, (int) y, (int) z);
-
 
                             if (!block.isEmpty()) {
                                 float resistance = CompatibilityAPI.getBlockCompatibility().getBlastResistance(block);
@@ -151,7 +148,7 @@ public class DefaultExplosion implements ExplosionShape {
     @Override
     public String toString() {
         return "DefaultExplosion{" +
-                "yield=" + yield +
-                '}';
+            "yield=" + yield +
+            '}';
     }
 }

@@ -12,8 +12,7 @@ public class PWeaponTitle extends PlaceholderHandler {
         super("weapon_title");
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public String onRequest(@NotNull PlaceholderData data) {
         return data.itemTitle();
     }

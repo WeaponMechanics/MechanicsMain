@@ -16,15 +16,15 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getWeaponHandler;
 @CommandPermission(permission = "weaponmechanics.commands.give")
 @Deprecated
 public class LegacyGiveCommand extends SubCommand {
-    
+
     // wm give <Player> <Weapon> <Amount>
-    
+
     public LegacyGiveCommand() {
         super("wm", "give", "Gives a given number of weapons to a given player", "<weapon> <amount> <player>");
 
         setAliases(Collections.singletonList("get"));
     }
-    
+
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (args.length == 0 || args.length > 3) {

@@ -1,0 +1,7 @@
+{
+    "parent": "item/weapons/rpg7",
+    "textures": {
+		"wood_one": "block/color/red_terracotta",
+		"graymetal_light": "block/color/typhoonbrown"
+    }
+}

@@ -44,7 +44,8 @@ public class MoveTask extends BukkitRunnable {
         if (entity == null || !entity.isValid() || entity.isDead()) { // Just an extra check in case something odd happened
 
             // Only cancel task IF it isn't player, otherwise just don't do anything
-            if (!entityWrapper.isPlayer()) cancel();
+            if (!entityWrapper.isPlayer())
+                cancel();
 
             return;
         }
@@ -121,10 +122,11 @@ public class MoveTask extends BukkitRunnable {
         }
 
         if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump")
-                && (player.getGameMode() == GameMode.SURVIVAL || player.getGameMode() == GameMode.ADVENTURE)) {
+            && (player.getGameMode() == GameMode.SURVIVAL || player.getGameMode() == GameMode.ADVENTURE)) {
             if (player.getFallDistance() > 3.0) {
                 // https://minecraft.gamepedia.com/Damage#Fall_damage
-                // Fall damage is 1♥ for each block of fall distance after the third. Thus, falling 4 blocks causes 1♥ damage, 2♥ damage for 5 blocks, and so forth.
+                // Fall damage is 1♥ for each block of fall distance after the third. Thus, falling 4 blocks causes
+                // 1♥ damage, 2♥ damage for 5 blocks, and so forth.
 
                 // This enables fall damage for player. Double jump has to be made BEFORE falling more than 3 blocks
 
@@ -149,15 +151,16 @@ public class MoveTask extends BukkitRunnable {
     }
 
     /**
-     * Basically checks if entity is in mid air.
-     * Mid air is determined on if current block in player's position doesn't have hit box and block below that doesn't have hit box either
+     * Basically checks if entity is in mid air. Mid air is determined on if current block in player's
+     * position doesn't have hit box and block below that doesn't have hit box either
      */
     private boolean isInMidair(LivingEntity livingEntity) {
         Block current = livingEntity.getLocation().getBlock();
         Block below = current.getRelative(BlockFace.DOWN);
 
         // Check for liquid as hit boxes are considered null if block is liquid
-        if (current.isLiquid() || below.isLiquid()) return false;
+        if (current.isLiquid() || below.isLiquid())
+            return false;
 
         BlockCompatibility blockCompatibility = CompatibilityAPI.getBlockCompatibility();
 
@@ -178,12 +181,15 @@ public class MoveTask extends BukkitRunnable {
             return;
 
         handData.setFiredWeaponStopShootEvent(true);
-        WeaponStopShootingEvent event = new WeaponStopShootingEvent(handData.getLastWeaponShotTitle(), handData.getLastWeaponShot(), entityWrapper.getEntity(), handData.isMainhand() ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, handData.getLastShotTime());
+        WeaponStopShootingEvent event = new WeaponStopShootingEvent(handData.getLastWeaponShotTitle(), handData.getLastWeaponShot(), entityWrapper.getEntity(), handData.isMainhand()
+            ? EquipmentSlot.HAND
+            : EquipmentSlot.OFF_HAND, handData.getLastShotTime());
         Bukkit.getPluginManager().callEvent(event);
     }
 
     private static boolean isSwimming(LivingEntity livingEntity) {
-        if (livingEntity.isInsideVehicle()) return false;
+        if (livingEntity.isInsideVehicle())
+            return false;
 
         // 1.13 introduced block data for blocks like stairs and slabs, and can
         // be waterlogged. 1.13 also introduced the swimming mechanic.
