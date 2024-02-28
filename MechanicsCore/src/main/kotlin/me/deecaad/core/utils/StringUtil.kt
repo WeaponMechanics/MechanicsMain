@@ -341,7 +341,7 @@ object StringUtil {
             if (i != 0 && c.isUpperCase()) {
                 builder.append('_')
             }
-            builder.append(c)
+            builder.append(c.lowercaseChar())
         }
         return builder.toString()
     }
@@ -362,7 +362,7 @@ object StringUtil {
             if (i == 0 || snake[i - 1] == '_') {
                 builder.append(c.uppercaseChar())
             } else {
-                builder.append(c)
+                builder.append(c.lowercaseChar())
             }
         }
         return builder.toString()
@@ -387,7 +387,7 @@ object StringUtil {
             } else if (i == 0 || snake[i - 1] == '_') {
                 builder.append(c.uppercaseChar())
             } else {
-                builder.append(c)
+                builder.append(c.lowercaseChar())
             }
         }
         return builder.toString()
