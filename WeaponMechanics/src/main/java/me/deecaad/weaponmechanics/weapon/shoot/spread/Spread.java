@@ -90,6 +90,10 @@ public class Spread implements Serializer<Spread> {
         if (changingSpread != null)
             spread = changingSpread.applyChanges(entityWrapper, spread, mainHand, updateSpreadChange);
 
+        // negative spread probably means the user subtracted too much... Max
+        // out to 0 to avoid error
+        spread = Math.max(spread, 0);
+
         return getNormalizedSpreadDirection(yaw, pitch, spread);
     }
 
