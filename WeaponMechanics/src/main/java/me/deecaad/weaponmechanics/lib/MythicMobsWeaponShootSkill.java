@@ -21,7 +21,7 @@ public class MythicMobsWeaponShootSkill implements ITargetedEntitySkill, ITarget
     public MythicMobsWeaponShootSkill(MythicLineConfig config) {
 
         String weaponTitle = config.getString(new String[]{"weaponTitle", "weapon"});
-        this.spread = Math.toRadians(config.getDouble(new String[]{"spread"}, 0.0));
+        this.spread = Math.max(0, Math.toRadians(config.getDouble(new String[]{"spread"}, 0.0)));
         this.targetHead = config.getBoolean("head", true);
 
         // Parse an accurate weaponTitle (Checking case/spelling)
@@ -77,6 +77,7 @@ public class MythicMobsWeaponShootSkill implements ITargetedEntitySkill, ITarget
 
         // Skip the calculations if we can
         if (spread != 0.0) {
+            // delta is always positive, since spread is always positive
             double delta = Math.tan(spread) * entity.getLocation().distance(target);
             target.setX(target.getX() + RandomUtil.range(-delta, delta));
             target.setY(target.getY() + RandomUtil.range(-delta, delta));
