@@ -32,4 +32,7 @@ abstract class IntEntry<K>(
     override fun toString(): String {
         return "$key: $value"
     }
+
+    operator fun component1() = key
+    operator fun component2() = value
 }
