@@ -235,16 +235,20 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
 
         if (!isInvisible) {
 
-            // People often define a material instead of an entity type, like "iron_nugget".
-            // So this checks if the type is a material
-            Material material = EnumUtil.getIfPresent(Material.class, type).orElse(null);
-            if (material != null) {
-                throw data.exception("Projectile_Item_Or_Block", "For your projectile type, you must define an ENTITY, not a MATERIAL",
-                    "You defined a material: " + type + " instead of an entity type. For example, you have to use 'DROPPED_ITEM' or 'FALLING_BLOCK' instead of '" + type + "'",
-                    "For material data, you can use 'Projectile_Item_Or_Block: " + material + "'");
+            try {
+                projectileType = data.of("Type").assertExists().getEnum(EntityType.class);
+            } catch (SerializerException ex) {
+                // People often define a material instead of an entity type, like "iron_nugget".
+                // So this checks if the type is a material
+                Material material = EnumUtil.getIfPresent(Material.class, type).orElse(null);
+                if (material != null) {
+                    throw data.exception("Projectile_Item_Or_Block", "For your projectile type, you must define an ENTITY, not a MATERIAL",
+                        "You defined a material: " + type + " instead of an entity type. For example, you have to use 'DROPPED_ITEM' or 'FALLING_BLOCK' instead of '" + type + "'",
+                        "For material data, you can use 'Projectile_Item_Or_Block: " + material + "'");
+                }
+                throw ex;
             }
 
-            projectileType = data.of("Type").assertExists().getEnum(EntityType.class);
             ItemStack projectileItem = data.of("Projectile_Item_Or_Block").serialize(new ItemSerializer());
             if ((projectileType == EntityType.DROPPED_ITEM
                 || projectileType == EntityType.FALLING_BLOCK)
