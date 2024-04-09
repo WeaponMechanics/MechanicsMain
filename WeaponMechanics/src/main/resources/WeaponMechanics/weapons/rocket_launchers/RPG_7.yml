@@ -63,6 +63,7 @@ RPG_7:
         In_Midair: 150%
     Mechanics:
       - "CustomSound{sound=shoot.rpg7.loud, volume=6, noise=0.1}"
+      - "Damage{damage=10.0} @World{} ?Range{max=4} ?InCone{direction=~0 0 -1, angle=28}"
   Reload:
     Trigger:
       Main_Hand: "DROP_ITEM"

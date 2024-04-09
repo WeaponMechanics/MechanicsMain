@@ -71,6 +71,26 @@ object VectorUtil {
     }
 
     /**
+     * Adds the given vector to the current vector, scaled by the given factor.
+     *
+     * @param vector The current vector
+     * @param other The vector to add
+     * @param scale The factor to scale the other vector by
+     * @return The reference to the current vector
+     */
+    @JvmStatic
+    fun addScaledVector(
+        vector: Vector,
+        other: Vector,
+        scale: Double,
+    ): Vector {
+        vector.x += other.x * scale
+        vector.y += other.y * scale
+        vector.z += other.z * scale
+        return vector
+    }
+
+    /**
      * Returns a vector pointing in the same direction as the given yaw and
      * pitch.
      *
