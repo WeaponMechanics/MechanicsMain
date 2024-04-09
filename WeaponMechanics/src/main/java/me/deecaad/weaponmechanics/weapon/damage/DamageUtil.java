@@ -167,7 +167,7 @@ public class DamageUtil {
 
         // Spigot api things
         victim.setLastDamage(damage);
-        //victim.setLastDamageCause(entityDamageByEntityEvent);
+        // victim.setLastDamageCause(entityDamageByEntityEvent);
 
         double newHealth = NumberUtil.clamp(oldHealth - damage, 0, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
         boolean killed = newHealth <= 0.0;
