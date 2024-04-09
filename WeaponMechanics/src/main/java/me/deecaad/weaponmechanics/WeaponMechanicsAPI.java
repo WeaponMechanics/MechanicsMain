@@ -318,11 +318,12 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Forces the given <code>entity</code> to reload their weapon. This method will return <code>true</code>
-     * if the entity is now reloading.
+     * Forces the given <code>entity</code> to reload their weapon. This method will return
+     * <code>true</code> if the entity is now reloading.
      *
-     * <p>This method may return false if the entity is not holding a weapon, if the entity is already reloading,
-     * or for any number of other possibilities.
+     * <p>
+     * This method may return false if the entity is not holding a weapon, if the entity is already
+     * reloading, or for any number of other possibilities.
      *
      * @param entity The non-null living entity to force reload.
      * @return true if the reload started
