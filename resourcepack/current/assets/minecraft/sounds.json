@@ -60,6 +60,14 @@
     "category": "master",
 	  "sounds": [ "reload/insert_shotgun_shells" ]
   },
+  "scope.in": {
+    "category": "master",
+    "sounds": [ "scope/start_scope" ]
+  },
+  "scope.out": {
+    "category": "master",
+    "sounds": [ "scope/end_scope" ] 
+  },
   "shoot.50gs.quiet": {
     "category": "master",
     "sounds": ["shoot/quiet/50gs"]
