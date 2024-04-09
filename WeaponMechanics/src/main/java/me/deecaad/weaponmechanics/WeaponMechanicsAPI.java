@@ -8,6 +8,7 @@ import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
+import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.Ammo;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoConfig;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoRegistry;
@@ -62,7 +63,7 @@ public final class WeaponMechanicsAPI {
      * @param player The non-null player to get the stats for.
      * @return The nullable stats.
      */
-    @Nullable public static StatsData getStats(@NotNull Player player) {
+    public static @Nullable StatsData getStats(@NotNull Player player) {
         return WeaponMechanics.getPlayerWrapper(player).getStatsData();
     }
 
@@ -77,7 +78,7 @@ public final class WeaponMechanicsAPI {
      * @param weaponStack The weapon item to get the skin for.
      * @return Which skin should be applied, or "default" for no skin.
      */
-    @NotNull public static String getSkinFor(@NotNull Player player, @NotNull ItemStack weaponStack) {
+    public static @NotNull String getSkinFor(@NotNull Player player, @NotNull ItemStack weaponStack) {
         String weaponTitle = getWeaponTitle(weaponStack);
         if (weaponTitle == null) {
             throw new IllegalArgumentException("Item is not a weapon");
@@ -213,7 +214,7 @@ public final class WeaponMechanicsAPI {
      * @param weaponTitle The non-null weapon title to get the skins for.
      * @return The non-null set of custom skins.
      */
-    @NotNull public static Set<String> getCustomSkins(@NotNull String weaponTitle) {
+    public static @NotNull Set<String> getCustomSkins(@NotNull String weaponTitle) {
         SkinSelector skins = WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Skin", SkinSelector.class);
         if (skins == null)
             throw new IllegalArgumentException("Weapon " + weaponTitle + " does not use skins");
@@ -317,6 +318,46 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
+     * Forces the given <code>entity</code> to reload their weapon. This method will return <code>true</code>
+     * if the entity is now reloading.
+     *
+     * <p>This method may return false if the entity is not holding a weapon, if the entity is already reloading,
+     * or for any number of other possibilities.
+     *
+     * @param entity The non-null living entity to force reload.
+     * @return true if the reload started
+     */
+    public static boolean tryReload(@NotNull LivingEntity entity) {
+        EntityWrapper wrapper = WeaponMechanics.getEntityWrapper(entity, true);
+        if (wrapper == null)
+            return false;
+        EntityEquipment equipment = entity.getEquipment();
+        if (equipment == null)
+            return false;
+
+        // Determine if held items are weapons
+        ItemStack mainHand = equipment.getItemInMainHand();
+        String mainWeapon = getWeaponTitle(mainHand);
+        ItemStack offHand = equipment.getItemInOffHand();
+        String offWeapon = getWeaponTitle(offHand);
+
+        // Prepare reload stuff
+        ReloadHandler reloadHandler = WeaponMechanics.getWeaponHandler().getReloadHandler();
+        boolean dualWield = mainWeapon != null && offWeapon != null;
+
+        // Try to reload in both hands
+        boolean isNowReloading = false;
+        if (mainWeapon != null) {
+            isNowReloading = reloadHandler.startReloadWithoutTrigger(wrapper, mainWeapon, mainHand, EquipmentSlot.HAND, dualWield, false);
+        }
+        if (offWeapon != null) {
+            isNowReloading |= reloadHandler.startReloadWithoutTrigger(wrapper, offWeapon, offHand, EquipmentSlot.OFF_HAND, dualWield, false);
+        }
+
+        return isNowReloading;
+    }
+
+    /**
      * Returns an item corresponding to the given <code>weaponTitle</code>. The item will have a custom
      * name, lore, enchantments, flags, nbt data, etc.
      *
@@ -324,7 +365,7 @@ public final class WeaponMechanicsAPI {
      * @return The non-null weapon item.
      * @see me.deecaad.weaponmechanics.weapon.info.InfoHandler
      */
-    @NotNull public static ItemStack generateWeapon(@NotNull String weaponTitle) {
+    public static @NotNull ItemStack generateWeapon(@NotNull String weaponTitle) {
         return WeaponMechanics.getWeaponHandler().getInfoHandler().generateWeapon(weaponTitle, 1);
     }
 
@@ -384,7 +425,7 @@ public final class WeaponMechanicsAPI {
      * @param item The non-null item to get the weapon title from.
      * @return The item's weapon title, or null.
      */
-    @Nullable public static String getWeaponTitle(@NotNull ItemStack item) {
+    public static @Nullable String getWeaponTitle(@NotNull ItemStack item) {
         if (!item.hasItemMeta())
             return null;
         else
@@ -397,7 +438,7 @@ public final class WeaponMechanicsAPI {
      * @param weaponStack The non-null weapon item stack.
      * @return The current ammo, or null.
      */
-    @Nullable public static Ammo getCurrentAmmo(@NotNull ItemStack weaponStack) {
+    public static @Nullable Ammo getCurrentAmmo(@NotNull ItemStack weaponStack) {
         String weaponTitle = getWeaponTitle(weaponStack);
         AmmoConfig ammo = WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Reload.Ammo", AmmoConfig.class);
         if (ammo == null)
@@ -413,7 +454,7 @@ public final class WeaponMechanicsAPI {
      * @param magazine true=generate magazine, false=generate bullet.
      * @return The generated item, or null.
      */
-    @Nullable public static ItemStack generateAmmo(@NotNull String ammoTitle, boolean magazine) {
+    public static @Nullable ItemStack generateAmmo(@NotNull String ammoTitle, boolean magazine) {
         Ammo ammo = AmmoRegistry.AMMO_REGISTRY.get(ammoTitle);
         if (ammo == null)
             return null;
@@ -467,7 +508,7 @@ public final class WeaponMechanicsAPI {
      *
      * @return The non-null compatibility version.
      */
-    @NotNull public static ICompatibility getCompatibility() {
+    public static @NotNull ICompatibility getCompatibility() {
         return CompatibilityAPI.getCompatibility();
     }
 
@@ -477,7 +518,7 @@ public final class WeaponMechanicsAPI {
      *
      * @return The non-null weapon compatibility version.
      */
-    @NotNull public static IWeaponCompatibility getWeaponCompatibility() {
+    public static @NotNull IWeaponCompatibility getWeaponCompatibility() {
         return WeaponCompatibilityAPI.getWeaponCompatibility();
     }
 
@@ -487,7 +528,7 @@ public final class WeaponMechanicsAPI {
      *
      * @return The plugin instance.
      */
-    @NotNull public static Plugin getPluginInstance() {
+    public static @NotNull Plugin getPluginInstance() {
         return WeaponMechanics.getPlugin();
     }
 
@@ -496,7 +537,7 @@ public final class WeaponMechanicsAPI {
      *
      * @return The plugin instance.
      */
-    @NotNull public static WeaponMechanics getInstance() {
+    public static @NotNull WeaponMechanics getInstance() {
         return WeaponMechanics.getInstance();
     }
 }
