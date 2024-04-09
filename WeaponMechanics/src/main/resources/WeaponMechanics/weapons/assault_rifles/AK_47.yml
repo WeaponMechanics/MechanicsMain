@@ -19,27 +19,6 @@ AK_47:
       Attributes:
         - "GENERIC_MOVEMENT_SPEED -0.0181"
       Deny_Use_In_Crafting: true
-      Recipe:
-        Shape:
-          - " a "
-          - "sib"
-          - " h "
-        Ingredients:
-          a: Adhesive  # found in MechanicsCore > Items > CraftingMaterials.yml
-          i: iron_block
-          b: Barrel  # found in MechanicsCore > Items > CraftingMaterials.yml
-          h: Handle  # found in MechanicsCore > Items > CraftingMaterials.yml
-          s:
-            Type: wooden_shovel
-            Name: "<yellow>Stock"
-            Lore:
-              - "<gray>Crafting material for weapons"
-            Recipe:
-              Shape:
-                - "www"
-                - "ww "
-              Ingredients:
-                w: oak_planks
     Weapon_Info_Display:
       Action_Bar:
         Message: "<gold>AK-47<firearm_state> <gray>«<gold><ammo_left><gray>»<gold><reload>"
