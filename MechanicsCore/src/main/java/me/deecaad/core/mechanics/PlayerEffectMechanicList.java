@@ -7,6 +7,7 @@ import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
 import me.deecaad.core.mechanics.targeters.WorldTargeter;
 import org.bukkit.Location;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,32 +49,36 @@ public final class PlayerEffectMechanicList extends Mechanic implements JarSearc
         // We re-use these variables, so we do not need to instantiate them
         // multiple times.
         List<Player> cacheList = new LinkedList<>(); // linked list for fast add and clear
-        CastData target = cast.clone();
 
         for (PlayerEffectMechanic mechanic : mechanics) {
 
+            OUTER : for (Iterator<CastData> it = mechanic.targeter.getTargets(cast); it.hasNext();) {
+                CastData target = it.next();
+                for (Condition condition : mechanic.conditions)
+                    if (!condition.isAllowed(target))
+                        continue OUTER;
 
-            for (Iterator<CastData> iterator = mechanic.getViewerTargeter().getTargets(cast); iterator.hasNext(); ) {
-                CastData targetData = iterator.next();
+                // Save these variables so they don't get overridden
+                LivingEntity targetEntity = target.getTarget();
+                Supplier<Location> supplier = target.getTargetLocationSupplier();
 
-                for (Condition condition : mechanic.getViewerConditions()) {
-                    for (Player player : players) {
+                PLAYER_LOOP : for (Player player : players) {
+                    target.setTargetEntity(player);
+                    for (Condition condition : mechanic.getViewerConditions())
+                        if (!condition.isAllowed(target))
+                            continue PLAYER_LOOP;
 
-                        targetData.setTargetEntity(player);
-                        target.setTargetLocation((Supplier<Location>) null);
-
-
-                        if (condition.isAllowed(targetData))
-                            cacheList.add(player);
-                    }
+                    cacheList.add(player);
                 }
 
-                mechanic.playFor(cast, cacheList);
+                // Rewrite our saved variations
+                target.setTargetEntity(targetEntity);
+                target.setTargetLocation(supplier);
+
+                // Play the mechanic
+                mechanic.playFor(target, cacheList);
                 cacheList.clear();
             }
-
-            // TODO account for the targeter... Right now we only account for the conditions
-
         }
     }
 
