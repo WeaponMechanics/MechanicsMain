@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -41,37 +42,44 @@ public final class PlayerEffectMechanicList extends Mechanic implements JarSearc
     }
 
     @Override
-    protected void handleTargetersAndConditions(CastData cast) {
-        // This Mechanic is a special Mechanic that stores a list of mechanics that
-        // can have their targeters cached. This improves performance. Of course, that
-        // means that this mechanic SHOULD NOT use targeters.
-        use0(cast);
-    }
-
-    @Override
-    protected void use0(CastData cast) {
+    public void use(CastData cast) {
         List<Player> players = cast.getSource().getWorld().getPlayers();
 
         // We re-use these variables, so we do not need to instantiate them
         // multiple times.
         List<Player> cacheList = new LinkedList<>(); // linked list for fast add and clear
         CastData target = cast.clone();
-        target.setTargetLocation((Supplier<Location>) null);
 
         for (PlayerEffectMechanic mechanic : mechanics) {
 
-            // TODO account for the targeter... Right now we only account for the conditions
-            for (Condition condition : mechanic.getViewerConditions()) {
-                for (Player player : players) {
-                    target.setTargetEntity(player);
-                    if (condition.isAllowed(target))
-                        cacheList.add(player);
+
+            for (Iterator<CastData> iterator = mechanic.getViewerTargeter().getTargets(cast); iterator.hasNext(); ) {
+                CastData targetData = iterator.next();
+
+                for (Condition condition : mechanic.getViewerConditions()) {
+                    for (Player player : players) {
+
+                        targetData.setTargetEntity(player);
+                        target.setTargetLocation((Supplier<Location>) null);
+
+
+                        if (condition.isAllowed(targetData))
+                            cacheList.add(player);
+                    }
                 }
+
+                mechanic.playFor(cast, cacheList);
+                cacheList.clear();
             }
 
-            mechanic.playFor(cast, cacheList);
-            cacheList.clear();
+            // TODO account for the targeter... Right now we only account for the conditions
+
         }
+    }
+
+    @Override
+    protected void use0(CastData cast) {
+        throw new UnsupportedOperationException("Cannot directly use a PlayerEffectMechanicList");
     }
 
     @NotNull @Override
