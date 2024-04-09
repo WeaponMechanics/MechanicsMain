@@ -107,7 +107,7 @@ public class Mechanics implements Serializer<Mechanics> {
         for (Object obj : list) {
             Mechanic mechanic = serializeOne(data, obj.toString());
 
-            if (mechanic instanceof PlayerEffectMechanic playerMechanic && mechanic.getTargeter() instanceof WorldTargeter worldTargeter) {
+            if (mechanic instanceof PlayerEffectMechanic playerMechanic && playerMechanic.getViewerTargeter() instanceof WorldTargeter worldTargeter) {
                 if (worldTargeter.isDefaultValues()) {
                     cacheList.addMechanic(playerMechanic);
                 } else {
