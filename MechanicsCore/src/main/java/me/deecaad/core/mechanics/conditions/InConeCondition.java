@@ -4,6 +4,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.VectorSerializer;
 import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.utils.VectorUtil;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -38,17 +39,15 @@ public class InConeCondition extends Condition {
             direction = sourceLocation.getDirection();
         }
 
+        // Adjust the source location so that the cone's origin is moved back a
+        // bit. This helps get overlapping entities.
+        VectorUtil.addScaledVector(source, direction, -0.5);
+
         Vector target = cast.getTargetLocation().toVector();
         Vector toTarget = target.clone().subtract(source).normalize();
 
-        // Use vector projection to determine if the target is on the right side of the cone
-        //double sourceProjection = source.dot(direction);
-        //double targetProjection = target.dot(direction);
-        //if (targetProjection < sourceProjection) {
-        //    return false;
-        //}
-
-        return direction.dot(toTarget) < cosAngle;
+        double dot = direction.dot(toTarget);
+        return dot >= cosAngle;
     }
 
     @Override

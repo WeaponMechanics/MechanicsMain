@@ -3,6 +3,21 @@ package me.deecaad.core.utils
 import org.bukkit.util.Vector
 
 /**
+ * Adds the given vector to the current vector, scaled by the given factor.
+ *
+ * @receiver The current vector
+ * @param other The vector to add
+ * @param scale The factor to scale the other vector by
+ * @return The reference to the current vector
+ */
+fun Vector.addScaledVector(other: Vector, scale: Double): Vector {
+    this.x += other.x * scale
+    this.y += other.y * scale
+    this.z += other.z * scale
+    return this
+}
+
+/**
  * Sets the length of the given vector to the given length.
  *
  * If the given vector is zero-length, an [IllegalArgumentException] is
