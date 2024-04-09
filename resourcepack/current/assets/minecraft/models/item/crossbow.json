@@ -32,11 +32,6 @@
         {"predicate": {"charged": 1}, "model": "item/crossbow_arrow"},
         {"predicate": {"charged": 1, "firework": 1}, "model": "item/crossbow_firework"},
 
-		{"predicate": {"custom_model_data":-1000}, "model":"item/weapons/reticle_pmii"},
-        {"predicate": {"custom_model_data":-100}, "model":"item/weapons/ammo_rocket"},
-        {"predicate": {"custom_model_data":-10}, "model":"item/weapons/combatknife"},
-		{"predicate": {"custom_model_data":-1}, "model":"item/weapons/stim"},
-
 		{"predicate": {"custom_model_data":   1}, "model":"item/weapons/uzi"},
         {"predicate": {"custom_model_data":   2}, "model":"item/weapons/aug"},
         {"predicate": {"custom_model_data":   3}, "model":"item/weapons/origin12"},
