@@ -180,7 +180,7 @@ Damage:
   Use_Vanilla_Damaging: false
 
   Damage_Modifiers:
-    Min: 20%   # Bullets will always do at least 20% of their base damage
+    Min: 0%   # Bullets will always do at least 0% of their base damage
     Max: 300%  # Bullets will, at a max, do 300% of their base damage
 
     # Armor modifiers... for simplicity, I recommend only changing 'Per_Armor_Point'.
@@ -207,7 +207,7 @@ Damage:
     Sprinting: +5%
     In_Midair: +5%
 
-    Shielding: -100%
+    Shielding: -500% # Basically completely negates damage
 
     # Change the damage per entity type. Good for PVE type servers that
     # want "a little bit" of friendly fire.
@@ -220,7 +220,7 @@ Damage:
 
   Explosion:
     Damage_Modifiers:
-      Min: 20%   # Explosions will always do at least 20% of their base damage
+      Min: 5%   # Explosions will always do at least 5% of their base damage
       Max: 120%  # Explosions will, at a max, do 120% of their base damage
 
       Per_Armor_Point: -3%
@@ -234,6 +234,9 @@ Damage:
       Swimming: +5%
       Sprinting: +5%
       In_Midair: +10%
+
+      Shielding: -500% # Basically completely negates damage
+
 
 
 # These values are used internally for figuring out headshots, bodyshots, etc.
