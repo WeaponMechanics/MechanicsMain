@@ -38,7 +38,7 @@ public interface ExplosionExposure {
 
     /**
      * Determines if the given entity can see the given <code>Location</code>. This method assumes the
-     * entity's field of view is a 90 degree angle
+     * entity's field of view is a 70 degree angle
      *
      * @param origin The point to check if the entity can see
      * @param entity The entity to check against
