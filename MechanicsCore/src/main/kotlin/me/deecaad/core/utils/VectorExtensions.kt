@@ -10,7 +10,10 @@ import org.bukkit.util.Vector
  * @param scale The factor to scale the other vector by
  * @return The reference to the current vector
  */
-fun Vector.addScaledVector(other: Vector, scale: Double): Vector {
+fun Vector.addScaledVector(
+    other: Vector,
+    scale: Double,
+): Vector {
     this.x += other.x * scale
     this.y += other.y * scale
     this.z += other.z * scale
