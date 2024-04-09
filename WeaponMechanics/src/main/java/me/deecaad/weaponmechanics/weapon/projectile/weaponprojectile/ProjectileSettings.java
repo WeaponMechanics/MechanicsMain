@@ -4,7 +4,9 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
+import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -232,6 +234,16 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
         EntityType projectileType = null;
 
         if (!isInvisible) {
+
+            // People often define a material instead of an entity type, like "iron_nugget".
+            // So this checks if the type is a material
+            Material material = EnumUtil.getIfPresent(Material.class, type).orElse(null);
+            if (material != null) {
+                throw data.exception("Projectile_Item_Or_Block", "For your projectile type, you must define an ENTITY, not a MATERIAL",
+                    "You defined a material: " + type + " instead of an entity type. For example, you have to use 'DROPPED_ITEM' or 'FALLING_BLOCK' instead of '" + type + "'",
+                    "For material data, you can use 'Projectile_Item_Or_Block: " + material + "'");
+            }
+
             projectileType = data.of("Type").assertExists().getEnum(EntityType.class);
             ItemStack projectileItem = data.of("Projectile_Item_Or_Block").serialize(new ItemSerializer());
             if ((projectileType == EntityType.DROPPED_ITEM
