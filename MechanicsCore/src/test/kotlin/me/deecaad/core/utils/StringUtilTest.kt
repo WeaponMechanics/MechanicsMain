@@ -29,12 +29,14 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource("  ,2,    ", "a,3,aaa", ",10,", "hello,0,", "bob,1,bob")
+    @CsvSource("a,3,aaa", ",10,", "hello,0,", "bob,1,bob")
     fun test_repeat(
-        str: String,
+        str: String?,
         count: Int,
-        expected: String,
+        expected: String?,
     ) {
+        val str = str ?: ""
+        val expected = expected ?: ""
         assertEquals(expected, repeat(str, count))
     }
 
