@@ -1,11 +1,11 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
+import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import me.deecaad.core.file.*;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.core.utils.primitive.DoubleEntry;
-import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -34,8 +34,8 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
     // Armor modifiers
     private double perArmorPoint;
-    private DoubleMap<Material> armorModifiers;
-    private DoubleMap<Enchantment> enchantmentModifiers;
+    private Object2DoubleMap<Material> armorModifiers;
+    private Object2DoubleMap<Enchantment> enchantmentModifiers;
 
     // DamagePoint modifiers
     private double headModifier;
@@ -54,8 +54,8 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
     // Misc modifiers
     private double shieldModifier;
-    private DoubleMap<EntityType> entityTypeModifiers;
-    private DoubleMap<PotionEffectType> potionEffectModifiers;
+    private Object2DoubleMap<EntityType> entityTypeModifiers;
+    private Object2DoubleMap<PotionEffectType> potionEffectModifiers;
 
     /**
      * Default constructor for serializer
@@ -63,10 +63,10 @@ public class DamageModifier implements Serializer<DamageModifier> {
     public DamageModifier() {
     }
 
-    public DamageModifier(double min, double max, double perArmorPoint, DoubleMap<Material> armorModifiers, DoubleMap<Enchantment> enchantmentModifiers,
-        double headModifier, double bodyModifier, double armsModifier, double legsModifier, double feetModifier, double backModifier,
-        double sneakingModifier, double walkingModifier, double swimmingModifier, double sprintingModifier, double inMidairModifier,
-        double shieldModifier, DoubleMap<EntityType> entityTypeModifiers, DoubleMap<PotionEffectType> potionEffectModifiers) {
+    public DamageModifier(double min, double max, double perArmorPoint, Object2DoubleMap<Material> armorModifiers, Object2DoubleMap<Enchantment> enchantmentModifiers,
+                          double headModifier, double bodyModifier, double armsModifier, double legsModifier, double feetModifier, double backModifier,
+                          double sneakingModifier, double walkingModifier, double swimmingModifier, double sprintingModifier, double inMidairModifier,
+                          double shieldModifier, Object2DoubleMap<EntityType> entityTypeModifiers, Object2DoubleMap<PotionEffectType> potionEffectModifiers) {
         this.min = min;
         this.max = max;
         this.perArmorPoint = perArmorPoint;
@@ -112,19 +112,19 @@ public class DamageModifier implements Serializer<DamageModifier> {
         this.perArmorPoint = perArmorPoint;
     }
 
-    public DoubleMap<Material> getArmorModifiers() {
+    public Object2DoubleMap<Material> getArmorModifiers() {
         return armorModifiers;
     }
 
-    public void setArmorModifiers(DoubleMap<Material> armorModifiers) {
+    public void setArmorModifiers(Object2DoubleMap<Material> armorModifiers) {
         this.armorModifiers = armorModifiers;
     }
 
-    public DoubleMap<Enchantment> getEnchantmentModifiers() {
+    public Object2DoubleMap<Enchantment> getEnchantmentModifiers() {
         return enchantmentModifiers;
     }
 
-    public void setEnchantmentModifiers(DoubleMap<Enchantment> enchantmentModifiers) {
+    public void setEnchantmentModifiers(Object2DoubleMap<Enchantment> enchantmentModifiers) {
         this.enchantmentModifiers = enchantmentModifiers;
     }
 
@@ -216,19 +216,19 @@ public class DamageModifier implements Serializer<DamageModifier> {
         this.inMidairModifier = inMidairModifier;
     }
 
-    public DoubleMap<EntityType> getEntityTypeModifiers() {
+    public Object2DoubleMap<EntityType> getEntityTypeModifiers() {
         return entityTypeModifiers;
     }
 
-    public void setEntityTypeModifiers(DoubleMap<EntityType> entityTypeModifiers) {
+    public void setEntityTypeModifiers(Object2DoubleMap<EntityType> entityTypeModifiers) {
         this.entityTypeModifiers = entityTypeModifiers;
     }
 
-    public DoubleMap<PotionEffectType> getPotionEffectModifiers() {
+    public Object2DoubleMap<PotionEffectType> getPotionEffectModifiers() {
         return potionEffectModifiers;
     }
 
-    public void setPotionEffectModifiers(DoubleMap<PotionEffectType> potionEffectModifiers) {
+    public void setPotionEffectModifiers(Object2DoubleMap<PotionEffectType> potionEffectModifiers) {
         this.potionEffectModifiers = potionEffectModifiers;
     }
 
@@ -262,12 +262,12 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
                 // Armor type (DIAMOND, CHAIN, GOLD, etc.)
                 if (armorModifiers != null)
-                    rate += armorModifiers.get(armor.getType());
+                    rate += armorModifiers.getDouble(armor.getType());
 
                 // Enchantments (PROTECTION 4, PROJECTILE PROJECTION, etc)
                 if (enchantmentModifiers != null) {
                     for (Map.Entry<Enchantment, Integer> entry : armor.getEnchantments().entrySet()) {
-                        rate += enchantmentModifiers.get(entry.getKey()) * entry.getValue();
+                        rate += enchantmentModifiers.getDouble(entry.getKey()) * entry.getValue();
                     }
                 }
             }
@@ -307,14 +307,14 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
         // Do double damage to zombies, half damage to players (PVE scenario), for example
         if (entityTypeModifiers != null) {
-            rate += entityTypeModifiers.get(victim.getType());
+            rate += entityTypeModifiers.getDouble(victim.getType());
         }
 
         // Let potion effects contribute to the damage dealt
         if (potionEffectModifiers != null) {
-            for (DoubleEntry<PotionEffectType> entry : potionEffectModifiers.entrySet()) {
+            for (Object2DoubleMap.Entry<PotionEffectType> entry : potionEffectModifiers.object2DoubleEntrySet()) {
                 if (victim.hasPotionEffect(entry.getKey()))
-                    rate += entry.getValue();
+                    rate += entry.getDoubleValue();
             }
         }
 
@@ -343,7 +343,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
         double perArmorPoint = serializePercentage(data.of("Per_Armor_Point"));
 
         // Per material armor modifiers
-        DoubleMap<Material> armorModifiers = new DoubleMap<>();
+        Object2DoubleMap<Material> armorModifiers = new Object2DoubleOpenHashMap<>();
         List<String[]> armorSplitList = data.ofList("Armor")
             .addArgument(Material.class, true)
             .addArgument(String.class, true).assertList().get();
@@ -358,7 +358,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
         }
 
         // Per enchantment armor modifiers
-        DoubleMap<Enchantment> enchantmentModifiers = new DoubleMap<>();
+        Object2DoubleMap<Enchantment> enchantmentModifiers = new Object2DoubleOpenHashMap<>();
         List<String[]> enchantmentSplitList = data.ofList("Enchantments")
             .addArgument(Enchantment.class, true, true)
             .addArgument(String.class, true).assertList().get();
@@ -395,7 +395,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
         double shieldModifier = serializePercentage(data.of("Shielding"));
 
-        DoubleMap<EntityType> entityTypeModifiers = new DoubleMap<>();
+    Object2DoubleMap<EntityType> entityTypeModifiers = new Object2DoubleOpenHashMap<>();
         List<String[]> entitySplitList = data.ofList("Entities")
             .addArgument(EntityType.class, true)
             .addArgument(String.class, true).assertList().get();
@@ -409,7 +409,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
             }
         }
 
-        DoubleMap<PotionEffectType> potionEffectModifiers = new DoubleMap<>();
+        Object2DoubleMap<PotionEffectType> potionEffectModifiers = new Object2DoubleOpenHashMap<>();
         List<String[]> potionSplitList = data.ofList("Potions")
             .addArgument(PotionEffectType.class, true, true)
             .addArgument(String.class, true).assertList().get();

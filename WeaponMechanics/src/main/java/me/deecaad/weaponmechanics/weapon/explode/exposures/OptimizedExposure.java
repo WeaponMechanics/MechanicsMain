@@ -1,10 +1,11 @@
 package me.deecaad.weaponmechanics.weapon.explode.exposures;
 
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
+import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
@@ -23,10 +24,10 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 public class OptimizedExposure implements ExplosionExposure {
 
     @NotNull @Override
-    public DoubleMap<LivingEntity> mapExposures(@NotNull Location origin, @NotNull ExplosionShape shape) {
+    public Object2DoubleMap<LivingEntity> mapExposures(@NotNull Location origin, @NotNull ExplosionShape shape) {
 
         List<LivingEntity> entities = shape.getEntities(origin);
-        DoubleMap<LivingEntity> temp = new DoubleMap<>(entities.size());
+        Object2DoubleMap<LivingEntity> temp = new Object2DoubleOpenHashMap<>(entities.size());
 
         // How far away from the explosion to damage players
         double damageRadius = shape.getMaxDistance() * 2.0F;

@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
@@ -13,8 +14,6 @@ import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.core.utils.VectorUtil;
-import me.deecaad.core.utils.primitive.DoubleEntry;
-import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
@@ -232,7 +231,7 @@ public class Explosion implements Serializer<Explosion> {
 
         List<Block> blocks = shape.getBlocks(origin);
         BlockRegenSorter sorter = new LayerDistanceSorter(origin, this);
-        DoubleMap<LivingEntity> entities = exposure.mapExposures(origin, shape);
+        Object2DoubleMap<LivingEntity> entities = exposure.mapExposures(origin, shape);
         Mechanics mechanics = this.mechanics;
         if (projectile != null) {
             // This event is not cancellable. If developers want to cancel
@@ -300,11 +299,7 @@ public class Explosion implements Serializer<Explosion> {
             // higher your exposure, the greater the knockback.
             if (isKnockback()) {
                 Vector originVector = origin.toVector();
-                for (DoubleEntry<LivingEntity> entry : entities.entrySet()) {
-
-                    LivingEntity entity = entry.getKey();
-                    double exposure = entry.getValue();
-
+                entities.forEach((entity, exposure) -> {
                     exposure *= knockbackRate;
 
                     // Normalized vector between the explosion and entity involved
@@ -312,7 +307,7 @@ public class Explosion implements Serializer<Explosion> {
                     Vector motion = entity.getVelocity().add(between);
 
                     entity.setVelocity(motion);
-                }
+                });
             }
 
             if (cluster != null)
@@ -323,12 +318,9 @@ public class Explosion implements Serializer<Explosion> {
             // This occurs because of the command /wm test
             // Useful for debugging, and can help users decide which
             // size explosion they may want
-            for (DoubleEntry<LivingEntity> entry : entities.entrySet()) {
-                LivingEntity entity = entry.getKey();
-                double impact = entry.getValue();
-
+            entities.forEach((entity, impact) -> {
                 entity.sendMessage(ChatColor.RED + "You suffered " + impact * 100 + "% of the impact");
-            }
+            });
         }
 
         if (flashbang != null)

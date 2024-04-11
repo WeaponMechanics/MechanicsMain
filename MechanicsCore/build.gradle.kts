@@ -30,6 +30,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.slf4j:slf4j-nop:1.7.30")
     implementation(Dependencies.MYTHIC_MOBS)
+    implementation(Dependencies.FAST_UTIL)
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
     testImplementation(Dependencies.LATEST_SPIGOT_API)

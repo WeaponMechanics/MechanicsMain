@@ -1,10 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
-import me.deecaad.core.utils.primitive.DoubleEntry;
-import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
@@ -255,7 +254,7 @@ public class DamageHandler {
         return true;
     }
 
-    public void tryUseExplosion(WeaponProjectile projectile, Location origin, DoubleMap<LivingEntity> exposures) {
+    public void tryUseExplosion(WeaponProjectile projectile, Location origin, Object2DoubleMap<LivingEntity> exposures) {
         Configuration config = getConfigurations();
 
         String weaponTitle = projectile.getWeaponTitle();
@@ -265,15 +264,15 @@ public class DamageHandler {
             damage = config.getDouble(weaponTitle + ".Damage.Base_Damage");
         }
 
-        for (DoubleEntry<LivingEntity> entry : exposures.entrySet()) {
+        final double finalDamage = damage;
+        exposures.forEach((entity, exposure) -> {
             // Value = exposure
 
-            LivingEntity victim = entry.getKey();
-            Location victimLocation = victim.getLocation();
+            Location victimLocation = entity.getLocation();
             Vector explosionToVictimDirection = victimLocation.toVector().subtract(origin.toVector());
             boolean backstab = victimLocation.getDirection().dot(explosionToVictimDirection) > 0.0;
 
-            tryUse(victim, damage * entry.getValue(), null, backstab, projectile.getShooter(), weaponTitle, projectile.getWeaponStack(), projectile.getHand(), projectile.getDistanceTravelled(), true);
-        }
+            tryUse(entity, finalDamage * exposure, null, backstab, projectile.getShooter(), weaponTitle, projectile.getWeaponStack(), projectile.getHand(), projectile.getDistanceTravelled(), true);
+        });
     }
 }

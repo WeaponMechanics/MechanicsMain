@@ -1,8 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.explode.exposures;
 
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.VectorUtil;
-import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
@@ -34,7 +34,7 @@ public interface ExplosionExposure {
      * @param shape The shape of the explosion
      * @return The effected players and their impact level
      */
-    @NotNull DoubleMap<LivingEntity> mapExposures(@NotNull Location origin, @NotNull ExplosionShape shape);
+    @NotNull Object2DoubleMap<LivingEntity> mapExposures(@NotNull Location origin, @NotNull ExplosionShape shape);
 
     /**
      * Determines if the given entity can see the given <code>Location</code>. This method assumes the
