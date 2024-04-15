@@ -241,14 +241,14 @@ public class WeaponMechanics {
             basicConfiguration = basicConfigurationReader.usePathToSerializersAndValidators(filledMap);
         } else {
             // Just creates empty map to prevent other issues
-            basicConfiguration = new LinkedConfig();
+            basicConfiguration = new FastConfiguration();
             debug.log(LogLevel.WARN,
                 "Could not locate config.yml?",
                 "Make sure it exists in path " + getDataFolder() + "/config.yml");
         }
 
         // Ensure that the resource pack exists in the folder
-        if (basicConfiguration.getBool("Resource_Pack_Download.Enabled")) {
+        if (basicConfiguration.getBoolean("Resource_Pack_Download.Enabled")) {
             new TaskChain(WeaponMechanics.getPlugin())
                 .thenRunAsync((data) -> {
                     String link = basicConfiguration.getString("Resource_Pack_Download.Link");
@@ -275,7 +275,7 @@ public class WeaponMechanics {
     }
 
     void setupDatabase() {
-        if (basicConfiguration.getBool("Database.Enable", true)) {
+        if (basicConfiguration.getBoolean("Database.Enable", true)) {
 
             debug.debug("Setting up database");
 
@@ -302,7 +302,7 @@ public class WeaponMechanics {
         debug.debug("Loading and serializing config");
 
         if (configurations == null) {
-            configurations = new LinkedConfig();
+            configurations = new FastConfiguration();
         } else {
             configurations.clear();
         }
@@ -326,7 +326,7 @@ public class WeaponMechanics {
 
             Configuration temp = new FileReader(debug, event.getSerializers(), event.getValidators()).fillAllFiles(getDataFolder(), "config.yml", "repair_kits", "attachments", "ammos",
                 "placeholders");
-            configurations.add(temp);
+            configurations.copyFrom(temp);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (DuplicateKeyException e) {
@@ -436,7 +436,7 @@ public class WeaponMechanics {
     }
 
     void registerUpdateChecker() {
-        if (!basicConfiguration.getBool("Update_Checker.Enable", true))
+        if (!basicConfiguration.getBoolean("Update_Checker.Enable", true))
             return;
 
         debug.debug("Registering update checker");

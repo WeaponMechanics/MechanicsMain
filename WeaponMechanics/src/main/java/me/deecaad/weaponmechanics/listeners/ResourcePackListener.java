@@ -79,7 +79,7 @@ public class ResourcePackListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        if (!WeaponMechanics.getBasicConfigurations().getBool("Resource_Pack_Download.Automatically_Send_To_Player"))
+        if (!WeaponMechanics.getBasicConfigurations().getBoolean("Resource_Pack_Download.Automatically_Send_To_Player"))
             return;
 
         String link = WeaponMechanics.getBasicConfigurations().getString("Resource_Pack_Download.Link");
@@ -104,7 +104,7 @@ public class ResourcePackListener implements Listener {
     public void onPack(PlayerResourcePackStatusEvent event) {
         Player player = event.getPlayer();
 
-        if (WeaponMechanics.getBasicConfigurations().getBool("Resource_Pack_Download.Force_Player_Download")) {
+        if (WeaponMechanics.getBasicConfigurations().getBoolean("Resource_Pack_Download.Force_Player_Download")) {
             PlayerResourcePackStatusEvent.Status status = event.getStatus();
 
             if (status == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD

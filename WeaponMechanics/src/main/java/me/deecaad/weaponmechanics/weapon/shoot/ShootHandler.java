@@ -127,7 +127,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
 
-        if (!getConfigurations().getBool(weaponTitle + ".Shoot.Consume_Item_On_Shoot")) {
+        if (!getConfigurations().getBoolean(weaponTitle + ".Shoot.Consume_Item_On_Shoot")) {
             reloadHandler.handleWeaponStackAmount(entityWrapper, weaponStack);
         }
 
@@ -230,7 +230,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
     private boolean singleShot(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot, boolean dualWield, boolean isMelee) {
         boolean mainhand = slot == EquipmentSlot.HAND;
-        boolean consumeItemOnShoot = getConfigurations().getBool(weaponTitle + ".Shoot.Consume_Item_On_Shoot");
+        boolean consumeItemOnShoot = getConfigurations().getBoolean(weaponTitle + ".Shoot.Consume_Item_On_Shoot");
         int ammoPerShot = getConfigurations().getInt(weaponTitle + ".Shoot.Ammo_Per_Shot", 1);
 
         // START RELOAD STUFF
@@ -243,7 +243,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, weaponTitle, mainhand), mainhand, true, isMelee);
 
-        boolean consumeEmpty = getConfigurations().getBool(weaponTitle + ".Shoot.Destroy_When_Empty") && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0;
+        boolean consumeEmpty = getConfigurations().getBoolean(weaponTitle + ".Shoot.Destroy_When_Empty") && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0;
         if ((consumeEmpty || consumeItemOnShoot) && handleConsumeItemOnShoot(weaponStack, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
             return true;
         }
@@ -267,7 +267,7 @@ public class ShootHandler implements IValidator, TriggerListener {
             return false;
 
         boolean mainhand = slot == EquipmentSlot.HAND;
-        boolean consumeItemOnShoot = getConfigurations().getBool(weaponTitle + ".Shoot.Consume_Item_On_Shoot");
+        boolean consumeItemOnShoot = getConfigurations().getBoolean(weaponTitle + ".Shoot.Consume_Item_On_Shoot");
         int ammoPerShot = getConfigurations().getInt(weaponTitle + ".Shoot.Ammo_Per_Shot", 1);
 
         handData.setBurstTask(new BukkitRunnable() {
@@ -305,7 +305,7 @@ public class ShootHandler implements IValidator, TriggerListener {
                 // Only make the first projectile of burst modify spread change if its used
                 shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper, weaponTitle, mainhand), mainhand, shots == 0, false);
 
-                boolean consumeEmpty = getConfigurations().getBool(weaponTitle + ".Shoot.Destroy_When_Empty") && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0;
+                boolean consumeEmpty = getConfigurations().getBoolean(weaponTitle + ".Shoot.Destroy_When_Empty") && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0;
                 if ((consumeEmpty || consumeItemOnShoot) && handleConsumeItemOnShoot(weaponStack, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
                     return;
                 }
@@ -507,7 +507,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         EquipmentSlot slot = mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND;
 
         Mechanics shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", Mechanics.class);
-        boolean resetFallDistance = config.getBool(weaponTitle + ".Shoot.Reset_Fall_Distance");
+        boolean resetFallDistance = config.getBoolean(weaponTitle + ".Shoot.Reset_Fall_Distance");
         Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);
         double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed");
         int projectileAmount = config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot");
@@ -607,7 +607,7 @@ public class ShootHandler implements IValidator, TriggerListener {
                 entityWrapper.getHandData(mainHand).cancelTasks();
         }
 
-        boolean unscopeAfterShot = config.getBool(weaponTitle + ".Scope.Unscope_After_Shot");
+        boolean unscopeAfterShot = config.getBoolean(weaponTitle + ".Scope.Unscope_After_Shot");
         WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot, unscopeAfterShot);
         Bukkit.getPluginManager().callEvent(event);
 

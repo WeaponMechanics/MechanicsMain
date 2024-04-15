@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import me.deecaad.core.mechanics.Mechanics;
-import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.BlockRegenSorter;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.block.Block;
@@ -24,14 +24,14 @@ public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellab
 
     private List<Block> blocks;
     private BlockRegenSorter sorter;
-    private DoubleMap<LivingEntity> entities;
+    private Object2DoubleMap<LivingEntity> entities;
 
     private Mechanics mechanics;
 
     private boolean isCancelled;
 
     public ProjectileExplodeEvent(WeaponProjectile projectile, List<Block> blocks, BlockRegenSorter sorter,
-        DoubleMap<LivingEntity> entities, Mechanics mechanics) {
+        Object2DoubleMap<LivingEntity> entities, Mechanics mechanics) {
         super(projectile);
 
         this.blocks = blocks;
@@ -88,7 +88,7 @@ public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellab
      *
      * @return The non-null entities mapped to their exposures.
      */
-    public DoubleMap<LivingEntity> getEntities() {
+    public Object2DoubleMap<LivingEntity> getEntities() {
         return entities;
     }
 
@@ -98,7 +98,7 @@ public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellab
      *
      * @param entities The non-null map of entities and their exposures (0..1).
      */
-    public void setEntities(DoubleMap<LivingEntity> entities) {
+    public void setEntities(Object2DoubleMap<LivingEntity> entities) {
         this.entities = entities;
     }
 

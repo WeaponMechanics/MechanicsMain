@@ -43,7 +43,7 @@ public class HitBoxValidator implements IValidator {
                 continue;
             }
 
-            boolean horizontalEntity = configuration.getBool("Entity_Hitboxes." + entityType.name() + ".Horizontal_Entity", false);
+            boolean horizontalEntity = configuration.getBoolean("Entity_Hitboxes." + entityType.name() + ".Horizontal_Entity", false);
             if (horizontalEntity && head > 0.0) {
                 debug.log(LogLevel.WARN, "Entity type " + entityType.name() + " hit box had horizontal entity true and HEAD was not 0.0",
                     "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",

@@ -217,7 +217,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
         if (ammo != null && !ammo.hasAmmo(weaponTitle, weaponStack, playerWrapper)) {
 
             // Creative mode bypass... #176
-            if (playerWrapper.getPlayer().getGameMode() != GameMode.CREATIVE || !getBasicConfigurations().getBool("Creative_Mode_Bypass_Ammo")) {
+            if (playerWrapper.getPlayer().getGameMode() != GameMode.CREATIVE || !getBasicConfigurations().getBoolean("Creative_Mode_Bypass_Ammo")) {
                 if (ammo.getOutOfAmmoMechanics() != null)
                     ammo.getOutOfAmmoMechanics().use(new CastData(shooter, weaponTitle, weaponStack));
                 return false;
@@ -239,7 +239,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
         final int finalAmmoToAdd = tempAmmoToAdd;
         final int magazineSize = tempMagazineSize;
 
-        boolean unloadAmmoOnReload = config.getBool(weaponTitle + ".Reload.Unload_Ammo_On_Reload");
+        boolean unloadAmmoOnReload = config.getBoolean(weaponTitle + ".Reload.Unload_Ammo_On_Reload");
 
         // This is necessary for events to be used correctly
         handData.setReloadData(weaponTitle, weaponStack);

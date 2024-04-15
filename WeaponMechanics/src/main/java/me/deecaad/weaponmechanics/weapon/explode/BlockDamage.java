@@ -238,7 +238,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
             if (blockBreakMode == BreakMode.BREAK) {
 
                 // #307, people don't want protection plugins to interfere sometimes
-                boolean disableBlockBreakEvent = WeaponMechanics.getBasicConfigurations().getBool("Disable_Block_Break_Event");
+                boolean disableBlockBreakEvent = WeaponMechanics.getBasicConfigurations().getBoolean("Disable_Block_Break_Event");
 
                 // When you provide the player to this method, other plugins can
                 // cancel the block damage. This is used for protection plugins

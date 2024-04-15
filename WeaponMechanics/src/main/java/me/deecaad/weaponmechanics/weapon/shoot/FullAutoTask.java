@@ -111,7 +111,7 @@ public class FullAutoTask extends BukkitRunnable {
         this.perShot = shotsPerSecond / 20;
 
         trigger = getConfigurations().getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
-        consumeItemOnShoot = getConfigurations().getBool(weaponTitle + ".Shoot.Consume_Item_On_Shoot");
+        consumeItemOnShoot = getConfigurations().getBoolean(weaponTitle + ".Shoot.Consume_Item_On_Shoot");
         ammoPerShot = getConfigurations().getInt(weaponTitle + ".Shoot.Ammo_Per_Shot", 1);
     }
 
@@ -205,7 +205,7 @@ public class FullAutoTask extends BukkitRunnable {
         }
         // END RELOAD STUFF
 
-        boolean destroyWhenEmpty = WeaponMechanics.getConfigurations().getBool(weaponTitle + ".Shoot.Destroy_When_Empty");
+        boolean destroyWhenEmpty = WeaponMechanics.getConfigurations().getBoolean(weaponTitle + ".Shoot.Destroy_When_Empty");
         for (int i = 0; i < shootAmount; ++i) {
             Location shootLocation = weaponHandler.getShootHandler().getShootLocation(entityWrapper, weaponTitle, mainHand);
             weaponHandler.getShootHandler().shoot(entityWrapper, weaponTitle, taskReference, shootLocation, mainHand, true, false);
