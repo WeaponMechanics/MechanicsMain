@@ -160,7 +160,7 @@ public class WeaponListeners implements Listener {
     @EventHandler
     public void unload(ChunkUnloadEvent e) {
         // Small performance boost when using assists only for players
-        if (getBasicConfigurations().getBool("Assists_Event.Only_Players", true))
+        if (getBasicConfigurations().getBoolean("Assists_Event.Only_Players", true))
             return;
 
         // Cleanup metadata on chunk unload...

@@ -12,7 +12,6 @@ import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.List;

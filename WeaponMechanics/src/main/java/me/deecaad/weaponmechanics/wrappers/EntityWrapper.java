@@ -38,10 +38,10 @@ public class EntityWrapper {
         this.entity = livingEntity;
 
         Configuration config = WeaponMechanics.getBasicConfigurations();
-        if (!config.getBool("Disabled_Trigger_Checks.In_Midair")
-            || !config.getBool("Disabled_Trigger_Checks.Standing_And_Walking")
-            || !config.getBool("Disabled_Trigger_Checks.Jump")
-            || !config.getBool("Disabled_Trigger_Checks.Double_Jump")) {
+        if (!config.getBoolean("Disabled_Trigger_Checks.In_Midair")
+            || !config.getBoolean("Disabled_Trigger_Checks.Standing_And_Walking")
+            || !config.getBoolean("Disabled_Trigger_Checks.Jump")
+            || !config.getBoolean("Disabled_Trigger_Checks.Double_Jump")) {
 
             this.moveTask = new MoveTask(this).runTaskTimer(WeaponMechanics.getPlugin(), 0, MOVE_TASK_INTERVAL).getTaskId();
         }

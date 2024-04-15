@@ -18,8 +18,6 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class SphericalExplosion implements ExplosionShape {
 
-    private static final Configuration config = WeaponMechanics.getBasicConfigurations();
-
     private final double radius;
     private final double radiusSquared;
 
@@ -30,6 +28,7 @@ public class SphericalExplosion implements ExplosionShape {
 
     @NotNull @Override
     public List<Block> getBlocks(@NotNull Location origin) {
+        Configuration config = WeaponMechanics.getBasicConfigurations();
         List<Block> temp = new ArrayList<>();
 
         Location pos1 = origin.clone().add(-radius, -radius, -radius);

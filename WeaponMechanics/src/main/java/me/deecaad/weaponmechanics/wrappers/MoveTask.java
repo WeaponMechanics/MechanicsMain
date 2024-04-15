@@ -58,7 +58,7 @@ public class MoveTask extends BukkitRunnable {
 
         this.from = to;
 
-        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swim")) {
+        if (!WeaponMechanics.getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.Swim")) {
             if (isSwimming(entity)) {
                 entityWrapper.setSwimming(true);
 
@@ -71,7 +71,7 @@ public class MoveTask extends BukkitRunnable {
 
         boolean inMidairCheck = isInMidair(entity);
 
-        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Standing_And_Walking")) {
+        if (!WeaponMechanics.getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.Standing_And_Walking")) {
             if (isSameLocationNonRotation(from, to)) {
                 ++this.sameMatches;
             } else {
@@ -97,7 +97,7 @@ public class MoveTask extends BukkitRunnable {
             ++groundTicks;
         }
 
-        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.In_Midair")) {
+        if (!WeaponMechanics.getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.In_Midair")) {
             entityWrapper.setInMidair(inMidairCheck);
         }
 
@@ -106,7 +106,7 @@ public class MoveTask extends BukkitRunnable {
         }
 
         if (this.jumps != -1) {
-            if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Jump")) {
+            if (!WeaponMechanics.getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.Jump")) {
                 if (from.getY() < to.getY() && !player.getLocation().getBlock().isLiquid()) {
                     int currentJumps = player.getStatistic(Statistic.JUMP);
                     int jumpsLast = this.jumps;
@@ -121,7 +121,7 @@ public class MoveTask extends BukkitRunnable {
             }
         }
 
-        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump")
+        if (!WeaponMechanics.getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.Double_Jump")
             && (player.getGameMode() == GameMode.SURVIVAL || player.getGameMode() == GameMode.ADVENTURE)) {
             if (player.getFallDistance() > 3.0) {
                 // https://minecraft.gamepedia.com/Damage#Fall_damage

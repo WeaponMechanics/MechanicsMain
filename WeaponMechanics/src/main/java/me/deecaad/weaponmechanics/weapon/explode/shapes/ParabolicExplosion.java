@@ -21,8 +21,6 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
  */
 public class ParabolicExplosion implements ExplosionShape {
 
-    private static final Configuration config = WeaponMechanics.getBasicConfigurations();
-
     private final double depth; // This is assumed to be negative
     private final double angle;
 
@@ -51,6 +49,7 @@ public class ParabolicExplosion implements ExplosionShape {
 
     @NotNull @Override
     public List<Block> getBlocks(@NotNull Location origin) {
+        Configuration config = WeaponMechanics.getBasicConfigurations();
         List<Block> temp = new ArrayList<>();
 
         // Solve for x

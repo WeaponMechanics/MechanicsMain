@@ -57,10 +57,10 @@ public class DamageHandler {
         LivingEntity shooter, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, double distanceTravelled, boolean isExplosion) {
         Configuration config = getConfigurations();
 
-        if (!DamageUtil.canHarmScoreboardTeams(shooter, victim) && !config.getBool(weaponTitle + ".Damage.Ignore_Teams"))
+        if (!DamageUtil.canHarmScoreboardTeams(shooter, victim) && !config.getBoolean(weaponTitle + ".Damage.Ignore_Teams"))
             return false;
 
-        boolean isOwnerImmune = config.getBool(weaponTitle + ".Damage.Enable_Owner_Immunity");
+        boolean isOwnerImmune = config.getBoolean(weaponTitle + ".Damage.Enable_Owner_Immunity");
         if (isOwnerImmune && victim.equals(shooter))
             return false;
 
@@ -121,7 +121,7 @@ public class DamageHandler {
         }
 
         // Don't do WM armor damage when using vanilla damaging
-        if (!getBasicConfigurations().getBool("Damage.Use_Vanilla_Damaging", false)) {
+        if (!getBasicConfigurations().getBoolean("Damage.Use_Vanilla_Damaging", false)) {
             DamageUtil.damageArmor(victim, damageEntityEvent.getArmorDamage(), point);
         }
 
@@ -170,8 +170,8 @@ public class DamageHandler {
                 shooterData.set(weaponTitle, WeaponStat.LONGEST_DISTANCE_KILL,
                     (key, value) -> value == null ? (float) distanceTravelled : Math.max((float) value, (float) distanceTravelled));
             }
-        } else if (shooter.getType() == EntityType.PLAYER && getBasicConfigurations().getBool("Assists_Event.Enable", true)
-            && (!getBasicConfigurations().getBool("Assists_Event.Only_Players", true) || victim.getType() == EntityType.PLAYER)) {
+        } else if (shooter.getType() == EntityType.PLAYER && getBasicConfigurations().getBoolean("Assists_Event.Enable", true)
+            && (!getBasicConfigurations().getBoolean("Assists_Event.Only_Players", true) || victim.getType() == EntityType.PLAYER)) {
 
             // If shot didn't kill entity, log assist damage
             AssistData assistData;

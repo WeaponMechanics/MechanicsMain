@@ -110,7 +110,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
                     return false;
                 }
 
-                List<?> zoomStacks = config.getList(weaponTitle + ".Scope.Zoom_Stacking.Stacks", null);
+                List<?> zoomStacks = config.getObject(weaponTitle + ".Scope.Zoom_Stacking.Stacks", List.class);
                 if (zoomStacks == null) { // meaning that zoom stacking is not used
                     // Should turn off
                     return zoomOut(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
@@ -156,7 +156,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
 
         // If the entity is on shoot cooldown and the weapon uses Unscope_After_Shot,
         // then the entity is not allowed to enter scope until the cooldown is over.
-        boolean unscopeAfterShot = config.getBool(weaponTitle + ".Scope.Unscope_After_Shot");
+        boolean unscopeAfterShot = config.getBoolean(weaponTitle + ".Scope.Unscope_After_Shot");
         int delayBetweenShots = config.getInt(weaponTitle + ".Shoot.Delay_Between_Shots");
         if (unscopeAfterShot && delayBetweenShots != 0 && !NumberUtil.hasMillisPassed(zoomData.getHandData().getLastShotTime(), delayBetweenShots)) {
             return false;
@@ -164,7 +164,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
 
         if (zoomData.isZooming()) { // zoom stack
 
-            List<?> zoomStacks = config.getList(weaponTitle + ".Scope.Zoom_Stacking.Stacks", null);
+            List<?> zoomStacks = config.getObject(weaponTitle + ".Scope.Zoom_Stacking.Stacks", List.class);
             if (zoomStacks != null) {
                 int currentStacks = zoomData.getZoomStacks();
                 double zoomAmount = Double.parseDouble(zoomStacks.get(currentStacks).toString());
@@ -324,7 +324,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
         if (zoomAmount < 1 || zoomAmount > 10)
             throw new SerializerRangeException(data.serializer, 1.0, zoomAmount, 10.0, data.of("Zoom_Amount").getLocation());
 
-        List<?> zoomStacks = configuration.getList(data.key + ".Zoom_Stacking.Stacks", null);
+        List<?> zoomStacks = configuration.getObject(data.key + ".Zoom_Stacking.Stacks", List.class);
         if (zoomStacks != null) {
             for (int i = 0; i < zoomStacks.size(); i++) {
                 String zoomStack = zoomStacks.get(i).toString();

@@ -246,7 +246,7 @@ public class Explosion implements Serializer<Explosion> {
             // Use Bukkit's EntityExplodeEvent to allow other protection plugins
             // (Towny, for example) to cancel the explosion or filter blocks w/o
             // explicitly depending on WeaponMechanics.
-            if (blockDamage != null && !blocks.isEmpty() && !getBasicConfigurations().getBool("Disable_Entity_Explode_Event")) {
+            if (blockDamage != null && !blocks.isEmpty() && !getBasicConfigurations().getBoolean("Disable_Entity_Explode_Event")) {
                 EntityExplodeEvent entityExplodeEvent = new EntityExplodeEvent(projectile.getShooter(), origin, blocks, 5);
                 Bukkit.getPluginManager().callEvent(entityExplodeEvent);
                 if (entityExplodeEvent.isCancelled())
