@@ -61,7 +61,7 @@ object RandomUtil {
         min: Float,
         max: Float,
     ): Float {
-        return ThreadLocalRandom.current().nextFloat() * (max - min) + min
+        return if (min == max) min else ThreadLocalRandom.current().nextFloat() * (max - min) + min
     }
 
     /**
@@ -76,7 +76,7 @@ object RandomUtil {
         min: Double,
         max: Double,
     ): Double {
-        return ThreadLocalRandom.current().nextDouble(min, max)
+        return if (min == max) min else ThreadLocalRandom.current().nextDouble(min, max)
     }
 
     /**

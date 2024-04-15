@@ -1,5 +1,9 @@
 name: Java CI
 
+# This workflow is used to verify pull requests. PRs should be:
+# 1. Compilable (build)
+# 2. Pass tests (test)
+# 3. Follow our code formatting rules (spotlessCheck)
 on: pull_request
 
 jobs:
@@ -17,6 +21,8 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      # devMode removes legacy versions (1.12.2 -> 1.16.5) from the gradle
+      # project, making these tests run faster.
       - name: Update gradle.properties for devMode
         run: |
           sed -i 's/devMode=false/devMode=true/g' gradle.properties
@@ -29,3 +35,6 @@ jobs:
 
       - name: Run tests
         run: ./gradlew test
+
+      - name: Run Spotless Check
+        run: ./gradlew spotlessCheck

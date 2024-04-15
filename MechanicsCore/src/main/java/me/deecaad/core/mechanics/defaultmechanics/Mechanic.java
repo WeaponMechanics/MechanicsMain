@@ -69,7 +69,7 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
      *
      * @param cast The non-null cast data.
      */
-    public final void use(CastData cast) {
+    public void use(CastData cast) {
 
         // Chance to execute mechanic
         if (!RandomUtil.chance(chance))

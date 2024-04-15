@@ -102,6 +102,9 @@ public class Spread implements Serializer<Spread> {
      * @return the randomized direction based on given params as normalized vector
      */
     private Vector getNormalizedSpreadDirection(double yaw, double pitch, double spread) {
+        // negative spread probably means the user subtracted too much... Max
+        // out to 0 to avoid error
+        spread = Math.max(spread, 0.0);
 
         // Create random numbers for horizontal and vertical spread
         double randomX = RandomUtil.range(-spread, spread);
