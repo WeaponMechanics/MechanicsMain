@@ -3,6 +3,7 @@ plugins {
     signing
     id("io.codearte.nexus-staging") version "0.30.0"
     id("me.deecaad.mechanics-project")
+    kotlin("jvm") version Versions.KOTLIN
 }
 
 repositories {
