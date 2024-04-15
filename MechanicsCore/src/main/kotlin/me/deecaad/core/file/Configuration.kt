@@ -7,7 +7,6 @@ import kotlin.jvm.Throws
  * where the key is always a string.
  */
 abstract class Configuration : Iterable<Map.Entry<String, Any>> {
-
     // Mutators
 
     /**
@@ -18,7 +17,10 @@ abstract class Configuration : Iterable<Map.Entry<String, Any>> {
      * @param key the key of the property.
      * @param value the value of the property.
      */
-    abstract fun set(key: String, value: Any?)
+    abstract fun set(
+        key: String,
+        value: Any?,
+    )
 
     /**
      * Adds all properties from the specified [other] configuration to this configuration. If a key
@@ -76,12 +78,18 @@ abstract class Configuration : Iterable<Map.Entry<String, Any>> {
      * @return the value of the property, or the default value
      */
     @JvmOverloads
-    fun getBoolean(key: String, def: Boolean = false): Boolean {
+    fun getBoolean(
+        key: String,
+        def: Boolean = false,
+    ): Boolean {
         return getBoolean0(key, def)
     }
 
     // internal method to get the boolean value
-    protected abstract fun getBoolean0(key: String, def: Boolean): Boolean
+    protected abstract fun getBoolean0(
+        key: String,
+        def: Boolean,
+    ): Boolean
 
     /**
      * Returns true if this configuration contains the specified [key], and that value is an integer
@@ -100,12 +108,18 @@ abstract class Configuration : Iterable<Map.Entry<String, Any>> {
      * @return the value of the property, or the default value
      */
     @JvmOverloads
-    fun getInt(key: String, def: Int = 0): Int {
+    fun getInt(
+        key: String,
+        def: Int = 0,
+    ): Int {
         return getInt0(key, def)
     }
 
     // internal method to get the integer value
-    protected abstract fun getInt0(key: String, def: Int): Int
+    protected abstract fun getInt0(
+        key: String,
+        def: Int,
+    ): Int
 
     /**
      * Returns true if this configuration contains the specified [key], and that value is a double
@@ -124,12 +138,18 @@ abstract class Configuration : Iterable<Map.Entry<String, Any>> {
      * @return the value of the property, or the default value
      */
     @JvmOverloads
-    fun getDouble(key: String, def: Double = 0.0): Double {
+    fun getDouble(
+        key: String,
+        def: Double = 0.0,
+    ): Double {
         return getDouble0(key, def)
     }
 
     // internal method to get the double value
-    protected abstract fun getDouble0(key: String, def: Double): Double
+    protected abstract fun getDouble0(
+        key: String,
+        def: Double,
+    ): Double
 
     /**
      * Returns true if this configuration contains the specified [key], and that value is an object
@@ -160,7 +180,10 @@ abstract class Configuration : Iterable<Map.Entry<String, Any>> {
      * @param def the default value, if the property is not present.
      * @return the value of the property, or the default value
      */
-    fun getObject(key: String, def: Any): Any {
+    fun getObject(
+        key: String,
+        def: Any,
+    ): Any {
         return getObject0(key, def, Any::class.java)!!
     }
 
@@ -174,7 +197,10 @@ abstract class Configuration : Iterable<Map.Entry<String, Any>> {
      * @param clazz the class of the object to be returned.
      * @return the value of the property, or null
      */
-    fun <T : Any> getObject(key: String, clazz: Class<T>): T? {
+    fun <T : Any> getObject(
+        key: String,
+        clazz: Class<T>,
+    ): T? {
         return getObject0(key, null, clazz)
     }
 
@@ -189,7 +215,11 @@ abstract class Configuration : Iterable<Map.Entry<String, Any>> {
      * @param clazz the class of the object to be returned.
      * @return the value of the property, or the default value
      */
-    fun <T : Any> getObject(key: String, def: T, clazz: Class<T>): T {
+    fun <T : Any> getObject(
+        key: String,
+        def: T,
+        clazz: Class<T>,
+    ): T {
         return getObject0(key, def, clazz)!!
     }
 
@@ -216,12 +246,19 @@ abstract class Configuration : Iterable<Map.Entry<String, Any>> {
      * @param def the default value, if the property is not present. Defaults to null.
      * @return the value of the property, or the default value
      */
-    inline fun <reified T : Any> get(key: String, def: T): T {
+    inline fun <reified T : Any> get(
+        key: String,
+        def: T,
+    ): T {
         return getObject(key, def, T::class.java)
     }
 
     // internal method to get the object value
-    protected abstract fun <T : Any> getObject0(key: String, def: T?, clazz: Class<T>): T?
+    protected abstract fun <T : Any> getObject0(
+        key: String,
+        def: T?,
+        clazz: Class<T>,
+    ): T?
 
     /**
      * Returns the value of the string property with the specified [key] in this configuration.
@@ -242,7 +279,10 @@ abstract class Configuration : Iterable<Map.Entry<String, Any>> {
      * @param def the default value, if the property is not present.
      * @return the value of the property, or the default value
      */
-    fun getString(key: String, def: String): String {
+    fun getString(
+        key: String,
+        def: String,
+    ): String {
         return getObject(key, def, String::class.java)
     }
 }

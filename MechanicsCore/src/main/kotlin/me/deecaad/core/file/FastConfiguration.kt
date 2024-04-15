@@ -12,7 +12,6 @@ import kotlin.jvm.Throws
  * A fast implementation of the [Configuration] interface that uses primitive maps for storing values.
  */
 class FastConfiguration : Configuration() {
-
     private val booleans: Object2BooleanMap<String> = Object2BooleanOpenHashMap()
     private val ints: Object2IntMap<String> = Object2IntOpenHashMap()
     private val doubles: Object2DoubleMap<String> = Object2DoubleOpenHashMap()
@@ -21,7 +20,10 @@ class FastConfiguration : Configuration() {
     // Use to keep track of all key-value pairs, but not used for lookups
     private val all = mutableMapOf<String, Any>()
 
-    override fun set(key: String, value: Any?) {
+    override fun set(
+        key: String,
+        value: Any?,
+    ) {
         if (value == null) {
             booleans.removeBoolean(key)
             ints.removeInt(key)
@@ -44,14 +46,16 @@ class FastConfiguration : Configuration() {
     override fun copyFrom(other: Configuration) {
         val duplicates = mutableSetOf<String>()
         for ((key, value) in other) {
-            if (key in all.keys)
+            if (key in all.keys) {
                 duplicates.add(key)
-            else
+            } else {
                 set(key, value)
+            }
         }
 
-        if (duplicates.isNotEmpty())
+        if (duplicates.isNotEmpty()) {
             throw DuplicateKeyException(duplicates)
+        }
     }
 
     override fun clear() {
@@ -83,7 +87,10 @@ class FastConfiguration : Configuration() {
         return key in booleans
     }
 
-    override fun getBoolean0(key: String, def: Boolean): Boolean {
+    override fun getBoolean0(
+        key: String,
+        def: Boolean,
+    ): Boolean {
         booleans.defaultReturnValue(def)
         return booleans.getBoolean(key)
     }
@@ -92,7 +99,10 @@ class FastConfiguration : Configuration() {
         return key in ints
     }
 
-    override fun getInt0(key: String, def: Int): Int {
+    override fun getInt0(
+        key: String,
+        def: Int,
+    ): Int {
         ints.defaultReturnValue(def)
         return ints.getInt(key)
     }
@@ -101,7 +111,10 @@ class FastConfiguration : Configuration() {
         return key in doubles
     }
 
-    override fun getDouble0(key: String, def: Double): Double {
+    override fun getDouble0(
+        key: String,
+        def: Double,
+    ): Double {
         doubles.defaultReturnValue(def)
         return doubles.getDouble(key)
     }
@@ -110,7 +123,11 @@ class FastConfiguration : Configuration() {
         return key in objects
     }
 
-    override fun <T : Any> getObject0(key: String, def: T?, clazz: Class<T>): T? {
+    override fun <T : Any> getObject0(
+        key: String,
+        def: T?,
+        clazz: Class<T>,
+    ): T? {
         return clazz.cast(objects.getOrDefault(key, def))
     }
 

@@ -64,9 +64,9 @@ public class DamageModifier implements Serializer<DamageModifier> {
     }
 
     public DamageModifier(double min, double max, double perArmorPoint, Object2DoubleMap<Material> armorModifiers, Object2DoubleMap<Enchantment> enchantmentModifiers,
-                          double headModifier, double bodyModifier, double armsModifier, double legsModifier, double feetModifier, double backModifier,
-                          double sneakingModifier, double walkingModifier, double swimmingModifier, double sprintingModifier, double inMidairModifier,
-                          double shieldModifier, Object2DoubleMap<EntityType> entityTypeModifiers, Object2DoubleMap<PotionEffectType> potionEffectModifiers) {
+        double headModifier, double bodyModifier, double armsModifier, double legsModifier, double feetModifier, double backModifier,
+        double sneakingModifier, double walkingModifier, double swimmingModifier, double sprintingModifier, double inMidairModifier,
+        double shieldModifier, Object2DoubleMap<EntityType> entityTypeModifiers, Object2DoubleMap<PotionEffectType> potionEffectModifiers) {
         this.min = min;
         this.max = max;
         this.perArmorPoint = perArmorPoint;
@@ -395,7 +395,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
         double shieldModifier = serializePercentage(data.of("Shielding"));
 
-    Object2DoubleMap<EntityType> entityTypeModifiers = new Object2DoubleOpenHashMap<>();
+        Object2DoubleMap<EntityType> entityTypeModifiers = new Object2DoubleOpenHashMap<>();
         List<String[]> entitySplitList = data.ofList("Entities")
             .addArgument(EntityType.class, true)
             .addArgument(String.class, true).assertList().get();
