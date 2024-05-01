@@ -13,6 +13,6 @@ repositories {
 }
 
 dependencies {
-    implementation("io.papermc.paperweight.userdev:io.papermc.paperweight.userdev.gradle.plugin:1.5.11")
+    implementation("io.papermc.paperweight.userdev:io.papermc.paperweight.userdev.gradle.plugin:1.7.0")
     implementation("com.diffplug.spotless:spotless-plugin-gradle:6.25.0")
 }
