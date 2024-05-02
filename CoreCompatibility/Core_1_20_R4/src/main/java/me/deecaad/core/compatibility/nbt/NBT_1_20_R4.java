@@ -40,14 +40,11 @@ public class NBT_1_20_R4 extends NBT_Persistent {
         DataComponentMap to = nms.components();
 
         /*
-        if (path == null) {
-            nms.setTag(from.copy());
-            toItem.setItemMeta(getBukkitStack(nms).getItemMeta());
-            return;
-        }
-
-        to.put(path, from.getCompound(path).copy());
-        toItem.setItemMeta(getBukkitStack(nms).getItemMeta());
+         * if (path == null) { nms.setTag(from.copy());
+         * toItem.setItemMeta(getBukkitStack(nms).getItemMeta()); return; }
+         * 
+         * to.put(path, from.getCompound(path).copy());
+         * toItem.setItemMeta(getBukkitStack(nms).getItemMeta());
          */
     }
 
@@ -63,16 +60,16 @@ public class NBT_1_20_R4 extends NBT_Persistent {
 
     @NotNull @Override
     public String getNBTDebug(@NotNull ItemStack bukkitStack) {
-        //CompoundTag nbt = getNMSStack(bukkitStack).getTag();
-        //return nbt == null ? "null" : new TagColorVisitor().visit(nbt);
+        // CompoundTag nbt = getNMSStack(bukkitStack).getTag();
+        // return nbt == null ? "null" : new TagColorVisitor().visit(nbt);
         return null;
     }
 
     @Override
     public @NotNull Component getDisplayName(@NotNull ItemStack item) {
-        //net.minecraft.network.chat.Component component = CraftItemStack.asNMSCopy(item).getDisplayName();
-        //JsonElement json = net.minecraft.network.chat.Component.Serializer.toJsonTree(component);
-        //return GsonComponentSerializer.gson().serializer().fromJson(json, Component.class);
+        // net.minecraft.network.chat.Component component = CraftItemStack.asNMSCopy(item).getDisplayName();
+        // JsonElement json = net.minecraft.network.chat.Component.Serializer.toJsonTree(component);
+        // return GsonComponentSerializer.gson().serializer().fromJson(json, Component.class);
         return null;
     }
 

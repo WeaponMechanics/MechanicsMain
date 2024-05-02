@@ -2,6 +2,7 @@ package me.deecaad.core.compatibility.entity;
 
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.*;
 import org.bukkit.block.BlockState;
@@ -20,6 +21,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public interface EntityCompatibility {
+
+    EntityType ITEM_ENTITY = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? EntityType.ITEM : EntityType.valueOf("DROPPED_ITEM");
 
     /**
      * Null in cases where entity is invulnerable or dead.
@@ -103,7 +106,7 @@ public interface EntityCompatibility {
      * @return The fake entity.
      */
     default FakeEntity generateFakeEntity(Location location, ItemStack item) {
-        return generateFakeEntity(location, EntityType.DROPPED_ITEM, item);
+        return generateFakeEntity(location, ITEM_ENTITY, item);
     }
 
     /**

@@ -8,7 +8,9 @@ import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.RandomUtil;
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.configuration.ConfigurationSection;
@@ -25,6 +27,9 @@ import java.util.Map;
  * Handles breaking the weapon over a certain number of shots, so weapons do not last forever.
  */
 public class CustomDurability implements Serializer<CustomDurability> {
+
+    private static final Enchantment UNBREAKING_ENCHANTMENT = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? Enchantment.UNBREAKING :
+        (Enchantment) ReflectionUtil.invokeField(ReflectionUtil.getField(Enchantment.class, "DURABILITY"), null);
 
     // Cached common unbreaking values.
     private static final double[] ARMOR_LEVELS = new double[]{1.0, 0.80, 0.73, 0.70, 0.68, 0.67, 0.66, 0.65, 0.64, 0.64, 0.64};
@@ -236,7 +241,7 @@ public class CustomDurability implements Serializer<CustomDurability> {
         ItemMeta meta = item.getItemMeta();
 
         // Check chance and unbreaking.
-        int unbreakingLevel = meta == null ? 0 : meta.getEnchantLevel(Enchantment.DURABILITY);
+        int unbreakingLevel = meta == null ? 0 : meta.getEnchantLevel(UNBREAKING_ENCHANTMENT);
         if (!RandomUtil.chance(chance) || !isLoseDurability(unbreakingLevel, false))
             return false;
 
@@ -375,7 +380,7 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
     /**
      * Factory method to determine whether an item should lose durability based on the given level of
-     * the {@link org.bukkit.enchantments.Enchantment#DURABILITY}. For tools/weapons, the chance to lose
+     * the {@link org.bukkit.enchantments.Enchantment#UNBREAKING}. For tools/weapons, the chance to lose
      * durability is <i>LOWER</i> then for armor.
      *
      * @param level The unbreaking enchantment level.

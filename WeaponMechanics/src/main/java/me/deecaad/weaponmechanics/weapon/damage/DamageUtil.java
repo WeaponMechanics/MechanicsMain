@@ -14,7 +14,11 @@ import org.bukkit.GameMode;
 import org.bukkit.Statistic;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.*;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Enderman;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -32,6 +36,10 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 
 public class DamageUtil {
+
+    private static final EntityType SNOW_GOLEM_ENTITY = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? EntityType.SNOW_GOLEM : EntityType.valueOf("SNOWMAN");
+    private static final Enchantment UNBREAKING_ENCHANTMENT = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? Enchantment.UNBREAKING :
+        (Enchantment) ReflectionUtil.invokeField(ReflectionUtil.getField(Enchantment.class, "DURABILITY"), null);
 
     /**
      * Do not let anyone instantiate this class
@@ -226,8 +234,12 @@ public class DamageUtil {
         if (ReflectionUtil.getMCVersion() >= 13)
             return true;
 
+        // snow golem had a name change in 1.20.5+
+        if (type == SNOW_GOLEM_ENTITY)
+            return false;
+
         return switch (type) {
-            case IRON_GOLEM, SNOWMAN, ENDER_DRAGON, WITHER, GIANT, PLAYER -> false;
+            case IRON_GOLEM, ENDER_DRAGON, WITHER, GIANT, PLAYER -> false;
             default -> ReflectionUtil.getMCVersion() != 12 || type != EntityType.ILLUSIONER;
         };
     }
@@ -286,7 +298,7 @@ public class DamageUtil {
             return;
 
         // Formula taken from Unbreaking enchant code
-        int level = meta.getEnchantLevel(Enchantment.DURABILITY);
+        int level = meta.getEnchantLevel(UNBREAKING_ENCHANTMENT);
         boolean skipDamage = !RandomUtil.chance(0.6 + 0.4 / (level + 1));
         if (skipDamage)
             return;

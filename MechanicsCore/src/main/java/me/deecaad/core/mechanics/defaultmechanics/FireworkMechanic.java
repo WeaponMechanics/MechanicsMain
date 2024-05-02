@@ -12,6 +12,7 @@ import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.mechanics.targeters.WorldTargeter;
 import me.deecaad.core.utils.DistanceUtil;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class FireworkMechanic extends PlayerEffectMechanic {
+
 
     public static class FireworkData implements InlineSerializer<FireworkData> {
 
@@ -93,6 +95,12 @@ public class FireworkMechanic extends PlayerEffectMechanic {
             return new FireworkData(effect);
         }
     }
+
+
+    /**
+     * In 1.20.5, Spigot changed their Material enum from 'FIREWORK' to 'FIREWORK_ROCKET'.
+     */
+    private static final EntityType FIREWORK_ENTITY = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? EntityType.FIREWORK_ROCKET : EntityType.valueOf("FIREWORK");
 
     private ItemStack fireworkItem;
     private int flightTime; // THIS IS A COPY OF THE VALUE IN 'fireworkItem'
@@ -202,7 +210,7 @@ public class FireworkMechanic extends PlayerEffectMechanic {
     @Override
     public void playFor(CastData cast, List<Player> viewers) {
 
-        FakeEntity fakeEntity = CompatibilityAPI.getCompatibility().getEntityCompatibility().generateFakeEntity(cast.getTargetLocation(), EntityType.FIREWORK, fireworkItem);
+        FakeEntity fakeEntity = CompatibilityAPI.getCompatibility().getEntityCompatibility().generateFakeEntity(cast.getTargetLocation(), FIREWORK_ENTITY, fireworkItem);
         if (flightTime > 1)
             fakeEntity.setMotion(0.001, 0.3, -0.001);
 

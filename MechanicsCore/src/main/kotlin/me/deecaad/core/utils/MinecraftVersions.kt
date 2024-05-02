@@ -22,9 +22,14 @@ object MinecraftVersions {
 
     @JvmStatic
     internal fun parseCurrentVersion(versionString: String = Bukkit.getVersion()): Version {
-        return """\d+\.\d+\.\d+""".toRegex().find(versionString)?.let {
-            allVersions[it.value]
-        } ?: throw IllegalStateException("Could not find any version associated with $versionString, map: $allVersions")
+        var currentVersion: String? = """\d+\.\d+\.\d+""".toRegex().find(versionString)?.value
+        if (currentVersion == null) {
+            currentVersion = """\d+\.\d+""".toRegex().find(versionString)?.value
+            if (currentVersion != null)
+                currentVersion += ".0"
+        }
+
+        return allVersions[currentVersion] ?: throw IllegalStateException("Invalid version: $currentVersion")
     }
 
     /**
@@ -132,6 +137,8 @@ object MinecraftVersions {
             add(Version(it, 2, 2)) // 1.20.2
             add(Version(it, 3, 3)) // 1.20.3
             add(Version(it, 4, 3)) // 1.20.4
+            add(Version(it, 5, 4)) // 1.20.5
+            add(Version(it, 6, 4)) // 1.20.6
         }
 
     /**
@@ -152,6 +159,8 @@ object MinecraftVersions {
             allUpdates[toString()] = this
             allVersions.putAll(this.versions.associateBy { it.toString() })
         }
+
+        operator fun get(patch: Int): Version = versions[patch]
 
         override fun compareTo(other: Update): Int {
             return when {
@@ -181,6 +190,22 @@ object MinecraftVersions {
     ) : Comparable<Version> {
         val major = update.major
         val minor = update.minor
+
+        /**
+         * Returns true if this version >= the current version.
+         */
+        fun isAtLeast(): Boolean {
+            val current = CURRENT
+
+            return when {
+                major > current.major -> true
+                major < current.major -> false
+                minor > current.minor -> true
+                minor < current.minor -> false
+                patch >= current.patch -> true
+                else -> false
+            }
+        }
 
         override fun compareTo(other: Version): Int {
             return when {
