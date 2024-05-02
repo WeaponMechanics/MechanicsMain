@@ -39,6 +39,12 @@ val sourcesJar by tasks.registering(Jar::class) {
     from(sourceSets.main.get().allSource)
 }
 
+tasks.compileKotlin {
+    kotlinOptions {
+        jvmTarget = "16"
+    }
+}
+
 nexusStaging {
     serverUrl = "https://s01.oss.sonatype.org/service/local/"
     packageGroup = "com.cjcrafter"
