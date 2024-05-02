@@ -3,7 +3,7 @@ package me.deecaad.core.compatibility.entity;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.compatibility.equipevent.NonNullList_1_20_R3;
+import me.deecaad.core.compatibility.equipevent.NonNullList_1_20_R4;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -11,9 +11,9 @@ import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.entity.CraftEntity;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -27,13 +27,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 // https://nms.screamingsandals.org/1.18.1/
-public class Entity_1_20_R3 implements EntityCompatibility {
+public class Entity_1_20_R4 implements EntityCompatibility {
 
     static {
         if (ReflectionUtil.getMCVersion() != 20) {
             MechanicsCore.debug.log(
                 LogLevel.ERROR,
-                "Loaded " + Entity_1_20_R3.class + " when not using Minecraft 20",
+                "Loaded " + Entity_1_20_R4.class + " when not using Minecraft 20",
                 new InternalError());
         }
     }
@@ -48,12 +48,12 @@ public class Entity_1_20_R3 implements EntityCompatibility {
 
     @Override
     public List generateNonNullList(int size, TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer) {
-        return new NonNullList_1_20_R3(size, consumer);
+        return new NonNullList_1_20_R4(size, consumer);
     }
 
     @Override
     public FakeEntity generateFakeEntity(Location location, EntityType type, Object data) {
-        return new FakeEntity_1_20_R3(location, type, data);
+        return new FakeEntity_1_20_R4(location, type, data);
     }
 
     @Override
@@ -75,6 +75,7 @@ public class Entity_1_20_R3 implements EntityCompatibility {
             case FEET -> net.minecraft.world.entity.EquipmentSlot.FEET;
             case HAND -> net.minecraft.world.entity.EquipmentSlot.MAINHAND;
             case OFF_HAND -> net.minecraft.world.entity.EquipmentSlot.OFFHAND;
+            case BODY -> net.minecraft.world.entity.EquipmentSlot.BODY;
         };
 
         List<Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>> temp = new ArrayList<>(1);

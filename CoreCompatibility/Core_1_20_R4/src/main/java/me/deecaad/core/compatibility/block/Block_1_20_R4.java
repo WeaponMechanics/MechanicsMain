@@ -10,9 +10,9 @@ import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
 import net.minecraft.world.level.block.state.BlockState;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlock;
-import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlockState;
-import org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.block.CraftBlock;
+import org.bukkit.craftbukkit.block.CraftBlockState;
+import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 // https://nms.screamingsandals.org/1.19.1/
-public class Block_1_20_R3 implements BlockCompatibility {
+public class Block_1_20_R4 implements BlockCompatibility {
 
     private static final Field multiBlockChangeB;
     private static final Field multiBlockChangeC;
@@ -36,7 +36,7 @@ public class Block_1_20_R3 implements BlockCompatibility {
         if (ReflectionUtil.getMCVersion() != 20) {
             MechanicsCore.debug.log(
                 LogLevel.ERROR,
-                "Loaded " + Block_1_20_R3.class + " when not using Minecraft 20",
+                "Loaded " + Block_1_20_R4.class + " when not using Minecraft 20",
                 new InternalError());
         }
     }

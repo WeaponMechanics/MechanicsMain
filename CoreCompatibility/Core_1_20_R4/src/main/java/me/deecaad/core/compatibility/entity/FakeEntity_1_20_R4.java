@@ -23,12 +23,12 @@ import net.minecraft.world.phys.Vec3;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlockState;
-import org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_20_R3.util.CraftChatMessage;
+import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.block.CraftBlockState;
+import org.bukkit.craftbukkit.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.util.CraftChatMessage;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -39,17 +39,17 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import static me.deecaad.core.compatibility.entity.Entity_1_20_R3.getEntityData;
+import static me.deecaad.core.compatibility.entity.Entity_1_20_R4.getEntityData;
 import static net.minecraft.network.protocol.game.ClientboundMoveEntityPacket.PosRot;
 import static net.minecraft.network.protocol.game.ClientboundMoveEntityPacket.Rot;
 
-public class FakeEntity_1_20_R3 extends FakeEntity {
+public class FakeEntity_1_20_R4 extends FakeEntity {
 
     static {
         if (ReflectionUtil.getMCVersion() != 20) {
             me.deecaad.core.MechanicsCore.debug.log(
                 LogLevel.ERROR,
-                "Loaded " + FakeEntity_1_20_R3.class + " when not using Minecraft 20",
+                "Loaded " + FakeEntity_1_20_R4.class + " when not using Minecraft 20",
                 new InternalError());
         }
     }
@@ -64,7 +64,7 @@ public class FakeEntity_1_20_R3 extends FakeEntity {
     private BlockState block;
     private ItemStack item;
 
-    public FakeEntity_1_20_R3(@NotNull Location location, @NotNull EntityType type, @Nullable Object data) {
+    public FakeEntity_1_20_R4(@NotNull Location location, @NotNull EntityType type, @Nullable Object data) {
         super(location, type);
 
         if (location.getWorld() == null)
@@ -82,7 +82,7 @@ public class FakeEntity_1_20_R3 extends FakeEntity {
         // constructors when we are given the data (data != null).
         if (data != null) {
             entity = switch (type) {
-                case DROPPED_ITEM -> new ItemEntity(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
+                case ITEM -> new ItemEntity(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
                 case FALLING_BLOCK -> {
                     FallingBlockEntity temp = new FallingBlockEntity(net.minecraft.world.entity.EntityType.FALLING_BLOCK, world.getHandle());
                     temp.setPosRaw(x, y, z);
@@ -91,7 +91,7 @@ public class FakeEntity_1_20_R3 extends FakeEntity {
                         : ((CraftBlockState) data).getHandle());
                     yield temp;
                 }
-                case FIREWORK -> new FireworkRocketEntity(world.getHandle(), item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data), x, y, z, true);
+                case FIREWORK_ROCKET -> new FireworkRocketEntity(world.getHandle(), item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data), x, y, z, true);
                 case ITEM_DISPLAY -> {
                     Display.ItemDisplay temp = net.minecraft.world.entity.EntityType.ITEM_DISPLAY.create(world.getHandle());
                     temp.setPos(x, y, z);
@@ -127,7 +127,7 @@ public class FakeEntity_1_20_R3 extends FakeEntity {
     @Override
     public Object getData() {
         return switch (type) {
-            case DROPPED_ITEM -> item.asBukkitCopy();
+            case ITEM -> item.asBukkitCopy();
             case FALLING_BLOCK -> CraftBlockData.fromData(block);
             default -> null;
         };
@@ -136,7 +136,7 @@ public class FakeEntity_1_20_R3 extends FakeEntity {
     @Override
     public void setData(@Nullable Object data) {
         switch (type) {
-            case DROPPED_ITEM -> ((ItemEntity) entity).setItem(item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
+            case ITEM -> ((ItemEntity) entity).setItem(item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
         }
     }
 
@@ -310,6 +310,7 @@ public class FakeEntity_1_20_R3 extends FakeEntity {
             case CHEST -> EquipmentSlot.CHEST;
             case LEGS -> EquipmentSlot.LEGS;
             case HEAD -> EquipmentSlot.HEAD;
+            case BODY -> EquipmentSlot.BODY;
         };
 
         LivingEntity livingEntity = (LivingEntity) entity;

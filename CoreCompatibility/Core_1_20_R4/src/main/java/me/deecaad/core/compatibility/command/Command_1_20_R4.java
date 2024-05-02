@@ -8,8 +8,14 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import me.deecaad.core.commands.wrappers.BiomeHolder;
+import me.deecaad.core.commands.wrappers.Column;
+import me.deecaad.core.commands.wrappers.DoubleRange;
+import me.deecaad.core.commands.wrappers.IntRange;
+import me.deecaad.core.commands.wrappers.Location2d;
+import me.deecaad.core.commands.wrappers.ParticleHolder;
 import me.deecaad.core.commands.wrappers.Rotation;
-import me.deecaad.core.commands.wrappers.*;
+import me.deecaad.core.commands.wrappers.SoundHolder;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.advancements.AdvancementHolder;
@@ -17,10 +23,34 @@ import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.arguments.*;
+import net.minecraft.commands.arguments.AngleArgument;
+import net.minecraft.commands.arguments.ColorArgument;
+import net.minecraft.commands.arguments.ComponentArgument;
+import net.minecraft.commands.arguments.CompoundTagArgument;
+import net.minecraft.commands.arguments.DimensionArgument;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.commands.arguments.MessageArgument;
+import net.minecraft.commands.arguments.ObjectiveArgument;
+import net.minecraft.commands.arguments.ObjectiveCriteriaArgument;
+import net.minecraft.commands.arguments.OperationArgument;
+import net.minecraft.commands.arguments.ParticleArgument;
+import net.minecraft.commands.arguments.RangeArgument;
+import net.minecraft.commands.arguments.ResourceArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.ScoreHolderArgument;
+import net.minecraft.commands.arguments.ScoreboardSlotArgument;
+import net.minecraft.commands.arguments.TeamArgument;
+import net.minecraft.commands.arguments.TimeArgument;
+import net.minecraft.commands.arguments.UuidArgument;
 import net.minecraft.commands.arguments.blocks.BlockPredicateArgument;
 import net.minecraft.commands.arguments.blocks.BlockStateArgument;
-import net.minecraft.commands.arguments.coordinates.*;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.commands.arguments.coordinates.ColumnPosArgument;
+import net.minecraft.commands.arguments.coordinates.RotationArgument;
+import net.minecraft.commands.arguments.coordinates.SwizzleArgument;
+import net.minecraft.commands.arguments.coordinates.Vec2Argument;
+import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.commands.arguments.item.FunctionArgument;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.commands.arguments.item.ItemPredicateArgument;
@@ -33,8 +63,11 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CollectionTag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NumericTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ColumnPos;
@@ -43,26 +76,31 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
-import net.minecraft.world.level.storage.loot.LootDataType;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import org.bukkit.*;
+import org.bukkit.Axis;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.craftbukkit.v1_20_R3.CraftLootTable;
-import org.bukkit.craftbukkit.v1_20_R3.CraftParticle;
-import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R3.CraftSound;
-import org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.v1_20_R3.enchantments.CraftEnchantment;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_20_R3.potion.CraftPotionEffectType;
-import org.bukkit.craftbukkit.v1_20_R3.util.CraftNamespacedKey;
+import org.bukkit.craftbukkit.CraftLootTable;
+import org.bukkit.craftbukkit.CraftParticle;
+import org.bukkit.craftbukkit.CraftServer;
+import org.bukkit.craftbukkit.CraftSound;
+import org.bukkit.craftbukkit.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.enchantments.CraftEnchantment;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.potion.CraftPotionEffectType;
+import org.bukkit.craftbukkit.util.CraftNamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -74,12 +112,17 @@ import org.bukkit.potion.PotionEffectType;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class Command_1_20_R3 implements CommandCompatibility {
+public class Command_1_20_R4 implements CommandCompatibility {
 
     public static final MinecraftServer SERVER;
     private static final CommandBuildContext COMMAND_BUILD_CONTEXT;
@@ -87,7 +130,7 @@ public class Command_1_20_R3 implements CommandCompatibility {
 
     static {
         SERVER = ((CraftServer) Bukkit.getServer()).getServer();
-        COMMAND_BUILD_CONTEXT = CommandBuildContext.configurable(SERVER.registryAccess(), SERVER.getWorldData().getDataConfiguration().enabledFeatures());
+        COMMAND_BUILD_CONTEXT = CommandBuildContext.simple(SERVER.registryAccess(), SERVER.getWorldData().getDataConfiguration().enabledFeatures());
         ERROR_BIOME_INVALID = new DynamicCommandExceptionType(
             arg -> net.minecraft.network.chat.Component.translatable("commands.locate.biome.invalid", arg));
     }
@@ -157,7 +200,7 @@ public class Command_1_20_R3 implements CommandCompatibility {
 
     @Override
     public ArgumentType<?> chatComponent() {
-        return ComponentArgument.textComponent();
+        return ComponentArgument.textComponent(COMMAND_BUILD_CONTEXT);
     }
 
     @Override
@@ -337,7 +380,7 @@ public class Command_1_20_R3 implements CommandCompatibility {
 
     @Override
     public SuggestionProvider<Object> lootKey() {
-        return (context, builder) -> SharedSuggestionProvider.suggestResource(SERVER.getLootData().getKeys(LootDataType.TABLE), builder);
+        return (context, builder) -> SharedSuggestionProvider.suggestResource(SERVER.reloadableRegistries().getKeys(Registries.LOOT_TABLE), builder);
     }
 
     private static NamespacedKey fromResourceLocation(ResourceLocation key) {
@@ -533,8 +576,7 @@ public class Command_1_20_R3 implements CommandCompatibility {
 
     @Override
     public LootTable getLootTable(CommandContext<Object> context, String key) {
-        ResourceLocation resourceLocation = ResourceLocationArgument.getId(cast(context), key);
-        return new CraftLootTable(fromResourceLocation(resourceLocation), SERVER.getLootData().getLootTable(resourceLocation));
+        return CraftLootTable.minecraftToBukkit(ResourceLocationArgument.getId(cast(context), key));
     }
 
     @Override
@@ -551,7 +593,7 @@ public class Command_1_20_R3 implements CommandCompatibility {
     public ParticleHolder getParticle(CommandContext<Object> context, String key) {
         ParticleOptions particle = ParticleArgument.getParticle(cast(context), key);
 
-        return new ParticleHolder(CraftParticle.minecraftToBukkit(particle.getType()), particle, particle.writeToString());
+        return new ParticleHolder(CraftParticle.minecraftToBukkit(particle.getType()), particle, null);
     }
 
     @Override

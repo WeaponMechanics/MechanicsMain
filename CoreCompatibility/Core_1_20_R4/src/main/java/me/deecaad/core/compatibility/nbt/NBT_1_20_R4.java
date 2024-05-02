@@ -1,44 +1,45 @@
 package me.deecaad.core.compatibility.nbt;
 
 import com.google.common.collect.Lists;
-import com.google.gson.JsonElement;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTagVisitor;
 import net.minecraft.nbt.Tag;
-import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
+import net.minecraft.world.item.Item;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 // https://nms.screamingsandals.org/1.19_R1
-public class NBT_1_20_R3 extends NBT_Persistent {
+public class NBT_1_20_R4 extends NBT_Persistent {
 
     static {
         if (ReflectionUtil.getMCVersion() != 20) {
             MechanicsCore.debug.log(
                 LogLevel.ERROR,
-                "Loaded " + NBT_1_20_R3.class + " when not using Minecraft 20",
+                "Loaded " + NBT_1_20_R4.class + " when not using Minecraft 20",
                 new InternalError());
         }
     }
 
     @Override
     public void copyTagsFromTo(@NotNull ItemStack fromItem, @NotNull ItemStack toItem, @Nullable String path) {
-        net.minecraft.world.item.ItemStack nms = getNMSStack(toItem);
-        CompoundTag from = getNMSStack(fromItem).getTag();
-        CompoundTag to = nms.getTag();
+        Item nms = getNMSStack(toItem).getItem();
+        DataComponentMap from = getNMSStack(fromItem).getItem().components();
+        DataComponentMap to = nms.components();
 
+        /*
         if (path == null) {
             nms.setTag(from.copy());
             toItem.setItemMeta(getBukkitStack(nms).getItemMeta());
@@ -47,6 +48,7 @@ public class NBT_1_20_R3 extends NBT_Persistent {
 
         to.put(path, from.getCompound(path).copy());
         toItem.setItemMeta(getBukkitStack(nms).getItemMeta());
+         */
     }
 
     @NotNull @Override
@@ -61,15 +63,17 @@ public class NBT_1_20_R3 extends NBT_Persistent {
 
     @NotNull @Override
     public String getNBTDebug(@NotNull ItemStack bukkitStack) {
-        CompoundTag nbt = getNMSStack(bukkitStack).getTag();
-        return nbt == null ? "null" : new TagColorVisitor().visit(nbt);
+        //CompoundTag nbt = getNMSStack(bukkitStack).getTag();
+        //return nbt == null ? "null" : new TagColorVisitor().visit(nbt);
+        return null;
     }
 
     @Override
     public @NotNull Component getDisplayName(@NotNull ItemStack item) {
-        net.minecraft.network.chat.Component component = CraftItemStack.asNMSCopy(item).getDisplayName();
-        JsonElement json = net.minecraft.network.chat.Component.Serializer.toJsonTree(component);
-        return GsonComponentSerializer.gson().serializer().fromJson(json, Component.class);
+        //net.minecraft.network.chat.Component component = CraftItemStack.asNMSCopy(item).getDisplayName();
+        //JsonElement json = net.minecraft.network.chat.Component.Serializer.toJsonTree(component);
+        //return GsonComponentSerializer.gson().serializer().fromJson(json, Component.class);
+        return null;
     }
 
     private static class TagColorVisitor extends StringTagVisitor {

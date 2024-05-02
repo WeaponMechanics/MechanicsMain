@@ -4,14 +4,14 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
-import me.deecaad.weaponmechanics.compatibility.scope.Scope_1_20_R3;
+import me.deecaad.weaponmechanics.compatibility.scope.Scope_1_20_R4;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.RelativeMovement;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,13 +19,13 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class v1_20_R3 implements IWeaponCompatibility {
+public class v1_20_R4 implements IWeaponCompatibility {
 
     static {
         if (ReflectionUtil.getMCVersion() != 20) {
             WeaponMechanics.debug.log(
                 LogLevel.ERROR,
-                "Loaded " + v1_20_R3.class + " when not using Minecraft 20",
+                "Loaded " + v1_20_R4.class + " when not using Minecraft 20",
                 new InternalError());
         }
     }
@@ -44,8 +44,8 @@ public class v1_20_R3 implements IWeaponCompatibility {
 
     private final IScopeCompatibility scopeCompatibility;
 
-    public v1_20_R3() {
-        this.scopeCompatibility = new Scope_1_20_R3();
+    public v1_20_R4() {
+        this.scopeCompatibility = new Scope_1_20_R4();
     }
 
     @NotNull @Override
