@@ -12,7 +12,7 @@ dependencies {
     compileOnly(Dependencies.PROTOCOL_LIB)
 }
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(16))
 
 tasks {
     compileJava {
