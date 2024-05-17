@@ -1,7 +1,6 @@
 package me.deecaad.core.compatibility.entity;
 
 import com.mojang.datafixers.util.Pair;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import me.deecaad.core.compatibility.equipevent.NonNullList_1_20_R4;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -27,7 +26,7 @@ import java.util.List;
 // https://nms.screamingsandals.org/1.18.1/
 public class Entity_1_20_R4 implements EntityCompatibility {
 
-    public static final Field itemsById = ReflectionUtil.getField(SynchedEntityData.class, Int2ObjectMap.class);
+    public static final Field itemsById = ReflectionUtil.getField(SynchedEntityData.class, SynchedEntityData.DataItem[].class);
 
     @Override
     public Vector getLastLocation(Entity entity) {
@@ -81,9 +80,9 @@ public class Entity_1_20_R4 implements EntityCompatibility {
 
         // 1.19.3 changed the packet arguments, so in order to unpack ALL data
         // (not just the dirty data) we need to manually get it and unpack it.
-        Int2ObjectMap<SynchedEntityData.DataItem<?>> metaData = (Int2ObjectMap<SynchedEntityData.DataItem<?>>) ReflectionUtil.invokeField(itemsById, data);
-        List<SynchedEntityData.DataValue<?>> packed = new ArrayList<>(metaData.size());
-        for (SynchedEntityData.DataItem<?> element : metaData.values())
+        SynchedEntityData.DataItem<?>[] metaData = (SynchedEntityData.DataItem<?>[]) ReflectionUtil.invokeField(itemsById, data);
+        List<SynchedEntityData.DataValue<?>> packed = new ArrayList<>(metaData.length);
+        for (SynchedEntityData.DataItem<?> element : metaData)
             packed.add(element.value());
         return packed;
     }
