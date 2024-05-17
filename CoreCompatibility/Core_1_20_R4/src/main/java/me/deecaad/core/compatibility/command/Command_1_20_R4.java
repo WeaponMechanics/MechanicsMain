@@ -143,7 +143,7 @@ public class Command_1_20_R4 implements CommandCompatibility {
     @Override
     public void resendCommandRegistry(Player player) {
         ServerPlayer p = ((CraftPlayer) player).getHandle();
-        SERVER.vanillaCommandDispatcher.sendCommands(p);
+        SERVER.getCommands().sendCommands(p);
     }
 
     @Override
@@ -170,7 +170,7 @@ public class Command_1_20_R4 implements CommandCompatibility {
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public CommandDispatcher<Object> getCommandDispatcher() {
-        return (CommandDispatcher) SERVER.vanillaCommandDispatcher.getDispatcher();
+        return (CommandDispatcher) SERVER.getCommands().getDispatcher();
     }
 
     @Override
