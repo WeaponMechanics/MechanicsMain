@@ -4,7 +4,7 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -73,7 +73,7 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
                 return false;
             }
         }
-        if (this.cmd && ReflectionUtil.getMCVersion() >= 14) {
+        if (this.cmd && MinecraftVersions.VILLAGE_AND_PILLAGE.isAtLeast()) {
             if (weaponMeta.hasCustomModelData() != otherMeta.hasCustomModelData()) {
                 return false;
             }
@@ -134,7 +134,7 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
                 "If you want to remove the weapon conversion feature, remove the '" + getKeyword() + "' option from config");
         }
 
-        if (cmd && ReflectionUtil.getMCVersion() < 14) {
+        if (cmd && !MinecraftVersions.VILLAGE_AND_PILLAGE.isAtLeast()) {
             throw data.exception("Custom_Model_Data", "Custom_Model_Data is only available for 1.14+");
         }
 

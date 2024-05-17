@@ -20,6 +20,7 @@ import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -67,8 +68,8 @@ public class MechanicsCore extends JavaPlugin {
                 searcher.findAllSubclasses(Condition.class, getClassLoader(), true)
                     .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
 
-                // Sculk methods were added in 1.20.1
-                if (ReflectionUtil.getMCVersion() >= 20) {
+                // Sculk methods were added in 1.20.2
+                if (MinecraftVersions.TRAILS_AND_TAILS.get(2).isAtLeast()) {
                     Mechanics.MECHANICS.add(new SculkShriekMechanic());
                     Mechanics.MECHANICS.add(new SculkBloomMechanic());
                 }
@@ -109,11 +110,7 @@ public class MechanicsCore extends JavaPlugin {
         }
         FileUtil.ensureDefaults(getClassLoader().getResource("MechanicsCore/config.yml"), new File(getDataFolder(), "config.yml"));
 
-        // The methods we use that allow EntityEquipmentEvent to trigger simply
-        // don't exist in 1.10 and lower.
-        if (ReflectionUtil.getMCVersion() >= 11) {
-            Bukkit.getPluginManager().registerEvents(EquipListener.SINGLETON, this);
-        }
+        Bukkit.getPluginManager().registerEvents(EquipListener.SINGLETON, this);
         Bukkit.getPluginManager().registerEvents(new ItemCraftListener(), this);
         Bukkit.getPluginManager().registerEvents(new MechanicsCastListener(), this);
 
@@ -131,7 +128,7 @@ public class MechanicsCore extends JavaPlugin {
         int registeredCount = loadItems(itemsFolder);
         debug.info("Registered " + registeredCount + " custom items from " + itemsFolder);
 
-        if (ReflectionUtil.getMCVersion() >= 13) {
+        if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
             MechanicsCoreCommand.build();
         }
 

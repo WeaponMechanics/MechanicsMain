@@ -6,7 +6,6 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.MinecraftVersions;
-import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -279,7 +278,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
                     && projectileType != EntityType.FALLING_BLOCK
                     && projectileType != FIREWORK_ENTITY
                     && projectileType != EntityType.ARMOR_STAND
-                    && (ReflectionUtil.getMCVersion() >= 19 && projectileType != EntityType.ITEM_DISPLAY && projectileType != EntityType.BLOCK_DISPLAY)) {
+                    && (MinecraftVersions.WILD_UPDATE.isAtLeast() && projectileType != EntityType.ITEM_DISPLAY && projectileType != EntityType.BLOCK_DISPLAY)) {
 
                     throw data.exception(null, "When using " + projectileType + ", you CAN'T use Projectile_Item_Or_Block",
                         SerializerException.forValue(projectileItem));

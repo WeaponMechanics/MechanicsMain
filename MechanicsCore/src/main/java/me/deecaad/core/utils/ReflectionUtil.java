@@ -1,10 +1,15 @@
 package me.deecaad.core.utils;
 
+import me.deecaad.core.MechanicsCore;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 /**
@@ -24,7 +29,6 @@ public final class ReflectionUtil {
 
     private static final Field modifiersField;
     private static final int javaVersion;
-    private static final int mcVersion;
 
     private static final String ERR = "This is probably caused by your minecraft server version. Contact a DEV for more help.";
 
@@ -35,10 +39,8 @@ public final class ReflectionUtil {
         // noinspection ConstantConditions
         if (Bukkit.getServer() == null) {
             versionString = "TESTING";
-            mcVersion = -1;
         } else {
             versionString = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-            mcVersion = Integer.parseInt(versionString.split("_")[1]);
         }
 
         nmsVersion = "net.minecraft.server." + versionString + '.';
@@ -59,7 +61,8 @@ public final class ReflectionUtil {
             javaVersion1 = Integer.parseInt(version);
         } catch (Throwable throwable) {
             javaVersion1 = -1;
-            throwable.printStackTrace();
+            MechanicsCore.debug.error("Could not get Java version for '" + System.getProperty("java.version") + "'");
+            MechanicsCore.debug.log(LogLevel.ERROR, throwable);
         }
         javaVersion = javaVersion1;
 
@@ -73,10 +76,6 @@ public final class ReflectionUtil {
 
     // Don't let anyone instantiate this class
     private ReflectionUtil() {
-    }
-
-    public static int getMCVersion() {
-        return mcVersion;
     }
 
     /**
@@ -101,10 +100,10 @@ public final class ReflectionUtil {
     public static Class<?> getNMSClass(@NotNull String pack, @NotNull String name) {
         String className;
 
-        if (getMCVersion() < 17)
-            className = nmsVersion + name;
-        else
+        if (MinecraftVersions.CAVES_AND_CLIFFS_2.isAtLeast())
             className = "net.minecraft." + pack + '.' + name;
+        else
+            className = nmsVersion + name;
 
         try {
             return Class.forName(className);

@@ -8,6 +8,7 @@ import me.deecaad.core.compatibility.nbt.NBTCompatibility;
 import me.deecaad.core.file.*;
 import me.deecaad.core.utils.AttributeType;
 import me.deecaad.core.utils.EnumUtil;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import net.kyori.adventure.text.Component;
@@ -52,7 +53,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
     static {
         ingredientsField = ReflectionUtil.getField(ShapedRecipe.class, "ingredients");
 
-        if (ReflectionUtil.getMCVersion() >= 16) {
+        if (MinecraftVersions.NETHER_UPDATE.isAtLeast()) {
             Class<?> c = ReflectionUtil.getCBClass("inventory.CraftMetaItem");
             loreField = ReflectionUtil.getField(c, "lore");
             displayField = ReflectionUtil.getField(c, "displayName");
@@ -163,12 +164,12 @@ public class ItemSerializer implements Serializer<ItemStack> {
         if (name != null) {
             Component component = MechanicsCore.getPlugin().message.deserialize("<!italic>" + name);
 
-            if (ReflectionUtil.getMCVersion() < 16) {
-                String element = LegacyComponentSerializer.legacySection().serialize(component);
-                itemMeta.setDisplayName(element);
-            } else {
+            if (MinecraftVersions.NETHER_UPDATE.isAtLeast()) {
                 String display = GsonComponentSerializer.gson().serialize(component);
                 ReflectionUtil.setField(displayField, itemMeta, display);
+            } else {
+                String element = LegacyComponentSerializer.legacySection().serialize(component);
+                itemMeta.setDisplayName(element);
             }
         }
 
@@ -178,16 +179,16 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
             for (Object obj : lore) {
                 Component component = MechanicsCore.getPlugin().message.deserialize("<!italic>" + StringUtil.colorAdventure(obj.toString()));
-                String element = ReflectionUtil.getMCVersion() < 16 ? LegacyComponentSerializer.legacySection().serialize(component) : GsonComponentSerializer.gson().serialize(component);
+                String element = MinecraftVersions.NETHER_UPDATE.isAtLeast()
+                    ? GsonComponentSerializer.gson().serialize(component)
+                    : LegacyComponentSerializer.legacySection().serialize(component);
                 temp.add(element);
             }
 
-            if (ReflectionUtil.getMCVersion() < 16)
-                itemMeta.setLore(temp);
-            else
+            if (MinecraftVersions.NETHER_UPDATE.isAtLeast())
                 ReflectionUtil.setField(loreField, itemMeta, temp);
-            // ReflectionUtil.invokeMethod(safelyAdd, null, ReflectionUtil.invokeField(loreField, itemMeta),
-            // temp, true);
+            else
+                itemMeta.setLore(temp);
         }
 
         short durability = (short) data.of("Durability").assertPositive().getInt(-99);
@@ -224,14 +225,17 @@ public class ItemSerializer implements Serializer<ItemStack> {
         if (enchantments != null) {
             for (String[] split : enchantments) {
                 Enchantment enchant;
-                if (CompatibilityAPI.getVersion() < 1.13) {
-                    enchant = Enchantment.getByName(split[0].trim().toLowerCase(Locale.ROOT));
-                } else {
+
+                if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
                     enchant = Enchantment.getByKey(org.bukkit.NamespacedKey.minecraft(split[0].trim().toLowerCase(Locale.ROOT)));
+                } else {
+                    enchant = Enchantment.getByName(split[0].trim().toLowerCase(Locale.ROOT));
                 }
                 if (enchant == null) {
                     throw new SerializerOptionsException("Item", "Enchantment",
-                        Arrays.stream(Enchantment.values()).map(ench -> ReflectionUtil.getMCVersion() < 13 ? ench.getName() : ench.getKey().getKey()).collect(Collectors.toList()),
+                        Arrays.stream(Enchantment.values())
+                            .map(ench -> MinecraftVersions.UPDATE_AQUATIC.isAtLeast() ? ench.getKey().getKey() : ench.getName())
+                            .collect(Collectors.toList()),
                         split[0], data.of("Enchantments").getLocation());
                 }
                 int enchantmentLevel = Integer.parseInt(split[1]);
@@ -312,7 +316,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             }
         }
 
-        if (ReflectionUtil.getMCVersion() >= 11 && data.has("Potion_Color")) {
+        if (data.has("Potion_Color")) {
             try {
                 Color color = data.of("Potion_Color").assertExists().serialize(new ColorSerializer()).getColor();
                 PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
@@ -336,7 +340,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             }
         }
 
-        if (ReflectionUtil.getMCVersion() >= 20 && itemStack.getItemMeta() instanceof ArmorMeta armor) {
+        if (MinecraftVersions.TRAILS_AND_TAILS.isAtLeast() && itemStack.getItemMeta() instanceof ArmorMeta armor) {
 
             // If you have one, you NEED both
             boolean hasOneOfPatternOrMaterial = data.has("Trim_Pattern") || data.has("Trim_Material");
@@ -393,7 +397,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         }
 
         if (data.has("Light_Level")) {
-            if (ReflectionUtil.getMCVersion() < 17) {
+            if (!MinecraftVersions.CAVES_AND_CLIFFS_1.isAtLeast()) {
                 throw data.exception("Light_Level", "Tried to use light level before MC 1.17!",
                     "The light block was added in Minecraft version 1.17!");
             }
@@ -428,17 +432,12 @@ public class ItemSerializer implements Serializer<ItemStack> {
         result.setAmount(resultAmount);
 
         // Namespaced keys for recipes were added in MC 1.12
-        ShapedRecipe recipe;
-        if (ReflectionUtil.getMCVersion() < 12) {
-            recipe = new ShapedRecipe(result);
-        } else {
-            recipe = new ShapedRecipe(new NamespacedKey(MechanicsCore.getPlugin(), data.key), result);
+        ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(MechanicsCore.getPlugin(), data.key), result);
 
-            // Bukkit.getRecipe was added in 1.16. We have a try-catch block
-            // below in this method to handle 1.12 through 1.15
-            if (ReflectionUtil.getMCVersion() >= 16 && Bukkit.getRecipe(recipe.getKey()) != null) {
-                return itemStack;
-            }
+        // Bukkit.getRecipe was added in 1.16. We have a try-catch block
+        // below in this method to handle 1.12 through 1.15
+        if (MinecraftVersions.NETHER_UPDATE.isAtLeast() && Bukkit.getRecipe(recipe.getKey()) != null) {
+            return itemStack;
         }
 
         // The Recipe.Shape should be a list looking similar to:
@@ -487,10 +486,10 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
             ItemStack item = data.of("Recipe.Ingredients." + c).assertExists().serialize(new ItemSerializer());
 
-            if (CompatibilityAPI.getVersion() < 1.13)
-                ingredients.put(c, item);
-            else
+            if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast())
                 ingredients.put(c, new RecipeChoice.ExactChoice(item));
+            else
+                ingredients.put(c, item);
         }
 
         // Finalize and register the new recipe.

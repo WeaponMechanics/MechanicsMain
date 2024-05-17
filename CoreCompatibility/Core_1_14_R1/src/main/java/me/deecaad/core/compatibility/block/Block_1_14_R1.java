@@ -1,9 +1,16 @@
 package me.deecaad.core.compatibility.block;
 
 import me.deecaad.core.compatibility.HitBox;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.v1_14_R1.*;
+import net.minecraft.server.v1_14_R1.AxisAlignedBB;
+import net.minecraft.server.v1_14_R1.BlockPosition;
+import net.minecraft.server.v1_14_R1.IBlockData;
+import net.minecraft.server.v1_14_R1.IRegistry;
+import net.minecraft.server.v1_14_R1.MinecraftKey;
+import net.minecraft.server.v1_14_R1.PacketPlayOutBlockBreakAnimation;
+import net.minecraft.server.v1_14_R1.PacketPlayOutMultiBlockChange;
+import net.minecraft.server.v1_14_R1.SoundEffect;
+import net.minecraft.server.v1_14_R1.SoundEffectType;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -15,11 +22,14 @@ import org.bukkit.craftbukkit.v1_14_R1.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_14_R1.block.data.CraftBlockData;
 import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nonnull;
 import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class Block_1_14_R1 implements BlockCompatibility {
 
@@ -29,13 +39,6 @@ public class Block_1_14_R1 implements BlockCompatibility {
     static {
         Class<?> multiBlockChangeClass = ReflectionUtil.getPacketClass("PacketPlayOutMultiBlockChange");
         multiBlockChangeB = ReflectionUtil.getField(multiBlockChangeClass, "b");
-
-        if (ReflectionUtil.getMCVersion() != 14) {
-            me.deecaad.core.MechanicsCore.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + Block_1_14_R1.class + " when not using Minecraft 14",
-                new InternalError());
-        }
 
         soundFields = new Field[SoundType.values().length]; // 5
         for (int i = 0; i < soundFields.length; i++) {

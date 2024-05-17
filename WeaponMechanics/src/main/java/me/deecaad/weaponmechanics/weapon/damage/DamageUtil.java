@@ -79,7 +79,7 @@ public class DamageUtil {
         }
 
         // Use enderman teleport API added in 1.20.1
-        else if (victim instanceof Enderman enderman && ReflectionUtil.getMCVersion() >= 20) {
+        else if (victim instanceof Enderman enderman && MinecraftVersions.TRAILS_AND_TAILS.get(1).isAtLeast()) {
 
             // 64 is the value minecraft uses
             int teleportAttempts = WeaponMechanics.getBasicConfigurations().getInt("Damage.Enderman_Teleport_Attempts", 64);
@@ -193,7 +193,7 @@ public class DamageUtil {
 
         // Statistics
         if (victim instanceof Player player) {
-            if (ReflectionUtil.getMCVersion() >= 13 && absorbed >= 0.1)
+            if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast() && absorbed >= 0.1)
                 player.incrementStatistic(Statistic.DAMAGE_ABSORBED, Math.round((float) absorbed * 10));
             if (damage >= 0.1)
                 player.incrementStatistic(Statistic.DAMAGE_TAKEN, Math.round((float) damage * 10));
@@ -201,7 +201,7 @@ public class DamageUtil {
                 player.incrementStatistic(Statistic.ENTITY_KILLED_BY, cause.getType());
         }
         if (cause instanceof Player player) {
-            if (ReflectionUtil.getMCVersion() >= 13 && absorbed >= 0.1)
+            if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast() && absorbed >= 0.1)
                 player.incrementStatistic(Statistic.DAMAGE_DEALT_ABSORBED, Math.round((float) absorbed * 10));
             if (damage >= 0.1)
                 player.incrementStatistic(Statistic.DAMAGE_DEALT, Math.round((float) damage * 10));
@@ -211,7 +211,7 @@ public class DamageUtil {
 
                 // In newer versions (probably 1.13, but only confirmed in 1.18.2+),
                 // these statistics are automatically tracked.
-                if (ReflectionUtil.getMCVersion() < 13) {
+                if (!MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
                     if (victim.getType() == EntityType.PLAYER)
                         player.incrementStatistic(Statistic.PLAYER_KILLS);
                     else
@@ -231,7 +231,7 @@ public class DamageUtil {
      * @return false if there is no statistic.
      */
     public static boolean isWhitelisted(EntityType type) {
-        if (ReflectionUtil.getMCVersion() >= 13)
+        if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast())
             return true;
 
         // snow golem had a name change in 1.20.5+
@@ -240,7 +240,7 @@ public class DamageUtil {
 
         return switch (type) {
             case IRON_GOLEM, ENDER_DRAGON, WITHER, GIANT, PLAYER -> false;
-            default -> ReflectionUtil.getMCVersion() != 12 || type != EntityType.ILLUSIONER;
+            default -> type != EntityType.ILLUSIONER;
         };
     }
 
@@ -286,7 +286,7 @@ public class DamageUtil {
 
         // All items implement Damageable (since Spigot is stupid). We use this check
         // to see if an item is *actually* damageable.
-        if (armor == null || "AIR".equals(armor.getType().name()) || (ReflectionUtil.getMCVersion() >= 13 && armor.getType().getMaxDurability() == 0))
+        if (armor == null || "AIR".equals(armor.getType().name()) || (MinecraftVersions.UPDATE_AQUATIC.isAtLeast() && armor.getType().getMaxDurability() == 0))
             return;
 
         ItemMeta meta = armor.getItemMeta();
@@ -303,7 +303,7 @@ public class DamageUtil {
         if (skipDamage)
             return;
 
-        if (ReflectionUtil.getMCVersion() >= 13) {
+        if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
             if (meta instanceof Damageable damageable) {
                 damageable.setDamage(damageable.getDamage() + amount);
                 armor.setItemMeta(meta);

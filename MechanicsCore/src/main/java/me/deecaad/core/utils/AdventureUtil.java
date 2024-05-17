@@ -36,7 +36,7 @@ public final class AdventureUtil {
     public static Field displayField;
 
     static {
-        if (ReflectionUtil.getMCVersion() >= 16) { // before 1.16, hex was not supported by MC
+        if (MinecraftVersions.NETHER_UPDATE.isAtLeast()) { // before 1.16, hex was not supported by MC
             Class<?> c = ReflectionUtil.getCBClass("inventory.CraftMetaItem");
             loreField = ReflectionUtil.getField(c, "lore");
             displayField = ReflectionUtil.getField(c, "displayName");
@@ -60,11 +60,9 @@ public final class AdventureUtil {
         if (meta == null)
             return Component.empty();
 
-        return ReflectionUtil.getMCVersion() < 16
-            ? LegacyComponentSerializer.legacySection().deserialize(meta.getDisplayName())
-            : GsonComponentSerializer.gson().deserialize((String) ReflectionUtil.invokeField(displayField, meta));
-
-        // return CompatibilityAPI.getNBTCompatibility().getDisplayName(item);
+        return MinecraftVersions.NETHER_UPDATE.isAtLeast()
+            ? GsonComponentSerializer.gson().deserialize((String) ReflectionUtil.invokeField(displayField, meta))
+            : LegacyComponentSerializer.legacySection().deserialize(meta.getDisplayName());
     }
 
     /**
@@ -110,12 +108,12 @@ public final class AdventureUtil {
      */
     public static void setName(@NotNull ItemMeta meta, @NotNull Component name) {
         // before 1.16, hex was not supported
-        if (ReflectionUtil.getMCVersion() < 16) {
-            String str = LegacyComponentSerializer.legacySection().serialize(name);
-            meta.setDisplayName(str);
-        } else {
+        if (MinecraftVersions.NETHER_UPDATE.isAtLeast()) {
             String str = GsonComponentSerializer.gson().serialize(name);
             ReflectionUtil.setField(displayField, meta, str);
+        } else {
+            String str = LegacyComponentSerializer.legacySection().serialize(name);
+            meta.setDisplayName(str);
         }
     }
 
@@ -124,7 +122,7 @@ public final class AdventureUtil {
     }
 
     @Nullable public static List<Component> getLore(@NotNull ItemMeta meta) {
-        boolean useLegacy = ReflectionUtil.getMCVersion() < 16; // before 1.16, hex was not supported by MC
+        boolean useLegacy = !MinecraftVersions.NETHER_UPDATE.isAtLeast(); // before 1.16, hex was not supported by MC
 
         List<String> lore = useLegacy
             ? meta.getLore()
@@ -175,7 +173,7 @@ public final class AdventureUtil {
      * @param unparsedText The list of strings.
      */
     public static void setLoreUnparsed(@NotNull ItemMeta meta, @NotNull List<?> unparsedText) {
-        boolean useLegacy = ReflectionUtil.getMCVersion() < 16; // before 1.16, hex was not supported by MC
+        boolean useLegacy = !MinecraftVersions.NETHER_UPDATE.isAtLeast(); // before 1.16, hex was not supported by MC
 
         List<String> lore = new ArrayList<>(unparsedText.size());
         for (Object obj : unparsedText) {
@@ -212,7 +210,7 @@ public final class AdventureUtil {
      * @param lines The list of adventure components for lore.
      */
     public static void setLore(@NotNull ItemMeta meta, @NotNull List<Component> lines) {
-        boolean useLegacy = ReflectionUtil.getMCVersion() < 16; // before 1.16, hex was not supported by MC
+        boolean useLegacy = !MinecraftVersions.NETHER_UPDATE.isAtLeast(); // before 1.16, hex was not supported by MC
 
         List<String> lore = new ArrayList<>(lines.size());
         for (Component component : lines) {

@@ -1,7 +1,6 @@
 package me.deecaad.core.compatibility.block;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -14,9 +13,8 @@ import org.bukkit.craftbukkit.v1_17_R1.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_17_R1.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_17_R1.block.data.CraftBlockData;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nonnull;
 import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -46,13 +44,6 @@ public class Block_1_17_R1 implements BlockCompatibility {
         multiBlockPacketConstructor = ReflectionUtil.getConstructor(multiBlockPacket, SectionPos.class, shortClass, LevelChunkSection.class, boolean.class);
         multiBlockChangeB = ReflectionUtil.getField(multiBlockPacket, "b");
         multiBlockChangeC = ReflectionUtil.getField(multiBlockPacket, "c");
-
-        if (ReflectionUtil.getMCVersion() != 17) {
-            me.deecaad.core.MechanicsCore.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + Block_1_17_R1.class + " when not using Minecraft 17",
-                new InternalError());
-        }
     }
 
     @Override

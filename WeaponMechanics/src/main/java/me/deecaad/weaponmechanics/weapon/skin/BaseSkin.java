@@ -3,7 +3,7 @@ package me.deecaad.weaponmechanics.weapon.skin;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.MinecraftVersions;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -81,8 +81,6 @@ public class BaseSkin implements Skin, Serializer<BaseSkin> {
      * @param weapon the item stack for which to apply skin
      */
     public void apply(@NotNull ItemStack weapon) {
-        int version = ReflectionUtil.getMCVersion();
-
         if (type.isPresent() && weapon.getType() != type.get())
             weapon.setType(type.get());
 
@@ -97,7 +95,7 @@ public class BaseSkin implements Skin, Serializer<BaseSkin> {
             throw new IllegalArgumentException("Tried to apply skin to item without meta: " + weapon);
 
         if (durability.isPresent()) {
-            if (version >= 13) {
+            if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
                 if (((org.bukkit.inventory.meta.Damageable) meta).getDamage() != durability.getAsInt()) {
                     ((org.bukkit.inventory.meta.Damageable) meta).setDamage(durability.getAsInt());
                     hasMetaChanges = true;
@@ -120,23 +118,22 @@ public class BaseSkin implements Skin, Serializer<BaseSkin> {
 
     @Override
     @NotNull public BaseSkin serialize(@NotNull SerializeData data) throws SerializerException {
-        int version = ReflectionUtil.getMCVersion();
-        boolean shouldUseCmd = version >= 14;
+        boolean shouldUseCmd = MinecraftVersions.VILLAGE_AND_PILLAGE.isAtLeast();
 
         Optional<Material> type = Optional.ofNullable(data.of("Type").getEnum(Material.class, null));
         OptionalInt legacyData = data.has("Legacy_Data") ? OptionalInt.of(data.of("Legacy_Data").assertExists().assertRange(0, Byte.MAX_VALUE).getInt()) : OptionalInt.empty();
         OptionalInt durability = data.has("Durability") ? OptionalInt.of(data.of("Durability").assertExists().assertRange(0, Short.MAX_VALUE).getInt()) : OptionalInt.empty();
         OptionalInt customModelData = data.has("Custom_Model_Data") ? OptionalInt.of(data.of("Custom_Model_Data").assertExists().getInt()) : OptionalInt.empty();
 
-        if (legacyData.isPresent() && version > 12) {
-            throw data.exception("Legacy_Data", "Cannot use 'Legacy_Data' on MC version 1." + version,
+        if (legacyData.isPresent() && MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
+            throw data.exception("Legacy_Data", "Cannot use 'Legacy_Data' on MC version " + MinecraftVersions.getCURRENT(),
                 "Instead, use the '" + (shouldUseCmd ? "Custom_Model_Data" : "Durability") + "' feature",
                 "Wiki: https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/skin");
         }
 
         // Cannot use Custom_Model_Data before 1.14
         if (!shouldUseCmd && customModelData.isPresent()) {
-            throw data.exception("Custom_Model_Data", "Cannot use 'Custom_Model_Data' on MC version 1." + version,
+            throw data.exception("Custom_Model_Data", "Cannot use 'Custom_Model_Data' on MC version " + MinecraftVersions.getCURRENT(),
                 "Custom_Model_Data was added in Minecraft 1.14",
                 "To fix, you can either update your server, or use 'Durability' instead");
         }

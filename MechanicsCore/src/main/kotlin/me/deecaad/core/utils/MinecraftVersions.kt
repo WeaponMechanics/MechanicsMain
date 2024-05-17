@@ -160,6 +160,17 @@ object MinecraftVersions {
             allVersions.putAll(this.versions.associateBy { it.toString() })
         }
 
+        fun isAtLeast(): Boolean {
+            val current = CURRENT
+
+            return when {
+                major > current.major -> true
+                major < current.major -> false
+                minor >= current.minor -> true
+                else -> false
+            }
+        }
+
         operator fun get(patch: Int): Version = versions[patch]
 
         override fun compareTo(other: Update): Int {

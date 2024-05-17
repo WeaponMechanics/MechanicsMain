@@ -387,7 +387,7 @@ public class WeaponMechanics {
 
         // In 1.13+, we should use the built-in 'brigadier' system which
         // has really nice tab-completions/validation
-        if (ReflectionUtil.getMCVersion() >= 13) {
+        if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
             WeaponMechanicsCommand.build();
             return;
         }

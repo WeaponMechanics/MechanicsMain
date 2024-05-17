@@ -1,8 +1,6 @@
 package me.deecaad.core.compatibility.block;
 
 import it.unimi.dsi.fastutil.shorts.ShortArraySet;
-import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -14,9 +12,8 @@ import org.bukkit.craftbukkit.v1_20_R1.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_20_R1.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_20_R1.block.data.CraftBlockData;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nonnull;
 import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,13 +30,6 @@ public class Block_1_20_R1 implements BlockCompatibility {
         Class<?> multiBlockChangeClass = ReflectionUtil.getPacketClass("PacketPlayOutMultiBlockChange");
         multiBlockChangeB = ReflectionUtil.getField(multiBlockChangeClass, "b");
         multiBlockChangeC = ReflectionUtil.getField(multiBlockChangeClass, "c");
-
-        if (ReflectionUtil.getMCVersion() != 20) {
-            MechanicsCore.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + Block_1_20_R1.class + " when not using Minecraft 20",
-                new InternalError());
-        }
     }
 
     @Override

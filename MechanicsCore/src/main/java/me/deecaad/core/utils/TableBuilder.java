@@ -243,7 +243,7 @@ public class TableBuilder {
         int width = font.getWidth(str);
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
-            if (c == ' ' && ReflectionUtil.getMCVersion() <= 15)
+            if (c == ' ' && !MinecraftVersions.NETHER_UPDATE.isAtLeast())
                 width++;
         }
         return width;
@@ -287,7 +287,7 @@ public class TableBuilder {
             int width = DEFAULT_FONT.getWidth(str);
             for (int i = 0; i < str.length(); i++) {
                 char c = str.charAt(i);
-                if (c == ' ' && ReflectionUtil.getMCVersion() <= 15)
+                if (c == ' ' && !MinecraftVersions.NETHER_UPDATE.isAtLeast())
                     width++;
             }
             return width;

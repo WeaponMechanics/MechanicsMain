@@ -1,9 +1,16 @@
 package me.deecaad.core.compatibility.block;
 
 import me.deecaad.core.compatibility.HitBox;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.v1_12_R1.*;
+import net.minecraft.server.v1_12_R1.AxisAlignedBB;
+import net.minecraft.server.v1_12_R1.BlockPosition;
+import net.minecraft.server.v1_12_R1.IBlockData;
+import net.minecraft.server.v1_12_R1.MinecraftKey;
+import net.minecraft.server.v1_12_R1.PacketPlayOutBlockBreakAnimation;
+import net.minecraft.server.v1_12_R1.PacketPlayOutMultiBlockChange;
+import net.minecraft.server.v1_12_R1.SoundEffect;
+import net.minecraft.server.v1_12_R1.SoundEffectType;
+import net.minecraft.server.v1_12_R1.WorldServer;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -13,10 +20,14 @@ import org.bukkit.craftbukkit.v1_12_R1.CraftChunk;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.material.MaterialData;
 import org.jetbrains.annotations.NotNull;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class Block_1_12_R1 implements BlockCompatibility {
 
@@ -30,13 +41,6 @@ public class Block_1_12_R1 implements BlockCompatibility {
 
         Class<?> blockClass = ReflectionUtil.getNMSClass("", "Block");
         durabilityField = ReflectionUtil.getField(blockClass, "durability");
-
-        if (ReflectionUtil.getMCVersion() != 12) {
-            me.deecaad.core.MechanicsCore.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + Block_1_12_R1.class + " when not using Minecraft 12",
-                new InternalError());
-        }
 
         soundFields = new Field[SoundType.values().length]; // 5
         for (int i = 0; i < soundFields.length; i++) {

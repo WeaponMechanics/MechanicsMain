@@ -4,7 +4,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.MinecraftVersions;
 import org.bukkit.NamespacedKey;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -65,7 +65,7 @@ public class PotionMechanic extends Mechanic {
         // If we failed to find the potion, try to use the more user-friendly
         // minecraft keys instead of the legacy enum. This also technically
         // supports custom potion effects, but I don't know if those exist...
-        if (potion == null && ReflectionUtil.getMCVersion() >= 18) {
+        if (potion == null && MinecraftVersions.CAVES_AND_CLIFFS_2.isAtLeast()) {
             potion = PotionEffectType.getByKey(NamespacedKey.fromString(potionLower));
         }
 
@@ -78,16 +78,18 @@ public class PotionMechanic extends Mechanic {
             List<String> options = new ArrayList<>();
             for (PotionEffectType type : PotionEffectType.values()) {
                 options.add(type.getName());
-                if (ReflectionUtil.getMCVersion() >= 18)
+                if (MinecraftVersions.CAVES_AND_CLIFFS_2.isAtLeast())
                     options.add(type.getKey().getKey());
             }
 
             throw new SerializerOptionsException(this, "Potion", options, potionStr, data.of("Potion").getLocation());
         }
 
-        PotionEffect effect = new PotionEffect(potion, time, amplifier, ambient, showParticles);
-        if (ReflectionUtil.getMCVersion() > 13)
+        PotionEffect effect;
+        if (MinecraftVersions.VILLAGE_AND_PILLAGE.isAtLeast())
             effect = new PotionEffect(potion, time, amplifier, ambient, showParticles, showIcon);
+        else
+            effect = new PotionEffect(potion, time, amplifier, ambient, showParticles);
 
         return applyParentArgs(data, new PotionMechanic(effect));
     }

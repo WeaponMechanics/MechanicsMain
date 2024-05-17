@@ -3,7 +3,7 @@ package me.deecaad.core.mechanics.conditions;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.MinecraftVersions;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Waterlogged;
@@ -69,7 +69,7 @@ public class MaterialCategoryCondition extends Condition {
         FLUID {
             @Override
             public boolean test(Block block) {
-                if (ReflectionUtil.getMCVersion() < 13)
+                if (!MinecraftVersions.UPDATE_AQUATIC.isAtLeast())
                     return block.isLiquid();
 
                 if (block.isLiquid())
@@ -83,13 +83,13 @@ public class MaterialCategoryCondition extends Condition {
         CAVE_AIR {
             @Override
             public boolean test(Block block) {
-                return ReflectionUtil.getMCVersion() >= 13 && block.getType() == Material.CAVE_AIR;
+                return MinecraftVersions.UPDATE_AQUATIC.isAtLeast() && block.getType() == Material.CAVE_AIR;
             }
         },
         VOID_AIR {
             @Override
             public boolean test(Block block) {
-                return ReflectionUtil.getMCVersion() >= 13 && block.getType() == Material.VOID_AIR;
+                return MinecraftVersions.UPDATE_AQUATIC.isAtLeast() && block.getType() == Material.VOID_AIR;
             }
         };
 

@@ -2,11 +2,17 @@ package me.deecaad.core.compatibility.entity;
 
 import com.mojang.datafixers.util.Pair;
 import me.deecaad.core.utils.DistanceUtil;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.core.Rotations;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundAddMobPacket;
+import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
+import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -42,15 +48,6 @@ import static net.minecraft.network.protocol.game.ClientboundMoveEntityPacket.Po
 import static net.minecraft.network.protocol.game.ClientboundMoveEntityPacket.Rot;
 
 public class FakeEntity_1_17_R1 extends FakeEntity {
-
-    static {
-        if (ReflectionUtil.getMCVersion() != 17) {
-            me.deecaad.core.MechanicsCore.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + FakeEntity_1_17_R1.class + " when not using Minecraft 17",
-                new InternalError());
-        }
-    }
 
     // Store this since using Enum#values() is especially slow
     public static final EquipmentSlot[] SLOTS = EquipmentSlot.values();
