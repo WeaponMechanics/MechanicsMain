@@ -164,9 +164,9 @@ object MinecraftVersions {
             val current = CURRENT
 
             return when {
-                major > current.major -> true
-                major < current.major -> false
-                minor >= current.minor -> true
+                current.major > major -> true
+                current.major < major -> false
+                current.minor >= minor -> true
                 else -> false
             }
         }
@@ -209,11 +209,11 @@ object MinecraftVersions {
             val current = CURRENT
 
             return when {
-                major > current.major -> true
-                major < current.major -> false
-                minor > current.minor -> true
-                minor < current.minor -> false
-                patch >= current.patch -> true
+                current.major > major -> true
+                current.major < major -> false
+                current.minor > minor -> true
+                current.minor < minor -> false
+                current.patch >= patch -> true
                 else -> false
             }
         }
