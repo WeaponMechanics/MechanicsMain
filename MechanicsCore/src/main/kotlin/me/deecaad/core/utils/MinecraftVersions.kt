@@ -218,6 +218,10 @@ object MinecraftVersions {
             }
         }
 
+        fun toProtocolString(): String {
+            return "v${major}_${minor}_R$protocol"
+        }
+
         override fun compareTo(other: Version): Int {
             return when {
                 // Skip major, since it is always 1

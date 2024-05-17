@@ -40,7 +40,7 @@ public final class ReflectionUtil {
         if (Bukkit.getServer() == null) {
             versionString = "TESTING";
         } else {
-            versionString = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+            versionString = MinecraftVersions.getCURRENT().toProtocolString();
         }
 
         nmsVersion = "net.minecraft.server." + versionString + '.';

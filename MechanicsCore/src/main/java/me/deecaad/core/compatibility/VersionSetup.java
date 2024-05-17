@@ -1,6 +1,6 @@
 package me.deecaad.core.compatibility;
 
-import org.bukkit.Bukkit;
+import me.deecaad.core.utils.MinecraftVersions;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -20,12 +20,7 @@ public class VersionSetup {
      * @return the server version as string
      */
     public String getVersionAsString() {
-        try {
-            return Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-        } catch (ArrayIndexOutOfBoundsException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return MinecraftVersions.getCURRENT().toProtocolString();
     }
 
     /**
