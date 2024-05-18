@@ -6,6 +6,7 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
 import me.deecaad.core.file.*;
+import me.deecaad.core.utils.AdventureUtil;
 import me.deecaad.core.utils.AttributeType;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.MinecraftVersions;
@@ -163,14 +164,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         String name = data.of("Name").getAdventure(null);
         if (name != null) {
             Component component = MechanicsCore.getPlugin().message.deserialize("<!italic>" + name);
-
-            if (MinecraftVersions.NETHER_UPDATE.isAtLeast()) {
-                String display = GsonComponentSerializer.gson().serialize(component);
-                ReflectionUtil.setField(displayField, itemMeta, display);
-            } else {
-                String element = LegacyComponentSerializer.legacySection().serialize(component);
-                itemMeta.setDisplayName(element);
-            }
+            AdventureUtil.setName(itemMeta, component);
         }
 
         List<?> lore = data.of("Lore").assertType(List.class).get(null);

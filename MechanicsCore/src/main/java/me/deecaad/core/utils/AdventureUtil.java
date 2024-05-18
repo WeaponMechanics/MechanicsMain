@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -34,12 +35,20 @@ public final class AdventureUtil {
     // 1.16+ use adventure in item lore and display name (hex code support)
     public static Field loreField;
     public static Field displayField;
+    public static Method fromJsonMethod;
+    public static Method toJsonMethod;
 
     static {
         if (MinecraftVersions.NETHER_UPDATE.isAtLeast()) { // before 1.16, hex was not supported by MC
             Class<?> c = ReflectionUtil.getCBClass("inventory.CraftMetaItem");
             loreField = ReflectionUtil.getField(c, "lore");
             displayField = ReflectionUtil.getField(c, "displayName");
+        }
+        if (MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+            Class<?> c = ReflectionUtil.getCBClass("util.CraftChatMessage");
+            Class<?> componentClass = ReflectionUtil.getNMSClass("network.chat", "IChatBaseComponent");
+            fromJsonMethod = ReflectionUtil.getMethod(c, "fromJSON", String.class);
+            toJsonMethod = ReflectionUtil.getMethod(c, "toJSON", componentClass);
         }
     }
 
@@ -60,9 +69,15 @@ public final class AdventureUtil {
         if (meta == null)
             return Component.empty();
 
-        return MinecraftVersions.NETHER_UPDATE.isAtLeast()
-            ? GsonComponentSerializer.gson().deserialize((String) ReflectionUtil.invokeField(displayField, meta))
-            : LegacyComponentSerializer.legacySection().deserialize(meta.getDisplayName());
+        if (MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+            Object component = ReflectionUtil.invokeField(displayField, meta);
+            String json = (String) ReflectionUtil.invokeMethod(toJsonMethod, null, component);
+            return GsonComponentSerializer.gson().deserialize(json);
+        } else if (MinecraftVersions.NETHER_UPDATE.isAtLeast()) {
+            return GsonComponentSerializer.gson().deserialize((String) ReflectionUtil.invokeField(displayField, meta));
+        } else {
+            return LegacyComponentSerializer.legacySection().deserialize(meta.getDisplayName());
+        }
     }
 
     /**
@@ -108,7 +123,11 @@ public final class AdventureUtil {
      */
     public static void setName(@NotNull ItemMeta meta, @NotNull Component name) {
         // before 1.16, hex was not supported
-        if (MinecraftVersions.NETHER_UPDATE.isAtLeast()) {
+        if (MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+            String json = GsonComponentSerializer.gson().serialize(name);
+            Object component = ReflectionUtil.invokeMethod(fromJsonMethod, null, json);
+            ReflectionUtil.setField(displayField, meta, component);
+        } else if (MinecraftVersions.NETHER_UPDATE.isAtLeast()) {
             String str = GsonComponentSerializer.gson().serialize(name);
             ReflectionUtil.setField(displayField, meta, str);
         } else {
