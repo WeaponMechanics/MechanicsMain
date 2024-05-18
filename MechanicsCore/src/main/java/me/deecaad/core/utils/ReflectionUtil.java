@@ -1,9 +1,11 @@
 package me.deecaad.core.utils;
 
 import me.deecaad.core.MechanicsCore;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import xyz.jpenilla.reflectionremapper.ReflectionRemapper;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -92,6 +94,9 @@ public final class ReflectionUtil {
      * Returns the NMS class with the given name. In mc versions 1.17 and higher, <code>pack</code> is
      * used for the package the class is in. Previous versions ignore <code>pack</code>.
      *
+     * <p>On paper servers in MC 1.20.5 and higher, packages have been remapped. We have to use the
+     * remapping tool to get the correct package name and class name.
+     *
      * @param pack The non-null package name that contains the class defined by <code>name</code>. Make
      *        sure the string ends with a dot.
      * @param name The non-null name of the class to find.
@@ -100,10 +105,17 @@ public final class ReflectionUtil {
     public static Class<?> getNMSClass(@NotNull String pack, @NotNull String name) {
         String className;
 
-        if (MinecraftVersions.CAVES_AND_CLIFFS_2.isAtLeast())
+        if (MinecraftVersions.CAVES_AND_CLIFFS_2.isAtLeast()) {
             className = "net.minecraft." + pack + '.' + name;
-        else
+
+            if (CompatibilityAPI.isPaper() && MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+                ReflectionRemapper remapper = ReflectionRemapper.forReobfMappingsInPaperJar();
+                className = remapper.remapClassOrArrayName(className);
+            }
+        }
+        else {
             className = nmsVersion + name;
+        }
 
         try {
             return Class.forName(className);

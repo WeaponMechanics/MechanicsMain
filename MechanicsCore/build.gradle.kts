@@ -31,6 +31,9 @@ dependencies {
     implementation("org.slf4j:slf4j-nop:1.7.30")
     implementation(Dependencies.MYTHIC_MOBS)
 
+    implementation("xyz.jpenilla:reflection-remapper:0.1.1")
+    implementation("net.fabricmc:mapping-io:0.5.0")
+
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
     testImplementation(Dependencies.LATEST_SPIGOT_API)
     testImplementation(Dependencies.ANNOTATIONS)
