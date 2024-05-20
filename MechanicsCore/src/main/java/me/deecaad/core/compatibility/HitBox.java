@@ -416,7 +416,7 @@ public class HitBox {
                     if (z == minZ || z + step > maxZ)
                         components++;
                     if (components >= 2) {
-                        if (CompatibilityAPI.getVersion() < 1.13) {
+                        if (!MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
                             player.getWorld().spawnParticle(Particle.CRIT, x, y, z, 1, 0, 0, 0, 0.0001);
                         } else {
                             player.getWorld().spawnParticle(DUST_PARTICLE, x, y, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(color, 0.5f), true);

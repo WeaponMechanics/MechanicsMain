@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.wrappers;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.block.BlockCompatibility;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponStopShootingEvent;
@@ -193,7 +194,7 @@ public class MoveTask extends BukkitRunnable {
 
         // 1.13 introduced block data for blocks like stairs and slabs, and can
         // be waterlogged. 1.13 also introduced the swimming mechanic.
-        if (CompatibilityAPI.getVersion() >= 1.13) {
+        if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
             if (livingEntity.isSwimming())
                 return true;
 

@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.listeners.trigger;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
@@ -20,12 +20,25 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerAnimationEvent;
+import org.bukkit.event.player.PlayerAnimationType;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.*;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getPlayerWrapper;
+import static me.deecaad.weaponmechanics.WeaponMechanics.removeEntityWrapper;
 
 public class TriggerPlayerListeners implements Listener {
 
@@ -171,8 +184,8 @@ public class TriggerPlayerListeners implements Listener {
         boolean rightClick = action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK;
         if (rightClick) {
             getPlayerWrapper(player).rightClicked();
-        } else if (CompatibilityAPI.getVersion() >= 1.15 && !NumberUtil.hasMillisPassed(playerWrapper.getLastDropWeaponTime(), 25)) {
-            // Fixes bug where item dropping causes player to left click
+        } else if (MinecraftVersions.BUZZY_BEES.isAtLeast() && !NumberUtil.hasMillisPassed(playerWrapper.getLastDropWeaponTime(), 25)) {
+            // Fixes bug in 1.15+ where item dropping causes player to left click
             // Basically checks if less than 25 millis has passed since weapon item drop
             return;
         }
@@ -242,10 +255,9 @@ public class TriggerPlayerListeners implements Listener {
         if (player.getGameMode() == GameMode.SPECTATOR || playerEquipment == null)
             return;
 
+        // In 1.15+, there is a "feature" where item dropping causes player to left-click
         PlayerWrapper playerWrapper = getPlayerWrapper(player);
-
-        double version = CompatibilityAPI.getVersion();
-        if (version >= 1.15 && !NumberUtil.hasMillisPassed(playerWrapper.getLastDropWeaponTime(), 25)) {
+        if (MinecraftVersions.BUZZY_BEES.isAtLeast() && !NumberUtil.hasMillisPassed(playerWrapper.getLastDropWeaponTime(), 25)) {
             e.setCancelled(true);
             return;
         }

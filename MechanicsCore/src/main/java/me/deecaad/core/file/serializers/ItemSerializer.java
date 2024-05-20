@@ -187,7 +187,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
         short durability = (short) data.of("Durability").assertPositive().getInt(-99);
         if (durability != -99) {
-            if (CompatibilityAPI.getVersion() >= 1.132) {
+            if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
                 ((org.bukkit.inventory.meta.Damageable) itemMeta).setDamage(durability);
             } else {
                 itemStack.setDurability(durability);
@@ -195,14 +195,9 @@ public class ItemSerializer implements Serializer<ItemStack> {
         }
 
         boolean unbreakable = data.of("Unbreakable").getBool(false);
-        if (CompatibilityAPI.getVersion() >= 1.11) {
-            itemMeta.setUnbreakable(unbreakable);
-        } else {
-            setupUnbreakable();
-            ReflectionUtil.invokeMethod(setUnbreakable, ReflectionUtil.invokeMethod(spigotMethod, itemMeta), true);
-        }
+        itemMeta.setUnbreakable(unbreakable);
 
-        if (data.has("Custom_Model_Data") && CompatibilityAPI.getVersion() >= 1.14) {
+        if (data.has("Custom_Model_Data") && MinecraftVersions.VILLAGE_AND_PILLAGE.isAtLeast()) {
             itemMeta.setCustomModelData(data.of("Custom_Model_Data").assertExists().getInt());
         }
 
@@ -295,11 +290,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
                 // Standard player name SkullMeta... "CJCrafter", "DeeCaaD", "Darkman_Bree"
                 else if (uuid != null) {
-                    if (CompatibilityAPI.getVersion() >= 1.12) {
-                        skullMeta.setOwningPlayer(Bukkit.getServer().getOfflinePlayer(uuid));
-                    } else {
-                        skullMeta.setOwner(Bukkit.getServer().getOfflinePlayer(uuid).getName());
-                    }
+                    skullMeta.setOwningPlayer(Bukkit.getServer().getOfflinePlayer(uuid));
                 } else {
                     skullMeta.setOwner(owningPlayer);
                 }

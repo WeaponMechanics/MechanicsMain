@@ -1,6 +1,5 @@
 package me.deecaad.core.utils.ray;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.utils.MinecraftVersions;
 import org.bukkit.Color;
@@ -168,7 +167,7 @@ public class RayTraceResult {
         double x = hitLocation.getX();
         double y = hitLocation.getY();
         double z = hitLocation.getZ();
-        if (CompatibilityAPI.getVersion() < 1.13) {
+        if (!MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
             player.getWorld().spawnParticle(Particle.CRIT, x, y, z, 1, 0, 0, 0, 0.0001);
         } else {
             player.getWorld().spawnParticle(DUST_PARTICLE, x, y, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.BLACK, 1.5f), true);

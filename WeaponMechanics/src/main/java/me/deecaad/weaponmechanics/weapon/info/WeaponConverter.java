@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
@@ -47,12 +46,11 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
      *         variable values)
      */
     public boolean isMatch(ItemStack weaponStack, ItemStack other) {
-        double version = CompatibilityAPI.getVersion();
         if (this.type) {
             if (weaponStack.getType() != other.getType()) {
                 return false;
             }
-            if (version < 1.13 && weaponStack.getData().getData() != other.getData().getData()) {
+            if (!MinecraftVersions.UPDATE_AQUATIC.isAtLeast() && weaponStack.getData().getData() != other.getData().getData()) {
                 return false;
             }
         }
