@@ -44,7 +44,7 @@ public final class CompatibilityAPI {
             // minecraft, like 1.18.1, 1.8.8, etc.
             if (compatibility == null) {
                 MechanicsCore.debug.error("Unsupported server version: " + Bukkit.getVersion() + " (" + Bukkit.getBukkitVersion() + ")",
-                    "Remember that MechanicsCore supports all major versions 1.9.4+, HOWEVER it doesn't support outdated versions",
+                    "Remember that MechanicsCore supports all major versions 1.12.2+, HOWEVER it doesn't support outdated versions",
                     "For example, 1.18.1 is NOT a support version, but 1.18.2 IS a supported version",
                     "If you are running a brand new version of Minecraft, ask DeeCaaD or CJCrafter to update the plugin",
                     "",

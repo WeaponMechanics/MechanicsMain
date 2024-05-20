@@ -1,9 +1,12 @@
 package me.deecaad.core;
 
-import me.deecaad.core.commands.*;
+import me.deecaad.core.commands.Argument;
+import me.deecaad.core.commands.CommandBuilder;
+import me.deecaad.core.commands.CommandExecutor;
+import me.deecaad.core.commands.HelpCommandBuilder;
+import me.deecaad.core.commands.SuggestionsBuilder;
 import me.deecaad.core.commands.arguments.StringArgumentType;
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.core.utils.TableBuilder;
 import net.kyori.adventure.audience.Audience;
@@ -16,7 +19,6 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 
@@ -25,9 +27,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Supplier;
 
-import static net.kyori.adventure.text.Component.*;
+import static net.kyori.adventure.text.Component.empty;
+import static net.kyori.adventure.text.Component.newline;
+import static net.kyori.adventure.text.Component.text;
 import static org.bukkit.ChatColor.GOLD;
 import static org.bukkit.ChatColor.GRAY;
 
@@ -56,21 +59,6 @@ public final class MechanicsCoreCommand {
                     .executes(CommandExecutor.any((sender, args) -> {
                         tableColors(sender);
                     }))))
-
-            .withSubcommand(new CommandBuilder("item")
-                .withPermission("mechanicscore.commands.item")
-                .withDescription("Gives an item from the MechanicsCore > Items folder")
-                .withArgument(new Argument<>("type", new StringArgumentType()).replace(SuggestionsBuilder.from(ItemSerializer.ITEM_REGISTRY.keySet())))
-                .executes(CommandExecutor.player((sender, args) -> {
-                    Supplier<ItemStack> item = ItemSerializer.ITEM_REGISTRY.get((String) args[0]);
-
-                    if (item == null) {
-                        sender.sendMessage(ChatColor.RED + "Unknown item " + args[0]);
-                        return;
-                    }
-
-                    sender.getInventory().addItem(item.get());
-                })))
 
             .withSubcommand(new CommandBuilder("reloadcommands")
                 .withPermission("mechanicscore.commands.reloadcommands")
