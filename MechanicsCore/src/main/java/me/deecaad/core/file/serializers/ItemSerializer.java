@@ -5,17 +5,25 @@ import com.mojang.authlib.properties.Property;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
-import me.deecaad.core.file.*;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerEnumException;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerOptionsException;
+import me.deecaad.core.file.SerializerRangeException;
+import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.core.utils.AdventureUtil;
 import me.deecaad.core.utils.AttributeType;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.core.utils.StringUtil;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
@@ -23,7 +31,13 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.meta.*;
+import org.bukkit.inventory.meta.ArmorMeta;
+import org.bukkit.inventory.meta.BlockDataMeta;
+import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
@@ -31,7 +45,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -45,20 +69,10 @@ public class ItemSerializer implements Serializer<ItemStack> {
     private static Method spigotMethod;
     private static Method setUnbreakable;
 
-    // 1.16+ use adventure in item lore and display name (hex code support)
-    private static Field loreField;
-    private static Field displayField;
-
     private static final Field ingredientsField;
 
     static {
         ingredientsField = ReflectionUtil.getField(ShapedRecipe.class, "ingredients");
-
-        if (MinecraftVersions.NETHER_UPDATE.isAtLeast()) {
-            Class<?> c = ReflectionUtil.getCBClass("inventory.CraftMetaItem");
-            loreField = ReflectionUtil.getField(c, "lore");
-            displayField = ReflectionUtil.getField(c, "displayName");
-        }
     }
 
     /**
@@ -168,21 +182,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
         }
 
         List<?> lore = data.of("Lore").assertType(List.class).get(null);
-        if (lore != null && !lore.isEmpty()) {
-            List<String> temp = new ArrayList<>(lore.size());
-
-            for (Object obj : lore) {
-                Component component = MechanicsCore.getPlugin().message.deserialize("<!italic>" + StringUtil.colorAdventure(obj.toString()));
-                String element = MinecraftVersions.NETHER_UPDATE.isAtLeast()
-                    ? GsonComponentSerializer.gson().serialize(component)
-                    : LegacyComponentSerializer.legacySection().serialize(component);
-                temp.add(element);
-            }
-
-            if (MinecraftVersions.NETHER_UPDATE.isAtLeast())
-                ReflectionUtil.setField(loreField, itemMeta, temp);
-            else
-                itemMeta.setLore(temp);
+        if (lore != null) {
+            AdventureUtil.setLoreUnparsed(itemMeta, lore);
         }
 
         short durability = (short) data.of("Durability").assertPositive().getInt(-99);
