@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.lib.BedrockPlayerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -110,9 +111,13 @@ public class ResourcePackListener implements Listener {
             if (status == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD
                 || status == PlayerResourcePackStatusEvent.Status.DECLINED) {
 
-                // TODO consider adding a permission to allow people to be exempt
-                String message = WeaponMechanics.getBasicConfigurations().getString("Resource_Pack_Download.Kick_Message");
-                player.kickPlayer(StringUtil.colorBukkit(message));
+                if(!(WeaponMechanics.getBedrockPlayerUtils().isPlayerBedrock(player))) {
+
+                    // TODO consider adding a permission to allow people to be exempt
+                    String message = WeaponMechanics.getBasicConfigurations().getString("Resource_Pack_Download.Kick_Message");
+                    player.kickPlayer(StringUtil.colorBukkit(message));
+
+                }
             }
         }
     }
