@@ -118,11 +118,14 @@ public class ResourcePackListener implements Listener {
 
                 if(!(WeaponMechanics.getBedrockPlayerUtils().isPlayerBedrock(player))) {
 
+                    WeaponMechanics.debug.debug("Kicking player: " + player.getName() + " for not downloading the resourcepack...");
+
                     // TODO consider adding a permission to allow people to be exempt
                     String message = WeaponMechanics.getBasicConfigurations().getString("Resource_Pack_Download.Kick_Message");
                     player.kickPlayer(StringUtil.colorBukkit(message));
 
-                }
+                } else
+                    WeaponMechanics.debug.debug("Skipped kicking player: " + player.getName() + " for not downloading the resourcepack because he is a BedrockPlayer...");
             }
         }
     }
