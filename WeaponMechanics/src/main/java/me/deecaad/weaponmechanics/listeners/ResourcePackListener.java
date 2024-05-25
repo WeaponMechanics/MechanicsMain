@@ -90,6 +90,11 @@ public class ResourcePackListener implements Listener {
             return;
         }
 
+        if(WeaponMechanics.getBedrockPlayerUtils().isPlayerBedrock(player)) {
+            WeaponMechanics.debug.info("Skipped sending resource pack to player: " + player.getName() + " because it is a BedrockPlayer!");
+            return;
+        }
+
         if (("https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack.zip").equals(link)) {
             // This is the default link, meaning the Admin hasn't changed it. We
             // should use the latest version instead. Run it on a delay to make
