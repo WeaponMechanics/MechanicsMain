@@ -58,7 +58,7 @@ public class EntityTransform extends Transform {
         if (entity.getType() == EntityType.ARMOR_STAND) {
             ArmorStand stand = (ArmorStand) entity;
             stand.setHeadPose(new EulerAngle(euler.getX(), euler.getY(), euler.getZ()));
-        } else if (ReflectionUtil.getMCVersion() >= 13) {
+        } else if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
             entity.setRotation((float) euler.getX(), (float) euler.getY());
         } else {
             Location loc = entity.getLocation();

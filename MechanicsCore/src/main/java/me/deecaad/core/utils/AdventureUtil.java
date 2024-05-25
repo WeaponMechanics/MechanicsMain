@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -34,12 +35,20 @@ public final class AdventureUtil {
     // 1.16+ use adventure in item lore and display name (hex code support)
     public static Field loreField;
     public static Field displayField;
+    public static Method fromJsonMethod;
+    public static Method toJsonMethod;
 
     static {
-        if (ReflectionUtil.getMCVersion() >= 16) { // before 1.16, hex was not supported by MC
+        if (MinecraftVersions.NETHER_UPDATE.isAtLeast()) { // before 1.16, hex was not supported by MC
             Class<?> c = ReflectionUtil.getCBClass("inventory.CraftMetaItem");
             loreField = ReflectionUtil.getField(c, "lore");
             displayField = ReflectionUtil.getField(c, "displayName");
+        }
+        if (MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+            Class<?> c = ReflectionUtil.getCBClass("util.CraftChatMessage");
+            Class<?> componentClass = ReflectionUtil.getNMSClass("network.chat", "IChatBaseComponent");
+            fromJsonMethod = ReflectionUtil.getMethod(c, "fromJSON", String.class);
+            toJsonMethod = ReflectionUtil.getMethod(c, "toJSON", componentClass);
         }
     }
 
@@ -60,11 +69,15 @@ public final class AdventureUtil {
         if (meta == null)
             return Component.empty();
 
-        return ReflectionUtil.getMCVersion() < 16
-            ? LegacyComponentSerializer.legacySection().deserialize(meta.getDisplayName())
-            : GsonComponentSerializer.gson().deserialize((String) ReflectionUtil.invokeField(displayField, meta));
-
-        // return CompatibilityAPI.getNBTCompatibility().getDisplayName(item);
+        if (MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+            Object component = ReflectionUtil.invokeField(displayField, meta);
+            String json = (String) ReflectionUtil.invokeMethod(toJsonMethod, null, component);
+            return GsonComponentSerializer.gson().deserialize(json);
+        } else if (MinecraftVersions.NETHER_UPDATE.isAtLeast()) {
+            return GsonComponentSerializer.gson().deserialize((String) ReflectionUtil.invokeField(displayField, meta));
+        } else {
+            return LegacyComponentSerializer.legacySection().deserialize(meta.getDisplayName());
+        }
     }
 
     /**
@@ -110,12 +123,16 @@ public final class AdventureUtil {
      */
     public static void setName(@NotNull ItemMeta meta, @NotNull Component name) {
         // before 1.16, hex was not supported
-        if (ReflectionUtil.getMCVersion() < 16) {
-            String str = LegacyComponentSerializer.legacySection().serialize(name);
-            meta.setDisplayName(str);
-        } else {
+        if (MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+            String json = GsonComponentSerializer.gson().serialize(name);
+            Object component = ReflectionUtil.invokeMethod(fromJsonMethod, null, json);
+            ReflectionUtil.setField(displayField, meta, component);
+        } else if (MinecraftVersions.NETHER_UPDATE.isAtLeast()) {
             String str = GsonComponentSerializer.gson().serialize(name);
             ReflectionUtil.setField(displayField, meta, str);
+        } else {
+            String str = LegacyComponentSerializer.legacySection().serialize(name);
+            meta.setDisplayName(str);
         }
     }
 
@@ -124,7 +141,7 @@ public final class AdventureUtil {
     }
 
     @Nullable public static List<Component> getLore(@NotNull ItemMeta meta) {
-        boolean useLegacy = ReflectionUtil.getMCVersion() < 16; // before 1.16, hex was not supported by MC
+        boolean useLegacy = !MinecraftVersions.NETHER_UPDATE.isAtLeast(); // before 1.16, hex was not supported by MC
 
         List<String> lore = useLegacy
             ? meta.getLore()
@@ -175,20 +192,23 @@ public final class AdventureUtil {
      * @param unparsedText The list of strings.
      */
     public static void setLoreUnparsed(@NotNull ItemMeta meta, @NotNull List<?> unparsedText) {
-        boolean useLegacy = ReflectionUtil.getMCVersion() < 16; // before 1.16, hex was not supported by MC
-
-        List<String> lore = new ArrayList<>(unparsedText.size());
+        List<Object> lore = new ArrayList<>(unparsedText.size());
         for (Object obj : unparsedText) {
             // <!italic> effectively strips away Minecraft's predefined formatting
             Component component = MechanicsCore.getPlugin().message.deserialize("<!italic>" + StringUtil.colorAdventure(obj.toString()));
-            String line = useLegacy
-                ? LegacyComponentSerializer.legacySection().serialize(component)
-                : GsonComponentSerializer.gson().serialize(component);
-            lore.add(line);
+            if (MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+                String json = GsonComponentSerializer.gson().serialize(component);
+                Object componentObj = ReflectionUtil.invokeMethod(fromJsonMethod, null, json);
+                lore.add(componentObj);
+            } else if (MinecraftVersions.NETHER_UPDATE.isAtLeast()) {
+                lore.add(GsonComponentSerializer.gson().serialize(component));
+            } else {
+                lore.add(LegacyComponentSerializer.legacySection().serialize(component));
+            }
         }
 
-        if (useLegacy)
-            meta.setLore(lore);
+        if (!MinecraftVersions.NETHER_UPDATE.isAtLeast())
+            meta.setLore((List<String>) (List<?>) lore);
         else
             ReflectionUtil.setField(loreField, meta, lore);
     }
@@ -212,18 +232,21 @@ public final class AdventureUtil {
      * @param lines The list of adventure components for lore.
      */
     public static void setLore(@NotNull ItemMeta meta, @NotNull List<Component> lines) {
-        boolean useLegacy = ReflectionUtil.getMCVersion() < 16; // before 1.16, hex was not supported by MC
-
-        List<String> lore = new ArrayList<>(lines.size());
+        List<Object> lore = new ArrayList<>(lines.size());
         for (Component component : lines) {
-            String line = useLegacy
-                ? LegacyComponentSerializer.legacySection().serialize(component)
-                : GsonComponentSerializer.gson().serialize(component);
-            lore.add(line);
+            if (MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+                String json = GsonComponentSerializer.gson().serialize(component);
+                Object componentObj = ReflectionUtil.invokeMethod(fromJsonMethod, null, json);
+                lore.add(componentObj);
+            } else if (MinecraftVersions.NETHER_UPDATE.isAtLeast()) {
+                lore.add(GsonComponentSerializer.gson().serialize(component));
+            } else {
+                lore.add(LegacyComponentSerializer.legacySection().serialize(component));
+            }
         }
 
-        if (useLegacy)
-            meta.setLore(lore);
+        if (!MinecraftVersions.NETHER_UPDATE.isAtLeast())
+            meta.setLore((List<String>) (List<?>) lore);
         else
             ReflectionUtil.setField(loreField, meta, lore);
     }

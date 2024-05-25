@@ -24,6 +24,7 @@ dependencies {
     compileOnly(Dependencies.PLACEHOLDER_API)
     compileOnly(Dependencies.MYTHIC_MOBS)
     compileOnly(Dependencies.VIVECRAFT)
+    compileOnly(Dependencies.X_SERIES)
     compileOnly(files(file("../lib/crackshot/CrackShotPlus.jar")))
     compileOnly(files(file("../lib/crackshot/CrackShot.jar")))
 }
@@ -37,6 +38,12 @@ val javadocJar by tasks.registering(Jar::class) {
 val sourcesJar by tasks.registering(Jar::class) {
     archiveClassifier.set("sources")
     from(sourceSets.main.get().allSource)
+}
+
+tasks.compileKotlin {
+    kotlinOptions {
+        jvmTarget = "16"
+    }
 }
 
 nexusStaging {

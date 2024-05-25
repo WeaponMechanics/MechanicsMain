@@ -1,8 +1,5 @@
 package me.deecaad.weaponmechanics.compatibility;
 
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
 import me.deecaad.weaponmechanics.compatibility.scope.Scope_1_16_R3;
 import net.minecraft.server.v1_16_R3.DamageSource;
@@ -20,15 +17,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class v1_16_R3 implements IWeaponCompatibility {
-
-    static {
-        if (ReflectionUtil.getMCVersion() != 16) {
-            WeaponMechanics.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + v1_16_R3.class + " when not using Minecraft 16",
-                new InternalError());
-        }
-    }
 
     private final Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> RELATIVE_FLAGS = new HashSet<>(Arrays.asList(PacketPlayOutPosition.EnumPlayerTeleportFlags.X,
         PacketPlayOutPosition.EnumPlayerTeleportFlags.Y,

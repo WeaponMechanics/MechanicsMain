@@ -2,8 +2,6 @@ package me.deecaad.core.compatibility.nbt;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
-import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import net.kyori.adventure.text.Component;
@@ -23,15 +21,6 @@ import java.util.Objects;
 
 // https://nms.screamingsandals.org/1.19_R1
 public class NBT_1_19_R3 extends NBT_Persistent {
-
-    static {
-        if (ReflectionUtil.getMCVersion() != 19) {
-            MechanicsCore.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + NBT_1_19_R3.class + " when not using Minecraft 19",
-                new InternalError());
-        }
-    }
 
     @Override
     public void copyTagsFromTo(@NotNull ItemStack fromItem, @NotNull ItemStack toItem, @Nullable String path) {

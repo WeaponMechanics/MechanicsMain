@@ -1,7 +1,5 @@
 package me.deecaad.core.compatibility.equipevent;
 
-import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.Item;
@@ -16,15 +14,6 @@ import java.util.List;
 public class NonNullList_1_19_R3 extends NonNullList<ItemStack> {
 
     private static final Field itemField = ReflectionUtil.getField(ItemStack.class, Item.class);
-
-    static {
-        if (ReflectionUtil.getMCVersion() != 19) {
-            MechanicsCore.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + NonNullList_1_19_R3.class + " when not using Minecraft 19",
-                new InternalError());
-        }
-    }
 
     private final TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer;
 

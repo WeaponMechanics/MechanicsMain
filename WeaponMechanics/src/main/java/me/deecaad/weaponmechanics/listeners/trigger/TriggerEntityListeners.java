@@ -71,7 +71,7 @@ public class TriggerEntityListeners implements Listener {
             return;
 
         EntityDamageEvent.DamageCause cause = e.getCause();
-        boolean isSweep = ReflectionUtil.getMCVersion() > 10 && cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK;
+        boolean isSweep = cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK;
         if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK && !isSweep)
             return;
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click"))

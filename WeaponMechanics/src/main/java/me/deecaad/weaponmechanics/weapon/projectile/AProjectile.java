@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ray.RayTraceResult;
 import org.bukkit.Location;
@@ -12,7 +12,11 @@ import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
@@ -21,9 +25,6 @@ public abstract class AProjectile {
 
     // Used with disguises and cached on first run, defaults to 50 ticks
     private static int CHECK_FOR_NEW_PLAYER_RATE = 0;
-
-    // Store this here for easier usage
-    private static final double version = CompatibilityAPI.getVersion();
 
     private final LivingEntity shooter;
     private final World world;
@@ -363,7 +364,8 @@ public abstract class AProjectile {
         }
 
         double locationY = location.getY();
-        if (aliveTicks >= getMaximumAliveTicks() || locationY < (version < 1.16 ? -32 : world.getMinHeight()) || locationY > world.getMaxHeight()) {
+        int minWorldHeight = MinecraftVersions.NETHER_UPDATE.isAtLeast() ? world.getMinHeight() : -32;
+        if (aliveTicks >= getMaximumAliveTicks() || locationY < minWorldHeight || locationY > world.getMaxHeight()) {
             return true;
         }
 

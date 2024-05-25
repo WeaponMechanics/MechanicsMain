@@ -4,7 +4,7 @@ import me.deecaad.core.file.JarSearcherExempt;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.MinecraftVersions;
 import org.bukkit.Location;
 import org.bukkit.block.SculkCatalyst;
 import org.jetbrains.annotations.NotNull;
@@ -48,7 +48,7 @@ public class SculkBloomMechanic extends ActivateBlockMechanic<SculkCatalyst> imp
     @Override
     public @NotNull Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         // This should never be true since we only register this Mechanic in 1.20.2+
-        if (ReflectionUtil.getMCVersion() < 20) {
+        if (!MinecraftVersions.TRAILS_AND_TAILS.get(2).isAtLeast()) {
             throw data.exception(null, "The SculkBloom{} Mechanic is only available in 1.20.2+");
         }
 

@@ -2,7 +2,6 @@ package me.deecaad.core.compatibility.nbt;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import net.kyori.adventure.text.Component;
@@ -13,23 +12,14 @@ import net.minecraft.nbt.Tag;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 public class NBT_1_17_R1 extends NBT_Persistent {
-
-    static {
-        if (ReflectionUtil.getMCVersion() != 17) {
-            me.deecaad.core.MechanicsCore.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + NBT_1_17_R1.class + " when not using Minecraft 17",
-                new InternalError());
-        }
-    }
 
     @Override
     public void copyTagsFromTo(@NotNull ItemStack fromItem, @NotNull ItemStack toItem, @Nullable String path) {

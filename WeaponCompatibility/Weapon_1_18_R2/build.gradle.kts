@@ -12,6 +12,8 @@ dependencies {
     compileOnly(Dependencies.PROTOCOL_LIB)
 }
 
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+
 tasks {
     compileJava {
         options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything

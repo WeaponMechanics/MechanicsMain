@@ -823,3 +823,31 @@ Entity_Hitboxes:
     BODY: 0.8
     LEGS: 0.075
     FEET: 0.025
+  MOOSHROOM:
+    Horizontal_Entity: true
+    HEAD: 0.0
+    BODY: 0.5
+    ARMS: false
+    LEGS: 0.45
+    FEET: 0.05
+  SNOW_GOLEM:
+    Horizontal_Entity: false
+    HEAD: 0.34
+    BODY: 0.31
+    ARMS: true # Very tiny arms
+    LEGS: 0.35
+    FEET: 0.0
+  ARMADILLO:
+    Horizontal_Entity: true
+    HEAD: 0.0
+    BODY: 0.8
+    ARMS: false
+    LEGS: 0.15
+    FEET: 0.05
+  BOGGED:
+    Horizontal_Entity: false
+    HEAD: 0.25
+    BODY: 0.375
+    ARMS: true
+    LEGS: 0.25
+    FEET: 0.125

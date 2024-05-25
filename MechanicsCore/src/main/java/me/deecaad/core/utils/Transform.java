@@ -1,8 +1,6 @@
 package me.deecaad.core.utils;
 
-import org.bukkit.Color;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
 
@@ -147,18 +145,8 @@ public class Transform {
     public void debug(World world) {
         Vector origin = getPosition();
 
-        debugRay(world, origin, getForward(), Color.BLUE);
-        debugRay(world, origin, getUp(), Color.GREEN);
-        debugRay(world, origin, getRight(), Color.RED);
-    }
-
-    public void debugRay(World world, Vector origin, Vector direction, Color color) {
-        Particle.DustOptions options = new Particle.DustOptions(color, 0.3f);
-        int count = 10;
-        for (int i = 0; i < count; i++) {
-            double t = (double) i / count;
-            Vector pos = direction.clone().multiply(t).add(origin);
-            world.spawnParticle(Particle.REDSTONE, pos.getX(), pos.getY(), pos.getZ(), 1, options);
-        }
+        // debugRay(world, origin, getForward(), Color.BLUE);
+        // debugRay(world, origin, getUp(), Color.GREEN);
+        // debugRay(world, origin, getRight(), Color.RED);
     }
 }

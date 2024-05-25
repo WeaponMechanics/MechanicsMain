@@ -3,8 +3,6 @@ package me.deecaad.core.compatibility.entity;
 import com.mojang.datafixers.util.Pair;
 import me.deecaad.core.compatibility.equipevent.NonNullList_1_17_R1;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -24,15 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Entity_1_17_R1 implements EntityCompatibility {
-
-    static {
-        if (ReflectionUtil.getMCVersion() != 17) {
-            me.deecaad.core.MechanicsCore.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + Entity_1_17_R1.class + " when not using Minecraft 17",
-                new InternalError());
-        }
-    }
 
     @Override
     public Vector getLastLocation(Entity entity) {

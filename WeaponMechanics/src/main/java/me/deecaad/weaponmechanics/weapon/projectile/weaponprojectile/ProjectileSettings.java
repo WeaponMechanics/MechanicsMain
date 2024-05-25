@@ -5,7 +5,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.MinecraftVersions;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -16,6 +16,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Locale;
 
 public class ProjectileSettings implements Serializer<ProjectileSettings>, Cloneable {
+
+    // 1.20.5 changed the EntityType enums
+    private static final EntityType FIREWORK_ENTITY = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? EntityType.FIREWORK_ROCKET : EntityType.valueOf("FIREWORK");
+    private static final EntityType ITEM_ENTITY = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? EntityType.ITEM : EntityType.valueOf("DROPPED_ITEM");
 
     private EntityType projectileDisguise;
     private Object disguiseData;
@@ -236,7 +240,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
         if (!isInvisible) {
 
             try {
-                projectileType = data.of("Type").assertExists().getEnum(EntityType.class);
+                projectileType = data.of("Type").assertExists().getEntityType(null).get();
             } catch (SerializerException ex) {
                 // People often define a material instead of an entity type, like "iron_nugget".
                 // So this checks if the type is a material
@@ -250,7 +254,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
             }
 
             ItemStack projectileItem = data.of("Projectile_Item_Or_Block").serialize(new ItemSerializer());
-            if ((projectileType == EntityType.DROPPED_ITEM
+            if ((projectileType == ITEM_ENTITY
                 || projectileType == EntityType.FALLING_BLOCK)
                 && projectileItem == null) {
 
@@ -258,7 +262,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
             }
 
             if (projectileItem != null) {
-                if (projectileType == EntityType.FIREWORK && !(projectileItem.getItemMeta() instanceof FireworkMeta)) {
+                if (projectileType == FIREWORK_ENTITY && !(projectileItem.getItemMeta() instanceof FireworkMeta)) {
 
                     throw data.exception(null, "When using " + projectileType + ", the item must be a firework",
                         SerializerException.forValue(projectileItem));
@@ -270,11 +274,11 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
                     disguiseData = projectileItem;
                 }
 
-                if (projectileType != EntityType.DROPPED_ITEM
+                if (projectileType != ITEM_ENTITY
                     && projectileType != EntityType.FALLING_BLOCK
-                    && projectileType != EntityType.FIREWORK
+                    && projectileType != FIREWORK_ENTITY
                     && projectileType != EntityType.ARMOR_STAND
-                    && (ReflectionUtil.getMCVersion() >= 19 && projectileType != EntityType.ITEM_DISPLAY && projectileType != EntityType.BLOCK_DISPLAY)) {
+                    && (MinecraftVersions.WILD_UPDATE.isAtLeast() && projectileType != EntityType.ITEM_DISPLAY && projectileType != EntityType.BLOCK_DISPLAY)) {
 
                     throw data.exception(null, "When using " + projectileType + ", you CAN'T use Projectile_Item_Or_Block",
                         SerializerException.forValue(projectileItem));

@@ -17,7 +17,6 @@ public class TestCommand extends SubCommand {
         commands.register(new RecoilCommand());
         commands.register(new ShootCommand());
         commands.register(new FireworkCommand());
-        commands.register(new MaskCommand());
         commands.register(new NBTCommand());
         commands.register(new FakeEntityCommand());
         commands.register(new RayTraceCommand());
