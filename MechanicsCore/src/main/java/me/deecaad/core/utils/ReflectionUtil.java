@@ -100,7 +100,8 @@ public final class ReflectionUtil {
      * Returns the NMS class with the given name. In mc versions 1.17 and higher, <code>pack</code> is
      * used for the package the class is in. Previous versions ignore <code>pack</code>.
      *
-     * <p>On paper servers in MC 1.20.5 and higher, packages have been remapped. We have to use the
+     * <p>
+     * On paper servers in MC 1.20.5 and higher, packages have been remapped. We have to use the
      * remapping tool to get the correct package name and class name.
      *
      * @param pack The non-null package name that contains the class defined by <code>name</code>. Make
@@ -118,8 +119,7 @@ public final class ReflectionUtil {
                 ReflectionRemapper remapper = ReflectionRemapper.forReobfMappingsInPaperJar();
                 className = remapper.remapClassOrArrayName(className);
             }
-        }
-        else {
+        } else {
             className = nmsVersion + name;
         }
 

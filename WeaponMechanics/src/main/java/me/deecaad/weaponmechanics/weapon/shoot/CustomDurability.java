@@ -28,8 +28,9 @@ import java.util.Map;
  */
 public class CustomDurability implements Serializer<CustomDurability> {
 
-    private static final Enchantment UNBREAKING_ENCHANTMENT = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? Enchantment.UNBREAKING :
-        (Enchantment) ReflectionUtil.invokeField(ReflectionUtil.getField(Enchantment.class, "DURABILITY"), null);
+    private static final Enchantment UNBREAKING_ENCHANTMENT = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()
+        ? Enchantment.UNBREAKING
+        : (Enchantment) ReflectionUtil.invokeField(ReflectionUtil.getField(Enchantment.class, "DURABILITY"), null);
 
     // Cached common unbreaking values.
     private static final double[] ARMOR_LEVELS = new double[]{1.0, 0.80, 0.73, 0.70, 0.68, 0.67, 0.66, 0.65, 0.64, 0.64, 0.64};

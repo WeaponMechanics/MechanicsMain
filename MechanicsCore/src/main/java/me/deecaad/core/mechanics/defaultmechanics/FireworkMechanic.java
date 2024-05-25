@@ -38,7 +38,6 @@ import java.util.function.Supplier;
 
 public class FireworkMechanic extends PlayerEffectMechanic {
 
-
     public static class FireworkData implements InlineSerializer<FireworkData> {
 
         private FireworkEffect effect;
@@ -102,7 +101,6 @@ public class FireworkMechanic extends PlayerEffectMechanic {
             return new FireworkData(effect);
         }
     }
-
 
     /**
      * In 1.20.5, Spigot changed their Material enum from 'FIREWORK' to 'FIREWORK_ROCKET'.

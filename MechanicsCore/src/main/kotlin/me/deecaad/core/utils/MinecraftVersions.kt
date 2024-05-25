@@ -25,8 +25,9 @@ object MinecraftVersions {
         var currentVersion: String? = """\d+\.\d+\.\d+""".toRegex().find(versionString)?.value
         if (currentVersion == null) {
             currentVersion = """\d+\.\d+""".toRegex().find(versionString)?.value
-            if (currentVersion != null)
+            if (currentVersion != null) {
                 currentVersion += ".0"
+            }
         }
 
         return allVersions[currentVersion] ?: throw IllegalStateException("Invalid version: $currentVersion")

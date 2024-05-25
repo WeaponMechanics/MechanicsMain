@@ -145,8 +145,8 @@ public class Transform {
     public void debug(World world) {
         Vector origin = getPosition();
 
-        //debugRay(world, origin, getForward(), Color.BLUE);
-        //debugRay(world, origin, getUp(), Color.GREEN);
-        //debugRay(world, origin, getRight(), Color.RED);
+        // debugRay(world, origin, getForward(), Color.BLUE);
+        // debugRay(world, origin, getUp(), Color.GREEN);
+        // debugRay(world, origin, getRight(), Color.RED);
     }
 }

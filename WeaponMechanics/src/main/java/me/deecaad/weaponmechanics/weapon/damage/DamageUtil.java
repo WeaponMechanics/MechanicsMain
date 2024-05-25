@@ -38,8 +38,9 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 public class DamageUtil {
 
     private static final EntityType SNOW_GOLEM_ENTITY = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? EntityType.SNOW_GOLEM : EntityType.valueOf("SNOWMAN");
-    private static final Enchantment UNBREAKING_ENCHANTMENT = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? Enchantment.UNBREAKING :
-        (Enchantment) ReflectionUtil.invokeField(ReflectionUtil.getField(Enchantment.class, "DURABILITY"), null);
+    private static final Enchantment UNBREAKING_ENCHANTMENT = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()
+        ? Enchantment.UNBREAKING
+        : (Enchantment) ReflectionUtil.invokeField(ReflectionUtil.getField(Enchantment.class, "DURABILITY"), null);
 
     /**
      * Do not let anyone instantiate this class
