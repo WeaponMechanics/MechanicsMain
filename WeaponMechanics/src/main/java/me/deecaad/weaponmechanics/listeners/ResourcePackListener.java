@@ -91,7 +91,7 @@ public class ResourcePackListener implements Listener {
         }
 
         if(WeaponMechanics.getBedrockPlayerUtils().isPlayerBedrock(player)) {
-            WeaponMechanics.debug.info("Skipped sending resource pack to player: " + player.getName() + " because it is a BedrockPlayer!");
+            WeaponMechanics.debug.debug("Skipped sending resource pack to player: " + player.getName() + " because it is a BedrockPlayer!");
             return;
         }
 
