@@ -14,7 +14,9 @@ import java.util.List;
 public class Block_1_16_R3 implements BlockCompatibility {
 
     @Override
-    public HitBox getHitBox(Block block, boolean allowLiquid) {
+    public HitBox getHitBox(@NotNull Block block, boolean allowLiquid) {
+        if (!block.getChunk().isLoaded())
+            return null;
         if (block.isEmpty())
             return null;
 

@@ -9,6 +9,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,7 +38,7 @@ public interface BlockCompatibility {
      * @param block the block
      * @return the block's hit box or null if it's passable for example
      */
-    default HitBox getHitBox(Block block) {
+    default @Nullable HitBox getHitBox(@NotNull Block block) {
         return getHitBox(block, false);
     }
 
@@ -49,8 +50,9 @@ public interface BlockCompatibility {
      * @param allowLiquid whether liquid should be considered as having hit box
      * @return the block's hit box or null if it's passable for example
      */
-    default HitBox getHitBox(Block block, boolean allowLiquid) {
-        // This default should only be used after 1.17
+    default @Nullable HitBox getHitBox(@NotNull Block block, boolean allowLiquid) {
+        if (!block.getChunk().isLoaded())
+            return null;
         if (block.isEmpty())
             return null;
 

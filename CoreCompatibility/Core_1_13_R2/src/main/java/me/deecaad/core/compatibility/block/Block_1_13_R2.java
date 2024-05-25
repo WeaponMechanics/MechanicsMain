@@ -32,7 +32,9 @@ public class Block_1_13_R2 implements BlockCompatibility {
     }
 
     @Override
-    public HitBox getHitBox(Block block, boolean allowLiquid) {
+    public HitBox getHitBox(@NotNull Block block, boolean allowLiquid) {
+        if (!block.getChunk().isLoaded())
+            return null;
         if (block.isEmpty())
             return null;
 
