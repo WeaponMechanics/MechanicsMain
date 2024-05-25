@@ -24,6 +24,7 @@ dependencies {
     compileOnly(Dependencies.PLACEHOLDER_API)
     compileOnly(Dependencies.MYTHIC_MOBS)
     compileOnly(Dependencies.VIVECRAFT)
+    compileOnly(Dependencies.X_SERIES)
     compileOnly(files(file("../lib/crackshot/CrackShotPlus.jar")))
     compileOnly(files(file("../lib/crackshot/CrackShot.jar")))
 }

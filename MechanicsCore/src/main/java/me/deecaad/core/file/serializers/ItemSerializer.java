@@ -1,5 +1,6 @@
 package me.deecaad.core.file.serializers;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.deecaad.core.MechanicsCore;
@@ -143,10 +144,9 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 return ITEM_REGISTRY.get(registry).get();
 
             // Support for one-liner item serializer
-            Material type = data.of().assertType(String.class).assertExists().getEnum(Material.class);
+            XMaterial type = data.of().assertExists().getMaterial(null);
             if (type != null)
-                return new ItemStack(type);
-
+                return type.parseItem();
         } catch (SerializerTypeException ex) {
             // We only catch **TYPE** exceptions, since when this element is
             // NOT a 1 liner, the type exception will be thrown.
@@ -166,8 +166,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
     public ItemStack serializeWithoutRecipe(@NotNull SerializeData data) throws SerializerException {
 
         // TODO Add byte data support using 'Data:' or 'Extra_Data:' key
-        Material type = data.of("Type").assertExists().getEnum(Material.class);
-        ItemStack itemStack = new ItemStack(type);
+        XMaterial type = data.of("Type").assertExists().getMaterial(null);
+        ItemStack itemStack = type.parseItem();
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null) {

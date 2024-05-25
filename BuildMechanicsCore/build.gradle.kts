@@ -98,5 +98,9 @@ tasks.shadowJar {
         relocate("net.fabricmc", "me.deecaad.core.lib.fabric") {
             include(dependency("net.fabricmc::"))
         }
+
+        relocate("com.cryptomorin.xseries", "me.deecaad.core.lib.xseries") {
+            include(dependency("com.github.cryptomorin:XSeries:"))
+        }
     }
 }
