@@ -2,9 +2,29 @@ package me.deecaad.core.compatibility.entity;
 
 import com.mojang.datafixers.util.Pair;
 import me.deecaad.core.utils.DistanceUtil;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.v1_16_R3.*;
+import net.minecraft.server.v1_16_R3.Block;
+import net.minecraft.server.v1_16_R3.Entity;
+import net.minecraft.server.v1_16_R3.EntityArmorStand;
+import net.minecraft.server.v1_16_R3.EntityFallingBlock;
+import net.minecraft.server.v1_16_R3.EntityFireworks;
+import net.minecraft.server.v1_16_R3.EntityItem;
+import net.minecraft.server.v1_16_R3.EntityLiving;
+import net.minecraft.server.v1_16_R3.EnumItemSlot;
+import net.minecraft.server.v1_16_R3.IBlockData;
+import net.minecraft.server.v1_16_R3.ItemStack;
+import net.minecraft.server.v1_16_R3.Packet;
+import net.minecraft.server.v1_16_R3.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_16_R3.PacketPlayOutEntityEquipment;
+import net.minecraft.server.v1_16_R3.PacketPlayOutEntityHeadRotation;
+import net.minecraft.server.v1_16_R3.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_16_R3.PacketPlayOutEntityStatus;
+import net.minecraft.server.v1_16_R3.PacketPlayOutEntityTeleport;
+import net.minecraft.server.v1_16_R3.PacketPlayOutEntityVelocity;
+import net.minecraft.server.v1_16_R3.PacketPlayOutSpawnEntity;
+import net.minecraft.server.v1_16_R3.PacketPlayOutSpawnEntityLiving;
+import net.minecraft.server.v1_16_R3.PlayerConnection;
+import net.minecraft.server.v1_16_R3.Vec3D;
+import net.minecraft.server.v1_16_R3.Vector3f;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -28,15 +48,6 @@ import static net.minecraft.server.v1_16_R3.PacketPlayOutEntity.PacketPlayOutEnt
 import static net.minecraft.server.v1_16_R3.PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook;
 
 public class FakeEntity_1_16_R3 extends FakeEntity {
-
-    static {
-        if (ReflectionUtil.getMCVersion() != 16) {
-            me.deecaad.core.MechanicsCore.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + FakeEntity_1_16_R3.class + " when not using Minecraft 16",
-                new InternalError());
-        }
-    }
 
     // Store this since using Enum#values() is especially slow
     public static final EnumItemSlot[] SLOTS = EnumItemSlot.values();

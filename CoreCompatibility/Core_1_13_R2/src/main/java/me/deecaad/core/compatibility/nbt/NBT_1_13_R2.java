@@ -1,7 +1,5 @@
 package me.deecaad.core.compatibility.nbt;
 
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import net.minecraft.server.v1_13_R2.NBTBase;
 import net.minecraft.server.v1_13_R2.NBTTagCompound;
@@ -19,17 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-@SuppressWarnings("deprecation")
 public class NBT_1_13_R2 implements NBTCompatibility {
-
-    static {
-        if (ReflectionUtil.getMCVersion() != 13) {
-            me.deecaad.core.MechanicsCore.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + NBT_1_13_R2.class + " when not using Minecraft 13",
-                new InternalError());
-        }
-    }
 
     @Override
     public void copyTagsFromTo(@NotNull ItemStack fromItem, @NotNull ItemStack toItem, @Nullable String path) {

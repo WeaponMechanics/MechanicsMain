@@ -1,13 +1,17 @@
 package me.deecaad.core.file;
 
+import com.cryptomorin.xseries.XEntityType;
+import com.cryptomorin.xseries.XMaterial;
 import me.deecaad.core.mechanics.Registry;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.SerializerUtil;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Keyed;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -930,6 +934,44 @@ public class SerializeData {
 
             // At this point, the list is guaranteed to have exactly 1 element.
             return list.get(0);
+        }
+
+        public @Nullable XMaterial getMaterial(@Nullable XMaterial defaultValue) throws SerializerException {
+            String input = usingStep ? pathToConfig.getString(getPath(relative)) : config.getString(getPath(relative));
+
+            // Use assertExists for required keys
+            if (input == null || input.isBlank())
+                return defaultValue;
+
+            // Wildcards are not allowed for singleton enums, they are only
+            // allowed for lists.
+            input = input.trim();
+            Optional<XMaterial> xmat = XMaterial.matchXMaterial(input);
+            if (input.startsWith("$") || xmat.isEmpty()) {
+                throw new SerializerEnumException(serializer, Material.class, input, false, getLocation())
+                    .addMessage(wikiLink != null, getWikiMessage());
+            }
+
+            return xmat.get();
+        }
+
+        public @Nullable XEntityType getEntityType(@Nullable XEntityType defaultValue) throws SerializerException {
+            String input = usingStep ? pathToConfig.getString(getPath(relative)) : config.getString(getPath(relative));
+
+            // Use assertExists for required keys
+            if (input == null || input.isBlank())
+                return defaultValue;
+
+            // Wildcards are not allowed for singleton enums, they are only
+            // allowed for lists.
+            input = input.trim();
+            XEntityType entityType = XEntityType.of(input);
+            if (input.startsWith("$") || entityType == null) {
+                throw new SerializerEnumException(serializer, EntityType.class, input, false, getLocation())
+                    .addMessage(wikiLink != null, getWikiMessage());
+            }
+
+            return entityType;
         }
 
         @Nullable public <T extends Keyed> T getKeyed(@NotNull org.bukkit.Registry<T> registry) throws SerializerException {

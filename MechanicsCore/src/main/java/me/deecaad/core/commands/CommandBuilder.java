@@ -3,7 +3,7 @@ package me.deecaad.core.commands;
 import me.deecaad.core.commands.arguments.GreedyArgumentType;
 import me.deecaad.core.commands.arguments.LiteralArgumentType;
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.MinecraftVersions;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -125,7 +125,7 @@ public class CommandBuilder implements Cloneable {
         // validations. This is to help developers debug issues.
         this.validate();
 
-        if (ReflectionUtil.getMCVersion() >= 13) {
+        if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
             BrigadierCommand.register(this);
         } else {
             throw new IllegalStateException("oops forgot to add legacy");

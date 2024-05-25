@@ -1,10 +1,14 @@
 package me.deecaad.weaponmechanics.compatibility.scope;
 
 import com.comphenix.protocol.events.PacketEvent;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.weaponmechanics.WeaponMechanics;
-import net.minecraft.server.v1_16_R3.*;
+import net.minecraft.server.v1_16_R3.EntityPlayer;
+import net.minecraft.server.v1_16_R3.MobEffect;
+import net.minecraft.server.v1_16_R3.MobEffectList;
+import net.minecraft.server.v1_16_R3.MobEffects;
+import net.minecraft.server.v1_16_R3.PacketPlayOutAbilities;
+import net.minecraft.server.v1_16_R3.PacketPlayOutEntityEffect;
+import net.minecraft.server.v1_16_R3.PacketPlayOutRemoveEntityEffect;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
@@ -19,13 +23,6 @@ public class Scope_1_16_R3 implements IScopeCompatibility {
         Class<?> effectsPacket = ReflectionUtil.getPacketClass("PacketPlayOutRemoveEntityEffect");
 
         effectsField = ReflectionUtil.getField(effectsPacket, "b");
-
-        if (ReflectionUtil.getMCVersion() != 16) {
-            WeaponMechanics.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + Scope_1_16_R3.class + " when not using Minecraft 16",
-                new InternalError());
-        }
     }
 
     @Override

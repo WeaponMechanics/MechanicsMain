@@ -15,10 +15,21 @@ jobs:
         with:
           fetch-depth: 0 # Ensures we get all branches for comparison
 
+      # We need a working version of Java 21, 17, and 16 to test against.
+      - name: Set up JDK 16
+        uses: actions/setup-java@v3
+        with:
+          java-version: '16'
+          distribution: 'temurin'
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
+          distribution: 'temurin'
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
           distribution: 'temurin'
 
       # devMode removes legacy versions (1.12.2 -> 1.16.5) from the gradle

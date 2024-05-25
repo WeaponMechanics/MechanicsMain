@@ -1,19 +1,30 @@
 package me.deecaad.core.file.serializers;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
-import me.deecaad.core.file.*;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerEnumException;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerOptionsException;
+import me.deecaad.core.file.SerializerRangeException;
+import me.deecaad.core.file.SerializerTypeException;
+import me.deecaad.core.utils.AdventureUtil;
 import me.deecaad.core.utils.AttributeType;
 import me.deecaad.core.utils.EnumUtil;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.core.utils.StringUtil;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
@@ -21,7 +32,13 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.meta.*;
+import org.bukkit.inventory.meta.ArmorMeta;
+import org.bukkit.inventory.meta.BlockDataMeta;
+import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
@@ -29,7 +46,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -43,20 +70,10 @@ public class ItemSerializer implements Serializer<ItemStack> {
     private static Method spigotMethod;
     private static Method setUnbreakable;
 
-    // 1.16+ use adventure in item lore and display name (hex code support)
-    private static Field loreField;
-    private static Field displayField;
-
     private static final Field ingredientsField;
 
     static {
         ingredientsField = ReflectionUtil.getField(ShapedRecipe.class, "ingredients");
-
-        if (ReflectionUtil.getMCVersion() >= 16) {
-            Class<?> c = ReflectionUtil.getCBClass("inventory.CraftMetaItem");
-            loreField = ReflectionUtil.getField(c, "lore");
-            displayField = ReflectionUtil.getField(c, "displayName");
-        }
     }
 
     /**
@@ -127,10 +144,9 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 return ITEM_REGISTRY.get(registry).get();
 
             // Support for one-liner item serializer
-            Material type = data.of().assertType(String.class).assertExists().getEnum(Material.class);
+            XMaterial type = data.of().assertExists().getMaterial(null);
             if (type != null)
-                return new ItemStack(type);
-
+                return type.parseItem();
         } catch (SerializerTypeException ex) {
             // We only catch **TYPE** exceptions, since when this element is
             // NOT a 1 liner, the type exception will be thrown.
@@ -150,8 +166,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
     public ItemStack serializeWithoutRecipe(@NotNull SerializeData data) throws SerializerException {
 
         // TODO Add byte data support using 'Data:' or 'Extra_Data:' key
-        Material type = data.of("Type").assertExists().getEnum(Material.class);
-        ItemStack itemStack = new ItemStack(type);
+        XMaterial type = data.of("Type").assertExists().getMaterial(null);
+        ItemStack itemStack = type.parseItem();
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null) {
@@ -162,37 +178,17 @@ public class ItemSerializer implements Serializer<ItemStack> {
         String name = data.of("Name").getAdventure(null);
         if (name != null) {
             Component component = MechanicsCore.getPlugin().message.deserialize("<!italic>" + name);
-
-            if (ReflectionUtil.getMCVersion() < 16) {
-                String element = LegacyComponentSerializer.legacySection().serialize(component);
-                itemMeta.setDisplayName(element);
-            } else {
-                String display = GsonComponentSerializer.gson().serialize(component);
-                ReflectionUtil.setField(displayField, itemMeta, display);
-            }
+            AdventureUtil.setName(itemMeta, component);
         }
 
         List<?> lore = data.of("Lore").assertType(List.class).get(null);
-        if (lore != null && !lore.isEmpty()) {
-            List<String> temp = new ArrayList<>(lore.size());
-
-            for (Object obj : lore) {
-                Component component = MechanicsCore.getPlugin().message.deserialize("<!italic>" + StringUtil.colorAdventure(obj.toString()));
-                String element = ReflectionUtil.getMCVersion() < 16 ? LegacyComponentSerializer.legacySection().serialize(component) : GsonComponentSerializer.gson().serialize(component);
-                temp.add(element);
-            }
-
-            if (ReflectionUtil.getMCVersion() < 16)
-                itemMeta.setLore(temp);
-            else
-                ReflectionUtil.setField(loreField, itemMeta, temp);
-            // ReflectionUtil.invokeMethod(safelyAdd, null, ReflectionUtil.invokeField(loreField, itemMeta),
-            // temp, true);
+        if (lore != null) {
+            AdventureUtil.setLoreUnparsed(itemMeta, lore);
         }
 
         short durability = (short) data.of("Durability").assertPositive().getInt(-99);
         if (durability != -99) {
-            if (CompatibilityAPI.getVersion() >= 1.132) {
+            if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
                 ((org.bukkit.inventory.meta.Damageable) itemMeta).setDamage(durability);
             } else {
                 itemStack.setDurability(durability);
@@ -200,14 +196,9 @@ public class ItemSerializer implements Serializer<ItemStack> {
         }
 
         boolean unbreakable = data.of("Unbreakable").getBool(false);
-        if (CompatibilityAPI.getVersion() >= 1.11) {
-            itemMeta.setUnbreakable(unbreakable);
-        } else {
-            setupUnbreakable();
-            ReflectionUtil.invokeMethod(setUnbreakable, ReflectionUtil.invokeMethod(spigotMethod, itemMeta), true);
-        }
+        itemMeta.setUnbreakable(unbreakable);
 
-        if (data.has("Custom_Model_Data") && CompatibilityAPI.getVersion() >= 1.14) {
+        if (data.has("Custom_Model_Data") && MinecraftVersions.VILLAGE_AND_PILLAGE.isAtLeast()) {
             itemMeta.setCustomModelData(data.of("Custom_Model_Data").assertExists().getInt());
         }
 
@@ -224,14 +215,17 @@ public class ItemSerializer implements Serializer<ItemStack> {
         if (enchantments != null) {
             for (String[] split : enchantments) {
                 Enchantment enchant;
-                if (CompatibilityAPI.getVersion() < 1.13) {
-                    enchant = Enchantment.getByName(split[0].trim().toLowerCase(Locale.ROOT));
-                } else {
+
+                if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
                     enchant = Enchantment.getByKey(org.bukkit.NamespacedKey.minecraft(split[0].trim().toLowerCase(Locale.ROOT)));
+                } else {
+                    enchant = Enchantment.getByName(split[0].trim().toLowerCase(Locale.ROOT));
                 }
                 if (enchant == null) {
                     throw new SerializerOptionsException("Item", "Enchantment",
-                        Arrays.stream(Enchantment.values()).map(ench -> ReflectionUtil.getMCVersion() < 13 ? ench.getName() : ench.getKey().getKey()).collect(Collectors.toList()),
+                        Arrays.stream(Enchantment.values())
+                            .map(ench -> MinecraftVersions.UPDATE_AQUATIC.isAtLeast() ? ench.getKey().getKey() : ench.getName())
+                            .collect(Collectors.toList()),
                         split[0], data.of("Enchantments").getLocation());
                 }
                 int enchantmentLevel = Integer.parseInt(split[1]);
@@ -297,11 +291,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
                 // Standard player name SkullMeta... "CJCrafter", "DeeCaaD", "Darkman_Bree"
                 else if (uuid != null) {
-                    if (CompatibilityAPI.getVersion() >= 1.12) {
-                        skullMeta.setOwningPlayer(Bukkit.getServer().getOfflinePlayer(uuid));
-                    } else {
-                        skullMeta.setOwner(Bukkit.getServer().getOfflinePlayer(uuid).getName());
-                    }
+                    skullMeta.setOwningPlayer(Bukkit.getServer().getOfflinePlayer(uuid));
                 } else {
                     skullMeta.setOwner(owningPlayer);
                 }
@@ -312,7 +302,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             }
         }
 
-        if (ReflectionUtil.getMCVersion() >= 11 && data.has("Potion_Color")) {
+        if (data.has("Potion_Color")) {
             try {
                 Color color = data.of("Potion_Color").assertExists().serialize(new ColorSerializer()).getColor();
                 PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
@@ -336,7 +326,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             }
         }
 
-        if (ReflectionUtil.getMCVersion() >= 20 && itemStack.getItemMeta() instanceof ArmorMeta armor) {
+        if (MinecraftVersions.TRAILS_AND_TAILS.isAtLeast() && itemStack.getItemMeta() instanceof ArmorMeta armor) {
 
             // If you have one, you NEED both
             boolean hasOneOfPatternOrMaterial = data.has("Trim_Pattern") || data.has("Trim_Material");
@@ -393,7 +383,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         }
 
         if (data.has("Light_Level")) {
-            if (ReflectionUtil.getMCVersion() < 17) {
+            if (!MinecraftVersions.CAVES_AND_CLIFFS_1.isAtLeast()) {
                 throw data.exception("Light_Level", "Tried to use light level before MC 1.17!",
                     "The light block was added in Minecraft version 1.17!");
             }
@@ -428,17 +418,12 @@ public class ItemSerializer implements Serializer<ItemStack> {
         result.setAmount(resultAmount);
 
         // Namespaced keys for recipes were added in MC 1.12
-        ShapedRecipe recipe;
-        if (ReflectionUtil.getMCVersion() < 12) {
-            recipe = new ShapedRecipe(result);
-        } else {
-            recipe = new ShapedRecipe(new NamespacedKey(MechanicsCore.getPlugin(), data.key), result);
+        ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(MechanicsCore.getPlugin(), data.key), result);
 
-            // Bukkit.getRecipe was added in 1.16. We have a try-catch block
-            // below in this method to handle 1.12 through 1.15
-            if (ReflectionUtil.getMCVersion() >= 16 && Bukkit.getRecipe(recipe.getKey()) != null) {
-                return itemStack;
-            }
+        // Bukkit.getRecipe was added in 1.16. We have a try-catch block
+        // below in this method to handle 1.12 through 1.15
+        if (MinecraftVersions.NETHER_UPDATE.isAtLeast() && Bukkit.getRecipe(recipe.getKey()) != null) {
+            return itemStack;
         }
 
         // The Recipe.Shape should be a list looking similar to:
@@ -487,10 +472,10 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
             ItemStack item = data.of("Recipe.Ingredients." + c).assertExists().serialize(new ItemSerializer());
 
-            if (CompatibilityAPI.getVersion() < 1.13)
-                ingredients.put(c, item);
-            else
+            if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast())
                 ingredients.put(c, new RecipeChoice.ExactChoice(item));
+            else
+                ingredients.put(c, item);
         }
 
         // Finalize and register the new recipe.

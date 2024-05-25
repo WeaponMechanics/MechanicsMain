@@ -1,9 +1,6 @@
 package me.deecaad.weaponmechanics.compatibility.scope;
 
 import com.comphenix.protocol.events.PacketEvent;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
@@ -14,15 +11,6 @@ import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
 import org.bukkit.potion.PotionEffectType;
 
 public class Scope_1_18_R2 implements IScopeCompatibility {
-
-    static {
-        if (ReflectionUtil.getMCVersion() != 18) {
-            WeaponMechanics.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + Scope_1_18_R2.class + " when not using Minecraft 18",
-                new InternalError());
-        }
-    }
 
     @Override
     public void updateAbilities(org.bukkit.entity.Player player) {

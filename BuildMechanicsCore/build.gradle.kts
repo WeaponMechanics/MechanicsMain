@@ -1,7 +1,8 @@
 plugins {
     id("me.deecaad.mechanics-project")
-    id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("net.minecrell.plugin-yml.bukkit") version "0.5.1"
+    //id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("io.github.goooler.shadow") version "8.1.7"
+    id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
 }
 
 dependencies {
@@ -30,12 +31,6 @@ dependencies {
         throw IllegalArgumentException("No CoreCompatibility modules found!")
 }
 
-tasks {
-    compileJava {
-        options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything
-        options.release.set(17) // We need to set release compatibility to java 17 since MC 18+ uses it
-    }
-}
 
 // See https://github.com/Minecrell/plugin-yml
 bukkit {
@@ -84,16 +79,28 @@ tasks.shadowJar {
             include(dependency("org.jetbrains.kotlin:"))
         }
 
-        relocate ("net.kyori", "me.deecaad.core.lib") {
+        relocate("net.kyori", "me.deecaad.core.lib") {
             include(dependency("net.kyori::"))
         }
 
-        relocate ("com.zaxxer.hikari", "me.deecaad.core.lib.hikari") {
+        relocate("com.zaxxer.hikari", "me.deecaad.core.lib.hikari") {
             include(dependency("com.zaxxer::"))
         }
 
-        relocate ("org.slf4j", "me.deecaad.core.lib.slf4j") {
+        relocate("org.slf4j", "me.deecaad.core.lib.slf4j") {
             include(dependency("org.slf4j::"))
+        }
+
+        relocate("xyz.jpenilla", "me.deecaad.core.lib.reflection") {
+            include(dependency("xyz.jpenilla::"))
+        }
+
+        relocate("net.fabricmc", "me.deecaad.core.lib.fabric") {
+            include(dependency("net.fabricmc::"))
+        }
+
+        relocate("com.cryptomorin.xseries", "me.deecaad.core.lib.xseries") {
+            include(dependency("com.github.cryptomorin:XSeries:"))
         }
     }
 }

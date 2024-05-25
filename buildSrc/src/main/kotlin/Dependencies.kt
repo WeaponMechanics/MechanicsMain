@@ -1,7 +1,7 @@
 object Versions {
 
     // Spigot + Plugins
-    const val LATEST_SPIGOT_API = "1.20.4-R0.1-SNAPSHOT"
+    const val LATEST_SPIGOT_API = "1.20.6-R0.1-SNAPSHOT"
     const val BSTATS = "3.0.1"
     const val PROTOCOL_LIB = "5.1.0"
     const val PLACEHOLDER_API = "2.11.3"
@@ -10,8 +10,8 @@ object Versions {
     const val VIVECRAFT = "3.0.0"
 
     // Adventure Chat API
-    const val ADVENTURE_API = "4.15.0"
-    const val ADVENTURE_BUKKIT = "4.3.2"
+    const val ADVENTURE_API = "4.17.0"
+    const val ADVENTURE_BUKKIT = "4.3.3-SNAPSHOT"
     const val ADVENTURE_TEXT_LEGACY = ADVENTURE_API
     const val ADVENTURE_TEXT_MINIMESSAGE = ADVENTURE_API
 
@@ -20,6 +20,7 @@ object Versions {
     const val ANNOTATIONS = "24.0.1"
     const val GSON = "2.10.1"
     const val KOTLIN = "1.9.21"
+    const val X_SERIES = "11.0.0-beta"
 }
 
 object Dependencies {
@@ -43,6 +44,7 @@ object Dependencies {
     const val JSON_SIMPLE = "com.googlecode.json-simple:json-simple:${Versions.JSON_SIMPLE}"
     const val ANNOTATIONS = "org.jetbrains:annotations:${Versions.ANNOTATIONS}"
     const val GSON = "com.google.code.gson:gson:${Versions.GSON}"
+    const val X_SERIES = "com.github.cryptomorin:XSeries:${Versions.X_SERIES}"
 }
 
 fun org.gradle.api.artifacts.dsl.DependencyHandler.adventureChatAPI() {

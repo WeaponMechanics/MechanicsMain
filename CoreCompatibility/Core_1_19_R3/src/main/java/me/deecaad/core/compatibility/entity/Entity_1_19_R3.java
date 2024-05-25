@@ -2,10 +2,8 @@ package me.deecaad.core.compatibility.entity;
 
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.equipevent.NonNullList_1_19_R3;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
@@ -28,15 +26,6 @@ import java.util.List;
 
 // https://nms.screamingsandals.org/1.18.1/
 public class Entity_1_19_R3 implements EntityCompatibility {
-
-    static {
-        if (ReflectionUtil.getMCVersion() != 19) {
-            MechanicsCore.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + Entity_1_19_R3.class + " when not using Minecraft 19",
-                new InternalError());
-        }
-    }
 
     public static final Field itemsById = ReflectionUtil.getField(SynchedEntityData.class, Int2ObjectMap.class);
 

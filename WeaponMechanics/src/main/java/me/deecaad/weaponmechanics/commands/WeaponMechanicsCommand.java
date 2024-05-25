@@ -69,6 +69,10 @@ import static org.bukkit.ChatColor.*;
 @SuppressWarnings("unchecked")
 public class WeaponMechanicsCommand {
 
+    private static final EntityType ITEM_ENTITY = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? EntityType.ITEM : EntityType.valueOf("DROPPED_ITEM");
+    private static final EntityType FIREWORK_ENTITY = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? EntityType.FIREWORK_ROCKET : EntityType.valueOf("FIREWORK");
+    private static final Particle DUST_PARTICLE = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? Particle.DUST : Particle.valueOf("REDSTONE");
+
     public static String WIKI = "https://cjcrafter.gitbook.io/weaponmechanics/";
     public static char SYM = '\u27A2';
 
@@ -798,7 +802,7 @@ public class WeaponMechanicsCommand {
     }
 
     public static void spawn(Player player, Location location, EntityType type, String moveType, int time, boolean gravity, String name) {
-        FakeEntity entity = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, type, type == EntityType.DROPPED_ITEM ? new ItemStack(Material.STONE_AXE) : null);
+        FakeEntity entity = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, type, type == ITEM_ENTITY ? new ItemStack(Material.STONE_AXE) : null);
         entity.setGravity(gravity);
         entity.setDisplay(name);
         entity.show(player);
@@ -923,16 +927,16 @@ public class WeaponMechanicsCommand {
                         for (double z = box.getMinZ(); z <= box.getMaxZ(); z += 0.25) {
 
                             if (head > 0.0) {
-                                entity.getWorld().spawnParticle(Particle.REDSTONE, x, headY, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.RED, 1.0f), true);
+                                entity.getWorld().spawnParticle(DUST_PARTICLE, x, headY, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.RED, 1.0f), true);
                             }
                             if (body > 0.0) {
-                                entity.getWorld().spawnParticle(Particle.REDSTONE, x, bodyY, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.ORANGE, 1.0f), true);
+                                entity.getWorld().spawnParticle(DUST_PARTICLE, x, bodyY, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.ORANGE, 1.0f), true);
                             }
                             if (legs > 0.0) {
-                                entity.getWorld().spawnParticle(Particle.REDSTONE, x, legsY, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.YELLOW, 1.0f), true);
+                                entity.getWorld().spawnParticle(DUST_PARTICLE, x, legsY, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.YELLOW, 1.0f), true);
                             }
                             if (feet > 0.0) {
-                                entity.getWorld().spawnParticle(Particle.REDSTONE, x, feetY, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.GREEN, 1.0f), true);
+                                entity.getWorld().spawnParticle(DUST_PARTICLE, x, feetY, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.GREEN, 1.0f), true);
                             }
                         }
                     }
@@ -961,7 +965,7 @@ public class WeaponMechanicsCommand {
 
         Random random = new Random();
 
-        FakeEntity fakeEntity = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, EntityType.FIREWORK, itemStack);
+        FakeEntity fakeEntity = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, FIREWORK_ENTITY, itemStack);
         fakeEntity.setMotion(random.nextGaussian() * 0.001, 0.3, random.nextGaussian() * 0.001);
         fakeEntity.show();
         if (time == 0) {

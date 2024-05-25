@@ -18,14 +18,14 @@ import java.util.UUID;
  */
 public enum AttributeType {
 
-    GENERIC_MOVEMENT_SPEED(new UUID(2872L, 894653L), ReflectionUtil.getMCVersion() < 16 ? "generic.movementSpeed" : "generic.movement_speed"),
-    GENERIC_MAX_HEALTH(new UUID(2872L, 894652L), ReflectionUtil.getMCVersion() < 16 ? "generic.maxHealth" : "generic.max_health"),
-    GENERIC_ATTACK_DAMAGE(new UUID(2872L, 894651L), ReflectionUtil.getMCVersion() < 16
+    GENERIC_MOVEMENT_SPEED(new UUID(2872L, 894653L), !MinecraftVersions.NETHER_UPDATE.isAtLeast() ? "generic.movementSpeed" : "generic.movement_speed"),
+    GENERIC_MAX_HEALTH(new UUID(2872L, 894652L), !MinecraftVersions.NETHER_UPDATE.isAtLeast() ? "generic.maxHealth" : "generic.max_health"),
+    GENERIC_ATTACK_DAMAGE(new UUID(2872L, 894651L), !MinecraftVersions.NETHER_UPDATE.isAtLeast()
         ? "generic.attackDamage"
         : "generic.attack_damage"),
-    GENERIC_ATTACK_SPEED(new UUID(2872L, 894650L), ReflectionUtil.getMCVersion() < 16 ? "generic.attackSpeed" : "generic.attack_speed"),
-    GENERIC_ARMOR_TOUGHNESS(new UUID(2872L, 894649L), ReflectionUtil.getMCVersion() < 16 ? "generic.armorToughness" : "generic.armor_toughness"),
-    GENERIC_KNOCKBACK_RESISTANCE(new UUID(2872L, 894648L), ReflectionUtil.getMCVersion() < 16 ? "generic.knockbackResistance" : "generic.knockback_resistance"),
+    GENERIC_ATTACK_SPEED(new UUID(2872L, 894650L), !MinecraftVersions.NETHER_UPDATE.isAtLeast() ? "generic.attackSpeed" : "generic.attack_speed"),
+    GENERIC_ARMOR_TOUGHNESS(new UUID(2872L, 894649L), !MinecraftVersions.NETHER_UPDATE.isAtLeast() ? "generic.armorToughness" : "generic.armor_toughness"),
+    GENERIC_KNOCKBACK_RESISTANCE(new UUID(2872L, 894648L), !MinecraftVersions.NETHER_UPDATE.isAtLeast() ? "generic.knockbackResistance" : "generic.knockback_resistance"),
     GENERIC_ARMOR(new UUID(2872L, 894647L), "generic.armor");
 
     private final UUID uuid;

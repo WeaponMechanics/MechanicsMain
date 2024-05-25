@@ -134,7 +134,7 @@ public final class FileUtil {
         ensureFile(resource, file);
 
         // Spigot added their comment configuration stuff in 1.18
-        if (ReflectionUtil.getMCVersion() < 18)
+        if (!MinecraftVersions.CAVES_AND_CLIFFS_2.isAtLeast())
             return;
 
         YamlConfiguration from;

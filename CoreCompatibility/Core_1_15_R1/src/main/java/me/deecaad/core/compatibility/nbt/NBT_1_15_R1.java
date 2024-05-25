@@ -1,7 +1,5 @@
 package me.deecaad.core.compatibility.nbt;
 
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import net.minecraft.server.v1_15_R1.NBTBase;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
@@ -16,15 +14,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class NBT_1_15_R1 extends NBT_Persistent {
-
-    static {
-        if (ReflectionUtil.getMCVersion() != 15) {
-            me.deecaad.core.MechanicsCore.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + NBT_1_15_R1.class + " when not using Minecraft 15",
-                new InternalError());
-        }
-    }
 
     @Override
     public void copyTagsFromTo(@NotNull ItemStack fromItem, @NotNull ItemStack toItem, @Nullable String path) {

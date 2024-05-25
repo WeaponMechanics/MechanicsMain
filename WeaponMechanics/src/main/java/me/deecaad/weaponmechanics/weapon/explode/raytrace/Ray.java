@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon.explode.raytrace;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.block.BlockCompatibility;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.*;
@@ -19,6 +20,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 public class Ray {
+
+    private static final Particle DUST_PARTICLE = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? Particle.DUST : Particle.valueOf("REDSTONE");
 
     /**
      * This buffer is used to make sure that we get entities with large hit-boxes in other chunks.
@@ -229,7 +232,7 @@ public class Ray {
                 }
 
                 assert world != null;
-                world.spawnParticle(Particle.REDSTONE, point.getX(), point.getY(), point.getZ(), 1, 0, 0, 0, 0, color, true);
+                world.spawnParticle(DUST_PARTICLE, point.getX(), point.getY(), point.getZ(), 1, 0, 0, 0, 0, color, true);
             }
         }.runTaskTimer(WeaponMechanics.getPlugin(), 0, 2);
     }

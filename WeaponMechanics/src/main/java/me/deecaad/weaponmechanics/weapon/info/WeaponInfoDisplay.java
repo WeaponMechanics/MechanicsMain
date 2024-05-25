@@ -7,6 +7,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderMessage;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
@@ -35,7 +36,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     private static Constructor<?> packetPlayOutExperienceConstructor;
 
     static {
-        if (CompatibilityAPI.getVersion() < 1.15) {
+        if (!MinecraftVersions.BUZZY_BEES.isAtLeast()) {
             packetPlayOutExperienceConstructor = ReflectionUtil.getConstructor(ReflectionUtil.getPacketClass("PacketPlayOutExperience"), float.class, int.class, int.class);
         }
     }
@@ -243,7 +244,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
             if (lastExpTask != 0)
                 Bukkit.getServer().getScheduler().cancelTask(lastExpTask);
 
-            if (CompatibilityAPI.getVersion() < 1.15) {
+            if (!MinecraftVersions.BUZZY_BEES.isAtLeast()) {
                 CompatibilityAPI.getCompatibility().sendPackets(player,
                     ReflectionUtil.newInstance(packetPlayOutExperienceConstructor, showAmmoInExpProgress
                         ? (float) (magazineProgress != -1 ? magazineProgress : getMagazineProgress(useStack, useWeapon))

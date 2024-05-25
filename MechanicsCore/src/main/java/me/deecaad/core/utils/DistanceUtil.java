@@ -44,7 +44,7 @@ public final class DistanceUtil {
     public static int getRange(@NotNull World world) {
 
         // world.getRange() only exists in 1.14+
-        if (ReflectionUtil.getMCVersion() < 14)
+        if (!MinecraftVersions.VILLAGE_AND_PILLAGE.isAtLeast())
             return getRange();
 
         try {

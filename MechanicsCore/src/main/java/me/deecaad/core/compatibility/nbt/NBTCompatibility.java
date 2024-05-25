@@ -441,7 +441,8 @@ public interface NBTCompatibility {
         FEET(5),
         LEGS(4),
         CHEST(3),
-        HEAD(2);
+        HEAD(2),
+        BODY(7);
 
         private final EquipmentSlot slot;
         private final String slotName;

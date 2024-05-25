@@ -6,6 +6,7 @@ plugins {
 repositories {
     mavenCentral()
     maven(url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/") // Spigot API
+    maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots/") // Adventure Snapshots
     maven(url = "https://libraries.minecraft.net/") // Brigadier, GameProfile
     maven(url = "https://repo.extendedclip.com/content/repositories/placeholderapi/") // PlaceholderAPI
     maven(url = "https://jitpack.io") // Vault
@@ -20,7 +21,7 @@ dependencies {
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 tasks {

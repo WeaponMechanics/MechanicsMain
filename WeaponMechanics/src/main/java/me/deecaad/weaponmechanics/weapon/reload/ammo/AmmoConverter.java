@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.weaponmechanics.weapon.info.WeaponConverter;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,7 +40,7 @@ public class AmmoConverter extends WeaponConverter {
                 "If you want to remove the ammo conversion feature, remove the 'Ammo_Converter_Check' option from config");
         }
 
-        if (cmd && ReflectionUtil.getMCVersion() < 14) {
+        if (cmd && !MinecraftVersions.VILLAGE_AND_PILLAGE.isAtLeast()) {
             throw data.exception("Custom_Model_Data", "Custom_Model_Data is only available for 1.14+");
         }
 
