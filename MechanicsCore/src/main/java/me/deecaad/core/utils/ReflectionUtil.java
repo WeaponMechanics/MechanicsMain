@@ -48,7 +48,8 @@ public final class ReflectionUtil {
         nmsVersion = "net.minecraft.server." + versionString + '.';
 
         // In 1.20.6+ paper servers, the CraftBukkit package has been remapped
-        if (CompatibilityAPI.isPaper() && MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+        boolean isPaper = Bukkit.getServer() != null && CompatibilityAPI.isPaper();
+        if (isPaper && MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
             cbVersion = "org.bukkit.craftbukkit.";
         } else {
             cbVersion = "org.bukkit.craftbukkit." + versionString + '.';
