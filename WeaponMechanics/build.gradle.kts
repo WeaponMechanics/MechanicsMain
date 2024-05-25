@@ -9,6 +9,7 @@ repositories {
     mavenCentral()
     maven(url = "https://mvn.lumine.io/repository/maven-public/")
     maven(url = "https://repo.jeff-media.com/public/")
+    maven(url = "https://repo.opencollab.dev/main/")
 }
 
 dependencies {
@@ -25,6 +26,7 @@ dependencies {
     compileOnly(Dependencies.VIVECRAFT)
     compileOnly(files(file("../lib/crackshot/CrackShotPlus.jar")))
     compileOnly(files(file("../lib/crackshot/CrackShot.jar")))
+    compileOnly("org.geysermc.floodgate:api:2.2.2-SNAPSHOT")
 }
 
 // Create javadocJar and sourcesJar tasks

@@ -22,6 +22,7 @@ import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.*;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
+import me.deecaad.weaponmechanics.lib.BedrockPlayerUtils;
 import me.deecaad.weaponmechanics.lib.MythicMobsLoader;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
 import me.deecaad.weaponmechanics.listeners.RepairItemListener;
@@ -85,6 +86,7 @@ public class WeaponMechanics {
     ProtocolManager protocolManager;
     Metrics metrics;
     Database database;
+    public static BedrockPlayerUtils bedrockPlayerUtils;
 
     // public so people can import a static variable
     public static Debugger debug;
@@ -148,6 +150,7 @@ public class WeaponMechanics {
         long millisCurrent = System.currentTimeMillis();
 
         plugin = this;
+        bedrockPlayerUtils = new BedrockPlayerUtils();
         entityWrappers = new HashMap<>();
 
         writeFiles();
@@ -729,4 +732,6 @@ public class WeaponMechanics {
     @Nullable public static Database getDatabase() {
         return plugin.database;
     }
+
+    public static BedrockPlayerUtils getBedrockPlayerUtils() { return bedrockPlayerUtils; }
 }

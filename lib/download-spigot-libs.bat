@@ -18,7 +18,7 @@ IF NOT EXIST "../%1" (
     mkdir "../%1"
 )
 cd "../%1"
-java -jar ../BuildTools/BuildTools.jar --rev %2 --output-dir ../../nms
+java -jar BuildTools/BuildTools.jar --rev %2 --output-dir ../../nms
 goto :eof
 
 :: Call the buildVersion subroutine with the version directory and version number as arguments
@@ -26,4 +26,4 @@ call :buildVersion "1_12_R1" "1.12.2"
 call :buildVersion "1_13_R2" "1.13.2"
 call :buildVersion "1_14_R1" "1.14.4"
 call :buildVersion "1_15_R1" "1.15.2"
-call :buildVersion "1_16_R3" "1.16.5"
+call :buildVersion "1_16_R3" "1.16.5"´
