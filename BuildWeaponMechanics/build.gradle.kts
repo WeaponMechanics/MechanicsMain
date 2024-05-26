@@ -100,5 +100,4 @@ tasks.shadowJar {
     // to the mechanics core lib.
     relocate("net.kyori", "me.deecaad.core.lib")
     relocate("kotlin.", "me.deecaad.weaponmechanics.lib.kotlin.")
-    relocate("com.cryptomorin.xseries", "me.deecaad.core.lib.xseries")
 }

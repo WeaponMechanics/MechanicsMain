@@ -240,7 +240,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
         if (!isInvisible) {
 
             try {
-                projectileType = data.of("Type").assertExists().getEntityType(null).get();
+                projectileType = data.of("Type").assertExists().getEntityType(null);
             } catch (SerializerException ex) {
                 // People often define a material instead of an entity type, like "iron_nugget".
                 // So this checks if the type is a material

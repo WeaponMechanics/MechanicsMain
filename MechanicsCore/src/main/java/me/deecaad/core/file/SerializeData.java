@@ -2,6 +2,7 @@ package me.deecaad.core.file;
 
 import com.cryptomorin.xseries.XEntityType;
 import com.cryptomorin.xseries.XMaterial;
+import com.cryptomorin.xseries.particles.XParticle;
 import me.deecaad.core.mechanics.Registry;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -10,8 +11,10 @@ import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Keyed;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -936,6 +939,13 @@ public class SerializeData {
             return list.get(0);
         }
 
+        /**
+         * Uses {@link XMaterial} to parse the material from the string.
+         *
+         * @param defaultValue The default value to return when the key is not defined.
+         * @return The material from config, or defaultValue.
+         * @throws SerializerException If the user defined an invalid material.
+         */
         public @Nullable XMaterial getMaterial(@Nullable XMaterial defaultValue) throws SerializerException {
             String input = usingStep ? pathToConfig.getString(getPath(relative)) : config.getString(getPath(relative));
 
@@ -947,7 +957,7 @@ public class SerializeData {
             // allowed for lists.
             input = input.trim();
             Optional<XMaterial> xmat = XMaterial.matchXMaterial(input);
-            if (input.startsWith("$") || xmat.isEmpty()) {
+            if (xmat.isEmpty()) {
                 throw new SerializerEnumException(serializer, Material.class, input, false, getLocation())
                     .addMessage(wikiLink != null, getWikiMessage());
             }
@@ -955,7 +965,30 @@ public class SerializeData {
             return xmat.get();
         }
 
-        public @Nullable XEntityType getEntityType(@Nullable XEntityType defaultValue) throws SerializerException {
+        /**
+         * Wraps {@link #getMaterial(XMaterial)} and returns the material as an {@link ItemStack},
+         * so you don't have to depend on XSeries and relocate it.
+         *
+         * @param defaultValue The default value to return when the key is not defined.
+         * @return The material as an item, or defaultValue.
+         * @throws SerializerException If the user defined an invalid material.
+         */
+        public @Nullable ItemStack getMaterialAsItem(@Nullable ItemStack defaultValue) throws SerializerException {
+            XMaterial xmat = getMaterial(null);
+            if (xmat == null)
+                return defaultValue;
+
+            return xmat.parseItem();
+        }
+
+        /**
+         * Uses {@link XEntityType} to parse the {@link EntityType}.
+         *
+         * @param defaultValue The default value to return when the key is not defined.
+         * @return The entity type from config, or defaultValue.
+         * @throws SerializerException If the user defined an invalid entity type.
+         */
+        public @Nullable EntityType getEntityType(@Nullable EntityType defaultValue) throws SerializerException {
             String input = usingStep ? pathToConfig.getString(getPath(relative)) : config.getString(getPath(relative));
 
             // Use assertExists for required keys
@@ -966,12 +999,31 @@ public class SerializeData {
             // allowed for lists.
             input = input.trim();
             XEntityType entityType = XEntityType.of(input);
-            if (input.startsWith("$") || entityType == null) {
+            if (entityType == null) {
                 throw new SerializerEnumException(serializer, EntityType.class, input, false, getLocation())
                     .addMessage(wikiLink != null, getWikiMessage());
             }
 
-            return entityType;
+            return entityType.get();
+        }
+
+        public @Nullable Particle getParticle(@Nullable Particle defaultValue) throws SerializerException {
+            String input = usingStep ? pathToConfig.getString(getPath(relative)) : config.getString(getPath(relative));
+
+            // Use assertExists for required keys
+            if (input == null || input.isBlank())
+                return defaultValue;
+
+            // Wildcards are not allowed for singleton enums, they are only
+            // allowed for lists.
+            input = input.trim();
+            XParticle particle = XParticle.of(input);
+            if (particle == null) {
+                throw new SerializerEnumException(serializer, Particle.class, input, false, getLocation())
+                    .addMessage(wikiLink != null, getWikiMessage());
+            }
+
+            return particle.get();
         }
 
         @Nullable public <T extends Keyed> T getKeyed(@NotNull org.bukkit.Registry<T> registry) throws SerializerException {
