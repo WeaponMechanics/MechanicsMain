@@ -20,7 +20,7 @@ object Versions {
     const val ANNOTATIONS = "24.0.1"
     const val GSON = "2.10.1"
     const val KOTLIN = "1.9.21"
-    const val X_SERIES = "11.0.0-beta"
+    const val X_SERIES = "11.0.0"
 }
 
 object Dependencies {
