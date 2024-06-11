@@ -141,9 +141,7 @@ public final class AdventureUtil {
     }
 
     @Nullable public static List<Component> getLore(@NotNull ItemMeta meta) {
-        boolean useLegacy = !MinecraftVersions.NETHER_UPDATE.isAtLeast(); // before 1.16, hex was not supported by MC
-
-        List<String> lore = useLegacy
+        List<?> lore = !MinecraftVersions.NETHER_UPDATE.isAtLeast()
             ? meta.getLore()
             : (List<String>) ReflectionUtil.invokeField(loreField, meta);
 
@@ -151,11 +149,15 @@ public final class AdventureUtil {
             return null;
 
         List<Component> components = new ArrayList<>(lore.size());
-        for (String line : lore) {
-            Component component = useLegacy
-                ? LegacyComponentSerializer.legacySection().deserialize(line)
-                : GsonComponentSerializer.gson().deserialize(line);
-            components.add(component);
+        for (Object line : lore) {
+            if (MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+                String json = (String) ReflectionUtil.invokeMethod(toJsonMethod, null, line);
+                components.add(GsonComponentSerializer.gson().deserialize(json));
+            } else if (MinecraftVersions.NETHER_UPDATE.isAtLeast()) {
+                components.add(GsonComponentSerializer.gson().deserialize((String) line));
+            } else {
+                components.add(LegacyComponentSerializer.legacySection().deserialize((String) line));
+            }
         }
 
         return components;

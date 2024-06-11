@@ -1,8 +1,7 @@
 package me.deecaad.core.file.serializers;
 
 import com.cryptomorin.xseries.XMaterial;
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
+import com.cryptomorin.xseries.XSkull;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
@@ -45,9 +44,7 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -63,12 +60,6 @@ import java.util.stream.Collectors;
 public class ItemSerializer implements Serializer<ItemStack> {
 
     public static final Map<String, Supplier<ItemStack>> ITEM_REGISTRY = new HashMap<>();
-
-    /**
-     * Reflection support for versions before 1.11 when setting unbreakable tag
-     */
-    private static Method spigotMethod;
-    private static Method setUnbreakable;
 
     private static final Field ingredientsField;
 
@@ -281,12 +272,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 // https://textures.minecraft.net/texture/a0564817fcc8dd51bc1957c0b7ea142db687dd6f1caafd35bb4dcfee592421c"
                 // https://www.spigotmc.org/threads/create-a-skull-item-stack-with-a-custom-texture-base64.82416/
                 if (uuid != null && url != null) {
-                    GameProfile dummy = new GameProfile(uuid, "ArmorMechanicsSkull");
-                    byte[] encoded = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
-                    dummy.getProperties().put("textures", new Property("textures", new String(encoded)));
-
-                    Field field = ReflectionUtil.getField(skullMeta.getClass(), GameProfile.class);
-                    ReflectionUtil.setField(field, skullMeta, dummy);
+                    XSkull.of(itemMeta).profile(XSkull.SkullInputType.UUID, id).apply();
+                    XSkull.of(itemMeta).profile(XSkull.SkullInputType.TEXTURE_URL, url).apply();
                 }
 
                 // Standard player name SkullMeta... "CJCrafter", "DeeCaaD", "Darkman_Bree"
@@ -488,25 +475,5 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 throw ex;
         }
         return itemStack;
-    }
-
-    /**
-     * Fills the required channel methods, fields and constructors.
-     */
-    private void setupUnbreakable() {
-        if (spigotMethod == null) {
-            try {
-                spigotMethod = ReflectionUtil.getMethod(Class.forName("org.bukkit.inventory.meta.ItemMeta"), "spigot");
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-        if (setUnbreakable == null) {
-            try {
-                setUnbreakable = ReflectionUtil.getMethod(Class.forName("org.bukkit.inventory.meta.ItemMeta$Spigot"), "setUnbreakable", boolean.class);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }
