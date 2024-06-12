@@ -103,5 +103,10 @@ tasks.shadowJar {
         relocate("com.cryptomorin.xseries", "me.deecaad.core.lib.xseries") {
             include(dependency("com.github.cryptomorin:XSeries:"))
         }
+
+        relocate("com.tcoded.folialib", "me.deecaad.core.lib.folialib") {
+            include(dependency("com.tcoded::"))
+
+        }
     }
 }

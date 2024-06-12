@@ -1,5 +1,7 @@
 package me.deecaad.core;
 
+import com.tcoded.folialib.FoliaLib;
+import com.tcoded.folialib.impl.ServerImplementation;
 import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.events.triggers.EquipListener;
 import me.deecaad.core.file.JarSearcher;
@@ -30,6 +32,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,10 +46,12 @@ public class MechanicsCore extends JavaPlugin {
 
     public BukkitAudiences adventure;
     public MiniMessage message;
+    public FoliaLib foliaScheduler;
     private boolean registeredMechanics;
 
     public void onLoad() {
         instance = this;
+        foliaScheduler = new FoliaLib(this);
 
         int level = getConfig().getInt("Debug_Level");
         boolean printTraces = getConfig().getBoolean("Print_Traces");
@@ -138,10 +143,13 @@ public class MechanicsCore extends JavaPlugin {
 
     public void onDisable() {
         HandlerList.unregisterAll(this);
-        Bukkit.getServer().getScheduler().cancelTasks(this);
         debug = null;
         adventure.close();
         adventure = null;
+    }
+
+    public @NotNull ServerImplementation getFoliaScheduler() {
+        return foliaScheduler.getImpl();
     }
 
     /**

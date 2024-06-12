@@ -25,10 +25,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -117,12 +120,7 @@ public class EquipListener implements Listener {
 
             // Register, then unregister in 1 tick
             Bukkit.getPluginManager().registerEvents(listener, MechanicsCore.getPlugin());
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    HandlerList.unregisterAll(listener);
-                }
-            }.runTask(MechanicsCore.getPlugin());
+            MechanicsCore.getPlugin().getFoliaScheduler().runNextTick((ignore) -> HandlerList.unregisterAll(listener));
         }
     }
 
