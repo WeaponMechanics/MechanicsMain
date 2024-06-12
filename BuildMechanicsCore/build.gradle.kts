@@ -40,6 +40,7 @@ bukkit {
     name = "MechanicsCore" // Since we don't want to use "BuildMechanicsCore"
     version = mechanicsCoreVersion
     apiVersion = "1.13"
+    foliaSupported = true
 
     load = net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder.STARTUP
     authors = listOf("DeeCaaD", "CJCrafter")
