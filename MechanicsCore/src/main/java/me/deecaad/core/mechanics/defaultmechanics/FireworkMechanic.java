@@ -26,7 +26,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -230,12 +229,10 @@ public class FireworkMechanic extends PlayerEffectMechanic {
         }
 
         // Schedule a task to explode the firework later.
-        new BukkitRunnable() {
-            public void run() {
-                fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
-                fakeEntity.remove();
-            }
-        }.runTaskLater(MechanicsCore.getPlugin(), flightTime);
+        MechanicsCore.getPlugin().getFoliaScheduler().runNextTick((ignore) -> {
+            fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
+            fakeEntity.remove();
+        });
     }
 
     @Override
