@@ -214,7 +214,8 @@ public class FireworkMechanic extends PlayerEffectMechanic {
     @Override
     public void playFor(CastData cast, List<Player> viewers) {
 
-        FakeEntity fakeEntity = CompatibilityAPI.getCompatibility().getEntityCompatibility().generateFakeEntity(cast.getTargetLocation(), FIREWORK_ENTITY, fireworkItem);
+        Location targetLoc = cast.getTargetLocation();
+        FakeEntity fakeEntity = CompatibilityAPI.getCompatibility().getEntityCompatibility().generateFakeEntity(targetLoc, FIREWORK_ENTITY, fireworkItem);
         if (flightTime > 1)
             fakeEntity.setMotion(0.001, 0.3, -0.001);
 
@@ -229,7 +230,7 @@ public class FireworkMechanic extends PlayerEffectMechanic {
         }
 
         // Schedule a task to explode the firework later.
-        MechanicsCore.getPlugin().getFoliaScheduler().runNextTick((ignore) -> {
+        MechanicsCore.getPlugin().getFoliaScheduler().runAtLocation(targetLoc, (ignore) -> {
             fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
             fakeEntity.remove();
         });
