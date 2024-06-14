@@ -1,10 +1,12 @@
 package me.deecaad.core.utils;
 
+import com.tcoded.folialib.FoliaLib;
+import com.tcoded.folialib.impl.ServerImplementation;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Logger;
 
@@ -28,7 +30,6 @@ public class Debugger {
     public String msg = "MechanicsPlugin had %s error(s) in console.";
     public String permission = "mechanicscore.errorlog";
     public long updateTime = 300L;
-    private final BukkitRunnable warningTask;
     private boolean hasStarted;
 
     public Debugger(Logger logger, int level) {
@@ -39,28 +40,6 @@ public class Debugger {
         this.logger = logger;
         this.level = level;
         this.isPrintTraces = isPrintTraces;
-
-        warningTask = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (errors > 0) {
-                    boolean alertedPlayer = false;
-
-                    for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-                        if (!player.hasPermission(permission)) {
-                            continue;
-                        }
-
-                        alertedPlayer = true;
-                        player.sendMessage(ChatColor.RED + String.format(msg, errors));
-                    }
-
-                    if (alertedPlayer) {
-                        errors = 0;
-                    }
-                }
-            }
-        };
     }
 
     /**
@@ -234,11 +213,37 @@ public class Debugger {
      *
      * @param plugin The plugin to schedule the task.
      */
+    @Deprecated
     public synchronized void start(Plugin plugin) {
         if (hasStarted)
             return;
 
-        warningTask.runTaskTimerAsynchronously(plugin, 10L, updateTime);
+        FoliaLib foliaLib = new FoliaLib((JavaPlugin) plugin);
+        start(foliaLib.getImpl());
+    }
+
+    public synchronized void start(ServerImplementation impl) {
+        if (hasStarted)
+            return;
+
+        impl.runTimerAsync(() -> {
+            if (errors > 0) {
+                boolean alertedPlayer = false;
+
+                for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+                    if (!player.hasPermission(permission)) {
+                        continue;
+                    }
+
+                    alertedPlayer = true;
+                    player.sendMessage(ChatColor.RED + String.format(msg, errors));
+                }
+
+                if (alertedPlayer) {
+                    errors = 0;
+                }
+            }
+        }, 10L, updateTime);
 
         hasStarted = true;
     }
