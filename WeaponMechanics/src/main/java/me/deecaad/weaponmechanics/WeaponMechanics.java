@@ -5,6 +5,8 @@ import com.comphenix.protocol.ProtocolManager;
 import com.jeff_media.updatechecker.UpdateCheckSource;
 import com.jeff_media.updatechecker.UpdateChecker;
 import com.jeff_media.updatechecker.UserAgentBuilder;
+import com.tcoded.folialib.FoliaLib;
+import com.tcoded.folialib.impl.ServerImplementation;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.compatibility.CompatibilityAPI;
@@ -85,6 +87,7 @@ public class WeaponMechanics {
     ProtocolManager protocolManager;
     Metrics metrics;
     Database database;
+    FoliaLib foliaScheduler;
 
     // public so people can import a static variable
     public static Debugger debug;
@@ -597,6 +600,10 @@ public class WeaponMechanics {
         projectilesRunnable = null;
         plugin = null;
         debug = null;
+    }
+
+    public ServerImplementation getFoliaScheduler() {
+        return foliaScheduler.getImpl();
     }
 
     /**

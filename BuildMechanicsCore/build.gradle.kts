@@ -106,7 +106,6 @@ tasks.shadowJar {
 
         relocate("com.tcoded.folialib", "me.deecaad.core.lib.folialib") {
             include(dependency("com.tcoded::"))
-
         }
     }
 }
