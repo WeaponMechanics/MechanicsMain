@@ -236,7 +236,6 @@ public class Ray {
                     task.cancel();
                 }
 
-                assert world != null;
                 world.spawnParticle(DUST_PARTICLE, point.getX(), point.getY(), point.getZ(), 1, 0, 0, 0, 0, color, true);
             }
         }, 0L, 2L);
