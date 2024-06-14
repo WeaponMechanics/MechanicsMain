@@ -371,12 +371,12 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
             // First try to get by key. If that fails, get by name. If that fails, send error
             Enchantment enchantment = null;
-            if (MinecraftVersions.WILD_UPDATE.isAtLeast())
+            if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast())
                 enchantment = Enchantment.getByKey(NamespacedKey.minecraft(split[0].toLowerCase(Locale.ROOT)));
             if (enchantment == null)
                 enchantment = Enchantment.getByName(split[0].toUpperCase(Locale.ROOT));
             if (enchantment == null) {
-                Iterable<String> options = Arrays.stream(Enchantment.values()).map(ench -> MinecraftVersions.WILD_UPDATE.isAtLeast() ? ench.getKey().getKey() : ench.getName()).toList();
+                Iterable<String> options = Arrays.stream(Enchantment.values()).map(ench -> MinecraftVersions.UPDATE_AQUATIC.isAtLeast() ? ench.getKey().getKey() : ench.getName()).toList();
                 throw new SerializerOptionsException(this, "Enchantment", options, split[0], data.ofList("Enchantments").getLocation(i));
             }
 
