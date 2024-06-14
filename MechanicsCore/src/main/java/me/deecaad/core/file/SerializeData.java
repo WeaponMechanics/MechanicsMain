@@ -966,8 +966,8 @@ public class SerializeData {
         }
 
         /**
-         * Wraps {@link #getMaterial(XMaterial)} and returns the material as an {@link ItemStack},
-         * so you don't have to depend on XSeries and relocate it.
+         * Wraps {@link #getMaterial(XMaterial)} and returns the material as an {@link ItemStack}, so you
+         * don't have to depend on XSeries and relocate it.
          *
          * @param defaultValue The default value to return when the key is not defined.
          * @return The material as an item, or defaultValue.

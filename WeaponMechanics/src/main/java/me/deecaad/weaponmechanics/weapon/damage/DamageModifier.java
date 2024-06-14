@@ -33,8 +33,8 @@ import java.util.Map;
 /**
  * A class that holds all the damage modifiers that can be applied to a victim. This includes armor
  * modifiers, damage point modifiers, movement modifiers, and more. Each modifier is a percentage
- * that is added to the damage dealt to the victim. The final damage is clamped between {@link
- * #getMin()} and {@link #getMax()}.
+ * that is added to the damage dealt to the victim. The final damage is clamped between
+ * {@link #getMin()} and {@link #getMax()}.
  */
 public class DamageModifier implements Serializer<DamageModifier> {
 
