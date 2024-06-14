@@ -24,7 +24,7 @@ See the [Weapon Modules](https://cjcrafter.gitbook.io/weaponmechanics/weapon-mod
 
 ## How to (Developers)
 See [Hooking into WeaponMechanics](https://cjcrafter.gitbook.io/weaponmechanics/developer-api) for detailed API information.
-See [Contributing]() for information on how to contribute to the project.
+See [Contributing](https://github.com/weaponmechanics/mechanicsmain/contribute) for information on how to contribute to the project.
 
 ### Maven
 WeaponMechanics is available on [Maven Central](https://central.sonatype.com/artifact/com.cjcrafter/weaponmechanics). 
@@ -34,7 +34,7 @@ To use it, add the following to your `pom.xml`:
     <dependency>
         <groupId>com.cjcrafter</groupId>
         <artifactId>weaponmechanics</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.1</version>
         <scope>provided</scope>
     </dependency>
 </dependencies>
@@ -48,7 +48,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.cjcrafter:weaponmechanics:3.3.0")
+    implementation("com.cjcrafter:weaponmechanics:3.4.1")
 }
 ```
 
