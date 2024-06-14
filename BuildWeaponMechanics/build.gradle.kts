@@ -31,13 +31,6 @@ dependencies {
         throw IllegalArgumentException("No WeaponCompatibility modules found!")
 }
 
-//tasks {
-//    compileJava {
-//        options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything
-//        options.release.set(21) // We need to set release compatibility to java 21 since MC 1.20.5+ uses it
-//    }
-//}
-
 // See https://github.com/Minecrell/plugin-yml
 bukkit {
     val weaponMechanicsVersion = findProperty("weaponMechanicsVersion") as? String ?: throw IllegalArgumentException("weaponMechanicsVersion was null")
