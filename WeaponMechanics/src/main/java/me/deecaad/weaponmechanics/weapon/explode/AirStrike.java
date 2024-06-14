@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
@@ -11,13 +12,13 @@ import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
@@ -159,12 +160,11 @@ public class AirStrike implements Serializer<AirStrike> {
             mechanics.use(cast);
         }
 
-        new BukkitRunnable() {
+        WeaponMechanics.getInstance().getFoliaScheduler().runAtLocationTimer(flareLocation, new Consumer<>() {
             int count = 0;
 
             @Override
-            public void run() {
-
+            public void accept(WrappedTask task) {
                 int bombs = RandomUtil.range(min, max);
                 int checks = bombs * bombs;
 
@@ -172,7 +172,8 @@ public class AirStrike implements Serializer<AirStrike> {
                 // each other. Uses distanceBetweenSquared
                 List<Vector2d> spawnLocations = new ArrayList<>(bombs);
 
-                locationFinder : for (int i = 0; i < checks && spawnLocations.size() < bombs; i++) {
+                locationFinder:
+                for (int i = 0; i < checks && spawnLocations.size() < bombs; i++) {
 
                     double x = flareLocation.getX() + RandomUtil.range(-radius, radius);
                     double z = flareLocation.getZ() + RandomUtil.range(-radius, radius);
@@ -203,10 +204,10 @@ public class AirStrike implements Serializer<AirStrike> {
                 }
 
                 if (++count >= loops) {
-                    cancel();
+                    task.cancel();
                 }
             }
-        }.runTaskTimer(WeaponMechanics.getPlugin(), 0, delay);
+        }, 0, delay);
     }
 
     @Override

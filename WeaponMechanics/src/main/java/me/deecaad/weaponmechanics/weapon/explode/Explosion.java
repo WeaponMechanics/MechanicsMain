@@ -42,7 +42,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -184,20 +183,18 @@ public class Explosion implements Serializer<Explosion> {
         // Set to 1 to indicate that this projectile has been detonated
         projectile.setIntTag("explosion-detonation", 1);
 
-        new BukkitRunnable() {
-            public void run() {
-                ProjectilePreExplodeEvent event = new ProjectilePreExplodeEvent(projectile, Explosion.this);
-                Bukkit.getPluginManager().callEvent(event);
-                if (event.isCancelled())
-                    return;
+        WeaponMechanics.getInstance().getFoliaScheduler().runAtLocationLater(projectile.getBukkitLocation(), () -> {
+            ProjectilePreExplodeEvent event = new ProjectilePreExplodeEvent(projectile, Explosion.this);
+            Bukkit.getPluginManager().callEvent(event);
+            if (event.isCancelled())
+                return;
 
-                event.getExplosion().explode(cause, origin != null ? origin : projectile.getLocation().toLocation(projectile.getWorld()), projectile);
+            event.getExplosion().explode(cause, origin != null ? origin : projectile.getLocation().toLocation(projectile.getWorld()), projectile);
 
-                if (currentDetonation.isRemoveProjectileOnDetonation()) {
-                    projectile.remove();
-                }
+            if (currentDetonation.isRemoveProjectileOnDetonation()) {
+                projectile.remove();
             }
-        }.runTaskLater(WeaponMechanics.getPlugin(), currentDetonation.getDelay());
+        }, currentDetonation.getDelay());
     }
 
     public void explode(LivingEntity cause, Location origin, WeaponProjectile projectile) {
@@ -385,20 +382,16 @@ public class Explosion implements Serializer<Explosion> {
                     int time = timeOffset + ((isAtOnce ? size : i) / regeneration.getMaxBlocksPerUpdate() * regeneration.getInterval());
 
                     List<BlockDamageData.DamageData> finalBrokenBlocks = new ArrayList<>(brokenBlocks);
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            for (BlockDamageData.DamageData block : finalBrokenBlocks) {
+                    WeaponMechanics.getInstance().getFoliaScheduler().runAtLocationLater(block.getLocation(), () -> {
+                        for (BlockDamageData.DamageData blockWrapper : finalBrokenBlocks) {
 
-                                // The blocks may have been regenerated already
-                                if (block.isBroken()) {
-                                    block.regenerate();
-                                    block.remove();
-                                }
+                            // The blocks may have been regenerated already
+                            if (blockWrapper.isBroken()) {
+                                blockWrapper.regenerate();
+                                blockWrapper.remove();
                             }
                         }
-                    }.runTaskLater(WeaponMechanics.getPlugin(), time);
-
+                    }, time);
                     // Reset back to 0 elements, so we can continue adding
                     // blocks to regenerate to the list.
                     brokenBlocks.clear();

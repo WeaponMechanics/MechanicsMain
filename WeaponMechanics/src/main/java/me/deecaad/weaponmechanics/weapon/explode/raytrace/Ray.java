@@ -1,15 +1,19 @@
 package me.deecaad.weaponmechanics.weapon.explode.raytrace;
 
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.block.BlockCompatibility;
 import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import org.bukkit.*;
+import org.bukkit.Chunk;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class Ray {
 
@@ -222,19 +227,19 @@ public class Ray {
     private void displayPoint(Vector point, boolean collides) {
         Particle.DustOptions color = collides ? new Particle.DustOptions(Color.RED, 0.25f) : new Particle.DustOptions(Color.LIME, 0.25f);
 
-        new BukkitRunnable() {
+        Location loc = point.toLocation(world);
+        WeaponMechanics.getInstance().getFoliaScheduler().runAtLocationTimer(loc, new Consumer<>() {
             int i = 0;
-
             @Override
-            public void run() {
+            public void accept(WrappedTask task) {
                 if (i++ >= 1000) {
-                    cancel();
+                    task.cancel();
                 }
 
                 assert world != null;
                 world.spawnParticle(DUST_PARTICLE, point.getX(), point.getY(), point.getZ(), 1, 0, 0, 0, 0, color, true);
             }
-        }.runTaskTimer(WeaponMechanics.getPlugin(), 0, 2);
+        }, 0L, 2L);
     }
 
     private static boolean contains(Vector min, Vector max, Location loc) {
