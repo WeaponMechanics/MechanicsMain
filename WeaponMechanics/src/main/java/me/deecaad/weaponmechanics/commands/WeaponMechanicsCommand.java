@@ -206,7 +206,9 @@ public class WeaponMechanicsCommand {
                 .withPermission("weaponmechanics.commands.reload")
                 .withDescription("Reloads config")
                 .executes(CommandExecutor.any((sender, args) -> {
-                    WeaponMechanicsAPI.getInstance().onReload().thenRunSync(() -> sender.sendMessage(GREEN + "Reloaded configuration"));
+                    WeaponMechanicsAPI.getInstance().onReload().thenCompose((ignore) -> WeaponMechanics.getInstance().getFoliaScheduler().runNextTick((task) -> {
+                        sender.sendMessage(GREEN + "Reloaded configuration");
+                    }));
                 })))
 
             .withSubcommand(new CommandBuilder("repair")
