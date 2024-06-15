@@ -7,6 +7,7 @@ import com.jeff_media.updatechecker.UpdateChecker;
 import com.jeff_media.updatechecker.UserAgentBuilder;
 import com.tcoded.folialib.FoliaLib;
 import com.tcoded.folialib.impl.ServerImplementation;
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.compatibility.CompatibilityAPI;
@@ -686,9 +687,9 @@ public class WeaponMechanics {
     public static void removeEntityWrapper(LivingEntity entity) {
         EntityWrapper oldWrapper = plugin.entityWrappers.remove(entity);
         if (oldWrapper != null) {
-            int oldMoveTask = oldWrapper.getMoveTaskId();
-            if (oldMoveTask != 0) {
-                Bukkit.getScheduler().cancelTask(oldMoveTask);
+            WrappedTask oldMoveTask = oldWrapper.getMoveTask();
+            if (oldMoveTask != null) {
+                oldMoveTask.cancel();
             }
             oldWrapper.getMainHandData().cancelTasks();
             oldWrapper.getOffHandData().cancelTasks();
