@@ -12,6 +12,8 @@ import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
+import net.minecraft.server.level.ServerEntity;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
@@ -40,6 +42,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,6 +57,7 @@ public class FakeEntity_1_21_R1 extends FakeEntity {
     public static final EquipmentSlot[] SLOTS = EquipmentSlot.values();
 
     private final Entity entity;
+    private final ServerEntity serverEntity;
     private final List<ServerGamePacketListenerImpl> connections; // store the player connection to avoid type cast
 
     // Only 1 of these can be used at a time
@@ -67,6 +71,7 @@ public class FakeEntity_1_21_R1 extends FakeEntity {
             throw new IllegalArgumentException();
 
         CraftWorld world = (CraftWorld) location.getWorld();
+        ServerLevel handle = world.getHandle();
 
         // Location vars
         final double x = location.getX();
@@ -78,18 +83,18 @@ public class FakeEntity_1_21_R1 extends FakeEntity {
         // constructors when we are given the data (data != null).
         if (data != null) {
             entity = switch (type) {
-                case ITEM -> new ItemEntity(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
+                case ITEM -> new ItemEntity(handle, x, y, z, item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
                 case FALLING_BLOCK -> {
-                    FallingBlockEntity temp = new FallingBlockEntity(net.minecraft.world.entity.EntityType.FALLING_BLOCK, world.getHandle());
+                    FallingBlockEntity temp = new FallingBlockEntity(net.minecraft.world.entity.EntityType.FALLING_BLOCK, handle);
                     temp.setPosRaw(x, y, z);
                     block = (data.getClass() == Material.class
                         ? ((CraftBlockData) ((Material) data).createBlockData()).getState()
                         : ((CraftBlockState) data).getHandle());
                     yield temp;
                 }
-                case FIREWORK_ROCKET -> new FireworkRocketEntity(world.getHandle(), item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data), x, y, z, true);
+                case FIREWORK_ROCKET -> new FireworkRocketEntity(handle, item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data), x, y, z, true);
                 case ITEM_DISPLAY -> {
-                    Display.ItemDisplay temp = net.minecraft.world.entity.EntityType.ITEM_DISPLAY.create(world.getHandle());
+                    Display.ItemDisplay temp = net.minecraft.world.entity.EntityType.ITEM_DISPLAY.create(handle);
                     temp.setPos(x, y, z);
                     temp.setItemStack(CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
                     yield temp;
@@ -107,6 +112,7 @@ public class FakeEntity_1_21_R1 extends FakeEntity {
 
         this.setLocation(x, y, z, location.getYaw(), location.getPitch());
         this.cache = entity.getId();
+        this.serverEntity = new ServerEntity(handle, entity, entity.getType().updateInterval(), entity.getType().trackDeltas(), (packet) -> {}, Collections.emptySet());
         this.connections = new LinkedList<>(); // We only need to iterate/remove, so LinkedList is best
     }
 
@@ -210,8 +216,8 @@ public class FakeEntity_1_21_R1 extends FakeEntity {
     @Override
     public void show() {
         Packet<?> spawn = type.isAlive()
-            ? new ClientboundAddEntityPacket(entity)
-            : new ClientboundAddEntityPacket(entity, type == EntityType.FALLING_BLOCK ? Block.getId(block) : 0);
+            ? new ClientboundAddEntityPacket(entity, serverEntity)
+            : new ClientboundAddEntityPacket(entity, serverEntity, type == EntityType.FALLING_BLOCK ? Block.getId(block) : 0);
 
         ClientboundSetEntityDataPacket meta = new ClientboundSetEntityDataPacket(cache, getEntityData(entity.getEntityData(), false));
         ClientboundRotateHeadPacket head = new ClientboundRotateHeadPacket(entity, convertYaw(getYaw()));
@@ -245,8 +251,8 @@ public class FakeEntity_1_21_R1 extends FakeEntity {
         ServerGamePacketListenerImpl connection = ((CraftPlayer) player).getHandle().connection;
 
         connection.send(type.isAlive()
-            ? new ClientboundAddEntityPacket(entity) // TODO CHECK THIS... used to be "addmob", changed in 1.19?
-            : new ClientboundAddEntityPacket(entity, type == EntityType.FALLING_BLOCK ? Block.getId(block) : 0));
+            ? new ClientboundAddEntityPacket(entity, serverEntity)
+            : new ClientboundAddEntityPacket(entity, serverEntity, type == EntityType.FALLING_BLOCK ? Block.getId(block) : 0));
         connection.send(new ClientboundSetEntityDataPacket(cache, getEntityData(entity.getEntityData(), true)));
         connection.send(new Rot(cache, convertYaw(getYaw()), convertPitch(getPitch()), false));
         connection.send(new ClientboundSetEntityMotionPacket(cache, new Vec3(motion.getX(), motion.getY(), motion.getZ())));
