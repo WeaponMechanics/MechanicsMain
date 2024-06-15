@@ -143,6 +143,15 @@ object MinecraftVersions {
         }
 
     /**
+     * 1.21, the dungeons update (mace, potions, paintings, etc.)
+     */
+    @JvmField
+    val TRICKY_TRIALS =
+        Update(1, 21) {
+            add(Version(it, 0, 1)) // 1.21
+        }
+
+    /**
      * Represents a "big" Minecraft update, e.x. 1.13 -> 1.14
      *
      * @property major The major version. Always 1.
