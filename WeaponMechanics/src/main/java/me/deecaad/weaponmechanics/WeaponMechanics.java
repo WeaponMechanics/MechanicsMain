@@ -70,6 +70,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
@@ -153,6 +154,7 @@ public class WeaponMechanics {
         plugin = this;
         entityWrappers = new HashMap<>();
 
+        foliaScheduler = new FoliaLib(javaPlugin);
         writeFiles();
         registerPacketListeners();
 
@@ -178,13 +180,12 @@ public class WeaponMechanics {
         // side note, not all tasks can be run after the server starts.
         // Commands, for example, can't be registered after onEnable without
         // some disgusting NMS shit.
-        new TaskChain(javaPlugin)
-            .thenRunSync(() -> {
-                loadConfig();
-                registerListeners();
-                registerBStats();
-                registerPermissions();
-            });
+        getFoliaScheduler().runNextTick((task) -> {
+            loadConfig();
+            registerListeners();
+            registerBStats();
+            registerPermissions();
+        });
 
         registerCommands();
         registerUpdateChecker();
@@ -203,7 +204,7 @@ public class WeaponMechanics {
             debug.warn("VivecraftSpigot: https://www.spigotmc.org/resources/104539/");
         }
 
-        debug.start(getPlugin());
+        debug.start(getFoliaScheduler());
     }
 
     void setupDebugger() {
@@ -252,28 +253,26 @@ public class WeaponMechanics {
 
         // Ensure that the resource pack exists in the folder
         if (basicConfiguration.getBool("Resource_Pack_Download.Enabled")) {
-            new TaskChain(WeaponMechanics.getPlugin())
-                .thenRunAsync((data) -> {
-                    String link = basicConfiguration.getString("Resource_Pack_Download.Link");
-                    int connection = basicConfiguration.getInt("Resource_Pack_Download.Connection_Timeout");
-                    int read = basicConfiguration.getInt("Resource_Pack_Download.Read_Timeout");
+            getFoliaScheduler().runAsync((task) -> {
+                String link = basicConfiguration.getString("Resource_Pack_Download.Link");
+                int connection = basicConfiguration.getInt("Resource_Pack_Download.Connection_Timeout");
+                int read = basicConfiguration.getInt("Resource_Pack_Download.Read_Timeout");
 
-                    if (("https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack.zip").equals(link)) {
-                        try {
-                            link = "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/resourcepack/WeaponMechanicsResourcePack-" + resourcePackListener.getResourcePackVersion()
-                                + ".zip";
-                        } catch (InternalError e) {
-                            debug.log(LogLevel.DEBUG, "Failed to fetch resource pack version due to timeout", e);
-                            return null;
-                        }
+                if (("https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack.zip").equals(link)) {
+                    try {
+                        link = "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/resourcepack/WeaponMechanicsResourcePack-" + resourcePackListener.getResourcePackVersion()
+                            + ".zip";
+                    } catch (InternalError e) {
+                        debug.log(LogLevel.DEBUG, "Failed to fetch resource pack version due to timeout", e);
+                        return;
                     }
+                }
 
-                    File pack = new File(getDataFolder(), "WeaponMechanicsResourcePack.zip");
-                    if (!pack.exists()) {
-                        FileUtil.downloadFile(pack, link, connection, read);
-                    }
-                    return null;
-                });
+                File pack = new File(getDataFolder(), "WeaponMechanicsResourcePack.zip");
+                if (!pack.exists()) {
+                    FileUtil.downloadFile(pack, link, connection, read);
+                }
+            });
         }
     }
 
@@ -421,7 +420,7 @@ public class WeaponMechanics {
         Permission parent = Bukkit.getPluginManager().getPermission("weaponmechanics.use.*");
         if (parent == null) {
             // Some older versions register permissions after onEnable...
-            new TaskChain(javaPlugin).thenRunSync(this::registerPermissions);
+            getFoliaScheduler().runNextTick((task) -> registerPermissions());
             return;
         }
 
@@ -529,7 +528,7 @@ public class WeaponMechanics {
         metrics.addCustomChart(new SimplePie("core_version", () -> MechanicsCore.getPlugin().getDescription().getVersion()));
     }
 
-    public TaskChain onReload() {
+    public CompletableFuture<Void> onReload() {
         JavaPlugin mechanicsCore = MechanicsCore.getPlugin();
 
         this.onDisable();
@@ -546,10 +545,8 @@ public class WeaponMechanics {
         projectilesRunnable = new ProjectilesRunnable(getPlugin());
         resourcePackListener = new ResourcePackListener();
 
-        return new TaskChain(getPlugin())
-            .thenRunAsync(this::writeFiles)
-            .thenRunSync(() -> {
-
+        return getFoliaScheduler().runAsync((task) -> writeFiles()).thenCompose((ignore) ->
+            getFoliaScheduler().runNextTick((task) -> {
                 loadConfig();
                 registerPacketListeners();
                 registerListeners();
@@ -564,7 +561,7 @@ public class WeaponMechanics {
                     PlayerWrapper playerWrapper = getPlayerWrapper(player);
                     weaponHandler.getStatsHandler().load(playerWrapper);
                 }
-            });
+        }));
     }
 
     public void onDisable() {

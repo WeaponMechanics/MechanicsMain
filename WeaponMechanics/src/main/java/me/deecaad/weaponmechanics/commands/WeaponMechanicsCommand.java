@@ -9,7 +9,6 @@ import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.file.TaskChain;
 import me.deecaad.core.utils.*;
 import me.deecaad.core.utils.ray.RayTrace;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -733,10 +732,13 @@ public class WeaponMechanicsCommand {
             sender.sendMessage(GREEN + "Converting config...");
             WeaponMechanics pl = WeaponMechanicsAPI.getInstance();
             File outputPath = new File(pl.getDataFolder().getPath() + "/weapons/crackshotconvert/");
-            new TaskChain(WeaponMechanics.getPlugin())
-                .thenRunSync(() -> sender.sendMessage(GREEN + "Starting CrackShot conversion"))
-                .thenRunAsync(() -> new Converter(sender).convertAllFiles(outputPath))
-                .thenRunSync(() -> sender.sendMessage(GREEN + "Output converted files to " + outputPath));
+
+            sender.sendMessage(GREEN + "Starting CrackShot conversion");
+            WeaponMechanics.getInstance().getFoliaScheduler().runAsync((task) ->
+                new Converter(sender).convertAllFiles(outputPath)
+            ).thenCompose((ignore) -> WeaponMechanics.getInstance().getFoliaScheduler().runNextTick((task) ->
+                sender.sendMessage(GREEN + "Output converted files to " + outputPath)
+            ));
 
             return;
         }
