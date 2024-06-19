@@ -1,7 +1,7 @@
 object Versions {
 
     // Spigot + Plugins
-    const val LATEST_SPIGOT_API = "1.20.6-R0.1-SNAPSHOT"
+    const val LATEST_SPIGOT_API = "1.21-R0.1-SNAPSHOT"
     const val BSTATS = "3.0.1"
     const val PROTOCOL_LIB = "5.1.0"
     const val PLACEHOLDER_API = "2.11.3"
@@ -11,7 +11,7 @@ object Versions {
 
     // Adventure Chat API
     const val ADVENTURE_API = "4.17.0"
-    const val ADVENTURE_BUKKIT = "4.3.3-SNAPSHOT"
+    const val ADVENTURE_BUKKIT = "4.3.3"
     const val ADVENTURE_TEXT_LEGACY = ADVENTURE_API
     const val ADVENTURE_TEXT_MINIMESSAGE = ADVENTURE_API
 
