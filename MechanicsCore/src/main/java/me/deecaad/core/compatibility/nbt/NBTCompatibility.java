@@ -1,6 +1,8 @@
 package me.deecaad.core.compatibility.nbt;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.AttributeType;
+import me.deecaad.core.utils.MinecraftVersions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.NamespacedKey;
@@ -449,6 +451,15 @@ public interface NBTCompatibility {
         private final long uuidModifier;
 
         AttributeSlot(long uuidModifier) {
+            // BODY was added in 1.20.5, default to CHEST if the version is lower
+            if (this.name().equals("BODY") && !MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+                MechanicsCore.debug.debug("BODY slot is not supported in this version of Minecraft. Using CHEST instead.");
+                this.slot = EquipmentSlot.CHEST;
+                this.slotName = "chest";
+                this.uuidModifier = uuidModifier;
+                return;
+            }
+
             this.slot = name().equals("MAIN_HAND") ? EquipmentSlot.HAND : EquipmentSlot.valueOf(name());
             this.slotName = name().replaceAll("_", "").toLowerCase(Locale.ROOT);
             this.uuidModifier = uuidModifier;
