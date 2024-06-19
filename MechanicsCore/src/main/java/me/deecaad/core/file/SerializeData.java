@@ -5,6 +5,7 @@ import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.particles.XParticle;
 import me.deecaad.core.mechanics.Registry;
 import me.deecaad.core.utils.EnumUtil;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.SerializerUtil;
 import me.deecaad.core.utils.StringUtil;
@@ -978,7 +979,13 @@ public class SerializeData {
             if (xmat == null)
                 return defaultValue;
 
-            return xmat.parseItem();
+            ItemStack parsed = xmat.parseItem();
+            if (parsed == null) {
+                throw exception(null, "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + xmat.name() + "'",
+                    "Try using a different material or update your server to a newer version!");
+            }
+
+            return parsed;
         }
 
         /**
@@ -1004,6 +1011,12 @@ public class SerializeData {
                     .addMessage(wikiLink != null, getWikiMessage());
             }
 
+            EntityType parsed = entityType.get();
+            if (parsed == null) {
+                throw exception(null, "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + entityType.name() + "'",
+                    "Try using a different material or update your server to a newer version!");
+            }
+
             return entityType.get();
         }
 
@@ -1023,7 +1036,13 @@ public class SerializeData {
                     .addMessage(wikiLink != null, getWikiMessage());
             }
 
-            return particle.get();
+            Particle parsed = particle.get();
+            if (parsed == null) {
+                throw exception(null, "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + particle.name() + "'",
+                    "Try using a different material or update your server to a newer version!");
+            }
+
+            return parsed;
         }
 
         @Nullable public <T extends Keyed> T getKeyed(@NotNull org.bukkit.Registry<T> registry) throws SerializerException {
