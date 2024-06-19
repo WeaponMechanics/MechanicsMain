@@ -112,7 +112,9 @@ public class FakeEntity_1_21_R1 extends FakeEntity {
 
         this.setLocation(x, y, z, location.getYaw(), location.getPitch());
         this.cache = entity.getId();
-        this.serverEntity = new ServerEntity(handle, entity, entity.getType().updateInterval(), entity.getType().trackDeltas(), (packet) -> {}, Collections.emptySet());
+        this.serverEntity = new ServerEntity(handle, entity, entity.getType().updateInterval(), entity.getType().trackDeltas(), (packet) -> {
+            /* intentionally empty... do nothing */
+        }, Collections.emptySet());
         this.connections = new LinkedList<>(); // We only need to iterate/remove, so LinkedList is best
     }
 
