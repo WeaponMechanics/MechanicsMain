@@ -283,8 +283,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 // https://textures.minecraft.net/texture/a0564817fcc8dd51bc1957c0b7ea142db687dd6f1caafd35bb4dcfee592421c"
                 // https://www.spigotmc.org/threads/create-a-skull-item-stack-with-a-custom-texture-base64.82416/
                 if (uuid != null && url != null) {
-                    XSkull.of(itemMeta).profile(XSkull.SkullInputType.UUID, id).apply();
-                    XSkull.of(itemMeta).profile(XSkull.SkullInputType.TEXTURE_URL, url).apply();
+                    //XSkull.of(itemMeta).profile(XSkull.SkullInputType.UUID, id).apply();
+                    XSkull.of(skullMeta).profile(XSkull.SkullInputType.TEXTURE_URL, url).apply();
                 }
 
                 // Standard player name SkullMeta... "CJCrafter", "DeeCaaD", "Darkman_Bree"
