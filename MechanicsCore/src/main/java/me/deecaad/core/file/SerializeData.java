@@ -981,7 +981,7 @@ public class SerializeData {
 
             ItemStack parsed = xmat.parseItem();
             if (parsed == null) {
-                throw exception(null, "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + xmat.name() + "'",
+                throw exception(relative, "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + xmat.name() + "'",
                     "Try using a different material or update your server to a newer version!");
             }
 
@@ -1013,7 +1013,7 @@ public class SerializeData {
 
             EntityType parsed = entityType.get();
             if (parsed == null) {
-                throw exception(null, "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + entityType.name() + "'",
+                throw exception(relative, "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + entityType.name() + "'",
                     "Try using a different material or update your server to a newer version!");
             }
 
@@ -1038,7 +1038,7 @@ public class SerializeData {
 
             Particle parsed = particle.get();
             if (parsed == null) {
-                throw exception(null, "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + particle.name() + "'",
+                throw exception(relative, "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + particle.name() + "'",
                     "Try using a different material or update your server to a newer version!");
             }
 
