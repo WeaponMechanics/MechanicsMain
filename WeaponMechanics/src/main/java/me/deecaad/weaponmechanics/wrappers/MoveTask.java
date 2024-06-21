@@ -18,9 +18,8 @@ import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.scheduler.BukkitRunnable;
 
-public class MoveTask extends BukkitRunnable {
+public class MoveTask implements Runnable {
 
     private final EntityWrapper entityWrapper;
     private Location from;
@@ -46,7 +45,7 @@ public class MoveTask extends BukkitRunnable {
 
             // Only cancel task IF it isn't player, otherwise just don't do anything
             if (!entityWrapper.isPlayer())
-                cancel();
+                entityWrapper.getMoveTask().cancel();
 
             return;
         }

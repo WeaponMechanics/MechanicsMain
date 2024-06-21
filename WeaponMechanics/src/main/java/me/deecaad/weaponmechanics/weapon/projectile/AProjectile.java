@@ -158,6 +158,13 @@ public abstract class AProjectile {
         return location.clone();
     }
 
+    /**
+     * @return the current location as a bukkit location
+     */
+    public Location getBukkitLocation() {
+        return new Location(world, location.getX(), location.getY(), location.getZ());
+    }
+
     public Block getCurrentBlock() {
         return world.getBlockAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }

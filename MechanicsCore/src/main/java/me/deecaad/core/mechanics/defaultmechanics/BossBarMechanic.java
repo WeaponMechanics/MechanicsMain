@@ -10,7 +10,6 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,12 +64,7 @@ public class BossBarMechanic extends Mechanic {
         BossBar bossBar = BossBar.bossBar(chat, progress, color, style);
 
         audience.showBossBar(bossBar);
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                audience.hideBossBar(bossBar);
-            }
-        }.runTaskLater(MechanicsCore.getPlugin(), time);
+        MechanicsCore.getPlugin().getFoliaScheduler().runAtEntityLater(player, () -> audience.hideBossBar(bossBar), time);
     }
 
     @Override

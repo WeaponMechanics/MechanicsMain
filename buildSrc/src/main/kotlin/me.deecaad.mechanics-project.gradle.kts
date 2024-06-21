@@ -14,6 +14,7 @@ repositories {
     maven(url = "https://mvn.lumine.io/repository/maven-public/") // MythicMobs
     maven(url = "https://repo.opencollab.dev/main/") // GeyserMC
     maven(url = "https://repo.jeff-media.com/public/") // SpigotUpdateChecker
+    maven(url = "https://nexuslite.gcnt.net/repos/other/") // FoliaLib
 }
 
 dependencies {

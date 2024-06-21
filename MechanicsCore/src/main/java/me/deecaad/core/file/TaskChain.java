@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
+@Deprecated
 public class TaskChain {
 
     // * ----- TASK CLASS ----- * //

@@ -19,6 +19,8 @@ public class LegacyReloadCommand extends SubCommand {
     public void execute(CommandSender sender, String[] args) {
         WeaponMechanics plugin = WeaponMechanicsAPI.getInstance();
 
-        plugin.onReload().thenRunSync(() -> sender.sendMessage(ChatColor.GREEN + "Reloaded configuration."));
+        plugin.onReload().thenCompose((ignore) -> WeaponMechanics.getInstance().getFoliaScheduler().runNextTick((task) -> {
+            sender.sendMessage(ChatColor.GREEN + "Reloaded configuration.");
+        }));
     }
 }
