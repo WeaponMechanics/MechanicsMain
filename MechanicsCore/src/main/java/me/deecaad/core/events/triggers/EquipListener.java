@@ -161,7 +161,8 @@ public class EquipListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlace(BlockPlaceEvent event) {
         if (event.getItemInHand().getAmount() - 1 == 0) {
-            Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(event.getPlayer(), event.getHand(), new ItemStack(event.getBlockPlaced().getType()), null));
+            ItemStack placementItem = CompatibilityAPI.getNBTCompatibility().getPlacementItem(event.getBlockPlaced());
+            Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(event.getPlayer(), event.getHand(), placementItem, null));
         }
     }
 

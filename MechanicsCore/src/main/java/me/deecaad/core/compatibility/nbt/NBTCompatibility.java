@@ -8,6 +8,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -431,6 +432,16 @@ public interface NBTCompatibility {
     @NotNull default Component getDisplayName(@NotNull ItemStack item) {
         String legacyText = item.getItemMeta().getDisplayName();
         return LegacyComponentSerializer.legacySection().deserialize(legacyText);
+    }
+
+    /**
+     * Returns the material of the item used to place the block.
+     *
+     * @param block The non-null block data to get the item material from.
+     * @return The non-null material of the item.
+     */
+    default @NotNull ItemStack getPlacementItem(@NotNull Block block) {
+        return new ItemStack(block.getBlockData().getPlacementMaterial());
     }
 
     /**

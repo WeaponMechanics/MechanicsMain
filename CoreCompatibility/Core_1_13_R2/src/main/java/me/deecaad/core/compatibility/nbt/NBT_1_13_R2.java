@@ -4,6 +4,7 @@ import me.deecaad.core.utils.StringUtil;
 import net.minecraft.server.v1_13_R2.NBTBase;
 import net.minecraft.server.v1_13_R2.NBTTagCompound;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -204,5 +205,10 @@ public class NBT_1_13_R2 implements NBTCompatibility {
 
     private CustomItemTagContainer getBukkitCompound(ItemMeta meta) {
         return meta.getCustomTagContainer();
+    }
+
+    @Override
+    public @NotNull ItemStack getPlacementItem(@NotNull Block block) {
+        return new ItemStack(block.getBlockData().getMaterial());
     }
 }

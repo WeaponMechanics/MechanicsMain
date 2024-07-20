@@ -3,6 +3,7 @@ package me.deecaad.core.compatibility.nbt;
 import me.deecaad.core.utils.StringUtil;
 import net.minecraft.server.v1_16_R3.NBTBase;
 import net.minecraft.server.v1_16_R3.NBTTagCompound;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -78,5 +79,10 @@ public class NBT_1_16_R3 extends NBT_Persistent {
         }
 
         return builder.append(braceColor).append("}\n");
+    }
+
+    @Override
+    public @NotNull ItemStack getPlacementItem(@NotNull Block block) {
+        return new ItemStack(block.getBlockData().getMaterial());
     }
 }

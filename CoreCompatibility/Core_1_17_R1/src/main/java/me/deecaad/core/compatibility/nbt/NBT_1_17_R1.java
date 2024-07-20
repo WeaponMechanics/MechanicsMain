@@ -9,6 +9,7 @@ import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTagVisitor;
 import net.minecraft.nbt.Tag;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -109,5 +110,10 @@ public class NBT_1_17_R1 extends NBT_Persistent {
 
             builder.append(braceColor).append("}\n");
         }
+    }
+
+    @Override
+    public @NotNull ItemStack getPlacementItem(@NotNull Block block) {
+        return new ItemStack(block.getBlockData().getMaterial());
     }
 }
