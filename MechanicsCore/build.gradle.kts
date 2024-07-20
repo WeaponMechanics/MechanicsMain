@@ -27,7 +27,7 @@ dependencies {
     implementation(Dependencies.ADVENTURE_BUKKIT)
     implementation(Dependencies.ADVENTURE_TEXT_LEGACY)
     implementation(Dependencies.ADVENTURE_TEXT_MINIMESSAGE)
-    implementation("com.zaxxer:HikariCP:4.0.3")
+    implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("org.slf4j:slf4j-nop:1.7.30")
     implementation(Dependencies.MYTHIC_MOBS)
     implementation(Dependencies.X_SERIES)
