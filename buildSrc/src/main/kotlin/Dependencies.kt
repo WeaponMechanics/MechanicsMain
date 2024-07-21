@@ -5,7 +5,7 @@ object Versions {
     const val BSTATS = "3.0.1"
     const val PROTOCOL_LIB = "5.1.0"
     const val PLACEHOLDER_API = "2.11.3"
-    const val MYTHIC_MOBS = "5.3.5"
+    const val MYTHIC_MOBS = "5.6.1"
     const val GEYSER = "2.2.0-SNAPSHOT"
     const val VIVECRAFT = "3.0.0"
 
