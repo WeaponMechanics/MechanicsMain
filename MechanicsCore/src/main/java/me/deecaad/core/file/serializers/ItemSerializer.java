@@ -209,6 +209,39 @@ public class ItemSerializer implements Serializer<ItemStack> {
             itemMeta.addItemFlags(ItemFlag.values());
         }
 
+        if (data.has("Max_Stack_Size")) {
+            if (!MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+                throw data.exception("Max_Stack_Size", "Tried to use max stack size before MC 1.20.5!",
+                    "The max stack size was added in Minecraft version 1.20.5!",
+                    "Your version: " + MinecraftVersions.getCURRENT());
+            }
+
+            int newStackSize = data.of("Max_Stack_Size").assertExists().assertRange(1, 99).getInt();
+            itemMeta.setMaxStackSize(newStackSize);
+        }
+
+        if (data.has("Enchantment_Glint_Override")) {
+            if (!MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+                throw data.exception("Enchantment_Glint_Override", "Tried to use enchantment glint override before MC 1.20.5!",
+                    "The enchantment glint override component was added in Minecraft version 1.20.5!",
+                    "Your version: " + MinecraftVersions.getCURRENT());
+            }
+
+            boolean glintOverride = data.of("Enchantment_Glint_Override").assertExists().getBool();
+            itemMeta.setEnchantmentGlintOverride(glintOverride);
+        }
+
+        if (data.has("Is_Fire_Resistant")) {
+            if (!MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+                throw data.exception("Is_Fire_Resistant", "Tried to use fire resistance before MC 1.20.5!",
+                    "The fire resistance component was added in Minecraft version 1.20.5!",
+                    "Your version: " + MinecraftVersions.getCURRENT());
+            }
+
+            boolean fireResistant = data.of("Is_Fire_Resistant").assertExists().getBool();
+            itemMeta.setFireResistant(fireResistant);
+        }
+
         List<String[]> enchantments = data.ofList("Enchantments")
             .addArgument(Enchantment.class, true, true)
             .addArgument(int.class, true)
