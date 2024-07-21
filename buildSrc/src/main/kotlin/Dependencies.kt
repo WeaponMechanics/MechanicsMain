@@ -1,17 +1,17 @@
 object Versions {
 
     // Spigot + Plugins
-    const val LATEST_SPIGOT_API = "1.20.6-R0.1-SNAPSHOT"
+    const val LATEST_SPIGOT_API = "1.20.6-R0.1-SNAPSHOT" // Keep on 1.20.6 to avoid interface issues
     const val BSTATS = "3.0.1"
     const val PROTOCOL_LIB = "5.1.0"
     const val PLACEHOLDER_API = "2.11.3"
-    const val MYTHIC_MOBS = "5.3.5"
+    const val MYTHIC_MOBS = "5.6.1"
     const val GEYSER = "2.2.0-SNAPSHOT"
     const val VIVECRAFT = "3.0.0"
 
     // Adventure Chat API
     const val ADVENTURE_API = "4.17.0"
-    const val ADVENTURE_BUKKIT = "4.3.3-SNAPSHOT"
+    const val ADVENTURE_BUKKIT = "4.3.3"
     const val ADVENTURE_TEXT_LEGACY = ADVENTURE_API
     const val ADVENTURE_TEXT_MINIMESSAGE = ADVENTURE_API
 

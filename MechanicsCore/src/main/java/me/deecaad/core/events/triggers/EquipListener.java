@@ -7,6 +7,7 @@ import me.deecaad.core.events.EntityEquipmentEvent;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -158,8 +159,13 @@ public class EquipListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlace(BlockPlaceEvent event) {
+        // Players in creative cannot consume blocks by placing them
+        if (event.getPlayer().getGameMode() == GameMode.CREATIVE)
+            return;
+
         if (event.getItemInHand().getAmount() - 1 == 0) {
-            Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(event.getPlayer(), event.getHand(), new ItemStack(event.getBlockPlaced().getType()), null));
+            ItemStack placementItem = CompatibilityAPI.getNBTCompatibility().getPlacementItem(event.getBlockPlaced());
+            Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(event.getPlayer(), event.getHand(), placementItem, null));
         }
     }
 

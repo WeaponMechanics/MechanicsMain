@@ -136,8 +136,14 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
             // Support for one-liner item serializer
             XMaterial type = data.of().assertExists().getMaterial(null);
-            if (type != null)
-                return type.parseItem();
+            if (type != null) {
+                ItemStack parsed = type.parseItem();
+                if (parsed == null) {
+                    throw data.exception("Type", "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + type.name() + "'",
+                        "Try using a different material or update your server to a newer version!");
+                }
+                return parsed;
+            }
         } catch (SerializerTypeException ex) {
             // We only catch **TYPE** exceptions, since when this element is
             // NOT a 1 liner, the type exception will be thrown.
@@ -159,6 +165,11 @@ public class ItemSerializer implements Serializer<ItemStack> {
         // TODO Add byte data support using 'Data:' or 'Extra_Data:' key
         XMaterial type = data.of("Type").assertExists().getMaterial(null);
         ItemStack itemStack = type.parseItem();
+
+        if (itemStack == null) {
+            throw data.exception("Type", "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + type.name() + "'",
+                "Try using a different material or update your server to a newer version!");
+        }
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null) {
@@ -272,8 +283,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 // https://textures.minecraft.net/texture/a0564817fcc8dd51bc1957c0b7ea142db687dd6f1caafd35bb4dcfee592421c"
                 // https://www.spigotmc.org/threads/create-a-skull-item-stack-with-a-custom-texture-base64.82416/
                 if (uuid != null && url != null) {
-                    XSkull.of(itemMeta).profile(XSkull.SkullInputType.UUID, id).apply();
-                    XSkull.of(itemMeta).profile(XSkull.SkullInputType.TEXTURE_URL, url).apply();
+                    //XSkull.of(itemMeta).profile(XSkull.SkullInputType.UUID, id).apply();
+                    XSkull.of(skullMeta).profile(XSkull.SkullInputType.TEXTURE_URL, url).apply();
                 }
 
                 // Standard player name SkullMeta... "CJCrafter", "DeeCaaD", "Darkman_Bree"

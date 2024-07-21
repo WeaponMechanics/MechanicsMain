@@ -113,7 +113,7 @@ public final class ReflectionUtil {
     public static Class<?> getNMSClass(@NotNull String pack, @NotNull String name) {
         String className;
 
-        if (MinecraftVersions.CAVES_AND_CLIFFS_2.isAtLeast()) {
+        if (MinecraftVersions.CAVES_AND_CLIFFS_1.isAtLeast()) {
             className = "net.minecraft." + pack + '.' + name;
 
             if (CompatibilityAPI.isPaper() && MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {

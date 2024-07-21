@@ -38,6 +38,11 @@ public class MythicMobsWeaponDrop implements IItemDrop {
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
         ItemStack item = info.generateWeapon(weaponTitle, amount);
 
+        if (item == null) {
+            WeaponMechanics.debug.warn("MythicMobs tried to generate weapon which doesn't exist: '" + weaponTitle + "'");
+            return null;
+        }
+
         return new BukkitItemStack(item);
     }
 }

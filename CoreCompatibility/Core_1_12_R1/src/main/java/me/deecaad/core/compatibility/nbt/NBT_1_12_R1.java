@@ -5,6 +5,7 @@ import me.deecaad.core.utils.StringUtil;
 import net.minecraft.server.v1_12_R1.NBTBase;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.NBTTagList;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -321,5 +322,10 @@ public class NBT_1_12_R1 implements NBTCompatibility {
 
     private String getTagName(String plugin, String key) {
         return plugin.toLowerCase(Locale.ROOT) + ":" + key.toLowerCase(Locale.ROOT);
+    }
+
+    @Override
+    public @NotNull ItemStack getPlacementItem(@NotNull Block block) {
+        return block.getState().getData().toItemStack(1);
     }
 }
