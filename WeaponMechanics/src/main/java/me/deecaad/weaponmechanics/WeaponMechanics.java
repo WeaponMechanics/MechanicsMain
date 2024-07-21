@@ -6,7 +6,7 @@ import com.jeff_media.updatechecker.UpdateCheckSource;
 import com.jeff_media.updatechecker.UpdateChecker;
 import com.jeff_media.updatechecker.UserAgentBuilder;
 import com.tcoded.folialib.FoliaLib;
-import com.tcoded.folialib.impl.ServerImplementation;
+import com.tcoded.folialib.impl.PlatformScheduler;
 import com.tcoded.folialib.wrapper.task.WrappedTask;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
@@ -16,13 +16,25 @@ import me.deecaad.core.database.Database;
 import me.deecaad.core.database.MySQL;
 import me.deecaad.core.database.SQLite;
 import me.deecaad.core.events.QueueSerializerEvent;
-import me.deecaad.core.file.*;
+import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.DuplicateKeyException;
+import me.deecaad.core.file.FileReader;
+import me.deecaad.core.file.IValidator;
+import me.deecaad.core.file.JarInstancer;
+import me.deecaad.core.file.JarSearcher;
+import me.deecaad.core.file.LinkedConfig;
+import me.deecaad.core.file.SerializerInstancer;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.placeholder.PlaceholderHandler;
-import me.deecaad.core.utils.*;
+import me.deecaad.core.utils.Debugger;
+import me.deecaad.core.utils.FileUtil;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.MinecraftVersions;
+import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
 import me.deecaad.weaponmechanics.lib.MythicMobsLoader;
@@ -42,8 +54,10 @@ import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.damage.DamageModifier;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.placeholders.PlaceholderValidator;
+import me.deecaad.weaponmechanics.weapon.projectile.FoliaProjectileSpawner;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBoxValidator;
-import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
+import me.deecaad.weaponmechanics.weapon.projectile.ProjectileSpawner;
+import me.deecaad.weaponmechanics.weapon.projectile.SpigotProjectileSpawner;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoRegistry;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.weapon.stats.PlayerStat;
@@ -70,7 +84,13 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
@@ -85,7 +105,7 @@ public class WeaponMechanics {
     MainCommand mainCommand;
     WeaponHandler weaponHandler;
     ResourcePackListener resourcePackListener;
-    ProjectilesRunnable projectilesRunnable;
+    ProjectileSpawner projectileSpawner;
     ProtocolManager protocolManager;
     Metrics metrics;
     Database database;
@@ -160,8 +180,13 @@ public class WeaponMechanics {
         registerPacketListeners();
 
         weaponHandler = new WeaponHandler();
-        projectilesRunnable = new ProjectilesRunnable(getPlugin());
         resourcePackListener = new ResourcePackListener();
+
+        if (foliaScheduler.isFolia()) {
+            projectileSpawner = new FoliaProjectileSpawner(getPlugin());
+        } else {
+            projectileSpawner = new SpigotProjectileSpawner(getPlugin());
+        }
 
         // Set millis between recoil rotations
         Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 20);
@@ -189,7 +214,7 @@ public class WeaponMechanics {
         });
 
         registerCommands();
-        registerUpdateChecker();
+        //registerUpdateChecker();
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         debug.debug("Enabled WeaponMechanics in " + NumberUtil.toTime((int) (tookMillis / 1000)) + "s");
@@ -543,8 +568,13 @@ public class WeaponMechanics {
         setupDebugger();
         entityWrappers = new HashMap<>();
         weaponHandler = new WeaponHandler();
-        projectilesRunnable = new ProjectilesRunnable(getPlugin());
         resourcePackListener = new ResourcePackListener();
+
+        if (foliaScheduler.isFolia()) {
+            projectileSpawner = new FoliaProjectileSpawner(getPlugin());
+        } else {
+            projectileSpawner = new SpigotProjectileSpawner(getPlugin());
+        }
 
         return getFoliaScheduler().runAsync((task) -> writeFiles()).thenCompose((ignore) ->
             getFoliaScheduler().runNextTick((task) -> {
@@ -595,20 +625,20 @@ public class WeaponMechanics {
         mainCommand = null;
         configurations = null;
         basicConfiguration = null;
-        projectilesRunnable = null;
+        projectileSpawner = null;
         plugin = null;
         debug = null;
     }
 
-    public ServerImplementation getFoliaScheduler() {
-        return foliaScheduler.getImpl();
+    public PlatformScheduler getFoliaScheduler() {
+        return foliaScheduler.getScheduler();
     }
 
     /**
      * @return The BukkitRunnable holding the projectiles being ticked
      */
-    public static ProjectilesRunnable getProjectilesRunnable() {
-        return plugin.projectilesRunnable;
+    public static ProjectileSpawner getProjectileSpawner() {
+        return plugin.projectileSpawner;
     }
 
     /**

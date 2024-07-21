@@ -4,6 +4,7 @@ plugins {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven(url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/") // Spigot API
     maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots/") // Adventure Snapshots

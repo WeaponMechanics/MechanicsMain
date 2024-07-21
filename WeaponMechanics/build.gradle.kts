@@ -7,7 +7,6 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven(url = "https://mvn.lumine.io/repository/maven-public/")
     maven(url = "https://repo.jeff-media.com/public/")

@@ -1,7 +1,7 @@
 package me.deecaad.core.utils;
 
 import com.tcoded.folialib.FoliaLib;
-import com.tcoded.folialib.impl.ServerImplementation;
+import com.tcoded.folialib.impl.PlatformScheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -222,7 +222,7 @@ public class Debugger {
         start(foliaLib.getImpl());
     }
 
-    public synchronized void start(ServerImplementation impl) {
+    public synchronized void start(PlatformScheduler impl) {
         if (hasStarted)
             return;
 

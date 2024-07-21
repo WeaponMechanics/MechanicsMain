@@ -389,8 +389,7 @@ public final class WeaponMechanicsAPI {
      * @see ProjectilesRunnable
      */
     public static void addProjectile(@NotNull AProjectile projectile) {
-        ProjectilesRunnable runnable = WeaponMechanics.getProjectilesRunnable();
-        runnable.addProjectile(projectile);
+        WeaponMechanics.getProjectileSpawner().spawn(projectile);
     }
 
     /**

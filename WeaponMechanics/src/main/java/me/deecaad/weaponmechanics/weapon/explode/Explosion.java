@@ -431,7 +431,7 @@ public class Explosion implements Serializer<Explosion> {
 
         RemoveOnBlockCollisionProjectile projectile = new RemoveOnBlockCollisionProjectile(location, velocity, disguise);
         projectile.setIntTag("explosion-falling-block", 1);
-        WeaponMechanics.getProjectilesRunnable().addProjectile(projectile);
+        WeaponMechanics.getProjectileSpawner().spawn(projectile);
     }
 
     @Override
