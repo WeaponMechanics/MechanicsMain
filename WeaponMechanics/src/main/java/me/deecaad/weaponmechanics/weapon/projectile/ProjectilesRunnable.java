@@ -38,7 +38,7 @@ public class ProjectilesRunnable extends BukkitRunnable {
      *
      * @param plugin The non-null plugin
      */
-    public ProjectilesRunnable(Plugin plugin) {
+    public ProjectilesRunnable(@NotNull Plugin plugin) {
         projectiles = new LinkedList<>();
         asyncProjectiles = new LinkedBlockingQueue<>();
         managers = new LinkedList<>();
@@ -58,9 +58,6 @@ public class ProjectilesRunnable extends BukkitRunnable {
      * @param projectile The non-null projectile to tick.
      */
     public void addProjectile(@NotNull AProjectile projectile) {
-        if (projectile == null)
-            throw new IllegalArgumentException("Cannot add null projectile!");
-
         if (projectile.isDead())
             return;
 

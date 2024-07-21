@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
@@ -63,6 +64,17 @@ public abstract class AProjectile {
         this.motionLength = motion.length();
         this.scripts = new LinkedList<>(); // dynamic, O(1) resize
         onStart();
+    }
+
+    /**
+     * Returns true if the calling thread is the ticking thread for this projectile.
+     *
+     * @return true if the calling thread is the ticking thread for this projectile
+     */
+    public boolean isOwnedByCurrentRegion() {
+        int chunkX = location.getBlockX() >> 4;
+        int chunkZ = location.getBlockZ() >> 4;
+        return MechanicsCore.getPlugin().getFoliaScheduler().isOwnedByCurrentRegion(world, chunkX, chunkZ);
     }
 
     /**

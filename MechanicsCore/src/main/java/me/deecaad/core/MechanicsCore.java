@@ -1,7 +1,7 @@
 package me.deecaad.core;
 
 import com.tcoded.folialib.FoliaLib;
-import com.tcoded.folialib.impl.ServerImplementation;
+import com.tcoded.folialib.impl.PlatformScheduler;
 import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.events.triggers.EquipListener;
 import me.deecaad.core.file.JarSearcher;
@@ -148,8 +148,8 @@ public class MechanicsCore extends JavaPlugin {
         adventure = null;
     }
 
-    public @NotNull ServerImplementation getFoliaScheduler() {
-        return foliaScheduler.getImpl();
+    public @NotNull PlatformScheduler getFoliaScheduler() {
+        return foliaScheduler.getScheduler();
     }
 
     /**
