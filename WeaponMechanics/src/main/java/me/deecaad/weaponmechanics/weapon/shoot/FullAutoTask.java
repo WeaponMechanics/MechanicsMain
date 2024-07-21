@@ -10,7 +10,6 @@ import me.deecaad.weaponmechanics.wrappers.HandData;
 import org.bukkit.Location;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
@@ -19,7 +18,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
  * every time you start firing a fully automatic weapon. The task is cancelled when the user is no
  * longer shooting.
  */
-public class FullAutoTask extends BukkitRunnable {
+public class FullAutoTask implements Runnable {
 
     /**
      * Hardcoded full auto values. For every 1 in the array, the gun will fire on that tick. Some
@@ -51,7 +50,6 @@ public class FullAutoTask extends BukkitRunnable {
      * 
      * </blockquote>
      * <p>
-     * TODO Switch from int -> boolean for 1.6kb -> 400bits of ram
      */
     private static final int[][] AUTO = new int[][]{
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 0 perfect
@@ -157,22 +155,22 @@ public class FullAutoTask extends BukkitRunnable {
     public void run() {
         ItemStack taskReference = mainHand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
         if (!taskReference.hasItemMeta()) {
-            handData.setFullAutoTask(null, 0);
-            cancel();
+            handData.getFullAutoWrappedTask().cancel();
+            handData.setFullAutoTask(null, null);
             return;
         }
 
         if (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
-            handData.setFullAutoTask(null, 0);
-            cancel();
+            handData.getFullAutoWrappedTask().cancel();
+            handData.setFullAutoTask(null, null);
             return;
         }
 
         int ammoLeft = weaponHandler.getReloadHandler().getAmmoLeft(taskReference, weaponTitle);
 
         if (!weaponHandler.getShootHandler().keepFullAutoOn(entityWrapper, triggerType, trigger)) {
-            handData.setFullAutoTask(null, 0);
-            cancel();
+            handData.getFullAutoWrappedTask().cancel();
+            handData.setFullAutoTask(null, null);
 
             if (ammoLeft == 0) {
                 weaponHandler.getShootHandler().startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, dualWield, false);
@@ -196,8 +194,8 @@ public class FullAutoTask extends BukkitRunnable {
             }
 
             if (!weaponHandler.getReloadHandler().consumeAmmo(taskReference, weaponTitle, shootAmount * ammoPerShot)) {
-                handData.setFullAutoTask(null, 0);
-                cancel();
+                handData.getFullAutoWrappedTask().cancel();
+                handData.setFullAutoTask(null, null);
 
                 weaponHandler.getShootHandler().startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, dualWield, false);
                 return;

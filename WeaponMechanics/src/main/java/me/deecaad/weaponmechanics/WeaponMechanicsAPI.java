@@ -258,8 +258,9 @@ public final class WeaponMechanicsAPI {
 
         // Cancel the task for "invalid" shotsPerSecond values
         if (shotsPerSecond <= 0) {
-            hand.getFullAutoTask().cancel();
-            hand.setFullAutoTask(null, 0);
+
+            hand.getFullAutoWrappedTask().cancel();
+            hand.setFullAutoTask(null, null);
             return true;
         }
 

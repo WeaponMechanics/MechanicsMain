@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.wrappers;
 
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.shoot.FullAutoTask;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
@@ -25,7 +26,7 @@ public class HandData {
     private final boolean mainhand;
 
     private FullAutoTask fullAutoTask;
-    private int fullAutoTaskId;
+    private WrappedTask fullAutoWrappedTask;
     private int burstTask;
     private long lastShotTime;
     private long lastScopeTime;
@@ -77,9 +78,9 @@ public class HandData {
      * @param trySkinUpdate whether to also try to update skin
      */
     public void cancelTasks(boolean trySkinUpdate) {
-        if (fullAutoTaskId != 0) {
-            Bukkit.getScheduler().cancelTask(fullAutoTaskId);
-            fullAutoTaskId = 0;
+        if (fullAutoWrappedTask != null) {
+            fullAutoWrappedTask.cancel();
+            fullAutoWrappedTask = null;
             fullAutoTask = null;
         }
         if (burstTask != 0) {
@@ -128,11 +129,11 @@ public class HandData {
     }
 
     public boolean isUsingFullAuto() {
-        return fullAutoTaskId != 0;
+        return fullAutoWrappedTask != null;
     }
 
     /**
-     * If you cancel this task, be sure to call {@link #setFullAutoTask(FullAutoTask, int)} with null
+     * If you cancel this task, be sure to call {@link #setFullAutoTask(FullAutoTask, WrappedTask)} with null
      * and 0. Otherwise, WeaponMechanics will break.
      *
      * @return The full auto task, or null.
@@ -141,13 +142,13 @@ public class HandData {
         return fullAutoTask;
     }
 
-    public int getFullAutoTaskId() {
-        return fullAutoTaskId;
+    public @Nullable WrappedTask getFullAutoWrappedTask() {
+        return fullAutoWrappedTask;
     }
 
-    public void setFullAutoTask(@Nullable FullAutoTask fullAutoTask, int fullAutoTaskId) {
+    public void setFullAutoTask(@Nullable FullAutoTask fullAutoTask, WrappedTask fullAutoWrappedTask) {
         this.fullAutoTask = fullAutoTask;
-        this.fullAutoTaskId = fullAutoTaskId;
+        this.fullAutoWrappedTask = fullAutoWrappedTask;
     }
 
     public boolean isUsingBurst() {
