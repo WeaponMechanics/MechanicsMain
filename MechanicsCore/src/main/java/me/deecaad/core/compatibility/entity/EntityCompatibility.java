@@ -9,6 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.ComplexEntityPart;
 import org.bukkit.entity.ComplexLivingEntity;
@@ -16,6 +17,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -183,6 +185,27 @@ public interface EntityCompatibility {
         entity.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 800, 0));
         entity.playEffect(EntityEffect.TOTEM_RESURRECT);
         return true;
+    }
+
+    /**
+     * Creates an {@link EntityExplodeEvent} with the given parameters. This is used because Spigot
+     * does not have a backwards compatible constructor for this event.
+     *
+     * @param entity The non-null entity that is causing the explosion.
+     * @param location The non-null location of the explosion.
+     * @param blocks The non-null list of blocks that are being exploded.
+     * @param yield The yield of the explosion.
+     * @param breakBlocks Whether the blocks should be broken.
+     * @return The non-null event.
+     */
+    default @NotNull EntityExplodeEvent createEntityExplodeEvent(
+        @NotNull Entity entity,
+        @NotNull Location location,
+        @NotNull List<Block> blocks,
+        float yield,
+        boolean breakBlocks
+    ) {
+        return new EntityExplodeEvent(entity, location, blocks, yield);
     }
 
     /**
