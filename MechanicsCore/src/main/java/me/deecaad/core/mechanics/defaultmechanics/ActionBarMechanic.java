@@ -1,6 +1,6 @@
 package me.deecaad.core.mechanics.defaultmechanics;
 
-import com.tcoded.folialib.wrapper.task.WrappedTask;
+import com.cjcrafter.scheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
@@ -58,11 +58,11 @@ public class ActionBarMechanic extends Mechanic {
         // 40 ticks before fading, the interval we resend the action bar is 40
         // ticks.
         if (time > 40) {
-            MechanicsCore.getPlugin().getFoliaScheduler().runAtEntityTimer(player, new Consumer<>() {
+            MechanicsCore.getPlugin().getFoliaScheduler().entity(player).runAtFixedRate(new Consumer<>() {
                 int ticker = 0;
 
                 @Override
-                public void accept(WrappedTask task) {
+                public void accept(TaskImplementation task) {
                     ticker += 40;
                     if (ticker >= time) {
                         task.cancel();

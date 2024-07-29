@@ -21,7 +21,7 @@ object Versions {
     const val GSON = "2.10.1"
     const val KOTLIN = "1.9.21"
     const val X_SERIES = "11.0.0"
-    const val FOLIA_LIB = "0.4.0-SNAPSHOT"
+    const val FOLIA_SCHEDULER = "0.1.0"
 }
 
 object Dependencies {
@@ -46,7 +46,7 @@ object Dependencies {
     const val ANNOTATIONS = "org.jetbrains:annotations:${Versions.ANNOTATIONS}"
     const val GSON = "com.google.code.gson:gson:${Versions.GSON}"
     const val X_SERIES = "com.github.cryptomorin:XSeries:${Versions.X_SERIES}"
-    const val FOLIA_LIB = "com.tcoded:FoliaLib:${Versions.FOLIA_LIB}"
+    const val FOLIA_SCHEDULER = "com.cjcrafter:foliascheduler:${Versions.FOLIA_SCHEDULER}"
 }
 
 fun org.gradle.api.artifacts.dsl.DependencyHandler.adventureChatAPI() {

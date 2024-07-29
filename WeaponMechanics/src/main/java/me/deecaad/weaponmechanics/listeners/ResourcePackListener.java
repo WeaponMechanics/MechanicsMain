@@ -92,7 +92,7 @@ public class ResourcePackListener implements Listener {
             // This is the default link, meaning the Admin hasn't changed it. We
             // should use the latest version instead. Run it on a delay to make
             // sure the player has joined.
-            WeaponMechanics.getInstance().getFoliaScheduler().runAtEntityLater(player, () -> player.setResourcePack(resourcePackLink), 10L);
+            WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(task -> player.setResourcePack(resourcePackLink), 10L);
             return;
         }
         WeaponMechanics.debug.debug("Sending " + player.getName() + " resource pack: " + link);

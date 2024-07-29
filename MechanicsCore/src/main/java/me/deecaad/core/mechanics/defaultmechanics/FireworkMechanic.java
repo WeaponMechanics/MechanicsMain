@@ -230,10 +230,10 @@ public class FireworkMechanic extends PlayerEffectMechanic {
         }
 
         // Schedule a task to explode the firework later.
-        MechanicsCore.getPlugin().getFoliaScheduler().runAtLocation(targetLoc, (ignore) -> {
+        MechanicsCore.getPlugin().getFoliaScheduler().region(targetLoc).runDelayed((task) -> {
             fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
             fakeEntity.remove();
-        });
+        }, flightTime);
     }
 
     @Override

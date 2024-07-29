@@ -1,14 +1,14 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import com.tcoded.folialib.wrapper.task.WrappedTask;
+import com.cjcrafter.scheduler.TaskImplementation;
 import net.kyori.adventure.bossbar.BossBar;
 import org.jetbrains.annotations.Nullable;
 
 public class MessageHelper {
 
     private BossBar bossBar;
-    private WrappedTask bossBarTask;
-    private WrappedTask expTask;
+    private TaskImplementation bossBarTask;
+    private TaskImplementation expTask;
 
     public @Nullable BossBar getBossBar() {
         return bossBar;
@@ -18,19 +18,19 @@ public class MessageHelper {
         this.bossBar = bossBar;
     }
 
-    public @Nullable WrappedTask getBossBarTask() {
+    public @Nullable TaskImplementation getBossBarTask() {
         return bossBarTask;
     }
 
-    public void setBossBarTask(@Nullable WrappedTask bossBarTask) {
+    public void setBossBarTask(@Nullable TaskImplementation bossBarTask) {
         this.bossBarTask = bossBarTask;
     }
 
-    public @Nullable WrappedTask getExpTask() {
+    public @Nullable TaskImplementation getExpTask() {
         return expTask;
     }
 
-    public void setExpTask(@Nullable WrappedTask expTask) {
+    public void setExpTask(@Nullable TaskImplementation expTask) {
         this.expTask = expTask;
     }
 }

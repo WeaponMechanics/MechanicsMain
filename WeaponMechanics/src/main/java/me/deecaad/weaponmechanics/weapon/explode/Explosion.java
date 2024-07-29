@@ -183,7 +183,7 @@ public class Explosion implements Serializer<Explosion> {
         // Set to 1 to indicate that this projectile has been detonated
         projectile.setIntTag("explosion-detonation", 1);
 
-        WeaponMechanics.getInstance().getFoliaScheduler().runAtLocationLater(projectile.getBukkitLocation(), () -> {
+        WeaponMechanics.getInstance().getFoliaScheduler().region(projectile.getBukkitLocation()).runDelayed(task -> {
             ProjectilePreExplodeEvent event = new ProjectilePreExplodeEvent(projectile, Explosion.this);
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled())
@@ -382,7 +382,7 @@ public class Explosion implements Serializer<Explosion> {
                     int time = timeOffset + ((isAtOnce ? size : i) / regeneration.getMaxBlocksPerUpdate() * regeneration.getInterval());
 
                     List<BlockDamageData.DamageData> finalBrokenBlocks = new ArrayList<>(brokenBlocks);
-                    WeaponMechanics.getInstance().getFoliaScheduler().runAtLocationLater(block.getLocation(), () -> {
+                    WeaponMechanics.getInstance().getFoliaScheduler().region(block).runDelayed(task -> {
                         for (BlockDamageData.DamageData blockWrapper : finalBrokenBlocks) {
 
                             // The blocks may have been regenerated already

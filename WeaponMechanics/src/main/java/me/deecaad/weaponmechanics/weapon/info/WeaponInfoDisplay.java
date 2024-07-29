@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
-import com.tcoded.folialib.wrapper.task.WrappedTask;
+import com.cjcrafter.scheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.SerializeData;
@@ -219,7 +219,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
                 magazineProgress = mainhand ? getMagazineProgress(mainStack, mainWeapon) : getMagazineProgress(offStack, offWeapon);
                 bossBar.progress((float) magazineProgress);
             }
-            messageHelper.setBossBarTask(WeaponMechanics.getInstance().getFoliaScheduler().runAtEntityLater(player, () -> {
+            messageHelper.setBossBarTask(WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(task -> {
                 Audience audience = MechanicsCore.getPlugin().adventure.player(player);
                 audience.hideBossBar(messageHelper.getBossBar());
                 messageHelper.setBossBar(null);
@@ -238,7 +238,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
                 magazineProgress = getMagazineProgress(useStack, useWeapon);
             }
 
-            WrappedTask lastExpTask = messageHelper.getExpTask();
+            TaskImplementation lastExpTask = messageHelper.getExpTask();
             if (lastExpTask != null)
                 lastExpTask.cancel();
 
@@ -249,7 +249,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
                         : player.getExp(),
                         player.getTotalExperience(),
                         showAmmoInExpLevel ? getAmmoLeft(useStack, useWeapon) : player.getLevel()));
-                messageHelper.setExpTask(WeaponMechanics.getInstance().getFoliaScheduler().runAtEntityLater(player, () -> {
+                messageHelper.setExpTask(WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(task -> {
                     Object packet = ReflectionUtil.newInstance(packetPlayOutExperienceConstructor, player.getExp(), player.getTotalExperience(), player.getLevel());
                     CompatibilityAPI.getCompatibility().sendPackets(player, packet);
                     messageHelper.setExpTask(null);
@@ -257,7 +257,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
             } else {
                 player.sendExperienceChange(showAmmoInExpProgress ? (float) (magazineProgress != -1 ? magazineProgress : getMagazineProgress(useStack, useWeapon)) : player.getExp(),
                     showAmmoInExpLevel ? getAmmoLeft(useStack, useWeapon) : player.getLevel());
-                messageHelper.setExpTask(WeaponMechanics.getInstance().getFoliaScheduler().runAtEntityLater(player, () -> {
+                messageHelper.setExpTask(WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(task -> {
                     player.sendExperienceChange(player.getExp(), player.getLevel());
                     messageHelper.setExpTask(null);
                 }, 40));

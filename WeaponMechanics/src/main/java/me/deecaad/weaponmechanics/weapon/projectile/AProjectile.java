@@ -1,10 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ray.RayTraceResult;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -74,7 +74,7 @@ public abstract class AProjectile {
     public boolean isOwnedByCurrentRegion() {
         int chunkX = location.getBlockX() >> 4;
         int chunkZ = location.getBlockZ() >> 4;
-        return MechanicsCore.getPlugin().getFoliaScheduler().isOwnedByCurrentRegion(world, chunkX, chunkZ);
+        return WeaponMechanics.getInstance().getFoliaScheduler().isOwnedByCurrentRegion(world, chunkX, chunkZ);
     }
 
     /**

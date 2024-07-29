@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.commands.testcommands;
 
-import com.tcoded.folialib.wrapper.task.WrappedTask;
+import com.cjcrafter.scheduler.TaskImplementation;
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -47,10 +47,10 @@ public class RecoilCommand extends SubCommand {
 
         Recoil recoil = new Recoil(rotationTime, recoverTime, yaws, pitches, null, null);
         PlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper((Player) sender);
-        WeaponMechanics.getInstance().getFoliaScheduler().runAtEntityTimer(playerWrapper.getPlayer(), new Consumer<>() {
+        WeaponMechanics.getInstance().getFoliaScheduler().entity(playerWrapper.getPlayer()).runAtFixedRate(new Consumer<>() {
             int ticks = 0;
             @Override
-            public void accept(WrappedTask task) {
+            public void accept(TaskImplementation task) {
                 if (playerWrapper.isRightClicking()) {
                     recoil.start((Player) sender, true);
                 }

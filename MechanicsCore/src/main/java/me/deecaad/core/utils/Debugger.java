@@ -1,12 +1,11 @@
 package me.deecaad.core.utils;
 
-import com.tcoded.folialib.FoliaLib;
-import com.tcoded.folialib.impl.PlatformScheduler;
+import com.cjcrafter.scheduler.SchedulerCompatibility;
+import com.cjcrafter.scheduler.ServerImplementation;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Logger;
 
@@ -218,15 +217,15 @@ public class Debugger {
         if (hasStarted)
             return;
 
-        FoliaLib foliaLib = new FoliaLib((JavaPlugin) plugin);
-        start(foliaLib.getImpl());
+        ServerImplementation impl = new SchedulerCompatibility(plugin).getScheduler();
+        start(impl);
     }
 
-    public synchronized void start(PlatformScheduler impl) {
+    public synchronized void start(ServerImplementation impl) {
         if (hasStarted)
             return;
 
-        impl.runTimerAsync(() -> {
+        impl.async().runAtFixedRate(task -> {
             if (errors > 0) {
                 boolean alertedPlayer = false;
 

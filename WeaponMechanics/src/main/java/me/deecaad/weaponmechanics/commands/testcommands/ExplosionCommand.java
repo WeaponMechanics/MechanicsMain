@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.explode.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.Flashbang;
@@ -55,7 +56,7 @@ public class ExplosionCommand extends SubCommand {
     }
 
     private void explode(ExplosionShape shape, Player player, Location loc) {
-        MechanicsCore.getPlugin().getFoliaScheduler().runAtEntityLater(player, () -> {
+        WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(task -> {
             RegenerationData regeneration = new RegenerationData(160, 2, 1);
             BlockDamage blockDamage = new BlockDamage(0.0, 1, 1, Material.AIR, BlockDamage.BreakMode.BREAK, Map.of());
             Explosion explosion = new Explosion(shape, new OptimizedExposure(), blockDamage, regeneration, null, 0.9, 1.0,

@@ -70,7 +70,7 @@ public abstract class Database {
             return;
         }
 
-        MechanicsCore.getPlugin().getFoliaScheduler().runAsync((ignore) -> executeUpdate(sql));
+        MechanicsCore.getPlugin().getFoliaScheduler().async().runNow((ignore) -> executeUpdate(sql));
     }
 
     private void executeUpdate(String... sql) {
@@ -131,7 +131,7 @@ public abstract class Database {
         if (sql == null || sql.isEmpty() || consumer == null)
             throw new IllegalArgumentException("Empty statement or null consumer");
 
-        MechanicsCore.getPlugin().getFoliaScheduler().runAsync((ignore) -> {
+        MechanicsCore.getPlugin().getFoliaScheduler().async().runNow((ignore) -> {
             Connection connection = null;
             PreparedStatement preparedStatement = null;
             ResultSet resultSet = null;

@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.commands;
 
-import com.tcoded.folialib.wrapper.task.WrappedTask;
+import com.cjcrafter.scheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.*;
 import me.deecaad.core.commands.arguments.*;
@@ -206,9 +206,7 @@ public class WeaponMechanicsCommand {
                 .withPermission("weaponmechanics.commands.reload")
                 .withDescription("Reloads config")
                 .executes(CommandExecutor.any((sender, args) -> {
-                    WeaponMechanicsAPI.getInstance().onReload().thenCompose((ignore) -> WeaponMechanics.getInstance().getFoliaScheduler().runNextTick((task) -> {
-                        sender.sendMessage(GREEN + "Reloaded configuration");
-                    }));
+                    WeaponMechanicsAPI.getInstance().onReload().thenAccept((task) -> sender.sendMessage(GREEN + "Reloaded configuration"));
                 })))
 
             .withSubcommand(new CommandBuilder("repair")
@@ -736,11 +734,11 @@ public class WeaponMechanicsCommand {
             File outputPath = new File(pl.getDataFolder().getPath() + "/weapons/crackshotconvert/");
 
             sender.sendMessage(GREEN + "Starting CrackShot conversion");
-            WeaponMechanics.getInstance().getFoliaScheduler().runAsync((task) ->
+            WeaponMechanics.getInstance().getFoliaScheduler().async().runNow((task) ->
                 new Converter(sender).convertAllFiles(outputPath)
-            ).thenCompose((ignore) -> WeaponMechanics.getInstance().getFoliaScheduler().runNextTick((task) ->
+            ).asFuture().thenAccept(task ->
                 sender.sendMessage(GREEN + "Output converted files to " + outputPath)
-            ));
+            );
 
             return;
         }
@@ -787,7 +785,7 @@ public class WeaponMechanicsCommand {
     public static void explode(LivingEntity cause, ExplosionShape shape, Location origin, String exposureString, boolean isBreakBlocks, Predicate<Block> blackList, int regen) {
         cause.sendMessage(GREEN + "Spawning explosion in 5 seconds");
 
-        WeaponMechanics.getInstance().getFoliaScheduler().runAtLocationLater(origin, () -> {
+        WeaponMechanics.getInstance().getFoliaScheduler().region(origin).runDelayed(task -> {
             RegenerationData regeneration = new RegenerationData(regen, Math.max(1, (int) shape.getArea() / 100), 1);
             BlockDamage blockDamage = new BlockDamage(0.0, 1, 1, Material.AIR, BlockDamage.BreakMode.BREAK, Map.of()) {
                 @Override
@@ -810,13 +808,13 @@ public class WeaponMechanicsCommand {
         entity.show(player);
         entity.setMotion(0, 0, 0);
 
-        WeaponMechanics.getInstance().getFoliaScheduler().runTimerAsync(new Consumer<>() {
+        WeaponMechanics.getInstance().getFoliaScheduler().async().runAtFixedRate(new Consumer<>() {
             // Some temp vars for the different move types
             int ticksAlive = 0;
             boolean flash = true;
 
             @Override
-            public void accept(WrappedTask task) {
+            public void accept(TaskImplementation task) {
                 if (ticksAlive++ >= time) {
                     entity.remove();
                     task.cancel();
@@ -864,7 +862,7 @@ public class WeaponMechanicsCommand {
             CompatibilityAPI.getCompatibility().sendPackets(sender, packet);
         }
 
-        WeaponMechanics.getInstance().getFoliaScheduler().runAtEntityLater(sender, () -> {
+        WeaponMechanics.getInstance().getFoliaScheduler().entity(sender).runDelayed(task -> {
             sender.sendMessage(GREEN + "Resetting META...");
             for (Entity entity : targets) {
                 // TODO check if entity is in the same region
@@ -880,10 +878,10 @@ public class WeaponMechanicsCommand {
         sender.sendMessage(GREEN + "Showing hitboxes of " + targets.size() + " entities for " + ticks + " ticks.");
 
         Configuration basicConfiguration = WeaponMechanics.getBasicConfigurations();
-        WeaponMechanics.getInstance().getFoliaScheduler().runTimerAsync(new Consumer<>() {
+        WeaponMechanics.getInstance().getFoliaScheduler().async().runAtFixedRate(new Consumer<>() {
             int ticksPassed = 0;
             @Override
-            public void accept(WrappedTask task) {
+            public void accept(TaskImplementation task) {
 
                 for (Entity entity : targets) {
                     if (!(entity instanceof LivingEntity))
@@ -975,7 +973,7 @@ public class WeaponMechanicsCommand {
             fakeEntity.remove();
             return;
         }
-        WeaponMechanics.getInstance().getFoliaScheduler().runAtLocationLater(location, () -> {
+        WeaponMechanics.getInstance().getFoliaScheduler().region(location).runDelayed(task -> {
             fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
             fakeEntity.remove();
         }, time);
@@ -993,10 +991,10 @@ public class WeaponMechanicsCommand {
             rayTrace.withOutlineHitPosition(sender);
         }
 
-        WeaponMechanics.getInstance().getFoliaScheduler().runAtEntityTimer(sender, new Consumer<>() {
+        WeaponMechanics.getInstance().getFoliaScheduler().entity(sender).runAtFixedRate(new Consumer<>() {
             int ticker = 0;
             @Override
-            public void accept(WrappedTask task) {
+            public void accept(TaskImplementation task) {
                 Location location = sender.getEyeLocation();
                 Vector direction = location.getDirection();
 
@@ -1014,11 +1012,11 @@ public class WeaponMechanicsCommand {
         Recoil recoil = new Recoil(push, recover, yaws.stream().map(Double::floatValue).collect(Collectors.toList()), pitches.stream().map(Double::floatValue).collect(Collectors.toList()), null,
             null);
 
-        WeaponMechanics.getInstance().getFoliaScheduler().runAtEntityTimer(player, new Consumer<>() {
+        WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runAtFixedRate(new Consumer<>() {
             int ticks = 0;
 
             @Override
-            public void accept(WrappedTask task) {
+            public void accept(TaskImplementation task) {
                 if (playerWrapper.isRightClicking()) {
                     recoil.start(player, true);
                 }
@@ -1072,10 +1070,10 @@ public class WeaponMechanicsCommand {
             }
         }
 
-        WeaponMechanics.getInstance().getFoliaScheduler().runAtEntityTimer(sender, new Consumer<>() {
+        WeaponMechanics.getInstance().getFoliaScheduler().entity(sender).runAtFixedRate(new Consumer<>() {
             int ticks = 0;
             @Override
-            public void accept(WrappedTask task) {
+            public void accept(TaskImplementation task) {
                 if (particles)
                     parent.getParent().debug(sender.getWorld());
 

@@ -1,13 +1,14 @@
 package me.deecaad.weaponmechanics;
 
+import com.cjcrafter.scheduler.SchedulerCompatibility;
+import com.cjcrafter.scheduler.ServerImplementation;
+import com.cjcrafter.scheduler.TaskImplementation;
+import com.cjcrafter.scheduler.folia.FoliaServer;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.jeff_media.updatechecker.UpdateCheckSource;
 import com.jeff_media.updatechecker.UpdateChecker;
 import com.jeff_media.updatechecker.UserAgentBuilder;
-import com.tcoded.folialib.FoliaLib;
-import com.tcoded.folialib.impl.PlatformScheduler;
-import com.tcoded.folialib.wrapper.task.WrappedTask;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.compatibility.CompatibilityAPI;
@@ -109,7 +110,7 @@ public class WeaponMechanics {
     ProtocolManager protocolManager;
     Metrics metrics;
     Database database;
-    FoliaLib foliaScheduler;
+    ServerImplementation foliaScheduler;
 
     // public so people can import a static variable
     public static Debugger debug;
@@ -175,14 +176,15 @@ public class WeaponMechanics {
         plugin = this;
         entityWrappers = new HashMap<>();
 
-        foliaScheduler = new FoliaLib(javaPlugin);
+        foliaScheduler = new SchedulerCompatibility(javaPlugin).getScheduler();
         writeFiles();
         registerPacketListeners();
 
         weaponHandler = new WeaponHandler();
         resourcePackListener = new ResourcePackListener();
 
-        if (foliaScheduler.isFolia()) {
+        // TODO: Use VersionLib
+        if (foliaScheduler instanceof FoliaServer) {
             projectileSpawner = new FoliaProjectileSpawner(getPlugin());
         } else {
             projectileSpawner = new SpigotProjectileSpawner(getPlugin());
@@ -206,7 +208,7 @@ public class WeaponMechanics {
         // side note, not all tasks can be run after the server starts.
         // Commands, for example, can't be registered after onEnable without
         // some disgusting NMS shit.
-        getFoliaScheduler().runNextTick((task) -> {
+        getFoliaScheduler().global().run(task -> {
             loadConfig();
             registerListeners();
             registerBStats();
@@ -279,7 +281,7 @@ public class WeaponMechanics {
 
         // Ensure that the resource pack exists in the folder
         if (basicConfiguration.getBool("Resource_Pack_Download.Enabled")) {
-            getFoliaScheduler().runAsync((task) -> {
+            getFoliaScheduler().async().runNow((task) -> {
                 String link = basicConfiguration.getString("Resource_Pack_Download.Link");
                 int connection = basicConfiguration.getInt("Resource_Pack_Download.Connection_Timeout");
                 int read = basicConfiguration.getInt("Resource_Pack_Download.Read_Timeout");
@@ -446,7 +448,7 @@ public class WeaponMechanics {
         Permission parent = Bukkit.getPluginManager().getPermission("weaponmechanics.use.*");
         if (parent == null) {
             // Some older versions register permissions after onEnable...
-            getFoliaScheduler().runNextTick((task) -> registerPermissions());
+            getFoliaScheduler().global().run((task) -> registerPermissions());
             return;
         }
 
@@ -554,7 +556,7 @@ public class WeaponMechanics {
         metrics.addCustomChart(new SimplePie("core_version", () -> MechanicsCore.getPlugin().getDescription().getVersion()));
     }
 
-    public CompletableFuture<Void> onReload() {
+    public CompletableFuture<TaskImplementation> onReload() {
         JavaPlugin mechanicsCore = MechanicsCore.getPlugin();
 
         this.onDisable();
@@ -570,14 +572,15 @@ public class WeaponMechanics {
         weaponHandler = new WeaponHandler();
         resourcePackListener = new ResourcePackListener();
 
-        if (foliaScheduler.isFolia()) {
+        // TODO: Use VersionLib
+        if (foliaScheduler instanceof FoliaServer) {
             projectileSpawner = new FoliaProjectileSpawner(getPlugin());
         } else {
             projectileSpawner = new SpigotProjectileSpawner(getPlugin());
         }
 
-        return getFoliaScheduler().runAsync((task) -> writeFiles()).thenCompose((ignore) ->
-            getFoliaScheduler().runNextTick((task) -> {
+        return getFoliaScheduler().async().runNow((task) -> writeFiles()).asFuture().thenCompose((ignore) ->
+            getFoliaScheduler().global().run((task) -> {
                 loadConfig();
                 registerPacketListeners();
                 registerListeners();
@@ -592,7 +595,7 @@ public class WeaponMechanics {
                     PlayerWrapper playerWrapper = getPlayerWrapper(player);
                     weaponHandler.getStatsHandler().load(playerWrapper);
                 }
-        }));
+        }).asFuture());
     }
 
     public void onDisable() {
@@ -630,8 +633,8 @@ public class WeaponMechanics {
         debug = null;
     }
 
-    public PlatformScheduler getFoliaScheduler() {
-        return foliaScheduler.getScheduler();
+    public ServerImplementation getFoliaScheduler() {
+        return foliaScheduler;
     }
 
     /**
@@ -717,7 +720,7 @@ public class WeaponMechanics {
     public static void removeEntityWrapper(LivingEntity entity) {
         EntityWrapper oldWrapper = plugin.entityWrappers.remove(entity);
         if (oldWrapper != null) {
-            WrappedTask oldMoveTask = oldWrapper.getMoveTask();
+            TaskImplementation oldMoveTask = oldWrapper.getMoveTask();
             if (oldMoveTask != null) {
                 oldMoveTask.cancel();
             }

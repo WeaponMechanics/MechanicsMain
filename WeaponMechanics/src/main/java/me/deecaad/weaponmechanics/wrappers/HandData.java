@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import com.tcoded.folialib.wrapper.task.WrappedTask;
+import com.cjcrafter.scheduler.TaskImplementation;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.shoot.FullAutoTask;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
@@ -26,7 +26,7 @@ public class HandData {
     private final boolean mainhand;
 
     private FullAutoTask fullAutoTask;
-    private WrappedTask fullAutoWrappedTask;
+    private TaskImplementation fullAutoWrappedTask;
     private int burstTask;
     private long lastShotTime;
     private long lastScopeTime;
@@ -133,7 +133,7 @@ public class HandData {
     }
 
     /**
-     * If you cancel this task, be sure to call {@link #setFullAutoTask(FullAutoTask, WrappedTask)} with null
+     * If you cancel this task, be sure to call {@link #setFullAutoTask(FullAutoTask, TaskImplementation)} with null
      * and 0. Otherwise, WeaponMechanics will break.
      *
      * @return The full auto task, or null.
@@ -142,11 +142,11 @@ public class HandData {
         return fullAutoTask;
     }
 
-    public @Nullable WrappedTask getFullAutoWrappedTask() {
+    public @Nullable TaskImplementation getFullAutoWrappedTask() {
         return fullAutoWrappedTask;
     }
 
-    public void setFullAutoTask(@Nullable FullAutoTask fullAutoTask, WrappedTask fullAutoWrappedTask) {
+    public void setFullAutoTask(@Nullable FullAutoTask fullAutoTask, TaskImplementation fullAutoWrappedTask) {
         this.fullAutoTask = fullAutoTask;
         this.fullAutoWrappedTask = fullAutoWrappedTask;
     }

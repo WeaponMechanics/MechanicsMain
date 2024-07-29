@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
-import com.tcoded.folialib.wrapper.task.WrappedTask;
+import com.cjcrafter.scheduler.TaskImplementation;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
@@ -160,11 +160,11 @@ public class AirStrike implements Serializer<AirStrike> {
             mechanics.use(cast);
         }
 
-        WeaponMechanics.getInstance().getFoliaScheduler().runAtLocationTimer(flareLocation, new Consumer<>() {
+        WeaponMechanics.getInstance().getFoliaScheduler().region(flareLocation).runAtFixedRate(new Consumer<>() {
             int count = 0;
 
             @Override
-            public void accept(WrappedTask task) {
+            public void accept(@NotNull TaskImplementation task) {
                 int bombs = RandomUtil.range(min, max);
                 int checks = bombs * bombs;
 
@@ -238,7 +238,7 @@ public class AirStrike implements Serializer<AirStrike> {
     }
 
     record Vector2d(double x, double z) {
-        double distanceSquared(Vector2d vector) {
+        double distanceSquared(@NotNull Vector2d vector) {
             return NumberConversions.square(this.x - vector.x) + NumberConversions.square(this.z - vector.z);
         }
     }

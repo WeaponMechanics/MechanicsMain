@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.shoot;
 
-import com.tcoded.folialib.impl.PlatformScheduler;
-import com.tcoded.folialib.wrapper.task.WrappedTask;
+import com.cjcrafter.scheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
@@ -342,8 +341,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         boolean mainhand = slot == EquipmentSlot.HAND;
 
         FullAutoTask fullAutoTask = new FullAutoTask(weaponHandler, entityWrapper, weaponTitle, weaponStack, mainhand, triggerType, dualWield, event.getShotsPerSecond());
-        PlatformScheduler scheduler = WeaponMechanics.getInstance().getFoliaScheduler();
-        WrappedTask task = scheduler.runAtEntityTimer(entityWrapper.getEntity(), fullAutoTask, 1, 1);
+        TaskImplementation task = WeaponMechanics.getInstance().getFoliaScheduler().entity(entityWrapper.getEntity()).runAtFixedRate(fullAutoTask, 1, 1);
         handData.setFullAutoTask(fullAutoTask, task);
         return true;
     }

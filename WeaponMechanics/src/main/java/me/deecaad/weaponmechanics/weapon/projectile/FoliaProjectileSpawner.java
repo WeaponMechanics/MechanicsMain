@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import com.tcoded.folialib.impl.PlatformScheduler;
-import me.deecaad.core.MechanicsCore;
+import com.cjcrafter.scheduler.ServerImplementation;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Location;
@@ -25,12 +24,12 @@ public class FoliaProjectileSpawner extends ProjectileSpawner {
 
     @Override
     public void spawn(@NotNull AProjectile projectile) {
-        PlatformScheduler scheduler = MechanicsCore.getPlugin().getFoliaScheduler();
+        ServerImplementation scheduler = WeaponMechanics.getInstance().getFoliaScheduler();
         Location location = projectile.getBukkitLocation();
 
         // We cannot tick this projectile, so we need to switch threads to spawn it
         if (!projectile.isOwnedByCurrentRegion()) {
-            scheduler.runAtLocation(location, (task) -> spawn0(scheduler, location, projectile));
+            scheduler.region(location).run(task -> spawn0(scheduler, location, projectile));
             return;
         }
 
@@ -38,7 +37,7 @@ public class FoliaProjectileSpawner extends ProjectileSpawner {
     }
 
     private void spawn0(
-        @NotNull PlatformScheduler scheduler,
+        @NotNull ServerImplementation scheduler,
         @NotNull Location location,
         @NotNull AProjectile projectile
     ) {
@@ -49,7 +48,7 @@ public class FoliaProjectileSpawner extends ProjectileSpawner {
         if (doFirstTick(projectile))
             return;
 
-        scheduler.runAtLocationTimer(location, (task) -> {
+        scheduler.region(location).runAtFixedRate((task) -> {
             // Ideally, this would never happen.
             if (!projectile.isOwnedByCurrentRegion()) {
                 WeaponMechanics.debug.log(LogLevel.WARN, "Projectile is not owned by the current region",
@@ -74,7 +73,7 @@ public class FoliaProjectileSpawner extends ProjectileSpawner {
                 projectile.remove();
                 task.cancel();
             }
-        }, 0L, 0L);
+        }, 0L, 1L);
 
     }
 }

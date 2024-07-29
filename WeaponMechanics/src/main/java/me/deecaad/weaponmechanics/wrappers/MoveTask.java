@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.wrappers;
 
+import com.cjcrafter.scheduler.TaskImplementation;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.block.BlockCompatibility;
@@ -18,8 +19,11 @@ import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
+import org.jetbrains.annotations.NotNull;
 
-public class MoveTask implements Runnable {
+import java.util.function.Consumer;
+
+public class MoveTask implements Consumer<TaskImplementation> {
 
     private final EntityWrapper entityWrapper;
     private Location from;
@@ -39,13 +43,13 @@ public class MoveTask implements Runnable {
     }
 
     @Override
-    public void run() {
+    public void accept(@NotNull TaskImplementation task) {
         LivingEntity entity = entityWrapper.getEntity();
         if (entity == null || !entity.isValid() || entity.isDead()) { // Just an extra check in case something odd happened
 
             // Only cancel task IF it isn't player, otherwise just don't do anything
             if (!entityWrapper.isPlayer())
-                entityWrapper.getMoveTask().cancel();
+                task.cancel();
 
             return;
         }

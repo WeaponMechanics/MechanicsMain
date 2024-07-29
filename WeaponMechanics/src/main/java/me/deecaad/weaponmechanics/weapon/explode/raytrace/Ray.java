@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode.raytrace;
 
-import com.tcoded.folialib.wrapper.task.WrappedTask;
+import com.cjcrafter.scheduler.TaskImplementation;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.block.BlockCompatibility;
@@ -228,10 +228,10 @@ public class Ray {
         Particle.DustOptions color = collides ? new Particle.DustOptions(Color.RED, 0.25f) : new Particle.DustOptions(Color.LIME, 0.25f);
 
         Location loc = point.toLocation(world);
-        WeaponMechanics.getInstance().getFoliaScheduler().runAtLocationTimer(loc, new Consumer<>() {
+        WeaponMechanics.getInstance().getFoliaScheduler().region(loc).runAtFixedRate(new Consumer<>() {
             int i = 0;
             @Override
-            public void accept(WrappedTask task) {
+            public void accept(TaskImplementation task) {
                 if (i++ >= 1000) {
                     task.cancel();
                 }

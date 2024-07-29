@@ -1,7 +1,7 @@
 package me.deecaad.core;
 
-import com.tcoded.folialib.FoliaLib;
-import com.tcoded.folialib.impl.PlatformScheduler;
+import com.cjcrafter.scheduler.SchedulerCompatibility;
+import com.cjcrafter.scheduler.ServerImplementation;
 import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.events.triggers.EquipListener;
 import me.deecaad.core.file.JarSearcher;
@@ -46,12 +46,12 @@ public class MechanicsCore extends JavaPlugin {
 
     public BukkitAudiences adventure;
     public MiniMessage message;
-    public FoliaLib foliaScheduler;
+    public ServerImplementation foliaScheduler;
     private boolean registeredMechanics;
 
     public void onLoad() {
         instance = this;
-        foliaScheduler = new FoliaLib(this);
+        foliaScheduler = new SchedulerCompatibility(this).getScheduler();
 
         int level = getConfig().getInt("Debug_Level");
         boolean printTraces = getConfig().getBoolean("Print_Traces");
@@ -148,8 +148,8 @@ public class MechanicsCore extends JavaPlugin {
         adventure = null;
     }
 
-    public @NotNull PlatformScheduler getFoliaScheduler() {
-        return foliaScheduler.getScheduler();
+    public @NotNull ServerImplementation getFoliaScheduler() {
+        return foliaScheduler;
     }
 
     /**
