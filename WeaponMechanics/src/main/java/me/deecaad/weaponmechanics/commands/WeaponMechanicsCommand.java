@@ -1004,7 +1004,7 @@ public class WeaponMechanicsCommand {
                     task.cancel();
                 }
             }
-        }, 0, 0);
+        }, 1, 1);
     }
 
     public static void recoil(Player player, int push, int recover, List<Double> yaws, List<Double> pitches, int rate, int time) {
@@ -1026,7 +1026,7 @@ public class WeaponMechanicsCommand {
                     task.cancel();
                 }
             }
-        }, 0, rate);
+        }, 1, rate);
     }
 
     public static void shoot(LivingEntity sender, double speed, double gravity, EntityType entity) {
@@ -1107,6 +1107,6 @@ public class WeaponMechanicsCommand {
                     task.cancel();
                 }
             }
-        }, 0, 0);
+        }, 1, 1);
     }
 }

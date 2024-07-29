@@ -60,6 +60,6 @@ public class RecoilCommand extends SubCommand {
                     task.cancel();
                 }
             }
-        }, 0, fireRate);
+        }, 1, fireRate);
     }
 }

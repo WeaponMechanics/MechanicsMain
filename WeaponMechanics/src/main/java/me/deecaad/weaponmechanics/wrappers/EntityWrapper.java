@@ -44,7 +44,7 @@ public class EntityWrapper {
             || !config.getBool("Disabled_Trigger_Checks.Jump")
             || !config.getBool("Disabled_Trigger_Checks.Double_Jump")) {
 
-            this.moveTask = WeaponMechanics.getInstance().getFoliaScheduler().entity(livingEntity).runAtFixedRate(new MoveTask(this), 0, MOVE_TASK_INTERVAL);
+            this.moveTask = WeaponMechanics.getInstance().getFoliaScheduler().entity(livingEntity).runAtFixedRate(new MoveTask(this), 1, MOVE_TASK_INTERVAL);
         }
     }
 
