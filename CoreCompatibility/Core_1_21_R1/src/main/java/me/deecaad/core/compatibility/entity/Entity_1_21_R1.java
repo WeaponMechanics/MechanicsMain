@@ -7,16 +7,20 @@ import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
+import org.bukkit.ExplosionResult;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
@@ -70,6 +74,12 @@ public class Entity_1_21_R1 implements EntityCompatibility {
         temp.add(new Pair<>(nmsSlot, CraftItemStack.asNMSCopy(item)));
         ClientboundSetEquipmentPacket packet = new ClientboundSetEquipmentPacket(id, temp);
         ((CraftPlayer) bukkit).getHandle().connection.send(packet);
+    }
+
+    @Override
+    public @NotNull EntityExplodeEvent createEntityExplodeEvent(@NotNull Entity entity, @NotNull Location location, @NotNull List<Block> blocks, float yield, boolean breakBlocks) {
+        ExplosionResult guess = breakBlocks ? ExplosionResult.DESTROY : ExplosionResult.KEEP;
+        return new EntityExplodeEvent(entity, location, blocks, yield, guess);
     }
 
     public static List<SynchedEntityData.DataValue<?>> getEntityData(SynchedEntityData data, boolean forceUpdateAll) {
