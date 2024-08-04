@@ -1,12 +1,19 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
+import com.cjcrafter.scheduler.ServerImplementation;
+import com.cjcrafter.scheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.file.*;
+import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.IValidator;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerMissingKeyException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderMessage;
 import me.deecaad.core.utils.StringUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
@@ -36,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
@@ -250,6 +258,42 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
             @Override
             public void task() {
+
+            }
+
+            @Override
+            public void setup() {
+                handData.addReloadTask(getTaskId());
+
+                int ammoLeft = CustomTag.AMMO_LEFT.getInteger(weaponStack);
+
+                if (unloadAmmoOnReload && ammoLeft > 0) {
+                    // unload weapon and give ammo back to given entity
+
+                    if (ammo != null)
+                        ammo.giveAmmo(weaponStack, playerWrapper, ammoLeft, magazineSize);
+                    unloadedAmount = ammoLeft;
+
+                    handleWeaponStackAmount(entityWrapper, weaponStack);
+
+                    CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
+                }
+
+                if (reloadEvent.getMechanics() != null)
+                    reloadEvent.getMechanics().use(new CastData(shooter, weaponTitle, weaponStack, handData::addReloadTask));
+
+                if (weaponInfoDisplay != null)
+                    weaponInfoDisplay.send(playerWrapper, slot);
+
+                weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
+            }
+        };
+
+        ServerImplementation scheduler = WeaponMechanics.getInstance().getFoliaScheduler();
+
+        Consumer<TaskImplementation> reloadTask = new Consumer<>() {
+            @Override
+            public void accept(TaskImplementation taskImplementation) {
                 ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
                 if (!taskReference.hasItemMeta()) {
                     handData.stopReloadingTasks();
@@ -305,34 +349,9 @@ public class ReloadHandler implements IValidator, TriggerListener {
                     tryReloadInOtherHandIfEmpty(entityWrapper, shooter, mainhand, dualWield);
                 }
             }
-
-            @Override
-            public void setup() {
-                handData.addReloadTask(getTaskId());
-
-                int ammoLeft = CustomTag.AMMO_LEFT.getInteger(weaponStack);
-
-                if (unloadAmmoOnReload && ammoLeft > 0) {
-                    // unload weapon and give ammo back to given entity
-
-                    if (ammo != null)
-                        ammo.giveAmmo(weaponStack, playerWrapper, ammoLeft, magazineSize);
-                    unloadedAmount = ammoLeft;
-
-                    handleWeaponStackAmount(entityWrapper, weaponStack);
-
-                    CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
-                }
-
-                if (reloadEvent.getMechanics() != null)
-                    reloadEvent.getMechanics().use(new CastData(shooter, weaponTitle, weaponStack, handData::addReloadTask));
-
-                if (weaponInfoDisplay != null)
-                    weaponInfoDisplay.send(playerWrapper, slot);
-
-                weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
-            }
         };
+
+
 
         // If loop OR firearm actions aren't used
         // OR ammo left is above 0 and revolver isn't used (when using revolver firearm actions should
