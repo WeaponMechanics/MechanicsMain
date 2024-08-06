@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
+import com.cjcrafter.scheduler.EntitySchedulerImplementation;
 import com.cjcrafter.scheduler.ServerImplementation;
 import com.cjcrafter.scheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
@@ -257,43 +258,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
             private int unloadedAmount;
 
             @Override
-            public void task() {
-
-            }
-
-            @Override
-            public void setup() {
-                handData.addReloadTask(getTaskId());
-
-                int ammoLeft = CustomTag.AMMO_LEFT.getInteger(weaponStack);
-
-                if (unloadAmmoOnReload && ammoLeft > 0) {
-                    // unload weapon and give ammo back to given entity
-
-                    if (ammo != null)
-                        ammo.giveAmmo(weaponStack, playerWrapper, ammoLeft, magazineSize);
-                    unloadedAmount = ammoLeft;
-
-                    handleWeaponStackAmount(entityWrapper, weaponStack);
-
-                    CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
-                }
-
-                if (reloadEvent.getMechanics() != null)
-                    reloadEvent.getMechanics().use(new CastData(shooter, weaponTitle, weaponStack, handData::addReloadTask));
-
-                if (weaponInfoDisplay != null)
-                    weaponInfoDisplay.send(playerWrapper, slot);
-
-                weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
-            }
-        };
-
-        ServerImplementation scheduler = WeaponMechanics.getInstance().getFoliaScheduler();
-
-        Consumer<TaskImplementation> reloadTask = new Consumer<>() {
-            @Override
-            public void accept(TaskImplementation taskImplementation) {
+            public void run(TaskImplementation<Void> scheduledTask) {
                 ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
                 if (!taskReference.hasItemMeta()) {
                     handData.stopReloadingTasks();
@@ -349,22 +314,50 @@ public class ReloadHandler implements IValidator, TriggerListener {
                     tryReloadInOtherHandIfEmpty(entityWrapper, shooter, mainhand, dualWield);
                 }
             }
+
+            @Override
+            public void onSchedule(TaskImplementation<Void> scheduledTask) {
+                handData.addReloadTask(scheduledTask);
+
+                int ammoLeft = CustomTag.AMMO_LEFT.getInteger(weaponStack);
+
+                if (unloadAmmoOnReload && ammoLeft > 0) {
+                    // unload weapon and give ammo back to given entity
+
+                    if (ammo != null)
+                        ammo.giveAmmo(weaponStack, playerWrapper, ammoLeft, magazineSize);
+                    unloadedAmount = ammoLeft;
+
+                    handleWeaponStackAmount(entityWrapper, weaponStack);
+
+                    CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
+                }
+
+                if (reloadEvent.getMechanics() != null)
+                    reloadEvent.getMechanics().use(new CastData(shooter, weaponTitle, weaponStack, handData::addReloadTask));
+
+                if (weaponInfoDisplay != null)
+                    weaponInfoDisplay.send(playerWrapper, slot);
+
+                weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
+            }
         };
 
-
+        // If loop OR firearm actions aren't used
+        EntitySchedulerImplementation scheduler = WeaponMechanics.getInstance().getFoliaScheduler().entity(entityWrapper.getEntity());
 
         // If loop OR firearm actions aren't used
         // OR ammo left is above 0 and revolver isn't used (when using revolver firearm actions should
         // always occur)
         if (isReloadLoop || state == null || (ammoLeft > 0 && !isRevolver)) {
-            reloadTask.startChain();
+            reloadTask.startChain(scheduler);
             return true;
         }
 
         ChainTask closeTask = getCloseTask(firearmCloseTime, firearmAction, weaponStack, handData, entityWrapper, weaponTitle, mainhand, slot, dualWield);
 
         if (state == FirearmState.CLOSE) {
-            closeTask.startChain();
+            closeTask.startChain(scheduler);
             return true;
         }
 
@@ -373,18 +366,18 @@ public class ReloadHandler implements IValidator, TriggerListener {
         if (isPump) {
             firearmAction.changeState(weaponStack, FirearmState.OPEN);
             if (ammoPerReload != -1) {
-                reloadTask.startChain();
+                reloadTask.startChain(scheduler);
             } else {
                 reloadTask.setNextTask(openTask).setNextTask(closeTask);
-                reloadTask.startChain();
+                reloadTask.startChain(scheduler);
             }
         } else {
             if (ammoPerReload != -1) {
                 openTask.setNextTask(reloadTask);
-                openTask.startChain();
+                openTask.startChain(scheduler);
             } else {
                 openTask.setNextTask(reloadTask).setNextTask(closeTask);
-                openTask.startChain();
+                openTask.startChain(scheduler);
             }
         }
 
@@ -402,7 +395,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
         return new ChainTask(event.getTime()) {
 
             @Override
-            public void task() {
+            public void run(TaskImplementation<Void> scheduledTask) {
                 ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
                 if (!taskReference.hasItemMeta()) {
                     handData.stopReloadingTasks();
@@ -411,8 +404,8 @@ public class ReloadHandler implements IValidator, TriggerListener {
             }
 
             @Override
-            public void setup() {
-                handData.addReloadTask(getTaskId());
+            public void onSchedule(TaskImplementation<Void> scheduledTask) {
+                handData.addReloadTask(scheduledTask);
 
                 firearmAction.changeState(weaponStack, FirearmState.OPEN);
 
@@ -440,7 +433,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
         return new ChainTask(event.getTime()) {
 
             @Override
-            public void task() {
+            public void run(TaskImplementation<Void> scheduledTask) {
                 ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
                 if (!taskReference.hasItemMeta()) {
                     handData.stopReloadingTasks();
@@ -456,8 +449,8 @@ public class ReloadHandler implements IValidator, TriggerListener {
             }
 
             @Override
-            public void setup() {
-                handData.addReloadTask(getTaskId());
+            public void onSchedule(TaskImplementation<Void> scheduledTask) {
+                handData.addReloadTask(scheduledTask);
 
                 firearmAction.changeState(weaponStack, FirearmState.CLOSE);
 

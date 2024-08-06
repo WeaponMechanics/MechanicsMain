@@ -38,7 +38,7 @@ public class HandData {
 
     // Save weaponstack/weaponTitle for reload complete and cancel events
     private long reloadStart;
-    private final List<TaskImplementation<Object>> reloadTasks = new LinkedList<>();
+    private final List<TaskImplementation<Void>> reloadTasks = new LinkedList<>();
     private ItemStack reloadWeaponStack;
     private String reloadWeaponTitle;
 
@@ -219,7 +219,7 @@ public class HandData {
         this.lastMeleeMissTime = lastMeleeMissTime;
     }
 
-    public void addReloadTask(TaskImplementation<Object> reloadTask) {
+    public void addReloadTask(TaskImplementation<Void> reloadTask) {
         if (this.reloadTasks.isEmpty()) {
             // Reload is starting
             reloadStart = System.currentTimeMillis();
@@ -237,7 +237,7 @@ public class HandData {
 
     public void finishReload() {
         if (!reloadTasks.isEmpty()) {
-            for (TaskImplementation<Object> task : reloadTasks) {
+            for (TaskImplementation<Void> task : reloadTasks) {
                 task.cancel();
             }
             reloadTasks.clear();
@@ -251,7 +251,7 @@ public class HandData {
 
     public void stopReloadingTasks() {
         if (!reloadTasks.isEmpty()) {
-            for (TaskImplementation<Object> task : reloadTasks) {
+            for (TaskImplementation<Void> task : reloadTasks) {
                 task.cancel();
             }
             reloadTasks.clear();
