@@ -1,5 +1,6 @@
 package me.deecaad.core.mechanics.defaultmechanics;
 
+import com.cjcrafter.scheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.InlineSerializer;
 import me.deecaad.core.file.SerializeData;
@@ -9,10 +10,11 @@ import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.utils.RandomUtil;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.Location;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * A Mechanic is the most powerful tool available to server-admins through config. A Mechanic is an
@@ -82,19 +84,23 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
         }
 
         // Schedule a repeating event to trigger the mechanic multiple times.
-        int task = new BukkitRunnable() {
+        Location location = cast.getTargetLocation();
+        if (location == null)
+            location = cast.getSourceLocation();
+
+        TaskImplementation<Void> task = MechanicsCore.getPlugin().getFoliaScheduler().region(location).runAtFixedRate(new Consumer<>() {
             int runs = 0;
 
             @Override
-            public void run() {
+            public void accept(TaskImplementation<Void> scheduledTask) {
                 if (runs++ >= repeatAmount) {
-                    cancel();
+                    scheduledTask.cancel();
                     return;
                 }
 
                 handleTargetersAndConditions(cast.clone()); // clone since targeters modify the cast
             }
-        }.runTaskTimer(MechanicsCore.getPlugin(), delayBeforePlay, repeatInterval - 1).getTaskId();
+        }, delayBeforePlay, repeatInterval - 1);
 
         // This allows developers to consume task ids from playing a Mechanic.
         // Good for canceling tasks early.
