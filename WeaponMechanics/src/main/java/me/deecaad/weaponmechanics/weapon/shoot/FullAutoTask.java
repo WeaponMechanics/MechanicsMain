@@ -22,7 +22,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
  * every time you start firing a fully automatic weapon. The task is cancelled when the user is no
  * longer shooting.
  */
-public class FullAutoTask implements Consumer<TaskImplementation> {
+public class FullAutoTask implements Consumer<TaskImplementation<Void>> {
 
     /**
      * Hardcoded full auto values. For every 1 in the array, the gun will fire on that tick. Some

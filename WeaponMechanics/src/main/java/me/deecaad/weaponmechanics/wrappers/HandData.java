@@ -26,8 +26,8 @@ public class HandData {
     private final boolean mainhand;
 
     private FullAutoTask fullAutoTask;
-    private TaskImplementation fullAutoWrappedTask;
-    private TaskImplementation burstTask;
+    private TaskImplementation<Void> fullAutoWrappedTask;
+    private TaskImplementation<Void> burstTask;
     private long lastShotTime;
     private long lastScopeTime;
     private long lastEquipTime;
@@ -38,7 +38,7 @@ public class HandData {
 
     // Save weaponstack/weaponTitle for reload complete and cancel events
     private long reloadStart;
-    private final List<TaskImplementation> reloadTasks = new LinkedList<>();
+    private final List<TaskImplementation<Object>> reloadTasks = new LinkedList<>();
     private ItemStack reloadWeaponStack;
     private String reloadWeaponTitle;
 
@@ -48,7 +48,7 @@ public class HandData {
     private String lastWeaponShotTitle;
 
     private ZoomData zoomData;
-    private final List<TaskImplementation> firearmActionTasks = new LinkedList<>();
+    private final List<TaskImplementation<Void>> firearmActionTasks = new LinkedList<>();
 
     private String currentWeaponTitle;
 
@@ -142,11 +142,11 @@ public class HandData {
         return fullAutoTask;
     }
 
-    public @Nullable TaskImplementation getFullAutoWrappedTask() {
+    public @Nullable TaskImplementation<Void> getFullAutoWrappedTask() {
         return fullAutoWrappedTask;
     }
 
-    public void setFullAutoTask(@Nullable FullAutoTask fullAutoTask, TaskImplementation fullAutoWrappedTask) {
+    public void setFullAutoTask(@Nullable FullAutoTask fullAutoTask, TaskImplementation<Void> fullAutoWrappedTask) {
         this.fullAutoTask = fullAutoTask;
         this.fullAutoWrappedTask = fullAutoWrappedTask;
     }
@@ -155,7 +155,7 @@ public class HandData {
         return burstTask != null;
     }
 
-    public void setBurstTask(TaskImplementation burstTask) {
+    public void setBurstTask(TaskImplementation<Void> burstTask) {
         this.burstTask = burstTask;
     }
 
@@ -219,7 +219,7 @@ public class HandData {
         this.lastMeleeMissTime = lastMeleeMissTime;
     }
 
-    public void addReloadTask(TaskImplementation reloadTask) {
+    public void addReloadTask(TaskImplementation<Object> reloadTask) {
         if (this.reloadTasks.isEmpty()) {
             // Reload is starting
             reloadStart = System.currentTimeMillis();
@@ -237,7 +237,7 @@ public class HandData {
 
     public void finishReload() {
         if (!reloadTasks.isEmpty()) {
-            for (TaskImplementation task : reloadTasks) {
+            for (TaskImplementation<Object> task : reloadTasks) {
                 task.cancel();
             }
             reloadTasks.clear();
@@ -251,7 +251,7 @@ public class HandData {
 
     public void stopReloadingTasks() {
         if (!reloadTasks.isEmpty()) {
-            for (TaskImplementation task : reloadTasks) {
+            for (TaskImplementation<Object> task : reloadTasks) {
                 task.cancel();
             }
             reloadTasks.clear();
@@ -298,7 +298,7 @@ public class HandData {
     /**
      * Only used with shoot firearm actions. Reload firearm actions use addReloadTask()
      */
-    public void addFirearmActionTask(TaskImplementation firearmTask) {
+    public void addFirearmActionTask(TaskImplementation<Void> firearmTask) {
         firearmActionTasks.add(firearmTask);
     }
 
@@ -314,7 +314,7 @@ public class HandData {
      */
     public void stopFirearmActionTasks() {
         if (!firearmActionTasks.isEmpty()) {
-            for (TaskImplementation task : firearmActionTasks) {
+            for (TaskImplementation<Void> task : firearmActionTasks) {
                 task.cancel();
             }
             firearmActionTasks.clear();

@@ -27,7 +27,7 @@ public class EntityWrapper {
 
     private final LivingEntity entity;
 
-    private TaskImplementation moveTask;
+    private TaskImplementation<Void> moveTask;
     private boolean standing;
     private boolean walking;
     private boolean inMidair;
@@ -52,7 +52,7 @@ public class EntityWrapper {
         return this.entity;
     }
 
-    public TaskImplementation getMoveTask() {
+    public TaskImplementation<Void> getMoveTask() {
         return this.moveTask;
     }
 

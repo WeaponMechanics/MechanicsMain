@@ -341,7 +341,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         boolean mainhand = slot == EquipmentSlot.HAND;
 
         FullAutoTask fullAutoTask = new FullAutoTask(weaponHandler, entityWrapper, weaponTitle, weaponStack, mainhand, triggerType, dualWield, event.getShotsPerSecond());
-        TaskImplementation task = WeaponMechanics.getInstance().getFoliaScheduler().entity(entityWrapper.getEntity()).runAtFixedRate(fullAutoTask, 1, 1);
+        TaskImplementation<Void> task = WeaponMechanics.getInstance().getFoliaScheduler().entity(entityWrapper.getEntity()).runAtFixedRate(fullAutoTask, 1, 1);
         handData.setFullAutoTask(fullAutoTask, task);
         return true;
     }

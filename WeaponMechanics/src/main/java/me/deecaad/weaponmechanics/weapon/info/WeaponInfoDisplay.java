@@ -219,7 +219,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
                 magazineProgress = mainhand ? getMagazineProgress(mainStack, mainWeapon) : getMagazineProgress(offStack, offWeapon);
                 bossBar.progress((float) magazineProgress);
             }
-            messageHelper.setBossBarTask(WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(task -> {
+            messageHelper.setBossBarTask(WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(() -> {
                 Audience audience = MechanicsCore.getPlugin().adventure.player(player);
                 audience.hideBossBar(messageHelper.getBossBar());
                 messageHelper.setBossBar(null);
@@ -249,7 +249,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
                         : player.getExp(),
                         player.getTotalExperience(),
                         showAmmoInExpLevel ? getAmmoLeft(useStack, useWeapon) : player.getLevel()));
-                messageHelper.setExpTask(WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(task -> {
+                messageHelper.setExpTask(WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(() -> {
                     Object packet = ReflectionUtil.newInstance(packetPlayOutExperienceConstructor, player.getExp(), player.getTotalExperience(), player.getLevel());
                     CompatibilityAPI.getCompatibility().sendPackets(player, packet);
                     messageHelper.setExpTask(null);
@@ -257,7 +257,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
             } else {
                 player.sendExperienceChange(showAmmoInExpProgress ? (float) (magazineProgress != -1 ? magazineProgress : getMagazineProgress(useStack, useWeapon)) : player.getExp(),
                     showAmmoInExpLevel ? getAmmoLeft(useStack, useWeapon) : player.getLevel());
-                messageHelper.setExpTask(WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(task -> {
+                messageHelper.setExpTask(WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(() -> {
                     player.sendExperienceChange(player.getExp(), player.getLevel());
                     messageHelper.setExpTask(null);
                 }, 40));

@@ -29,7 +29,7 @@ public class FoliaProjectileSpawner extends ProjectileSpawner {
 
         // We cannot tick this projectile, so we need to switch threads to spawn it
         if (!projectile.isOwnedByCurrentRegion()) {
-            scheduler.region(location).run(task -> spawn0(scheduler, location, projectile));
+            scheduler.region(location).run(() -> spawn0(scheduler, location, projectile));
             return;
         }
 

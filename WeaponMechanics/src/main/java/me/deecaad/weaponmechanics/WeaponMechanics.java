@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics;
 
-import com.cjcrafter.scheduler.SchedulerCompatibility;
+import com.cjcrafter.scheduler.FoliaCompatibility;
 import com.cjcrafter.scheduler.ServerImplementation;
 import com.cjcrafter.scheduler.TaskImplementation;
 import com.cjcrafter.scheduler.folia.FoliaServer;
@@ -176,7 +176,7 @@ public class WeaponMechanics {
         plugin = this;
         entityWrappers = new HashMap<>();
 
-        foliaScheduler = new SchedulerCompatibility(javaPlugin).getScheduler();
+        foliaScheduler = new FoliaCompatibility(javaPlugin).getServerImplementation();
         writeFiles();
         registerPacketListeners();
 
@@ -208,7 +208,7 @@ public class WeaponMechanics {
         // side note, not all tasks can be run after the server starts.
         // Commands, for example, can't be registered after onEnable without
         // some disgusting NMS shit.
-        getFoliaScheduler().global().run(task -> {
+        getFoliaScheduler().global().run(() -> {
             loadConfig();
             registerListeners();
             registerBStats();
@@ -448,7 +448,7 @@ public class WeaponMechanics {
         Permission parent = Bukkit.getPluginManager().getPermission("weaponmechanics.use.*");
         if (parent == null) {
             // Some older versions register permissions after onEnable...
-            getFoliaScheduler().global().run((task) -> registerPermissions());
+            getFoliaScheduler().global().run(this::registerPermissions);
             return;
         }
 
@@ -556,7 +556,7 @@ public class WeaponMechanics {
         metrics.addCustomChart(new SimplePie("core_version", () -> MechanicsCore.getPlugin().getDescription().getVersion()));
     }
 
-    public CompletableFuture<TaskImplementation> onReload() {
+    public CompletableFuture<TaskImplementation<Void>> onReload() {
         JavaPlugin mechanicsCore = MechanicsCore.getPlugin();
 
         this.onDisable();
@@ -579,7 +579,7 @@ public class WeaponMechanics {
             projectileSpawner = new SpigotProjectileSpawner(getPlugin());
         }
 
-        return getFoliaScheduler().async().runNow((task) -> writeFiles()).asFuture().thenCompose((ignore) ->
+        return getFoliaScheduler().async().runNow(this::writeFiles).asFuture().thenCompose((ignore) ->
             getFoliaScheduler().global().run((task) -> {
                 loadConfig();
                 registerPacketListeners();

@@ -734,7 +734,7 @@ public class WeaponMechanicsCommand {
             File outputPath = new File(pl.getDataFolder().getPath() + "/weapons/crackshotconvert/");
 
             sender.sendMessage(GREEN + "Starting CrackShot conversion");
-            WeaponMechanics.getInstance().getFoliaScheduler().async().runNow((task) ->
+            WeaponMechanics.getInstance().getFoliaScheduler().async().runNow(() ->
                 new Converter(sender).convertAllFiles(outputPath)
             ).asFuture().thenAccept(task ->
                 sender.sendMessage(GREEN + "Output converted files to " + outputPath)
@@ -785,7 +785,7 @@ public class WeaponMechanicsCommand {
     public static void explode(LivingEntity cause, ExplosionShape shape, Location origin, String exposureString, boolean isBreakBlocks, Predicate<Block> blackList, int regen) {
         cause.sendMessage(GREEN + "Spawning explosion in 5 seconds");
 
-        WeaponMechanics.getInstance().getFoliaScheduler().region(origin).runDelayed(task -> {
+        WeaponMechanics.getInstance().getFoliaScheduler().region(origin).runDelayed(() -> {
             RegenerationData regeneration = new RegenerationData(regen, Math.max(1, (int) shape.getArea() / 100), 1);
             BlockDamage blockDamage = new BlockDamage(0.0, 1, 1, Material.AIR, BlockDamage.BreakMode.BREAK, Map.of()) {
                 @Override
@@ -862,7 +862,7 @@ public class WeaponMechanicsCommand {
             CompatibilityAPI.getCompatibility().sendPackets(sender, packet);
         }
 
-        WeaponMechanics.getInstance().getFoliaScheduler().entity(sender).runDelayed(task -> {
+        WeaponMechanics.getInstance().getFoliaScheduler().entity(sender).runDelayed(() -> {
             sender.sendMessage(GREEN + "Resetting META...");
             for (Entity entity : targets) {
                 // TODO check if entity is in the same region
@@ -973,7 +973,7 @@ public class WeaponMechanicsCommand {
             fakeEntity.remove();
             return;
         }
-        WeaponMechanics.getInstance().getFoliaScheduler().region(location).runDelayed(task -> {
+        WeaponMechanics.getInstance().getFoliaScheduler().region(location).runDelayed(() -> {
             fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
             fakeEntity.remove();
         }, time);

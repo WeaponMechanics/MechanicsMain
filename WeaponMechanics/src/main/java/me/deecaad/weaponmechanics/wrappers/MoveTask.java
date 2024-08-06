@@ -23,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-public class MoveTask implements Consumer<TaskImplementation> {
+public class MoveTask implements Consumer<TaskImplementation<Void>> {
 
     private final EntityWrapper entityWrapper;
     private Location from;
