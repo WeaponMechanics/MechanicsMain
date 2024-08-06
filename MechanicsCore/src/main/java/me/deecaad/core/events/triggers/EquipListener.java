@@ -121,7 +121,7 @@ public class EquipListener implements Listener {
 
             // Register, then unregister in 1 tick
             Bukkit.getPluginManager().registerEvents(listener, MechanicsCore.getPlugin());
-            MechanicsCore.getPlugin().getFoliaScheduler().global().run((ignore) -> HandlerList.unregisterAll(listener));
+            MechanicsCore.getPlugin().getFoliaScheduler().global().run(() -> HandlerList.unregisterAll(listener));
         }
     }
 

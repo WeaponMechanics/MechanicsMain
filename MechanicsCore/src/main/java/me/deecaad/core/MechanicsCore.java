@@ -1,6 +1,6 @@
 package me.deecaad.core;
 
-import com.cjcrafter.scheduler.SchedulerCompatibility;
+import com.cjcrafter.scheduler.FoliaCompatibility;
 import com.cjcrafter.scheduler.ServerImplementation;
 import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.events.triggers.EquipListener;
@@ -51,7 +51,7 @@ public class MechanicsCore extends JavaPlugin {
 
     public void onLoad() {
         instance = this;
-        foliaScheduler = new SchedulerCompatibility(this).getScheduler();
+        foliaScheduler = new FoliaCompatibility(this).getServerImplementation();
 
         int level = getConfig().getInt("Debug_Level");
         boolean printTraces = getConfig().getBoolean("Print_Traces");
