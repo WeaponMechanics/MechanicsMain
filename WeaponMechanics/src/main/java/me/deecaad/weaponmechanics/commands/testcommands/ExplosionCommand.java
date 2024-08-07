@@ -8,12 +8,15 @@ import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.Flashbang;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.OptimizedExposure;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
-import me.deecaad.weaponmechanics.weapon.explode.shapes.*;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.CuboidExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.DefaultExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.ParabolicExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.SphericalExplosion;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -52,17 +55,13 @@ public class ExplosionCommand extends SubCommand {
     }
 
     private void explode(ExplosionShape shape, Player player, Location loc) {
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                RegenerationData regeneration = new RegenerationData(160, 2, 1);
-                BlockDamage blockDamage = new BlockDamage(0.0, 1, 1, Material.AIR, BlockDamage.BreakMode.BREAK, Map.of());
-                Explosion explosion = new Explosion(shape, new OptimizedExposure(), blockDamage, regeneration, null, 0.9, 1.0,
-                    null, null, new Flashbang(10.0, null), null);
-                explosion.explode(player, loc, null);
-            }
-        }.runTaskLater(WeaponMechanics.getPlugin(), 100);
+        WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(() -> {
+            RegenerationData regeneration = new RegenerationData(160, 2, 1);
+            BlockDamage blockDamage = new BlockDamage(0.0, 1, 1, Material.AIR, BlockDamage.BreakMode.BREAK, Map.of());
+            Explosion explosion = new Explosion(shape, new OptimizedExposure(), blockDamage, regeneration, null, 0.9, 1.0,
+                null, null, new Flashbang(10.0, null), null);
+            explosion.explode(player, loc, null);
+        }, 100);
     }
 
     @CommandPermission(permission = "weaponmechanics.commands.test.explosion.sphere")

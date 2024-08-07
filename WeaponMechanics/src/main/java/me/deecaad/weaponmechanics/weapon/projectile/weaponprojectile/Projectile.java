@@ -18,8 +18,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class Projectile implements Serializer<Projectile> {
@@ -102,7 +100,7 @@ public class Projectile implements Serializer<Projectile> {
         if (explosion != null)
             explosion.handleExplosion(projectile.getShooter(), projectile, ExplosionTrigger.SPAWN);
 
-        WeaponMechanics.getProjectilesRunnable().addProjectile(projectile);
+        WeaponMechanics.getProjectileSpawner().spawn(projectile);
         return projectile;
     }
 
