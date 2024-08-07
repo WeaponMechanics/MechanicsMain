@@ -73,7 +73,6 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -600,9 +599,6 @@ public class WeaponMechanics {
 
     public void onDisable() {
         BlockDamageData.regenerateAll();
-
-        HandlerList.unregisterAll(getPlugin());
-        Bukkit.getServer().getScheduler().cancelTasks(getPlugin());
 
         // Close database and save data in SYNC
         if (database != null) {
