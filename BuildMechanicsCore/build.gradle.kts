@@ -104,7 +104,7 @@ tasks.shadowJar {
             include(dependency("com.github.cryptomorin:XSeries:"))
         }
 
-        relocate("com.cjcrafter.foliascheduler", "me.deecaad.core.lib.foliascheduler") {
+        relocate("com.cjcrafter.scheduler", "me.deecaad.core.lib.scheduler") {
             include(dependency("com.cjcrafter:foliascheduler:"))
         }
     }

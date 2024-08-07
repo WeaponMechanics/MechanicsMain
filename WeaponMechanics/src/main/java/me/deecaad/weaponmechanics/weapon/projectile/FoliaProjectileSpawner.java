@@ -73,7 +73,6 @@ public class FoliaProjectileSpawner extends ProjectileSpawner {
                 projectile.remove();
                 task.cancel();
             }
-        }, 0L, 1L);
-
+        }, 1L, 1L);
     }
 }

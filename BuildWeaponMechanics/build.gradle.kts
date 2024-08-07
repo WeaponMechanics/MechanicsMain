@@ -94,5 +94,5 @@ tasks.shadowJar {
     // to the mechanics core lib.
     relocate("net.kyori", "me.deecaad.core.lib")
     relocate("kotlin.", "me.deecaad.weaponmechanics.lib.kotlin.")
-    relocate("com.cjcrafter.foliascheduler", "me.deecaad.core.lib.foliascheduler")
+    relocate("com.cjcrafter.scheduler", "me.deecaad.core.lib.scheduler")
 }
