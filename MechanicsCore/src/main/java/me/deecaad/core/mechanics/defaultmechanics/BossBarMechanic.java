@@ -64,7 +64,7 @@ public class BossBarMechanic extends Mechanic {
         BossBar bossBar = BossBar.bossBar(chat, progress, color, style);
 
         audience.showBossBar(bossBar);
-        MechanicsCore.getPlugin().getFoliaScheduler().entity(player).runDelayed(task -> audience.hideBossBar(bossBar), time);
+        MechanicsCore.getPlugin().getFoliaScheduler().entity(player).runDelayed(() -> audience.hideBossBar(bossBar), time);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package me.deecaad.core.utils;
 
-import com.cjcrafter.scheduler.SchedulerCompatibility;
+import com.cjcrafter.scheduler.FoliaCompatibility;
 import com.cjcrafter.scheduler.ServerImplementation;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -217,7 +217,7 @@ public class Debugger {
         if (hasStarted)
             return;
 
-        ServerImplementation impl = new SchedulerCompatibility(plugin).getScheduler();
+        ServerImplementation impl = new FoliaCompatibility(plugin).getServerImplementation();
         start(impl);
     }
 
