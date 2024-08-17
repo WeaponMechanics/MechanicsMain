@@ -149,6 +149,7 @@ object MinecraftVersions {
     val TRICKY_TRIALS =
         Update(1, 21) {
             add(Version(it, 0, 1)) // 1.21
+            add(Version(it, 1, 1)) // 1.21.1
         }
 
     /**
