@@ -1,6 +1,6 @@
 package me.deecaad.core.mechanics;
 
-import com.cjcrafter.scheduler.TaskImplementation;
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.utils.LogLevel;

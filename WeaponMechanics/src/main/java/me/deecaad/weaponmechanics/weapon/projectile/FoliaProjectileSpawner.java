@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import com.cjcrafter.scheduler.ServerImplementation;
+import com.cjcrafter.foliascheduler.ServerImplementation;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Location;

@@ -1,7 +1,7 @@
 package me.deecaad.core;
 
-import com.cjcrafter.scheduler.FoliaCompatibility;
-import com.cjcrafter.scheduler.ServerImplementation;
+import com.cjcrafter.foliascheduler.FoliaCompatibility;
+import com.cjcrafter.foliascheduler.ServerImplementation;
 import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.events.triggers.EquipListener;
 import me.deecaad.core.file.JarSearcher;

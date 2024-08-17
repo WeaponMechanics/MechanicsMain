@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.commands;
 
-import com.cjcrafter.scheduler.TaskImplementation;
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.*;
 import me.deecaad.core.commands.arguments.*;

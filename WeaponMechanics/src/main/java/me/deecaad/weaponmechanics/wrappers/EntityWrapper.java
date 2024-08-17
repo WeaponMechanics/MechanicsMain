@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import com.cjcrafter.scheduler.TaskImplementation;
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.EntityToggleInMidairEvent;

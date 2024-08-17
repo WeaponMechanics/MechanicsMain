@@ -21,7 +21,7 @@ object Versions {
     const val GSON = "2.10.1"
     const val KOTLIN = "1.9.21"
     const val X_SERIES = "11.0.0"
-    const val FOLIA_SCHEDULER = "0.3.3"
+    const val FOLIA_SCHEDULER = "0.4.3"
 }
 
 object Dependencies {

@@ -1,7 +1,7 @@
 package me.deecaad.core.utils;
 
-import com.cjcrafter.scheduler.FoliaCompatibility;
-import com.cjcrafter.scheduler.ServerImplementation;
+import com.cjcrafter.foliascheduler.FoliaCompatibility;
+import com.cjcrafter.foliascheduler.ServerImplementation;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;

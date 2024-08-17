@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
-import com.cjcrafter.scheduler.EntitySchedulerImplementation;
-import com.cjcrafter.scheduler.TaskImplementation;
+import com.cjcrafter.foliascheduler.EntitySchedulerImplementation;
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.jetbrains.annotations.Nullable;
 

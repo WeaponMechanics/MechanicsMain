@@ -1,8 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
-import com.cjcrafter.scheduler.EntitySchedulerImplementation;
-import com.cjcrafter.scheduler.ServerImplementation;
-import com.cjcrafter.scheduler.TaskImplementation;
+import com.cjcrafter.foliascheduler.EntitySchedulerImplementation;
+import com.cjcrafter.foliascheduler.ServerImplementation;
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;

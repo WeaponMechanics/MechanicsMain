@@ -1,9 +1,9 @@
 package me.deecaad.weaponmechanics;
 
-import com.cjcrafter.scheduler.FoliaCompatibility;
-import com.cjcrafter.scheduler.ServerImplementation;
-import com.cjcrafter.scheduler.TaskImplementation;
-import com.cjcrafter.scheduler.folia.FoliaServer;
+import com.cjcrafter.foliascheduler.ServerVersions;
+import com.cjcrafter.foliascheduler.FoliaCompatibility;
+import com.cjcrafter.foliascheduler.ServerImplementation;
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.jeff_media.updatechecker.UpdateCheckSource;
@@ -170,8 +170,11 @@ public class WeaponMechanics {
     }
 
     public void onEnable() {
-        long millisCurrent = System.currentTimeMillis();
+        getLogger().info("Server version: " + Bukkit.getVersion());
+        getLogger().info("Bukkit version: " + Bukkit.getBukkitVersion());
+        getLogger().info("Java version: " + System.getProperty("java.version"));
 
+        long millisCurrent = System.currentTimeMillis();
         plugin = this;
         entityWrappers = new HashMap<>();
 
@@ -182,8 +185,8 @@ public class WeaponMechanics {
         weaponHandler = new WeaponHandler();
         resourcePackListener = new ResourcePackListener();
 
-        // TODO: Use VersionLib
-        if (foliaScheduler instanceof FoliaServer) {
+        if (ServerVersions.isFolia()) {
+            getLogger().info("Folia detected, using thread-safe projectile spawner");
             projectileSpawner = new FoliaProjectileSpawner(getPlugin());
         } else {
             projectileSpawner = new SpigotProjectileSpawner(getPlugin());
@@ -572,7 +575,7 @@ public class WeaponMechanics {
         resourcePackListener = new ResourcePackListener();
 
         // TODO: Use VersionLib
-        if (foliaScheduler instanceof FoliaServer) {
+        if (ServerVersions.isFolia()) {
             projectileSpawner = new FoliaProjectileSpawner(getPlugin());
         } else {
             projectileSpawner = new SpigotProjectileSpawner(getPlugin());
