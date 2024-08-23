@@ -4,6 +4,7 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState;
@@ -11,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -46,8 +48,12 @@ public class WeaponItemSerializer extends ItemSerializer {
 
         // Saving display name and lore for use in WeaponMechanicsPlus to auto update items
         Configuration config = WeaponMechanics.getConfigurations();
-        config.set(weaponTitle + ".Info.Weapon_Item.Name", data.of("Name").assertExists().get());
-        config.set(weaponTitle + ".Info.Weapon_Item.Lore", data.of("Lore").assertExists().get());
+        config.set(weaponTitle + ".Info.Weapon_Item.Name", "<!italic>" + data.of("Name").assertExists().getAdventure());
+        List<String> unparsedLore = ((List<String>) data.of("Lore").assertExists().get())
+            .stream()
+            .map(line -> "<!italic>" + StringUtil.colorAdventure(line))
+            .toList();
+        config.set(weaponTitle + ".Info.Weapon_Item.Lore", unparsedLore);
 
         // Ensure the weapon title uses the correct format, mostly for other plugin compatibility
         Pattern pattern = Pattern.compile("[A-Za-z0-9_]+");
