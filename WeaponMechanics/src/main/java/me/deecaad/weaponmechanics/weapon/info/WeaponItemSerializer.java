@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
+import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
@@ -42,6 +43,11 @@ public class WeaponItemSerializer extends ItemSerializer {
                 "Purchase WMC to 'fake' the crossbow animation for other players: https://www.spigotmc.org/resources/104539/");
 
         String weaponTitle = data.key.split("\\.")[0];
+
+        // Saving display name and lore for use in WeaponMechanicsPlus to auto update items
+        Configuration config = WeaponMechanics.getConfigurations();
+        config.set(weaponTitle + ".Info.Weapon_Item.Name", data.of("Name").assertExists().get());
+        config.set(weaponTitle + ".Info.Weapon_Item.Lore", data.of("Lore").assertExists().get());
 
         // Ensure the weapon title uses the correct format, mostly for other plugin compatibility
         Pattern pattern = Pattern.compile("[A-Za-z0-9_]+");
