@@ -204,11 +204,6 @@ public class ItemSerializer implements Serializer<ItemStack> {
             itemMeta.setCustomModelData(data.of("Custom_Model_Data").assertExists().getInt());
         }
 
-        boolean hideFlags = data.of("Hide_Flags").getBool(false);
-        if (hideFlags) {
-            itemMeta.addItemFlags(ItemFlag.values());
-        }
-
         if (data.has("Max_Stack_Size")) {
             if (!MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
                 throw data.exception("Max_Stack_Size", "Tried to use max stack size before MC 1.20.5!",
@@ -293,6 +288,14 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
                 CompatibilityAPI.getNBTCompatibility().setAttribute(itemStack, attribute, slot, amount);
             }
+        }
+
+        // Add flags after attributes due to a bug introduced in Spigot 1.20.5, see https://github.com/PaperMC/Paper/issues/10693
+        boolean hideFlags = data.of("Hide_Flags").getBool(false);
+        if (hideFlags) {
+            ItemMeta temp = itemStack.getItemMeta();
+            temp.addItemFlags(ItemFlag.values());
+            itemStack.setItemMeta(temp);
         }
 
         String owningPlayer = data.of("Skull_Owning_Player").assertType(String.class).get(null);
