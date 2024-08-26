@@ -39,12 +39,12 @@ public class EntityWrapper {
 
         Configuration config = WeaponMechanics.getBasicConfigurations();
         if (!config.getBool("Disabled_Trigger_Checks.In_Midair")
-                || !config.getBool("Disabled_Trigger_Checks.Standing_And_Walking")
-                || !config.getBool("Disabled_Trigger_Checks.Jump")
-                || !config.getBool("Disabled_Trigger_Checks.Double_Jump")) {
+            || !config.getBool("Disabled_Trigger_Checks.Standing_And_Walking")
+            || !config.getBool("Disabled_Trigger_Checks.Jump")
+            || !config.getBool("Disabled_Trigger_Checks.Double_Jump")) {
 
             this.moveTask = new MoveTask(this).runTaskTimer(WeaponMechanics.getPlugin(), 0, MOVE_TASK_INTERVAL)
-                    .getTaskId();
+                .getTaskId();
         }
     }
 
@@ -57,8 +57,8 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> when the entity is standing still. Returns
-     * <code>false</code> when the entity is moving, swimming, or mid-air.
+     * Returns <code>true</code> when the entity is standing still. Returns <code>false</code> when the
+     * entity is moving, swimming, or mid-air.
      *
      * @return <code>true</code> if the entity is standing still.
      */
@@ -81,8 +81,8 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> when the entity is moving. Returns
-     * <code>false</code> when the entity is standing still, swimming, or mid-air.
+     * Returns <code>true</code> when the entity is moving. Returns <code>false</code> when the entity
+     * is standing still, swimming, or mid-air.
      *
      * @return <code>true</code> if the entity is moving.
      */
@@ -105,9 +105,8 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> when the entity is mid-air (not on the ground).
-     * Returns <code>false</code> when the entity is standing still, swimming, or
-     * walking.
+     * Returns <code>true</code> when the entity is mid-air (not on the ground). Returns
+     * <code>false</code> when the entity is standing still, swimming, or walking.
      *
      * @return <code>true</code> if the entity is mid-air.
      */
@@ -130,9 +129,9 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> when the entity is swimming (legs and head are both
-     * in water, also checks 1.13+ sprint swimming). Returns <code>false</code> when
-     * the entity is standing still, mid-air, or walking.
+     * Returns <code>true</code> when the entity is swimming (legs and head are both in water, also
+     * checks 1.13+ sprint swimming). Returns <code>false</code> when the entity is standing still,
+     * mid-air, or walking.
      *
      * @return <code>true</code> if the entity is swimming.
      */
@@ -155,8 +154,7 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> if the entity is a player, and the player is in
-     * sneak mode.
+     * Returns <code>true</code> if the entity is a player, and the player is in sneak mode.
      *
      * @return <code>true</code> when the player is sneaking.
      * @see Player#isSneaking()
@@ -166,8 +164,7 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> if the entity is a player, and the player is
-     * sprinting.
+     * Returns <code>true</code> if the entity is a player, and the player is sprinting.
      *
      * @return <code>true</code> when the player is sprinting.
      * @see Player#isSprinting()
@@ -177,8 +174,8 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> if the entity is gliding using an elytra.
-     * Apparently, non-player entities CAN glide.
+     * Returns <code>true</code> if the entity is gliding using an elytra. Apparently, non-player
+     * entities CAN glide.
      *
      * @return <code>true</code> when the entity is gliding.
      * @see LivingEntity#isGliding()
@@ -188,15 +185,13 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> if the entity is a player, and the player has
-     * right-clicked in the past 4 ticks (+- 25 milliseconds). This method also
-     * considers the player's ping ({@link Player#getPing()}) to determine if they
-     * are still right-clicking.
+     * Returns <code>true</code> if the entity is a player, and the player has right-clicked in the past
+     * 4 ticks (+- 25 milliseconds). This method also considers the player's ping
+     * ({@link Player#getPing()}) to determine if they are still right-clicking.
      *
      * <p>
-     * While this method is usually quite inaccurate (can be up to 4 ticks late!),
-     * it is 100% accurate when the player is blocking (swords in 1.8, shields in
-     * 1.9+).
+     * While this method is usually quite inaccurate (can be up to 4 ticks late!), it is 100% accurate
+     * when the player is blocking (swords in 1.8, shields in 1.9+).
      *
      * @return <code>true</code> when the player is right-clicking.
      * @see Player#isBlocking()
@@ -208,8 +203,8 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> if the entity is dual wielding, meaning when they
-     * have items equipped in both hands.
+     * Returns <code>true</code> if the entity is dual wielding, meaning when they have items equipped
+     * in both hands.
      *
      * @return <code>true</code> when the entity is dual wielding.
      */
@@ -218,12 +213,11 @@ public class EntityWrapper {
         if (equipment == null)
             return false; // never occurs, but lets be safe
         return equipment.getItemInMainHand().getType() != Material.AIR
-                && equipment.getItemInOffHand().getType() != Material.AIR;
+            && equipment.getItemInOffHand().getType() != Material.AIR;
     }
 
     /**
-     * Returns <code>true</code> if the entity is dual wielding two weapons from
-     * WeaponMechanics.
+     * Returns <code>true</code> if the entity is dual wielding two weapons from WeaponMechanics.
      *
      * @return <code>true</code> when the entity is dual wielding two weapons.
      * @see #isDualWielding()
@@ -236,7 +230,7 @@ public class EntityWrapper {
         ItemStack main = equipment.getItemInMainHand();
         ItemStack off = equipment.getItemInOffHand();
         return main.getType() != Material.AIR && off.getType() != Material.AIR && CustomTag.WEAPON_TITLE.hasString(main)
-                && CustomTag.WEAPON_TITLE.hasString(off);
+            && CustomTag.WEAPON_TITLE.hasString(off);
     }
 
     /**
@@ -246,18 +240,15 @@ public class EntityWrapper {
         return entity.isInsideVehicle();
     }
 
-    @NotNull
-    public HandData getHandData(boolean mainHand) {
+    @NotNull public HandData getHandData(boolean mainHand) {
         return mainHand ? getMainHandData() : getOffHandData();
     }
 
-    @NotNull
-    public HandData getMainHandData() {
+    @NotNull public HandData getMainHandData() {
         return mainHandData == null ? mainHandData = new HandData(this, true) : mainHandData;
     }
 
-    @NotNull
-    public HandData getOffHandData() {
+    @NotNull public HandData getOffHandData() {
         return offHandData == null ? offHandData = new HandData(this, false) : offHandData;
     }
 
@@ -275,13 +266,13 @@ public class EntityWrapper {
             return false; // never occurs, but lets be safe
         ItemStack main = equipment.getItemInMainHand();
         ItemStack off = equipment.getItemInOffHand();
-        
+
         boolean isEmpty = false;
-        if(main.getType() != Material.AIR && CustomTag.WEAPON_TITLE.hasString(main))
+        if (main.getType() != Material.AIR && CustomTag.WEAPON_TITLE.hasString(main))
             isEmpty = CustomTag.AMMO_LEFT.getInteger(main) == 0;
-        if(off.getType() != Material.AIR && CustomTag.WEAPON_TITLE.hasString(off))
+        if (off.getType() != Material.AIR && CustomTag.WEAPON_TITLE.hasString(off))
             isEmpty = CustomTag.AMMO_LEFT.getInteger(off) == 0;
-        
+
         return isEmpty;
     }
 

@@ -113,7 +113,7 @@ public class Circumstance implements Serializer<Circumstance> {
         IN_MIDAIR,
         GLIDING,
         AMMO_EMPTY;
-    	
+
         private final String humanName;
 
         CircumstanceType() {
