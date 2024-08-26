@@ -48,7 +48,8 @@ public final class Registry<T extends Keyable> implements Keyable {
      * duplicate keys.
      *
      * @param item The non-null item to add.
-     * @param ignoreDuplicates If true, the method will not throw an exception if a duplicate key is found.
+     * @param ignoreDuplicates If true, the method will not throw an exception if a duplicate key is
+     *        found.
      * @return A non-null reference to this (builder-pattern).
      * @throws IllegalArgumentException If a duplicate key is found.
      */
