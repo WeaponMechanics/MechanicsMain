@@ -48,7 +48,6 @@ public enum AttributeType {
     PLAYER_SUBMERGED_MINING_SPEED(new UUID(2872L, 894628L), "player.submerged_mining_speed"),
     PLAYER_SWEEPING_DAMAGE_RATIO(new UUID(2872L, 894627L), "player.sweeping_damage_ratio");
 
-
     private final UUID uuid;
     private final String minecraftName;
 
