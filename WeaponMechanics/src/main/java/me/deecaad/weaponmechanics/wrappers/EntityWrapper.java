@@ -43,7 +43,8 @@ public class EntityWrapper {
             || !config.getBool("Disabled_Trigger_Checks.Jump")
             || !config.getBool("Disabled_Trigger_Checks.Double_Jump")) {
 
-            this.moveTask = new MoveTask(this).runTaskTimer(WeaponMechanics.getPlugin(), 0, MOVE_TASK_INTERVAL).getTaskId();
+            this.moveTask = new MoveTask(this).runTaskTimer(WeaponMechanics.getPlugin(), 0, MOVE_TASK_INTERVAL)
+                .getTaskId();
         }
     }
 
@@ -211,7 +212,8 @@ public class EntityWrapper {
         EntityEquipment equipment = entity.getEquipment();
         if (equipment == null)
             return false; // never occurs, but lets be safe
-        return equipment.getItemInMainHand().getType() != Material.AIR && equipment.getItemInOffHand().getType() != Material.AIR;
+        return equipment.getItemInMainHand().getType() != Material.AIR
+            && equipment.getItemInOffHand().getType() != Material.AIR;
     }
 
     /**
@@ -227,8 +229,8 @@ public class EntityWrapper {
 
         ItemStack main = equipment.getItemInMainHand();
         ItemStack off = equipment.getItemInOffHand();
-        return main.getType() != Material.AIR && off.getType() != Material.AIR
-            && CustomTag.WEAPON_TITLE.hasString(main) && CustomTag.WEAPON_TITLE.hasString(off);
+        return main.getType() != Material.AIR && off.getType() != Material.AIR && CustomTag.WEAPON_TITLE.hasString(main)
+            && CustomTag.WEAPON_TITLE.hasString(off);
     }
 
     /**
@@ -256,6 +258,22 @@ public class EntityWrapper {
 
     public boolean isZooming() {
         return getMainHandData().getZoomData().isZooming() || getOffHandData().getZoomData().isZooming();
+    }
+
+    public boolean isAmmoEmpty() {
+        EntityEquipment equipment = entity.getEquipment();
+        if (equipment == null)
+            return false; // never occurs, but lets be safe
+        ItemStack main = equipment.getItemInMainHand();
+        ItemStack off = equipment.getItemInOffHand();
+
+        boolean isEmpty = false;
+        if (main.getType() != Material.AIR && CustomTag.WEAPON_TITLE.hasString(main))
+            isEmpty = CustomTag.AMMO_LEFT.getInteger(main) == 0;
+        if (off.getType() != Material.AIR && CustomTag.WEAPON_TITLE.hasString(off))
+            isEmpty = CustomTag.AMMO_LEFT.getInteger(off) == 0;
+
+        return isEmpty;
     }
 
     public boolean isPlayer() {
