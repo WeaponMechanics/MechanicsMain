@@ -249,8 +249,7 @@ public class Explosion implements Serializer<Explosion> {
             // explicitly depending on WeaponMechanics.
             if (blockDamage != null && !blocks.isEmpty() && !getBasicConfigurations().getBool("Disable_Entity_Explode_Event")) {
                 EntityExplodeEvent entityExplodeEvent = CompatibilityAPI.getEntityCompatibility().createEntityExplodeEvent(
-                    projectile.getShooter(), origin, blocks, 5, !blocks.isEmpty()
-                );
+                    projectile.getShooter(), origin, blocks, 5, !blocks.isEmpty());
                 Bukkit.getPluginManager().callEvent(entityExplodeEvent);
                 if (entityExplodeEvent.isCancelled())
                     return;

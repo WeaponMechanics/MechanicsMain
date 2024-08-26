@@ -302,7 +302,8 @@ public class TriggerPlayerListeners implements Listener {
         if (mainWeapon == null && offWeapon == null)
             return;
 
-        // If players are dead, don't do anything... This cancel can sometimes let players keep their weapons
+        // If players are dead, don't do anything... This cancel can sometimes let players keep their
+        // weapons
         if (!player.isDead()) {
             boolean cancelMainHand = mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Drop_Item");
             boolean cancelOffHand = offWeapon != null && getConfigurations().getBool(offWeapon + ".Info.Cancel.Drop_Item");
