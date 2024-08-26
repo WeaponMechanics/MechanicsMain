@@ -290,7 +290,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
             }
         }
 
-        // Add flags after attributes due to a bug introduced in Spigot 1.20.5, see https://github.com/PaperMC/Paper/issues/10693
+        // Add flags after attributes due to a bug introduced in Spigot 1.20.5, see
+        // https://github.com/PaperMC/Paper/issues/10693
         boolean hideFlags = data.of("Hide_Flags").getBool(false);
         if (hideFlags) {
             ItemMeta temp = itemStack.getItemMeta();
@@ -319,7 +320,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 // https://textures.minecraft.net/texture/a0564817fcc8dd51bc1957c0b7ea142db687dd6f1caafd35bb4dcfee592421c"
                 // https://www.spigotmc.org/threads/create-a-skull-item-stack-with-a-custom-texture-base64.82416/
                 if (uuid != null && url != null) {
-                    //XSkull.of(itemMeta).profile(XSkull.SkullInputType.UUID, id).apply();
+                    // XSkull.of(itemMeta).profile(XSkull.SkullInputType.UUID, id).apply();
                     XSkull.of(skullMeta).profile(XSkull.SkullInputType.TEXTURE_URL, url).apply();
                 }
 
