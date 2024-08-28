@@ -39,10 +39,11 @@ public class WeaponItemSerializer extends ItemSerializer {
         // supports "faking" the crossbow for other players. I added this check
         // since it is a commonly asked question, and this should save me some
         // time in the long run.
-        if (weaponStack.getType().name().equals("CROSSBOW"))
+        if (weaponStack.getType().name().equals("CROSSBOW")) {
             throw data.exception("Type", "You cannot use 'CROSSBOW' as a WeaponMechanics weapon!",
                 "YES! We know that you want weapons to be 'held up' like a minecraft crossbow",
                 "Purchase WMC to 'fake' the crossbow animation for other players: https://www.spigotmc.org/resources/104539/");
+        }
 
         String weaponTitle = data.key.split("\\.")[0];
 
