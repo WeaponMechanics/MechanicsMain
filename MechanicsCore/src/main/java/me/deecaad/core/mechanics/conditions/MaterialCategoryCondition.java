@@ -4,10 +4,10 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.utils.MinecraftVersions;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Waterlogged;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +27,13 @@ public class MaterialCategoryCondition extends Condition {
 
     @Override
     public boolean isAllowed0(CastData cast) {
-        return category.test(cast.getTargetLocation().getBlock());
+        Location targetLocation;
+        if (cast.hasTargetLocation())
+            targetLocation = cast.getTargetLocation();
+        else
+            targetLocation = cast.getTarget().getEyeLocation();
+
+        return category.test(targetLocation.getBlock());
     }
 
     @Override
@@ -94,9 +100,5 @@ public class MaterialCategoryCondition extends Condition {
         };
 
         public abstract boolean test(Block block);
-
-        public boolean test(Player player) {
-            return test(player.getEyeLocation().getBlock());
-        }
     }
 }
