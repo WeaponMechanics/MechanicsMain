@@ -61,7 +61,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
     @Override
     public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot,
-        TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
+                          TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
 
         Trigger trigger = getConfigurations().getObject(weaponTitle + ".Reload.Trigger", Trigger.class);
         if (trigger == null || !trigger.check(triggerType, slot, entityWrapper))
@@ -83,13 +83,13 @@ public class ReloadHandler implements IValidator, TriggerListener {
      * @return true if was able to start reloading
      */
     public boolean startReloadWithoutTrigger(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack,
-        EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {
+                                             EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {
 
         // Don't try to reload if either one of the hands is already reloading / full autoing
         HandData mainHandData = entityWrapper.getMainHandData();
         HandData offHandData = entityWrapper.getOffHandData();
         if (mainHandData.isReloading() || mainHandData.isUsingFullAuto() || mainHandData.isUsingBurst()
-            || offHandData.isReloading() || offHandData.isUsingFullAuto() || offHandData.isUsingBurst()) {
+                || offHandData.isReloading() || offHandData.isUsingFullAuto() || offHandData.isUsingBurst()) {
             return false;
         }
 
@@ -123,7 +123,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         int ammoLeft = getAmmoLeft(weaponStack, weaponTitle);
         if (ammoLeft == -1) { // This shouldn't be -1 at this point since reload should be used, perhaps ammo was added for weapon
-                              // in configs later in server...
+            // in configs later in server...
             CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
             ammoLeft = 0;
         }
@@ -144,7 +144,6 @@ public class ReloadHandler implements IValidator, TriggerListener {
             if (ammoLeft + tempAmmoToAdd > tempMagazineSize) {
                 tempAmmoToAdd = tempMagazineSize - ammoLeft;
             }
-
         } else {
             tempAmmoToAdd = tempMagazineSize - ammoLeft;
         }
@@ -169,7 +168,6 @@ public class ReloadHandler implements IValidator, TriggerListener {
             // AND
             // Is revolver or ammo is 0
             if (!isReloadLoop && (isRevolver || ammoLeft <= 0)) {
-
                 firearmOpenTime = firearmAction.getOpenTime();
                 firearmCloseTime = firearmAction.getCloseTime();
 
@@ -215,19 +213,17 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         AmmoConfig ammo = playerWrapper != null ? config.getObject(weaponTitle + ".Reload.Ammo", AmmoConfig.class) : null;
         if (ammo != null && !ammo.hasAmmo(weaponTitle, weaponStack, playerWrapper)) {
-
             // Creative mode bypass... #176
             if (playerWrapper.getPlayer().getGameMode() != GameMode.CREATIVE || !getBasicConfigurations().getBool("Creative_Mode_Bypass_Ammo")) {
                 if (ammo.getOutOfAmmoMechanics() != null)
                     ammo.getOutOfAmmoMechanics().use(new CastData(shooter, weaponTitle, weaponStack));
                 return false;
             }
-
         }
 
         Mechanics reloadStartMechanics = config.getObject(weaponTitle + ".Reload.Start_Mechanics", Mechanics.class);
         WeaponReloadEvent reloadEvent = new WeaponReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot,
-            reloadDuration, tempAmmoToAdd, tempMagazineSize, firearmOpenTime, firearmCloseTime, reloadStartMechanics);
+                reloadDuration, tempAmmoToAdd, tempMagazineSize, firearmOpenTime, firearmCloseTime, reloadStartMechanics);
         Bukkit.getPluginManager().callEvent(reloadEvent);
 
         reloadDuration = reloadEvent.getReloadTime();
@@ -250,6 +246,14 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
             @Override
             public void task() {
+                // Check if the slot is still the same
+                ItemStack currentItem = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
+                if (!currentItem.isSimilar(weaponStack)) {
+                    // if weapon changes, it stops the task
+                    handData.stopReloadingTasks();
+                    return;
+                }
+
                 ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
                 if (!taskReference.hasItemMeta()) {
                     handData.stopReloadingTasks();
@@ -263,11 +267,9 @@ public class ReloadHandler implements IValidator, TriggerListener {
                 int ammoToAdd = finalAmmoToAdd + unloadedAmount;
 
                 if (ammo != null) {
-
                     int removedAmount = ammo.removeAmmo(taskReference, playerWrapper, ammoToAdd, magazineSize);
 
-                    // Just check if for some reason ammo disappeared from entity before reaching reload "complete"
-                    // state
+                    // Just check if for some reason ammo disappeared from entity before reaching reload "complete" state
                     if (removedAmount <= 0) {
                         if (ammo.getOutOfAmmoMechanics() != null)
                             ammo.getOutOfAmmoMechanics().use(new CastData(shooter, weaponTitle, taskReference));
@@ -335,8 +337,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
         };
 
         // If loop OR firearm actions aren't used
-        // OR ammo left is above 0 and revolver isn't used (when using revolver firearm actions should
-        // always occur)
+        // OR ammo left is above 0 and revolver isn't used (when using revolver firearm actions should always occur)
         if (isReloadLoop || state == null || (ammoLeft > 0 && !isRevolver)) {
             reloadTask.startChain();
             return true;
@@ -372,8 +373,9 @@ public class ReloadHandler implements IValidator, TriggerListener {
         return true;
     }
 
+
     private ChainTask getOpenTask(int firearmOpenTime, FirearmAction firearmAction, ItemStack weaponStack, HandData handData,
-        EntityWrapper entityWrapper, String weaponTitle, boolean mainhand, EquipmentSlot slot) {
+                                  EntityWrapper entityWrapper, String weaponTitle, boolean mainhand, EquipmentSlot slot) {
 
         LivingEntity shooter = entityWrapper.getEntity();
         WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, FirearmState.OPEN);
@@ -411,7 +413,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
     }
 
     private ChainTask getCloseTask(int firearmCloseTime, FirearmAction firearmAction, ItemStack weaponStack, HandData handData, EntityWrapper entityWrapper,
-        String weaponTitle, boolean mainhand, EquipmentSlot slot, boolean dualWield) {
+                                   String weaponTitle, boolean mainhand, EquipmentSlot slot, boolean dualWield) {
 
         LivingEntity shooter = entityWrapper.getEntity();
         WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, FirearmState.CLOSE);
@@ -568,7 +570,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
             return;
 
         startReloadWithoutTrigger(entityWrapper, otherWeapon, otherStack,
-            mainhand ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND, dualWield, false);
+                mainhand ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND, dualWield, false);
     }
 
     @Override
@@ -607,15 +609,15 @@ public class ReloadHandler implements IValidator, TriggerListener {
         // Warning that the user is using the old system
         if (data.has("Ammo.Ammo_Types")) {
             throw data.exception("Ammo.Ammo_Types", "You are using the old Ammo_Types format",
-                "In WeaponMechanics 3.0.0 we recoded Ammo for simplified config and improved features",
-                "https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/reload/ammo");
+                    "In WeaponMechanics 3.0.0 we recoded Ammo for simplified config and improved features",
+                    "https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/reload/ammo");
         }
 
         // Easy mistake to make... Should be Ammo.Ammos
         if (data.has("Ammos")) {
             throw data.exception("Ammos", "Oops! You put 'Ammos' directly in the reload section",
-                "You should add an 'Ammo' section first, and put the 'Ammos' in there!",
-                "https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/reload/ammo");
+                    "You should add an 'Ammo' section first, and put the 'Ammos' in there!",
+                    "https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/reload/ammo");
         }
     }
 }
