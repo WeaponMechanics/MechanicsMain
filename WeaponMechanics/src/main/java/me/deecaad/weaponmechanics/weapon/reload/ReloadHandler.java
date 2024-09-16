@@ -123,7 +123,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         int ammoLeft = getAmmoLeft(weaponStack, weaponTitle);
         if (ammoLeft == -1) { // This shouldn't be -1 at this point since reload should be used, perhaps ammo was added for weapon
-                              // in configs later in server...
+            // in configs later in server...
             CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
             ammoLeft = 0;
         }
@@ -144,7 +144,6 @@ public class ReloadHandler implements IValidator, TriggerListener {
             if (ammoLeft + tempAmmoToAdd > tempMagazineSize) {
                 tempAmmoToAdd = tempMagazineSize - ammoLeft;
             }
-
         } else {
             tempAmmoToAdd = tempMagazineSize - ammoLeft;
         }
@@ -169,7 +168,6 @@ public class ReloadHandler implements IValidator, TriggerListener {
             // AND
             // Is revolver or ammo is 0
             if (!isReloadLoop && (isRevolver || ammoLeft <= 0)) {
-
                 firearmOpenTime = firearmAction.getOpenTime();
                 firearmCloseTime = firearmAction.getCloseTime();
 
@@ -215,14 +213,12 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         AmmoConfig ammo = playerWrapper != null ? config.getObject(weaponTitle + ".Reload.Ammo", AmmoConfig.class) : null;
         if (ammo != null && !ammo.hasAmmo(weaponTitle, weaponStack, playerWrapper)) {
-
             // Creative mode bypass... #176
             if (playerWrapper.getPlayer().getGameMode() != GameMode.CREATIVE || !getBasicConfigurations().getBool("Creative_Mode_Bypass_Ammo")) {
                 if (ammo.getOutOfAmmoMechanics() != null)
                     ammo.getOutOfAmmoMechanics().use(new CastData(shooter, weaponTitle, weaponStack));
                 return false;
             }
-
         }
 
         Mechanics reloadStartMechanics = config.getObject(weaponTitle + ".Reload.Start_Mechanics", Mechanics.class);
@@ -250,6 +246,14 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
             @Override
             public void task() {
+                // Check if the slot is still the same
+                ItemStack currentItem = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
+                if (!currentItem.isSimilar(weaponStack)) {
+                    // if weapon changes, it stops the task
+                    handData.stopReloadingTasks();
+                    return;
+                }
+
                 ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
                 if (!taskReference.hasItemMeta()) {
                     handData.stopReloadingTasks();
@@ -263,7 +267,6 @@ public class ReloadHandler implements IValidator, TriggerListener {
                 int ammoToAdd = finalAmmoToAdd + unloadedAmount;
 
                 if (ammo != null) {
-
                     int removedAmount = ammo.removeAmmo(taskReference, playerWrapper, ammoToAdd, magazineSize);
 
                     // Just check if for some reason ammo disappeared from entity before reaching reload "complete"
