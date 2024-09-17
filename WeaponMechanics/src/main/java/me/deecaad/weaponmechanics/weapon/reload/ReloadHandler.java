@@ -240,27 +240,22 @@ public class ReloadHandler implements IValidator, TriggerListener {
         // This is necessary for events to be used correctly
         handData.setReloadData(weaponTitle, weaponStack);
 
+        ItemStack oldWeaponStack = weaponStack.clone();
         ChainTask reloadTask = new ChainTask(reloadDuration) {
 
             private int unloadedAmount;
 
             @Override
             public void task() {
-                // Check if the slot is still the same
-                ItemStack currentItem = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
-                if (!currentItem.isSimilar(weaponStack)) {
+                ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
+                String newWeaponTitle = taskReference.hasItemMeta() ? CustomTag.WEAPON_TITLE.getString(taskReference) : null;
+                if (!taskReference.hasItemMeta() || !weaponTitle.equals(newWeaponTitle)) {
                     // if weapon changes, it stops the task
                     handData.stopReloadingTasks();
                     return;
                 }
 
-                ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
-                if (!taskReference.hasItemMeta()) {
-                    handData.stopReloadingTasks();
-                    return;
-                }
                 handData.setReloadData(weaponTitle, taskReference);
-
                 int ammoLeft = getAmmoLeft(taskReference, weaponTitle);
 
                 // Here creating this again since this may change if there isn't enough ammo...
