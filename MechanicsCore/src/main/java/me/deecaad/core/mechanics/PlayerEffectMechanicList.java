@@ -72,7 +72,9 @@ public final class PlayerEffectMechanicList extends Mechanic implements JarSearc
                 }
 
                 // Rewrite our saved variations
-                target.setTargetEntity(targetEntity);
+                if (targetEntity != null) {
+                    target.setTargetEntity(targetEntity);
+                }
                 target.setTargetLocation(supplier);
 
                 // Play the mechanic

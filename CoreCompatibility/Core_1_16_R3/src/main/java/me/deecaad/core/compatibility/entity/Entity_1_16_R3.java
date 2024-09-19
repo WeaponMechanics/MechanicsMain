@@ -3,7 +3,6 @@ package me.deecaad.core.compatibility.entity;
 import com.mojang.datafixers.util.Pair;
 import me.deecaad.core.compatibility.equipevent.NonNullList_1_16_R3;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_16_R3.DataWatcher;
 import net.minecraft.server.v1_16_R3.EnumItemSlot;
@@ -26,15 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Entity_1_16_R3 implements EntityCompatibility {
-
-    static {
-        if (ReflectionUtil.getMCVersion() != 16) {
-            me.deecaad.core.MechanicsCore.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + Entity_1_16_R3.class + " when not using Minecraft 16",
-                new InternalError());
-        }
-    }
 
     @Override
     public Vector getLastLocation(Entity entity) {

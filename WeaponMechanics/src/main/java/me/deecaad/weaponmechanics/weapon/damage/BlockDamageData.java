@@ -3,8 +3,8 @@ package me.deecaad.weaponmechanics.weapon.damage;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.block.BlockCompatibility;
 import me.deecaad.core.utils.DistanceUtil;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -13,14 +13,20 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
-import org.bukkit.block.data.*;
+import org.bukkit.block.data.Ageable;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Lightable;
+import org.bukkit.block.data.MultipleFacing;
+import org.bukkit.block.data.Orientable;
+import org.bukkit.block.data.Rotatable;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.block.data.type.Candle;
 import org.bukkit.block.data.type.SeaPickle;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -255,8 +261,8 @@ public final class BlockDamageData {
             }
 
             // #212 - Try to copy the block data from the previous block.
-            boolean attemptCopy = WeaponMechanics.getBasicConfigurations().getBoolean("Explosions.Attempt_Copy_Data", false);
-            if (attemptCopy && ReflectionUtil.getMCVersion() >= 13) {
+            boolean attemptCopy = WeaponMechanics.getBasicConfigurations().getBool("Explosions.Attempt_Copy_Data", false);
+            if (attemptCopy && MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
                 BlockData oldData = block.getBlockData();
                 BlockData newData = mask.createBlockData();
 

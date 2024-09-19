@@ -2,7 +2,6 @@ package me.deecaad.core.compatibility.entity;
 
 import me.deecaad.core.compatibility.equipevent.NonNullList_1_15_R1;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_15_R1.DataWatcher;
 import net.minecraft.server.v1_15_R1.EnumItemSlot;
@@ -24,15 +23,6 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 public class Entity_1_15_R1 implements EntityCompatibility {
-
-    static {
-        if (ReflectionUtil.getMCVersion() != 15) {
-            me.deecaad.core.MechanicsCore.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + Entity_1_15_R1.class + " when not using Minecraft 15",
-                new InternalError());
-        }
-    }
 
     @Override
     public Vector getLastLocation(Entity entity) {

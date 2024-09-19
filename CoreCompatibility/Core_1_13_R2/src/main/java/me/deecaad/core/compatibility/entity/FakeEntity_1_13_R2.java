@@ -1,9 +1,28 @@
 package me.deecaad.core.compatibility.entity;
 
 import me.deecaad.core.utils.DistanceUtil;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.v1_13_R2.*;
+import net.minecraft.server.v1_13_R2.Block;
+import net.minecraft.server.v1_13_R2.Entity;
+import net.minecraft.server.v1_13_R2.EntityArmorStand;
+import net.minecraft.server.v1_13_R2.EntityFallingBlock;
+import net.minecraft.server.v1_13_R2.EntityFireworks;
+import net.minecraft.server.v1_13_R2.EntityItem;
+import net.minecraft.server.v1_13_R2.EntityLiving;
+import net.minecraft.server.v1_13_R2.EnumItemSlot;
+import net.minecraft.server.v1_13_R2.IBlockData;
+import net.minecraft.server.v1_13_R2.ItemStack;
+import net.minecraft.server.v1_13_R2.Packet;
+import net.minecraft.server.v1_13_R2.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_13_R2.PacketPlayOutEntityEquipment;
+import net.minecraft.server.v1_13_R2.PacketPlayOutEntityHeadRotation;
+import net.minecraft.server.v1_13_R2.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_13_R2.PacketPlayOutEntityStatus;
+import net.minecraft.server.v1_13_R2.PacketPlayOutEntityTeleport;
+import net.minecraft.server.v1_13_R2.PacketPlayOutEntityVelocity;
+import net.minecraft.server.v1_13_R2.PacketPlayOutSpawnEntity;
+import net.minecraft.server.v1_13_R2.PacketPlayOutSpawnEntityLiving;
+import net.minecraft.server.v1_13_R2.PlayerConnection;
+import net.minecraft.server.v1_13_R2.Vector3f;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -27,15 +46,6 @@ import static net.minecraft.server.v1_13_R2.PacketPlayOutEntity.PacketPlayOutEnt
 import static net.minecraft.server.v1_13_R2.PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook;
 
 public class FakeEntity_1_13_R2 extends FakeEntity {
-
-    static {
-        if (ReflectionUtil.getMCVersion() != 13) {
-            me.deecaad.core.MechanicsCore.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + FakeEntity_1_13_R2.class + " when not using Minecraft 13",
-                new InternalError());
-        }
-    }
 
     // Store this since using Enum#values() is especially slow
     public static final EnumItemSlot[] SLOTS = EnumItemSlot.values();

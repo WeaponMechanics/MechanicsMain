@@ -194,7 +194,7 @@ public class WeaponMechanics {
             debug.info("Buy WeaponMechanicsCosmetics to support our development: https://www.spigotmc.org/resources/104539/");
 
         // Detect Vivecraft-Spigot-Extensions and suggest switching to VivecraftSpigot
-        if (Bukkit.getPluginManager().getPermission("Vivecraft_Spigot_Extensions") != null) {
+        if (Bukkit.getPluginManager().getPlugin("Vivecraft_Spigot_Extensions") != null) {
             debug.warn("Detected 'Vivecraft_Spigot_Extensions' on your server");
             debug.warn("For better compatibility with WeaponMechanics, we recommend switching to VivecraftSpigot");
             debug.warn("VivecraftSpigot: https://www.spigotmc.org/resources/104539/");
@@ -387,7 +387,7 @@ public class WeaponMechanics {
 
         // In 1.13+, we should use the built-in 'brigadier' system which
         // has really nice tab-completions/validation
-        if (ReflectionUtil.getMCVersion() >= 13) {
+        if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
             WeaponMechanicsCommand.build();
             return;
         }

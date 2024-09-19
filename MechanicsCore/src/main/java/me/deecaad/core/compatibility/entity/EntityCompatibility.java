@@ -2,10 +2,22 @@ package me.deecaad.core.compatibility.entity;
 
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
-import me.deecaad.core.utils.ReflectionUtil;
-import org.bukkit.*;
+import me.deecaad.core.utils.MinecraftVersions;
+import org.bukkit.Bukkit;
+import org.bukkit.EntityEffect;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Statistic;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.*;
+import org.bukkit.entity.ComplexEntityPart;
+import org.bukkit.entity.ComplexLivingEntity;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -20,6 +32,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public interface EntityCompatibility {
+
+    EntityType ITEM_ENTITY = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? EntityType.ITEM : EntityType.valueOf("DROPPED_ITEM");
 
     /**
      * Null in cases where entity is invulnerable or dead.
@@ -103,7 +117,7 @@ public interface EntityCompatibility {
      * @return The fake entity.
      */
     default FakeEntity generateFakeEntity(Location location, ItemStack item) {
-        return generateFakeEntity(location, EntityType.DROPPED_ITEM, item);
+        return generateFakeEntity(location, ITEM_ENTITY, item);
     }
 
     /**
@@ -142,7 +156,7 @@ public interface EntityCompatibility {
         // This is how Spigot handles resurrection. They always call the event,
         // and cancel the event if there is no totem.
         ItemStack totem = hand == null ? null : (hand == EquipmentSlot.HAND ? mainHand : offHand);
-        EntityResurrectEvent event = ReflectionUtil.getMCVersion() < 19 ? new EntityResurrectEvent(entity) : new EntityResurrectEvent(entity, hand);
+        EntityResurrectEvent event = MinecraftVersions.WILD_UPDATE.isAtLeast() ? new EntityResurrectEvent(entity, hand) : new EntityResurrectEvent(entity);
         event.setCancelled(hand == null);
         Bukkit.getPluginManager().callEvent(event);
 
@@ -171,6 +185,26 @@ public interface EntityCompatibility {
         entity.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 800, 0));
         entity.playEffect(EntityEffect.TOTEM_RESURRECT);
         return true;
+    }
+
+    /**
+     * Creates an {@link EntityExplodeEvent} with the given parameters. This is used because Spigot does
+     * not have a backwards compatible constructor for this event.
+     *
+     * @param entity The non-null entity that is causing the explosion.
+     * @param location The non-null location of the explosion.
+     * @param blocks The non-null list of blocks that are being exploded.
+     * @param yield The yield of the explosion.
+     * @param breakBlocks Whether the blocks should be broken.
+     * @return The non-null event.
+     */
+    default @NotNull EntityExplodeEvent createEntityExplodeEvent(
+        @NotNull Entity entity,
+        @NotNull Location location,
+        @NotNull List<Block> blocks,
+        float yield,
+        boolean breakBlocks) {
+        return new EntityExplodeEvent(entity, location, blocks, yield);
     }
 
     /**

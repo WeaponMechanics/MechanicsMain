@@ -95,6 +95,7 @@ public class Circumstance implements Serializer<Circumstance> {
                 case SWIMMING -> entityWrapper.isSwimming();
                 case IN_MIDAIR -> entityWrapper.isInMidair();
                 case GLIDING -> entityWrapper.isGliding();
+                case AMMO_EMPTY -> entityWrapper.isAmmoEmpty();
             };
         }
     }
@@ -110,7 +111,8 @@ public class Circumstance implements Serializer<Circumstance> {
         DUAL_WIELDING,
         SWIMMING,
         IN_MIDAIR,
-        GLIDING;
+        GLIDING,
+        AMMO_EMPTY;
 
         private final String humanName;
 

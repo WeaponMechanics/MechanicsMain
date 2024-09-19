@@ -3,11 +3,11 @@ package me.deecaad.core.mechanics.conditions;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.MinecraftVersions;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Waterlogged;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +27,13 @@ public class MaterialCategoryCondition extends Condition {
 
     @Override
     public boolean isAllowed0(CastData cast) {
-        return category.test(cast.getTargetLocation().getBlock());
+        Location targetLocation;
+        if (cast.hasTargetLocation())
+            targetLocation = cast.getTargetLocation();
+        else
+            targetLocation = cast.getTarget().getEyeLocation();
+
+        return category.test(targetLocation.getBlock());
     }
 
     @Override
@@ -69,7 +75,7 @@ public class MaterialCategoryCondition extends Condition {
         FLUID {
             @Override
             public boolean test(Block block) {
-                if (ReflectionUtil.getMCVersion() < 13)
+                if (!MinecraftVersions.UPDATE_AQUATIC.isAtLeast())
                     return block.isLiquid();
 
                 if (block.isLiquid())
@@ -83,20 +89,16 @@ public class MaterialCategoryCondition extends Condition {
         CAVE_AIR {
             @Override
             public boolean test(Block block) {
-                return ReflectionUtil.getMCVersion() >= 13 && block.getType() == Material.CAVE_AIR;
+                return MinecraftVersions.UPDATE_AQUATIC.isAtLeast() && block.getType() == Material.CAVE_AIR;
             }
         },
         VOID_AIR {
             @Override
             public boolean test(Block block) {
-                return ReflectionUtil.getMCVersion() >= 13 && block.getType() == Material.VOID_AIR;
+                return MinecraftVersions.UPDATE_AQUATIC.isAtLeast() && block.getType() == Material.VOID_AIR;
             }
         };
 
         public abstract boolean test(Block block);
-
-        public boolean test(Player player) {
-            return test(player.getEyeLocation().getBlock());
-        }
     }
 }

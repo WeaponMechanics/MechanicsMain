@@ -1,7 +1,7 @@
 package me.deecaad.core.compatibility;
 
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.ReflectionUtil;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
 public class CompatibilitySetup {
@@ -18,12 +18,7 @@ public class CompatibilitySetup {
      * @return the server version as string
      */
     public String getVersionAsString() {
-        try {
-            return Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-        } catch (ArrayIndexOutOfBoundsException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return MinecraftVersions.getCURRENT().toProtocolString();
     }
 
     /**

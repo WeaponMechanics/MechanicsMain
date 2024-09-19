@@ -4,7 +4,7 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
-import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -92,7 +92,7 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
         if (event.getPacket().getIntegers().read(0) != 0)
             return;
 
-        int slotNum = event.getPacket().getIntegers().read(ReflectionUtil.getMCVersion() >= 17 ? 2 : 1);
+        int slotNum = event.getPacket().getIntegers().read(MinecraftVersions.CAVES_AND_CLIFFS_1.isAtLeast() ? 2 : 1);
 
         boolean mainHand = slotNum == 36 + player.getInventory().getHeldItemSlot();
         if (!mainHand && slotNum != 45)
@@ -143,9 +143,9 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
                 this.displayName = itemMeta.getDisplayName();
             if (itemMeta.hasLore())
                 this.lore = itemMeta.getLore();
-            if (ReflectionUtil.getMCVersion() >= 14 && itemMeta.hasCustomModelData())
+            if (MinecraftVersions.VILLAGE_AND_PILLAGE.isAtLeast() && itemMeta.hasCustomModelData())
                 this.customModelData = itemMeta.getCustomModelData();
-            if (ReflectionUtil.getMCVersion() < 13) {
+            if (!MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
                 this.durability = itemStack.getDurability();
             } else if (itemMeta instanceof Damageable damageableItemMeta) {
                 if (damageableItemMeta.hasDamage())

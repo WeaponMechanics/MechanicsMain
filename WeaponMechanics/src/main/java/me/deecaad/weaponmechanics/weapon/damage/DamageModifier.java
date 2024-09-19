@@ -3,9 +3,17 @@ package me.deecaad.weaponmechanics.weapon.damage;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import me.deecaad.core.file.*;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerOptionsException;
+import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.core.utils.EnumUtil;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.primitive.DoubleEntry;
+import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -26,6 +34,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * A class that holds all the damage modifiers that can be applied to a victim. This includes armor
+ * modifiers, damage point modifiers, movement modifiers, and more. Each modifier is a percentage
+ * that is added to the damage dealt to the victim. The final damage is clamped between
+ * {@link #getMin()} and {@link #getMax()}.
+ */
 public class DamageModifier implements Serializer<DamageModifier> {
 
     // For clamping bounds
@@ -322,10 +336,26 @@ public class DamageModifier implements Serializer<DamageModifier> {
         return NumberUtil.clamp(rate, min, max);
     }
 
+    /**
+     * Clamps the given rate between {@link #getMin()} and {@link #getMax()}.
+     *
+     * @param rate The rate to clamp.
+     * @return The clamped rate.
+     */
     public double clamp(double rate) {
         return NumberUtil.clamp(rate, min, max);
     }
 
+    /**
+     * Applies all rates from this damage modifier to the given damage. This is equivalent to
+     * multiplying the damage by {@link #getRate(EntityWrapper, DamagePoint, boolean)}.
+     *
+     * @param damage The damage to apply rates to.
+     * @param wrapper The victim being damaged.
+     * @param point Where the victim was hit.
+     * @param isBackStab If the hit came from behind.
+     * @return The damage multiplied by the rate.
+     */
     public double applyRates(double damage, EntityWrapper wrapper, DamagePoint point, boolean isBackStab) {
         return damage * getRate(wrapper, point, isBackStab);
     }
@@ -367,12 +397,12 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
             // First try to get by key. If that fails, get by name. If that fails, send error
             Enchantment enchantment = null;
-            if (ReflectionUtil.getMCVersion() >= 13)
+            if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast())
                 enchantment = Enchantment.getByKey(NamespacedKey.minecraft(split[0].toLowerCase(Locale.ROOT)));
             if (enchantment == null)
                 enchantment = Enchantment.getByName(split[0].toUpperCase(Locale.ROOT));
             if (enchantment == null) {
-                Iterable<String> options = Arrays.stream(Enchantment.values()).map(ench -> ReflectionUtil.getMCVersion() < 13 ? ench.getName() : ench.getKey().getKey()).toList();
+                Iterable<String> options = Arrays.stream(Enchantment.values()).map(ench -> MinecraftVersions.UPDATE_AQUATIC.isAtLeast() ? ench.getKey().getKey() : ench.getName()).toList();
                 throw new SerializerOptionsException(this, "Enchantment", options, split[0], data.ofList("Enchantments").getLocation(i));
             }
 
@@ -418,12 +448,12 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
             // First try to get by key. If that fails, get by name. If that fails, send error
             PotionEffectType potion = null;
-            if (ReflectionUtil.getMCVersion() >= 13)
+            if (MinecraftVersions.WILD_UPDATE.isAtLeast())
                 potion = PotionEffectType.getByKey(NamespacedKey.minecraft(split[0].toLowerCase(Locale.ROOT)));
             if (potion == null)
                 potion = PotionEffectType.getByName(split[0].toUpperCase(Locale.ROOT));
             if (potion == null) {
-                Iterable<String> options = Arrays.stream(Enchantment.values()).map(ench -> ReflectionUtil.getMCVersion() < 13 ? ench.getName() : ench.getKey().getKey()).toList();
+                Iterable<String> options = Arrays.stream(Enchantment.values()).map(ench -> MinecraftVersions.WILD_UPDATE.isAtLeast() ? ench.getKey().getKey() : ench.getName()).toList();
                 throw new SerializerOptionsException(this, "Potion", options, split[0], data.ofList("Potions").getLocation(i));
             }
 
@@ -436,14 +466,14 @@ public class DamageModifier implements Serializer<DamageModifier> {
     }
 
     /**
-     * Let's people use +-20% instead of 0.2
+     * Lets people use +-20% instead of 0.2
      */
     private static double serializePercentage(SerializeData.ConfigAccessor accessor) throws SerializerException {
         return serializePercentage(accessor, "+0%");
     }
 
     /**
-     * Let's people use +-20% instead of 0.2
+     * Lets people use +-20% instead of 0.2
      */
     private static double serializePercentage(SerializeData.ConfigAccessor accessor, String defaultVal) throws SerializerException {
         return stringToDouble(accessor.assertType(String.class).get(defaultVal), accessor.getLocation());

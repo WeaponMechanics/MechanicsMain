@@ -39,11 +39,26 @@ public final class Registry<T extends Keyable> implements Keyable {
      * @throws IllegalArgumentException If a duplicate key is found.
      */
     @Contract("_ -> this")
-    @NotNull public Registry<T> add(@NotNull T item) {
+    public @NotNull Registry<T> add(@NotNull T item) {
+        return add(item, false);
+    }
+
+    /**
+     * Adds the given serializer to this registry. Keys are not case-sensitive, so be careful to avoid
+     * duplicate keys.
+     *
+     * @param item The non-null item to add.
+     * @param ignoreDuplicates If true, the method will not throw an exception if a duplicate key is
+     *        found.
+     * @return A non-null reference to this (builder-pattern).
+     * @throws IllegalArgumentException If a duplicate key is found.
+     */
+    @Contract("_,_ -> this")
+    public @NotNull Registry<T> add(@NotNull T item, boolean ignoreDuplicates) {
         String key = toKey(item.getKey());
         T existing = registry.get(key);
 
-        if (existing != null) {
+        if (existing != null && !ignoreDuplicates) {
             MechanicsCore.debug.warn("Overriding '" + existing + "' with '" + item + "' in " + registryName + " registry");
         }
 

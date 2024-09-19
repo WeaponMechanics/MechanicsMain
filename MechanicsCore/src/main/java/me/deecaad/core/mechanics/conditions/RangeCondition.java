@@ -3,6 +3,7 @@ package me.deecaad.core.mechanics.conditions;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
+import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,8 +27,14 @@ public class RangeCondition extends Condition {
 
     @Override
     public boolean isAllowed0(CastData cast) {
-        double distanceSquared = cast.getTargetLocation().distanceSquared(cast.getSourceLocation());
+        // Bias towards using the target
+        Location targetLocation;
+        if (cast.getTarget() != null)
+            targetLocation = cast.getTarget().getEyeLocation();
+        else
+            targetLocation = cast.getTargetLocation();
 
+        double distanceSquared = targetLocation.distanceSquared(cast.getSourceLocation());
         if (minSquared.isPresent() && distanceSquared < minSquared.getAsDouble())
             return false;
         if (maxSquared.isPresent() && distanceSquared >= maxSquared.getAsDouble())

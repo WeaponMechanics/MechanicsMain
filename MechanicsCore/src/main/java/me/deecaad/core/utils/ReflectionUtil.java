@@ -1,10 +1,17 @@
 package me.deecaad.core.utils;
 
+import me.deecaad.core.MechanicsCore;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import xyz.jpenilla.reflectionremapper.ReflectionRemapper;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 /**
@@ -24,7 +31,6 @@ public final class ReflectionUtil {
 
     private static final Field modifiersField;
     private static final int javaVersion;
-    private static final int mcVersion;
 
     private static final String ERR = "This is probably caused by your minecraft server version. Contact a DEV for more help.";
 
@@ -35,14 +41,19 @@ public final class ReflectionUtil {
         // noinspection ConstantConditions
         if (Bukkit.getServer() == null) {
             versionString = "TESTING";
-            mcVersion = -1;
         } else {
-            versionString = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-            mcVersion = Integer.parseInt(versionString.split("_")[1]);
+            versionString = MinecraftVersions.getCURRENT().toProtocolString();
         }
 
         nmsVersion = "net.minecraft.server." + versionString + '.';
-        cbVersion = "org.bukkit.craftbukkit." + versionString + '.';
+
+        // In 1.20.6+ paper servers, the CraftBukkit package has been remapped
+        boolean isPaper = Bukkit.getServer() != null && CompatibilityAPI.isPaper();
+        if (isPaper && MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+            cbVersion = "org.bukkit.craftbukkit.";
+        } else {
+            cbVersion = "org.bukkit.craftbukkit." + versionString + '.';
+        }
 
         try {
             String version = System.getProperty("java.version");
@@ -59,7 +70,8 @@ public final class ReflectionUtil {
             javaVersion1 = Integer.parseInt(version);
         } catch (Throwable throwable) {
             javaVersion1 = -1;
-            throwable.printStackTrace();
+            MechanicsCore.debug.error("Could not get Java version for '" + System.getProperty("java.version") + "'");
+            MechanicsCore.debug.log(LogLevel.ERROR, throwable);
         }
         javaVersion = javaVersion1;
 
@@ -73,10 +85,6 @@ public final class ReflectionUtil {
 
     // Don't let anyone instantiate this class
     private ReflectionUtil() {
-    }
-
-    public static int getMCVersion() {
-        return mcVersion;
     }
 
     /**
@@ -93,6 +101,10 @@ public final class ReflectionUtil {
      * Returns the NMS class with the given name. In mc versions 1.17 and higher, <code>pack</code> is
      * used for the package the class is in. Previous versions ignore <code>pack</code>.
      *
+     * <p>
+     * On paper servers in MC 1.20.5 and higher, packages have been remapped. We have to use the
+     * remapping tool to get the correct package name and class name.
+     *
      * @param pack The non-null package name that contains the class defined by <code>name</code>. Make
      *        sure the string ends with a dot.
      * @param name The non-null name of the class to find.
@@ -101,10 +113,16 @@ public final class ReflectionUtil {
     public static Class<?> getNMSClass(@NotNull String pack, @NotNull String name) {
         String className;
 
-        if (getMCVersion() < 17)
-            className = nmsVersion + name;
-        else
+        if (MinecraftVersions.CAVES_AND_CLIFFS_1.isAtLeast()) {
             className = "net.minecraft." + pack + '.' + name;
+
+            if (CompatibilityAPI.isPaper() && MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+                ReflectionRemapper remapper = ReflectionRemapper.forReobfMappingsInPaperJar();
+                className = remapper.remapClassOrArrayName(className);
+            }
+        } else {
+            className = nmsVersion + name;
+        }
 
         try {
             return Class.forName(className);

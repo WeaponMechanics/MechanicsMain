@@ -1,42 +1,30 @@
 package me.deecaad.core.compatibility.block;
 
 import me.deecaad.core.compatibility.HitBox;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.v1_13_R2.*;
-import org.bukkit.Chunk;
-import org.bukkit.Material;
+import net.minecraft.server.v1_13_R2.AxisAlignedBB;
+import net.minecraft.server.v1_13_R2.BlockPosition;
+import net.minecraft.server.v1_13_R2.IRegistry;
+import net.minecraft.server.v1_13_R2.MinecraftKey;
+import net.minecraft.server.v1_13_R2.PacketPlayOutBlockBreakAnimation;
+import net.minecraft.server.v1_13_R2.SoundEffect;
+import net.minecraft.server.v1_13_R2.SoundEffectType;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.v1_13_R2.CraftChunk;
 import org.bukkit.craftbukkit.v1_13_R2.block.CraftBlock;
-import org.bukkit.craftbukkit.v1_13_R2.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_13_R2.block.data.CraftBlockData;
 import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
 
 public class Block_1_13_R2 implements BlockCompatibility {
 
-    private static final Field multiBlockChangeB;
     private static final Field[] soundFields;
 
     static {
-        Class<?> multiBlockChangeClass = ReflectionUtil.getPacketClass("PacketPlayOutMultiBlockChange");
-        multiBlockChangeB = ReflectionUtil.getField(multiBlockChangeClass, "b");
-
-        if (ReflectionUtil.getMCVersion() != 13) {
-            me.deecaad.core.MechanicsCore.debug.log(
-                LogLevel.ERROR,
-                "Loaded " + Block_1_13_R2.class + " when not using Minecraft 13",
-                new InternalError());
-        }
-
         soundFields = new Field[SoundType.values().length]; // 5
         for (int i = 0; i < soundFields.length; i++) {
             soundFields[i] = ReflectionUtil.getField(SoundEffectType.class, SoundEffect.class, i);
@@ -44,7 +32,9 @@ public class Block_1_13_R2 implements BlockCompatibility {
     }
 
     @Override
-    public HitBox getHitBox(Block block, boolean allowLiquid) {
+    public HitBox getHitBox(@NotNull Block block, boolean allowLiquid) {
+        if (!block.getChunk().isLoaded())
+            return null;
         if (block.isEmpty())
             return null;
 
@@ -96,81 +86,6 @@ public class Block_1_13_R2 implements BlockCompatibility {
     public @NotNull Object getCrackPacket(@NotNull Block block, int crack, int id) {
         BlockPosition pos = new BlockPosition(block.getX(), block.getY(), block.getZ());
         return new PacketPlayOutBlockBreakAnimation(id, pos, crack);
-    }
-
-    @Override
-    public @NotNull List<Object> getMultiBlockMaskPacket(@NotNull List<Block> blocks, @Nullable Material mask, byte data) {
-        if (blocks == null || blocks.isEmpty()) {
-            throw new IllegalArgumentException("No blocks are being changed!");
-        }
-
-        Map<Chunk, List<Block>> sortedBlocks = new HashMap<>();
-        for (Block block : blocks) {
-            List<Block> list = sortedBlocks.computeIfAbsent(block.getChunk(), chunk -> new ArrayList<>());
-            list.add(block);
-        }
-
-        List<Object> packets = new ArrayList<>(sortedBlocks.size());
-        IBlockData theMask = mask == null ? null : ((CraftBlockData) mask.createBlockData()).getState();
-
-        for (List<Block> entry : sortedBlocks.values()) {
-            packets.add(getMultiBlockMaskPacket(entry, theMask));
-        }
-
-        return packets;
-    }
-
-    @Override
-    public @NotNull List<Object> getMultiBlockMaskPacket(@NotNull List<Block> blocks, @Nullable BlockState mask) {
-        if (blocks == null || blocks.isEmpty()) {
-            throw new IllegalArgumentException("No blocks are being changed!");
-        }
-
-        Map<Chunk, List<Block>> sortedBlocks = new HashMap<>();
-        for (Block block : blocks) {
-            List<Block> list = sortedBlocks.computeIfAbsent(block.getChunk(), chunk -> new ArrayList<>());
-            list.add(block);
-        }
-
-        List<Object> packets = new ArrayList<>(sortedBlocks.size());
-        IBlockData theMask = mask == null ? null : ((CraftBlockState) mask).getHandle();
-
-        for (List<Block> entry : sortedBlocks.values()) {
-            packets.add(getMultiBlockMaskPacket(entry, theMask));
-        }
-
-        return packets;
-    }
-
-    private PacketPlayOutMultiBlockChange getMultiBlockMaskPacket(List<Block> blocks, @Nullable IBlockData mask) {
-
-        net.minecraft.server.v1_13_R2.Chunk chunk = ((CraftChunk) blocks.get(0).getChunk()).getHandle();
-
-        // Setup default information
-        PacketPlayOutMultiBlockChange packet = new PacketPlayOutMultiBlockChange(0, new short[0], chunk);
-        PacketPlayOutMultiBlockChange.MultiBlockChangeInfo[] changes = new PacketPlayOutMultiBlockChange.MultiBlockChangeInfo[blocks.size()];
-
-        for (int i = 0; i < blocks.size(); i++) {
-            Block block = blocks.get(i);
-
-            // Where the block is relative to the chunk it is in
-            int x = block.getX() & 0xF;
-            int y = block.getY();
-            int z = block.getZ() & 0xF;
-
-            // Setting the (x, y, z) location into VarInt format
-            short location = (short) (x << 12 | y | z << 8);
-
-            // If mask is null, then undo the mask. Otherwise set the mask
-            if (mask == null) {
-                changes[i] = packet.new MultiBlockChangeInfo(location, chunk);
-            } else {
-                changes[i] = packet.new MultiBlockChangeInfo(location, mask);
-            }
-        }
-
-        ReflectionUtil.setField(multiBlockChangeB, packet, changes);
-        return packet;
     }
 
     @Override

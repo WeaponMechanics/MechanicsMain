@@ -1,7 +1,7 @@
 package me.deecaad.core.utils.ray;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
+import me.deecaad.core.utils.MinecraftVersions;
 import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
@@ -12,6 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class RayTraceResult {
+
+    private static final Particle DUST_PARTICLE = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? Particle.DUST : Particle.valueOf("REDSTONE");
 
     private final @NotNull Vector origin; // no getter... immutable
     private final @NotNull Vector direction; // no getter... immutable
@@ -165,10 +167,10 @@ public class RayTraceResult {
         double x = hitLocation.getX();
         double y = hitLocation.getY();
         double z = hitLocation.getZ();
-        if (CompatibilityAPI.getVersion() < 1.13) {
+        if (!MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
             player.getWorld().spawnParticle(Particle.CRIT, x, y, z, 1, 0, 0, 0, 0.0001);
         } else {
-            player.getWorld().spawnParticle(Particle.REDSTONE, x, y, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.BLACK, 1.5f), true);
+            player.getWorld().spawnParticle(DUST_PARTICLE, x, y, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.BLACK, 1.5f), true);
         }
     }
 

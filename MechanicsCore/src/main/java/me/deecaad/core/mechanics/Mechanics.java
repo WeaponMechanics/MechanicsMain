@@ -104,7 +104,12 @@ public class Mechanics implements Serializer<Mechanics> {
         // Store cacheable mechanics into this list to improve performance.
         PlayerEffectMechanicList cacheList = new PlayerEffectMechanicList();
 
-        for (Object obj : list) {
+        for (int i = 0; i < list.size(); i++) {
+            Object obj = list.get(i);
+            if (obj == null) {
+                throw data.listException(null, i, "Found a null/empty mechanic", "This happens when you have an empty line in your list");
+            }
+
             Mechanic mechanic = serializeOne(data, obj.toString());
 
             if (mechanic instanceof PlayerEffectMechanic playerMechanic && playerMechanic.getViewerTargeter() instanceof WorldTargeter worldTargeter) {

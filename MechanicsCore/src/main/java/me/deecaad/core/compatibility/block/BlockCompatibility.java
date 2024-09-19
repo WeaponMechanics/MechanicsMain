@@ -2,11 +2,9 @@ package me.deecaad.core.compatibility.block;
 
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.ICompatibility;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundGroup;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
@@ -14,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -41,7 +38,7 @@ public interface BlockCompatibility {
      * @param block the block
      * @return the block's hit box or null if it's passable for example
      */
-    default HitBox getHitBox(Block block) {
+    default @Nullable HitBox getHitBox(@NotNull Block block) {
         return getHitBox(block, false);
     }
 
@@ -53,8 +50,9 @@ public interface BlockCompatibility {
      * @param allowLiquid whether liquid should be considered as having hit box
      * @return the block's hit box or null if it's passable for example
      */
-    default HitBox getHitBox(Block block, boolean allowLiquid) {
-        // This default should only be used after 1.17
+    default @Nullable HitBox getHitBox(@NotNull Block block, boolean allowLiquid) {
+        if (!block.getChunk().isLoaded())
+            return null;
         if (block.isEmpty())
             return null;
 
@@ -124,47 +122,6 @@ public interface BlockCompatibility {
      * @return The non-null animation packet.
      */
     @NotNull Object getCrackPacket(@NotNull Block block, int crack, int id);
-
-    /**
-     * Returns a list of multi block change packets that masks all of the given <code>blocks</code>.
-     * This packet will make the block <i>appear</i> as the given <code>mask</code>. The
-     * <code>data</code> is used in legacy minecraft versions, and is ignored in newer versions. The
-     * mask for each individual block is removed if it is interacted with.
-     *
-     * For each {@link org.bukkit.Chunk} that is included in <code>blocks</code>, there is another
-     * packet added. Note that in version v1_16_R2 and higher, a new packet is used for each
-     * {@link SubChunk}.
-     *
-     * <p>
-     * For more information, please see the protocol
-     * <a href="https://wiki.vg/Protocol#Multi_Block_Change">wiki</a>.
-     *
-     * @param blocks The non-null list of non-null blocks to mask.
-     * @param mask The non-null bukkit material for the mask.
-     * @param data The non-negative byte data for material for legacy minecraft versions. For newer
-     *        versions, this data should be ignored.
-     * @return The non-null list of non-null block mask packets.
-     */
-    @NotNull List<Object> getMultiBlockMaskPacket(@NotNull List<Block> blocks, @NotNull Material mask, byte data);
-
-    /**
-     * Returns a list of multi block change packets that masks all given <code>blocks</code>. The packet
-     * will make the block <i>appear</i> as the given <code>mask</code>. The mask for each individual
-     * block is removed if it is interacted with.
-     *
-     * For each {@link org.bukkit.Chunk} that is included in <code>blocks</code>, there is another
-     * packet added. Note that in version v1_16_R2 and higher, a new packet is used for each
-     * {@link SubChunk}.
-     *
-     * <p>
-     * For more information, please see the protocol
-     * <a href="https://wiki.vg/Protocol#Multi_Block_Change">wiki</a>.
-     *
-     * @param blocks The non-null list of non-null blocks to mask.
-     * @param mask The non-null state to mask the block as.
-     * @return The non-null list of non-null block mask packets.
-     */
-    @NotNull List<Object> getMultiBlockMaskPacket(@NotNull List<Block> blocks, @Nullable BlockState mask);
 
     default SoundData getBlockSound(Object blockData, SoundType type) {
         BlockData data = (BlockData) blockData;

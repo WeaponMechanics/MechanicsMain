@@ -33,6 +33,7 @@ public abstract class AttributePlaceholderHandler extends NumericPlaceholderHand
             case LEGS -> NBTCompatibility.AttributeSlot.LEGS;
             case CHEST -> NBTCompatibility.AttributeSlot.CHEST;
             case HEAD -> NBTCompatibility.AttributeSlot.HEAD;
+            case BODY -> NBTCompatibility.AttributeSlot.BODY;
         };
 
         return CompatibilityAPI.getNBTCompatibility().getAttributeValue(item, attribute, slot);

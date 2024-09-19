@@ -28,6 +28,21 @@ class MinecraftVersionTest {
 
     @ParameterizedTest
     @CsvSource(
+        "Bukkit 1.20,1.20.0R1",
+        "Paper (1.20),1.20.0R1",
+    )
+    fun `test parse version without patch`(
+        versionString: String,
+        expected: String,
+    ) {
+        val version = MinecraftVersions.parseCurrentVersion(versionString)
+        if ("${version}R${version.protocol}" != expected) {
+            fail { "Version was incorrect, expected $expected but got $version" }
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource(
         "Bukkit version 12345",
         "Who knows",
     )

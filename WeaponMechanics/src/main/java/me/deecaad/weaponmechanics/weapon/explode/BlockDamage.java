@@ -5,8 +5,8 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.utils.EnumUtil;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.RandomUtil;
-import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import org.bukkit.Bukkit;
@@ -21,7 +21,13 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class BlockDamage implements Serializer<BlockDamage> {
 
@@ -256,10 +262,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
                     if (breakEvent.isCancelled())
                         return null;
 
-                    // Added in 1.12
-                    if (ReflectionUtil.getMCVersion() >= 12) {
-                        dropItems = breakEvent.isDropItems();
-                    }
+                    dropItems = breakEvent.isDropItems();
                 }
 
                 // Calculate dropped blocks BEFORE the block is broken.
@@ -355,7 +358,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
             // trying to override the default block durability. Hence,
             // block durability is a required argument.
             if ((mode == BreakMode.CRACK || mode == BreakMode.BREAK) && blockDurability == -1) {
-                int goodNumber = ReflectionUtil.getMCVersion() < 13 ? 1 : (int) materials.get(0).getBlastResistance() + 1;
+                int goodNumber = MinecraftVersions.UPDATE_AQUATIC.isAtLeast() ? (int) materials.get(0).getBlastResistance() + 1 : 1;
                 throw data.listException("Blocks", i, "When using '" + mode + "', you MUST also use durability",
                     SerializerException.forValue(String.join(" ", split)),
                     "For example, try '" + String.join(" ", split) + " " + goodNumber + "' instead");

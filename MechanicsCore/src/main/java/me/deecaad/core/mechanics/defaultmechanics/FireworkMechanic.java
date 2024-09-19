@@ -3,7 +3,11 @@ package me.deecaad.core.mechanics.defaultmechanics;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
-import me.deecaad.core.file.*;
+import me.deecaad.core.file.InlineSerializer;
+import me.deecaad.core.file.MapConfigLike;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
@@ -12,8 +16,12 @@ import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.mechanics.targeters.WorldTargeter;
 import me.deecaad.core.utils.DistanceUtil;
-import me.deecaad.core.utils.ReflectionUtil;
-import org.bukkit.*;
+import me.deecaad.core.utils.MinecraftVersions;
+import org.bukkit.Color;
+import org.bukkit.EntityEffect;
+import org.bukkit.FireworkEffect;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -93,6 +101,11 @@ public class FireworkMechanic extends PlayerEffectMechanic {
             return new FireworkData(effect);
         }
     }
+
+    /**
+     * In 1.20.5, Spigot changed their Material enum from 'FIREWORK' to 'FIREWORK_ROCKET'.
+     */
+    private static final EntityType FIREWORK_ENTITY = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? EntityType.FIREWORK_ROCKET : EntityType.valueOf("FIREWORK");
 
     private ItemStack fireworkItem;
     private int flightTime; // THIS IS A COPY OF THE VALUE IN 'fireworkItem'
@@ -180,7 +193,7 @@ public class FireworkMechanic extends PlayerEffectMechanic {
 
     @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
-        ItemStack fireworkItem = new ItemStack(ReflectionUtil.getMCVersion() >= 13 ? Material.FIREWORK_ROCKET : Material.valueOf("FIREWORK"));
+        ItemStack fireworkItem = new ItemStack(MinecraftVersions.UPDATE_AQUATIC.isAtLeast() ? Material.FIREWORK_ROCKET : Material.valueOf("FIREWORK"));
         FireworkMeta meta = (FireworkMeta) fireworkItem.getItemMeta();
         List<FireworkEffect> effects = data.of("Effects").getImpliedList(new FireworkData()).stream().map(FireworkData::getEffect).toList();
         int flightTime = data.of("Flight_Time").getInt(0);
@@ -202,7 +215,7 @@ public class FireworkMechanic extends PlayerEffectMechanic {
     @Override
     public void playFor(CastData cast, List<Player> viewers) {
 
-        FakeEntity fakeEntity = CompatibilityAPI.getCompatibility().getEntityCompatibility().generateFakeEntity(cast.getTargetLocation(), EntityType.FIREWORK, fireworkItem);
+        FakeEntity fakeEntity = CompatibilityAPI.getCompatibility().getEntityCompatibility().generateFakeEntity(cast.getTargetLocation(), FIREWORK_ENTITY, fireworkItem);
         if (flightTime > 1)
             fakeEntity.setMotion(0.001, 0.3, -0.001);
 

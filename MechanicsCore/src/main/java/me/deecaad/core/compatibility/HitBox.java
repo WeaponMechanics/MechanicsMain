@@ -1,6 +1,7 @@
 package me.deecaad.core.compatibility;
 
 import me.deecaad.core.file.serializers.ColorSerializer;
+import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.ray.BlockTraceResult;
 import me.deecaad.core.utils.ray.EntityTraceResult;
 import me.deecaad.core.utils.ray.RayTraceResult;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class HitBox {
+
+    private static final Particle DUST_PARTICLE = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? Particle.DUST : Particle.valueOf("REDSTONE");
 
     private Block block;
     private LivingEntity livingEntity;
@@ -413,10 +416,10 @@ public class HitBox {
                     if (z == minZ || z + step > maxZ)
                         components++;
                     if (components >= 2) {
-                        if (CompatibilityAPI.getVersion() < 1.13) {
+                        if (!MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
                             player.getWorld().spawnParticle(Particle.CRIT, x, y, z, 1, 0, 0, 0, 0.0001);
                         } else {
-                            player.getWorld().spawnParticle(Particle.REDSTONE, x, y, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(color, 0.5f), true);
+                            player.getWorld().spawnParticle(DUST_PARTICLE, x, y, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(color, 0.5f), true);
                         }
                     }
                 }
