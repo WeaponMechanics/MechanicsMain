@@ -323,14 +323,16 @@ public class TriggerPlayerListeners implements Listener {
             // This due to sometimes the instance changes in item drop...
             // - 1 item in slot when dropping -> reference changes
             // - 2 items or more in slot when dropping -> reference stays same
-            Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> weaponHandler.tryUses(playerWrapper, mainWeapon,
-                playerEquipment.getItemInMainHand(), EquipmentSlot.HAND, TriggerType.DROP_ITEM, dualWield, null));
+            WeaponMechanics.getInstance().getFoliaScheduler().entity(player).run(() -> {
+                weaponHandler.tryUses(playerWrapper, mainWeapon, playerEquipment.getItemInMainHand(), EquipmentSlot.HAND, TriggerType.DROP_ITEM, dualWield, null);
+            });
         }
 
         if (offWeapon != null) {
             playerWrapper.droppedWeapon();
-            Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> weaponHandler.tryUses(playerWrapper, offWeapon,
-                playerEquipment.getItemInOffHand(), EquipmentSlot.OFF_HAND, TriggerType.DROP_ITEM, dualWield, null));
+            WeaponMechanics.getInstance().getFoliaScheduler().entity(player).run(() -> {
+                weaponHandler.tryUses(playerWrapper, offWeapon, playerEquipment.getItemInOffHand(), EquipmentSlot.OFF_HAND, TriggerType.DROP_ITEM, dualWield, null);
+            });
         }
     }
 
@@ -380,9 +382,8 @@ public class TriggerPlayerListeners implements Listener {
             // Only check off hand going to main hand
             if (toMainWeapon != null) {
                 final ItemStack finalToMain = toMain;
-                Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> {
-                    weaponHandler.tryUses(playerWrapper, toMainWeapon,
-                        finalToMain, EquipmentSlot.OFF_HAND, TriggerType.SWAP_HANDS, dualWield, null);
+                WeaponMechanics.getInstance().getFoliaScheduler().entity(player).run(() -> {
+                    weaponHandler.tryUses(playerWrapper, toMainWeapon, finalToMain, EquipmentSlot.HAND, TriggerType.SWAP_HANDS, dualWield, null);
                 });
             }
         }
@@ -394,8 +395,9 @@ public class TriggerPlayerListeners implements Listener {
             // Only check main hand going to off hand
             if (toOffWeapon != null) {
                 final ItemStack finalToOff = toOff;
-                Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> weaponHandler.tryUses(playerWrapper, toOffWeapon,
-                    finalToOff, EquipmentSlot.HAND, TriggerType.SWAP_HANDS, dualWield, null));
+                WeaponMechanics.getInstance().getFoliaScheduler().entity(player).run(() -> {
+                    weaponHandler.tryUses(playerWrapper, toOffWeapon, finalToOff, EquipmentSlot.OFF_HAND, TriggerType.SWAP_HANDS, dualWield, null);
+                });
             }
         }
     }

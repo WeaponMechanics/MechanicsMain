@@ -56,6 +56,10 @@ public class Detonation implements Serializer<Detonation> {
         int delay = data.of("Delay_After_Impact").assertPositive().getInt(0);
         boolean removeProjectileOnDetonation = data.of("Remove_Projectile_On_Detonation").getBool(true);
 
+        // Technically we can't have a delay of 0
+        if (delay == 0)
+            delay = 1;
+
         return new Detonation(triggers, delay, removeProjectileOnDetonation);
     }
 }

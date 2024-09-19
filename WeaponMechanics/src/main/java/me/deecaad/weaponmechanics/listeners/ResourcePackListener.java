@@ -7,7 +7,6 @@ import com.google.gson.JsonParser;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -93,7 +92,7 @@ public class ResourcePackListener implements Listener {
             // This is the default link, meaning the Admin hasn't changed it. We
             // should use the latest version instead. Run it on a delay to make
             // sure the player has joined.
-            Bukkit.getScheduler().runTaskLater(WeaponMechanics.getPlugin(), () -> player.setResourcePack(resourcePackLink), 10L);
+            WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(() -> player.setResourcePack(resourcePackLink), 10L);
             return;
         }
         WeaponMechanics.debug.debug("Sending " + player.getName() + " resource pack: " + link);

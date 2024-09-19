@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.SerializeData;
@@ -19,17 +20,17 @@ import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MainHand;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.*;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getWeaponHandler;
 
 public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
@@ -209,7 +210,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
                 audience.showBossBar(bossBar);
 
             } else {
-                Bukkit.getScheduler().cancelTask(messageHelper.getBossBarTask());
+                messageHelper.getBossBarTask().cancel();
                 bossBar.name(builder);
                 bossBar.color(barColor);
                 bossBar.overlay(barStyle);
@@ -218,15 +219,12 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
                 magazineProgress = mainhand ? getMagazineProgress(mainStack, mainWeapon) : getMagazineProgress(offStack, offWeapon);
                 bossBar.progress((float) magazineProgress);
             }
-            messageHelper.setBossBarTask(new BukkitRunnable() {
-                @Override
-                public void run() {
-                    Audience audience = MechanicsCore.getPlugin().adventure.player(player);
-                    audience.hideBossBar(messageHelper.getBossBar());
-                    messageHelper.setBossBar(null);
-                    messageHelper.setBossBarTask(0);
-                }
-            }.runTaskLater(WeaponMechanics.getPlugin(), 40).getTaskId());
+            messageHelper.setBossBarTask(WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(() -> {
+                Audience audience = MechanicsCore.getPlugin().adventure.player(player);
+                audience.hideBossBar(messageHelper.getBossBar());
+                messageHelper.setBossBar(null);
+                messageHelper.setBossBarTask(null);
+            }, 40));
         }
 
         if (showAmmoInExpLevel || showAmmoInExpProgress) {
@@ -240,9 +238,9 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
                 magazineProgress = getMagazineProgress(useStack, useWeapon);
             }
 
-            int lastExpTask = messageHelper.getExpTask();
-            if (lastExpTask != 0)
-                Bukkit.getServer().getScheduler().cancelTask(lastExpTask);
+            TaskImplementation lastExpTask = messageHelper.getExpTask();
+            if (lastExpTask != null)
+                lastExpTask.cancel();
 
             if (!MinecraftVersions.BUZZY_BEES.isAtLeast()) {
                 CompatibilityAPI.getCompatibility().sendPackets(player,
@@ -251,25 +249,18 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
                         : player.getExp(),
                         player.getTotalExperience(),
                         showAmmoInExpLevel ? getAmmoLeft(useStack, useWeapon) : player.getLevel()));
-                messageHelper.setExpTask(new BukkitRunnable() {
-                    public void run() {
-                        CompatibilityAPI.getCompatibility().sendPackets(player,
-                            ReflectionUtil.newInstance(packetPlayOutExperienceConstructor,
-                                player.getExp(),
-                                player.getTotalExperience(),
-                                player.getLevel()));
-                        messageHelper.setExpTask(0);
-                    }
-                }.runTaskLater(WeaponMechanics.getPlugin(), 40).getTaskId());
+                messageHelper.setExpTask(WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(() -> {
+                    Object packet = ReflectionUtil.newInstance(packetPlayOutExperienceConstructor, player.getExp(), player.getTotalExperience(), player.getLevel());
+                    CompatibilityAPI.getCompatibility().sendPackets(player, packet);
+                    messageHelper.setExpTask(null);
+                }, 40));
             } else {
                 player.sendExperienceChange(showAmmoInExpProgress ? (float) (magazineProgress != -1 ? magazineProgress : getMagazineProgress(useStack, useWeapon)) : player.getExp(),
                     showAmmoInExpLevel ? getAmmoLeft(useStack, useWeapon) : player.getLevel());
-                messageHelper.setExpTask(new BukkitRunnable() {
-                    public void run() {
-                        player.sendExperienceChange(player.getExp(), player.getLevel());
-                        messageHelper.setExpTask(0);
-                    }
-                }.runTaskLater(WeaponMechanics.getPlugin(), 40).getTaskId());
+                messageHelper.setExpTask(WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(() -> {
+                    player.sendExperienceChange(player.getExp(), player.getLevel());
+                    messageHelper.setExpTask(null);
+                }, 40));
             }
         }
     }

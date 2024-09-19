@@ -22,6 +22,7 @@ object Versions {
     const val KOTLIN = "1.9.21"
     const val X_SERIES = "11.0.0"
     const val FAST_UTIL = "8.5.13"
+    const val FOLIA_SCHEDULER = "0.4.3"
 }
 
 object Dependencies {
@@ -47,6 +48,7 @@ object Dependencies {
     const val GSON = "com.google.code.gson:gson:${Versions.GSON}"
     const val X_SERIES = "com.github.cryptomorin:XSeries:${Versions.X_SERIES}"
     const val FAST_UTIL = "it.unimi.dsi:fastutil:${Versions.FAST_UTIL}"
+    const val FOLIA_SCHEDULER = "com.cjcrafter:foliascheduler:${Versions.FOLIA_SCHEDULER}"
 }
 
 fun org.gradle.api.artifacts.dsl.DependencyHandler.adventureChatAPI() {

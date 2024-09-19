@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
@@ -11,13 +12,13 @@ import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
@@ -159,12 +160,11 @@ public class AirStrike implements Serializer<AirStrike> {
             mechanics.use(cast);
         }
 
-        new BukkitRunnable() {
+        WeaponMechanics.getInstance().getFoliaScheduler().region(flareLocation).runAtFixedRate(new Consumer<>() {
             int count = 0;
 
             @Override
-            public void run() {
-
+            public void accept(@NotNull TaskImplementation task) {
                 int bombs = RandomUtil.range(min, max);
                 int checks = bombs * bombs;
 
@@ -203,10 +203,10 @@ public class AirStrike implements Serializer<AirStrike> {
                 }
 
                 if (++count >= loops) {
-                    cancel();
+                    task.cancel();
                 }
             }
-        }.runTaskTimer(WeaponMechanics.getPlugin(), 0, delay);
+        }, 0, delay);
     }
 
     @Override
@@ -237,7 +237,7 @@ public class AirStrike implements Serializer<AirStrike> {
     }
 
     record Vector2d(double x, double z) {
-        double distanceSquared(Vector2d vector) {
+        double distanceSquared(@NotNull Vector2d vector) {
             return NumberConversions.square(this.x - vector.x) + NumberConversions.square(this.z - vector.z);
         }
     }

@@ -1,5 +1,9 @@
 package me.deecaad.weaponmechanics;
 
+import com.cjcrafter.foliascheduler.ServerVersions;
+import com.cjcrafter.foliascheduler.FoliaCompatibility;
+import com.cjcrafter.foliascheduler.ServerImplementation;
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.jeff_media.updatechecker.UpdateCheckSource;
@@ -13,13 +17,24 @@ import me.deecaad.core.database.Database;
 import me.deecaad.core.database.MySQL;
 import me.deecaad.core.database.SQLite;
 import me.deecaad.core.events.QueueSerializerEvent;
-import me.deecaad.core.file.*;
+import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.DuplicateKeyException;
+import me.deecaad.core.file.FileReader;
+import me.deecaad.core.file.IValidator;
+import me.deecaad.core.file.JarInstancer;
+import me.deecaad.core.file.JarSearcher;
+import me.deecaad.core.file.SerializerInstancer;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.placeholder.PlaceholderHandler;
-import me.deecaad.core.utils.*;
+import me.deecaad.core.utils.Debugger;
+import me.deecaad.core.utils.FileUtil;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.MinecraftVersions;
+import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
 import me.deecaad.weaponmechanics.lib.MythicMobsLoader;
@@ -39,8 +54,10 @@ import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.damage.DamageModifier;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.placeholders.PlaceholderValidator;
+import me.deecaad.weaponmechanics.weapon.projectile.FoliaProjectileSpawner;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBoxValidator;
-import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
+import me.deecaad.weaponmechanics.weapon.projectile.ProjectileSpawner;
+import me.deecaad.weaponmechanics.weapon.projectile.SpigotProjectileSpawner;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoRegistry;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.weapon.stats.PlayerStat;
@@ -55,7 +72,6 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -67,7 +83,14 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
@@ -81,10 +104,11 @@ public class WeaponMechanics {
     MainCommand mainCommand;
     WeaponHandler weaponHandler;
     ResourcePackListener resourcePackListener;
-    ProjectilesRunnable projectilesRunnable;
+    ProjectileSpawner projectileSpawner;
     ProtocolManager protocolManager;
     Metrics metrics;
     Database database;
+    ServerImplementation foliaScheduler;
 
     // public so people can import a static variable
     public static Debugger debug;
@@ -145,17 +169,27 @@ public class WeaponMechanics {
     }
 
     public void onEnable() {
-        long millisCurrent = System.currentTimeMillis();
+        getLogger().info("Server version: " + Bukkit.getVersion());
+        getLogger().info("Bukkit version: " + Bukkit.getBukkitVersion());
+        getLogger().info("Java version: " + System.getProperty("java.version"));
 
+        long millisCurrent = System.currentTimeMillis();
         plugin = this;
         entityWrappers = new HashMap<>();
 
+        foliaScheduler = new FoliaCompatibility(javaPlugin).getServerImplementation();
         writeFiles();
         registerPacketListeners();
 
         weaponHandler = new WeaponHandler();
-        projectilesRunnable = new ProjectilesRunnable(getPlugin());
         resourcePackListener = new ResourcePackListener();
+
+        if (ServerVersions.isFolia()) {
+            getLogger().info("Folia detected, using thread-safe projectile spawner");
+            projectileSpawner = new FoliaProjectileSpawner(getPlugin());
+        } else {
+            projectileSpawner = new SpigotProjectileSpawner(getPlugin());
+        }
 
         // Set millis between recoil rotations
         Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 20);
@@ -175,16 +209,15 @@ public class WeaponMechanics {
         // side note, not all tasks can be run after the server starts.
         // Commands, for example, can't be registered after onEnable without
         // some disgusting NMS shit.
-        new TaskChain(javaPlugin)
-            .thenRunSync(() -> {
-                loadConfig();
-                registerListeners();
-                registerBStats();
-                registerPermissions();
-            });
+        getFoliaScheduler().global().run(() -> {
+            loadConfig();
+            registerListeners();
+            registerBStats();
+            registerPermissions();
+        });
 
         registerCommands();
-        registerUpdateChecker();
+        // registerUpdateChecker();
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         debug.debug("Enabled WeaponMechanics in " + NumberUtil.toTime((int) (tookMillis / 1000)) + "s");
@@ -200,7 +233,7 @@ public class WeaponMechanics {
             debug.warn("VivecraftSpigot: https://www.spigotmc.org/resources/104539/");
         }
 
-        debug.start(getPlugin());
+        debug.start(getFoliaScheduler());
     }
 
     void setupDebugger() {
@@ -249,28 +282,26 @@ public class WeaponMechanics {
 
         // Ensure that the resource pack exists in the folder
         if (basicConfiguration.getBoolean("Resource_Pack_Download.Enabled")) {
-            new TaskChain(WeaponMechanics.getPlugin())
-                .thenRunAsync((data) -> {
-                    String link = basicConfiguration.getString("Resource_Pack_Download.Link");
-                    int connection = basicConfiguration.getInt("Resource_Pack_Download.Connection_Timeout");
-                    int read = basicConfiguration.getInt("Resource_Pack_Download.Read_Timeout");
+            getFoliaScheduler().async().runNow((task) -> {
+                String link = basicConfiguration.getString("Resource_Pack_Download.Link");
+                int connection = basicConfiguration.getInt("Resource_Pack_Download.Connection_Timeout");
+                int read = basicConfiguration.getInt("Resource_Pack_Download.Read_Timeout");
 
-                    if (("https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack.zip").equals(link)) {
-                        try {
-                            link = "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/resourcepack/WeaponMechanicsResourcePack-" + resourcePackListener.getResourcePackVersion()
-                                + ".zip";
-                        } catch (InternalError e) {
-                            debug.log(LogLevel.DEBUG, "Failed to fetch resource pack version due to timeout", e);
-                            return null;
-                        }
+                if (("https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack.zip").equals(link)) {
+                    try {
+                        link = "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/resourcepack/WeaponMechanicsResourcePack-" + resourcePackListener.getResourcePackVersion()
+                            + ".zip";
+                    } catch (InternalError e) {
+                        debug.log(LogLevel.DEBUG, "Failed to fetch resource pack version due to timeout", e);
+                        return;
                     }
+                }
 
-                    File pack = new File(getDataFolder(), "WeaponMechanicsResourcePack.zip");
-                    if (!pack.exists()) {
-                        FileUtil.downloadFile(pack, link, connection, read);
-                    }
-                    return null;
-                });
+                File pack = new File(getDataFolder(), "WeaponMechanicsResourcePack.zip");
+                if (!pack.exists()) {
+                    FileUtil.downloadFile(pack, link, connection, read);
+                }
+            });
         }
     }
 
@@ -418,7 +449,7 @@ public class WeaponMechanics {
         Permission parent = Bukkit.getPluginManager().getPermission("weaponmechanics.use.*");
         if (parent == null) {
             // Some older versions register permissions after onEnable...
-            new TaskChain(javaPlugin).thenRunSync(this::registerPermissions);
+            getFoliaScheduler().global().run(this::registerPermissions);
             return;
         }
 
@@ -526,7 +557,7 @@ public class WeaponMechanics {
         metrics.addCustomChart(new SimplePie("core_version", () -> MechanicsCore.getPlugin().getDescription().getVersion()));
     }
 
-    public TaskChain onReload() {
+    public CompletableFuture<TaskImplementation<Void>> onReload() {
         JavaPlugin mechanicsCore = MechanicsCore.getPlugin();
 
         this.onDisable();
@@ -540,35 +571,35 @@ public class WeaponMechanics {
         setupDebugger();
         entityWrappers = new HashMap<>();
         weaponHandler = new WeaponHandler();
-        projectilesRunnable = new ProjectilesRunnable(getPlugin());
         resourcePackListener = new ResourcePackListener();
 
-        return new TaskChain(getPlugin())
-            .thenRunAsync(this::writeFiles)
-            .thenRunSync(() -> {
+        // TODO: Use VersionLib
+        if (ServerVersions.isFolia()) {
+            projectileSpawner = new FoliaProjectileSpawner(getPlugin());
+        } else {
+            projectileSpawner = new SpigotProjectileSpawner(getPlugin());
+        }
 
-                loadConfig();
-                registerPacketListeners();
-                registerListeners();
-                registerCommands();
-                registerPermissions();
-                registerUpdateChecker();
-                setupDatabase();
+        return getFoliaScheduler().async().runNow(this::writeFiles).asFuture().thenCompose((ignore) -> getFoliaScheduler().global().run((task) -> {
+            loadConfig();
+            registerPacketListeners();
+            registerListeners();
+            registerCommands();
+            registerPermissions();
+            registerUpdateChecker();
+            setupDatabase();
 
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    // Add PlayerWrapper in onEnable in case server is reloaded for example
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                // Add PlayerWrapper in onEnable in case server is reloaded for example
 
-                    PlayerWrapper playerWrapper = getPlayerWrapper(player);
-                    weaponHandler.getStatsHandler().load(playerWrapper);
-                }
-            });
+                PlayerWrapper playerWrapper = getPlayerWrapper(player);
+                weaponHandler.getStatsHandler().load(playerWrapper);
+            }
+        }).asFuture());
     }
 
     public void onDisable() {
         BlockDamageData.regenerateAll();
-
-        HandlerList.unregisterAll(getPlugin());
-        Bukkit.getServer().getScheduler().cancelTasks(getPlugin());
 
         // Close database and save data in SYNC
         if (database != null) {
@@ -594,16 +625,20 @@ public class WeaponMechanics {
         mainCommand = null;
         configurations = null;
         basicConfiguration = null;
-        projectilesRunnable = null;
+        projectileSpawner = null;
         plugin = null;
         debug = null;
+    }
+
+    public ServerImplementation getFoliaScheduler() {
+        return foliaScheduler;
     }
 
     /**
      * @return The BukkitRunnable holding the projectiles being ticked
      */
-    public static ProjectilesRunnable getProjectilesRunnable() {
-        return plugin.projectilesRunnable;
+    public static ProjectileSpawner getProjectileSpawner() {
+        return plugin.projectileSpawner;
     }
 
     /**
@@ -682,9 +717,9 @@ public class WeaponMechanics {
     public static void removeEntityWrapper(LivingEntity entity) {
         EntityWrapper oldWrapper = plugin.entityWrappers.remove(entity);
         if (oldWrapper != null) {
-            int oldMoveTask = oldWrapper.getMoveTaskId();
-            if (oldMoveTask != 0) {
-                Bukkit.getScheduler().cancelTask(oldMoveTask);
+            TaskImplementation oldMoveTask = oldWrapper.getMoveTask();
+            if (oldMoveTask != null) {
+                oldMoveTask.cancel();
             }
             oldWrapper.getMainHandData().cancelTasks();
             oldWrapper.getOffHandData().cancelTasks();

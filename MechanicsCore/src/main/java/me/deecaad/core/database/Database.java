@@ -2,10 +2,14 @@ package me.deecaad.core.database;
 
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.LogLevel;
-import org.bukkit.scheduler.BukkitRunnable;
-
 import org.jetbrains.annotations.Nullable;
-import java.sql.*;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.function.Consumer;
 
 public abstract class Database {
@@ -66,11 +70,7 @@ public abstract class Database {
             return;
         }
 
-        new BukkitRunnable() {
-            public void run() {
-                executeUpdate(sql);
-            }
-        }.runTaskAsynchronously(MechanicsCore.getPlugin());
+        MechanicsCore.getPlugin().getFoliaScheduler().async().runNow(() -> executeUpdate(sql));
     }
 
     private void executeUpdate(String... sql) {
@@ -130,23 +130,22 @@ public abstract class Database {
     public void executeQuery(String sql, Consumer<ResultSet> consumer) {
         if (sql == null || sql.isEmpty() || consumer == null)
             throw new IllegalArgumentException("Empty statement or null consumer");
-        new BukkitRunnable() {
-            public void run() {
-                Connection connection = null;
-                PreparedStatement preparedStatement = null;
-                ResultSet resultSet = null;
-                try {
-                    connection = getConnection();
-                    preparedStatement = connection.prepareStatement(sql);
-                    resultSet = preparedStatement.executeQuery();
-                    consumer.accept(resultSet);
-                } catch (SQLException e) {
-                    MechanicsCore.debug.log(LogLevel.ERROR, e);
-                } finally {
-                    close(connection, preparedStatement, resultSet);
-                }
+
+        MechanicsCore.getPlugin().getFoliaScheduler().async().runNow(() -> {
+            Connection connection = null;
+            PreparedStatement preparedStatement = null;
+            ResultSet resultSet = null;
+            try {
+                connection = getConnection();
+                preparedStatement = connection.prepareStatement(sql);
+                resultSet = preparedStatement.executeQuery();
+                consumer.accept(resultSet);
+            } catch (SQLException e) {
+                MechanicsCore.debug.log(LogLevel.ERROR, e);
+            } finally {
+                close(connection, preparedStatement, resultSet);
             }
-        }.runTaskAsynchronously(MechanicsCore.getPlugin());
+        });
     }
 
     /**

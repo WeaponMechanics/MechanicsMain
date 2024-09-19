@@ -7,7 +7,6 @@ import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
-import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.Ammo;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoConfig;
@@ -258,8 +257,9 @@ public final class WeaponMechanicsAPI {
 
         // Cancel the task for "invalid" shotsPerSecond values
         if (shotsPerSecond <= 0) {
-            hand.getFullAutoTask().cancel();
-            hand.setFullAutoTask(null, 0);
+
+            hand.getFullAutoWrappedTask().cancel();
+            hand.setFullAutoTask(null, null);
             return true;
         }
 
@@ -383,14 +383,12 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Adds the given projectile to the {@link ProjectilesRunnable}. Can be run async.
+     * Adds the projectile to WeaponMechanic's projectile spawner.
      *
      * @param projectile The non-null projectile to add.
-     * @see ProjectilesRunnable
      */
     public static void addProjectile(@NotNull AProjectile projectile) {
-        ProjectilesRunnable runnable = WeaponMechanics.getProjectilesRunnable();
-        runnable.addProjectile(projectile);
+        WeaponMechanics.getProjectileSpawner().spawn(projectile);
     }
 
     /**

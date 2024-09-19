@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.commands;
 
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
-import me.deecaad.core.file.TaskChain;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
 import me.deecaad.weaponmechanics.lib.CrackShotConvert.Converter;
@@ -21,6 +20,6 @@ public class CrackShotConvertCommand extends SubCommand {
     public void execute(CommandSender sender, String[] args) {
         WeaponMechanics plugin = WeaponMechanicsAPI.getInstance();
         File outputPath = new File(plugin.getDataFolder().getPath() + "/weapons/crackshotconvert/");
-        new TaskChain(WeaponMechanics.getPlugin()).thenRunAsync(() -> new Converter(sender).convertAllFiles(outputPath));
+        WeaponMechanics.getInstance().getFoliaScheduler().async().runNow(() -> new Converter(sender).convertAllFiles(outputPath));
     }
 }

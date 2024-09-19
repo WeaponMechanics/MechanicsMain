@@ -8,7 +8,7 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven(url = "https://mvn.lumine.io/repository/maven-public/")
+    maven(url = "https://mvn.lumine.io/repository/maven-public/") // Mythic
 }
 
 dependencies {
@@ -31,6 +31,7 @@ dependencies {
     implementation("org.slf4j:slf4j-nop:1.7.30")
     implementation(Dependencies.MYTHIC_MOBS)
     implementation(Dependencies.X_SERIES)
+    implementation(Dependencies.FOLIA_SCHEDULER)
     implementation("xyz.jpenilla:reflection-remapper:0.1.1")
     implementation("net.fabricmc:mapping-io:0.5.0")
     implementation(Dependencies.FAST_UTIL)

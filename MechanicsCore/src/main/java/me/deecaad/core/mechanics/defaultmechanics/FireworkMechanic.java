@@ -26,7 +26,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -215,7 +214,8 @@ public class FireworkMechanic extends PlayerEffectMechanic {
     @Override
     public void playFor(CastData cast, List<Player> viewers) {
 
-        FakeEntity fakeEntity = CompatibilityAPI.getCompatibility().getEntityCompatibility().generateFakeEntity(cast.getTargetLocation(), FIREWORK_ENTITY, fireworkItem);
+        Location targetLoc = cast.getTargetLocation();
+        FakeEntity fakeEntity = CompatibilityAPI.getCompatibility().getEntityCompatibility().generateFakeEntity(targetLoc, FIREWORK_ENTITY, fireworkItem);
         if (flightTime > 1)
             fakeEntity.setMotion(0.001, 0.3, -0.001);
 
@@ -230,12 +230,10 @@ public class FireworkMechanic extends PlayerEffectMechanic {
         }
 
         // Schedule a task to explode the firework later.
-        new BukkitRunnable() {
-            public void run() {
-                fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
-                fakeEntity.remove();
-            }
-        }.runTaskLater(MechanicsCore.getPlugin(), flightTime);
+        MechanicsCore.getPlugin().getFoliaScheduler().region(targetLoc).runDelayed(() -> {
+            fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
+            fakeEntity.remove();
+        }, flightTime);
     }
 
     @Override

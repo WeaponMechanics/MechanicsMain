@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.commands;
 
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.*;
 import me.deecaad.core.commands.arguments.*;
@@ -8,7 +9,6 @@ import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.file.TaskChain;
 import me.deecaad.core.utils.*;
 import me.deecaad.core.utils.ray.RayTrace;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -50,11 +50,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -206,7 +206,7 @@ public class WeaponMechanicsCommand {
                 .withPermission("weaponmechanics.commands.reload")
                 .withDescription("Reloads config")
                 .executes(CommandExecutor.any((sender, args) -> {
-                    WeaponMechanicsAPI.getInstance().onReload().thenRunSync(() -> sender.sendMessage(GREEN + "Reloaded configuration"));
+                    WeaponMechanicsAPI.getInstance().onReload().thenAccept((task) -> sender.sendMessage(GREEN + "Reloaded configuration"));
                 })))
 
             .withSubcommand(new CommandBuilder("repair")
@@ -732,10 +732,10 @@ public class WeaponMechanicsCommand {
             sender.sendMessage(GREEN + "Converting config...");
             WeaponMechanics pl = WeaponMechanicsAPI.getInstance();
             File outputPath = new File(pl.getDataFolder().getPath() + "/weapons/crackshotconvert/");
-            new TaskChain(WeaponMechanics.getPlugin())
-                .thenRunSync(() -> sender.sendMessage(GREEN + "Starting CrackShot conversion"))
-                .thenRunAsync(() -> new Converter(sender).convertAllFiles(outputPath))
-                .thenRunSync(() -> sender.sendMessage(GREEN + "Output converted files to " + outputPath));
+
+            sender.sendMessage(GREEN + "Starting CrackShot conversion");
+            WeaponMechanics.getInstance().getFoliaScheduler().async().runNow(() -> new Converter(sender).convertAllFiles(outputPath)).asFuture().thenAccept(task -> sender.sendMessage(GREEN
+                + "Output converted files to " + outputPath));
 
             return;
         }
@@ -782,23 +782,20 @@ public class WeaponMechanicsCommand {
     public static void explode(LivingEntity cause, ExplosionShape shape, Location origin, String exposureString, boolean isBreakBlocks, Predicate<Block> blackList, int regen) {
         cause.sendMessage(GREEN + "Spawning explosion in 5 seconds");
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                RegenerationData regeneration = new RegenerationData(regen, Math.max(1, (int) shape.getArea() / 100), 1);
-                BlockDamage blockDamage = new BlockDamage(0.0, 1, 1, Material.AIR, BlockDamage.BreakMode.BREAK, Map.of()) {
-                    @Override
-                    public BreakMode getBreakMode(Block block) {
-                        return blackList.test(block) ? BreakMode.BREAK : BreakMode.CRACK;
-                    }
-                };
+        WeaponMechanics.getInstance().getFoliaScheduler().region(origin).runDelayed(() -> {
+            RegenerationData regeneration = new RegenerationData(regen, Math.max(1, (int) shape.getArea() / 100), 1);
+            BlockDamage blockDamage = new BlockDamage(0.0, 1, 1, Material.AIR, BlockDamage.BreakMode.BREAK, Map.of()) {
+                @Override
+                public BreakMode getBreakMode(Block block) {
+                    return blackList.test(block) ? BreakMode.BREAK : BreakMode.CRACK;
+                }
+            };
 
-                ExplosionExposure exposure = ReflectionUtil.newInstance(ExposureFactory.getInstance().getMap().get(exposureString));
-                Explosion explosion = new Explosion(shape, exposure, blockDamage, regeneration, null, 0.0, 1.0,
-                    null, null, new Flashbang(10.0, null), null);
-                explosion.explode(cause, origin, null);
-            }
-        }.runTaskLater(WeaponMechanics.getPlugin(), 100);
+            ExplosionExposure exposure = ReflectionUtil.newInstance(ExposureFactory.getInstance().getMap().get(exposureString));
+            Explosion explosion = new Explosion(shape, exposure, blockDamage, regeneration, null, 0.0, 1.0,
+                null, null, new Flashbang(10.0, null), null);
+            explosion.explode(cause, origin, null);
+        }, 100L);
     }
 
     public static void spawn(Player player, Location location, EntityType type, String moveType, int time, boolean gravity, String name) {
@@ -808,17 +805,16 @@ public class WeaponMechanicsCommand {
         entity.show(player);
         entity.setMotion(0, 0, 0);
 
-        new BukkitRunnable() {
-
+        WeaponMechanics.getInstance().getFoliaScheduler().async().runAtFixedRate(new Consumer<>() {
             // Some temp vars for the different move types
             int ticksAlive = 0;
             boolean flash = true;
 
             @Override
-            public void run() {
+            public void accept(TaskImplementation task) {
                 if (ticksAlive++ >= time) {
                     entity.remove();
-                    cancel();
+                    task.cancel();
                     return;
                 }
 
@@ -848,7 +844,7 @@ public class WeaponMechanicsCommand {
                         break;
                 }
             }
-        }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, 0);
+        }, 0, 0);
     }
 
     public static void meta(Player sender, List<Entity> targets, EntityCompatibility.EntityMeta flag, int ticks) {
@@ -863,25 +859,26 @@ public class WeaponMechanicsCommand {
             CompatibilityAPI.getCompatibility().sendPackets(sender, packet);
         }
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                sender.sendMessage(GREEN + "Resetting META...");
-                for (Entity entity : targets) {
-                    Object packet = compatibility.generateMetaPacket(entity);
-                    CompatibilityAPI.getCompatibility().sendPackets(sender, packet);
-                }
+        WeaponMechanics.getInstance().getFoliaScheduler().entity(sender).runDelayed(() -> {
+            sender.sendMessage(GREEN + "Resetting META...");
+            for (Entity entity : targets) {
+                // TODO check if entity is in the same region
+                Object packet = compatibility.generateMetaPacket(entity);
+                compatibility.modifyMetaPacket(packet, flag, false);
+
+                CompatibilityAPI.getCompatibility().sendPackets(sender, packet);
             }
-        }.runTaskLater(WeaponMechanics.getPlugin(), ticks);
+        }, ticks);
     }
 
     public static void hitbox(CommandSender sender, List<Entity> targets, int ticks) {
         sender.sendMessage(GREEN + "Showing hitboxes of " + targets.size() + " entities for " + ticks + " ticks.");
 
         Configuration basicConfiguration = WeaponMechanics.getBasicConfigurations();
-        new BukkitRunnable() {
+        WeaponMechanics.getInstance().getFoliaScheduler().async().runAtFixedRate(new Consumer<>() {
             int ticksPassed = 0;
-            public void run() {
+            @Override
+            public void accept(TaskImplementation task) {
 
                 for (Entity entity : targets) {
                     if (!(entity instanceof LivingEntity))
@@ -944,10 +941,10 @@ public class WeaponMechanicsCommand {
 
                 ticksPassed += 5;
                 if (ticksPassed >= ticks) {
-                    cancel();
+                    task.cancel();
                 }
             }
-        }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, 5);
+        }, 0L, 5L);
     }
 
     public static void firework(Location location, int time, FireworkEffect.Type type, Color color, Color fade, boolean flicker, boolean trail) {
@@ -973,12 +970,10 @@ public class WeaponMechanicsCommand {
             fakeEntity.remove();
             return;
         }
-        new BukkitRunnable() {
-            public void run() {
-                fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
-                fakeEntity.remove();
-            }
-        }.runTaskLater(WeaponMechanics.getPlugin(), time);
+        WeaponMechanics.getInstance().getFoliaScheduler().region(location).runDelayed(() -> {
+            fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
+            fakeEntity.remove();
+        }, time);
     }
 
     public static void ray(LivingEntity sender, boolean box, double size, int distance, int ticks) {
@@ -993,42 +988,42 @@ public class WeaponMechanicsCommand {
             rayTrace.withOutlineHitPosition(sender);
         }
 
-        new BukkitRunnable() {
+        WeaponMechanics.getInstance().getFoliaScheduler().entity(sender).runAtFixedRate(new Consumer<>() {
             int ticker = 0;
             @Override
-            public void run() {
+            public void accept(TaskImplementation task) {
                 Location location = sender.getEyeLocation();
                 Vector direction = location.getDirection();
 
                 rayTrace.cast(sender.getWorld(), location.toVector(), direction, distance);
 
                 if (++ticker >= ticks) {
-                    cancel();
+                    task.cancel();
                 }
             }
-        }.runTaskTimer(WeaponMechanics.getPlugin(), 0, 0);
+        }, 1, 1);
     }
 
     public static void recoil(Player player, int push, int recover, List<Double> yaws, List<Double> pitches, int rate, int time) {
+        PlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper(player);
         Recoil recoil = new Recoil(push, recover, yaws.stream().map(Double::floatValue).collect(Collectors.toList()), pitches.stream().map(Double::floatValue).collect(Collectors.toList()), null,
             null);
-        PlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper(player);
-        new BukkitRunnable() {
+
+        WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runAtFixedRate(new Consumer<>() {
             int ticks = 0;
 
             @Override
-            public void run() {
-
+            public void accept(TaskImplementation task) {
                 if (playerWrapper.isRightClicking()) {
                     recoil.start(player, true);
                 }
 
                 ticks += rate;
                 if (ticks > time) {
-                    cancel();
+                    task.cancel();
                 }
             }
-        }.runTaskTimer(WeaponMechanics.getPlugin(), 0, rate);
+        }, 1, rate);
     }
 
     public static void shoot(LivingEntity sender, double speed, double gravity, EntityType entity) {
@@ -1072,11 +1067,10 @@ public class WeaponMechanicsCommand {
             }
         }
 
-        new BukkitRunnable() {
+        WeaponMechanics.getInstance().getFoliaScheduler().entity(sender).runAtFixedRate(new Consumer<>() {
             int ticks = 0;
             @Override
-            public void run() {
-
+            public void accept(TaskImplementation task) {
                 if (particles)
                     parent.getParent().debug(sender.getWorld());
 
@@ -1107,9 +1101,9 @@ public class WeaponMechanicsCommand {
 
                 if (ticks++ >= time) {
                     entities.forEach(FakeEntity::remove);
-                    cancel();
+                    task.cancel();
                 }
             }
-        }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, 0);
+        }, 1, 1);
     }
 }

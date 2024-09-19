@@ -1,9 +1,16 @@
 package me.deecaad.weaponmechanics.weapon.shoot;
 
+import com.cjcrafter.foliascheduler.EntitySchedulerImplementation;
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
-import me.deecaad.core.file.*;
+import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.IValidator;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerMissingKeyException;
+import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderData;
@@ -25,7 +32,12 @@ import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerListener;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
-import me.deecaad.weaponmechanics.weapon.weaponevents.*;
+import me.deecaad.weaponmechanics.weapon.weaponevents.PrepareWeaponShootEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponFirearmEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponFullAutoEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPostShootEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPreShootEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponShootEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
@@ -38,15 +50,17 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.*;
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class ShootHandler implements IValidator, TriggerListener {
 
@@ -270,15 +284,16 @@ public class ShootHandler implements IValidator, TriggerListener {
         boolean consumeItemOnShoot = getConfigurations().getBoolean(weaponTitle + ".Shoot.Consume_Item_On_Shoot");
         int ammoPerShot = getConfigurations().getInt(weaponTitle + ".Shoot.Ammo_Per_Shot", 1);
 
-        handData.setBurstTask(new BukkitRunnable() {
+        EntitySchedulerImplementation scheduler = WeaponMechanics.getInstance().getFoliaScheduler().entity(entityWrapper.getEntity());
+        TaskImplementation<Void> task = scheduler.runAtFixedRate(new Consumer<>() {
             int shots = 0;
 
             @Override
-            public void run() {
+            public void accept(TaskImplementation<Void> scheduledTask) {
                 ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
                 if (!taskReference.hasItemMeta()) {
-                    handData.setBurstTask(0);
-                    cancel();
+                    handData.setBurstTask(null);
+                    scheduledTask.cancel();
                     return;
                 }
 
@@ -287,14 +302,14 @@ public class ShootHandler implements IValidator, TriggerListener {
                 ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
 
                 if (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
-                    handData.setBurstTask(0);
-                    cancel();
+                    handData.setBurstTask(null);
+                    scheduledTask.cancel();
                     return;
                 }
 
                 if (!reloadHandler.consumeAmmo(taskReference, weaponTitle, ammoPerShot)) {
-                    handData.setBurstTask(0);
-                    cancel();
+                    handData.setBurstTask(null);
+                    scheduledTask.cancel();
 
                     startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
                     return;
@@ -311,8 +326,8 @@ public class ShootHandler implements IValidator, TriggerListener {
                 }
 
                 if (++shots >= shotsPerBurst) {
-                    handData.setBurstTask(0);
-                    cancel();
+                    handData.setBurstTask(null);
+                    scheduledTask.cancel();
 
                     if (reloadHandler.getAmmoLeft(taskReference, weaponTitle) == 0) {
                         startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
@@ -321,7 +336,9 @@ public class ShootHandler implements IValidator, TriggerListener {
                     }
                 }
             }
-        }.runTaskTimer(WeaponMechanics.getPlugin(), 0, ticksBetweenEachShot).getTaskId());
+        }, 1, ticksBetweenEachShot);
+        handData.setBurstTask(task);
+
         return true;
     }
 
@@ -340,8 +357,8 @@ public class ShootHandler implements IValidator, TriggerListener {
         boolean mainhand = slot == EquipmentSlot.HAND;
 
         FullAutoTask fullAutoTask = new FullAutoTask(weaponHandler, entityWrapper, weaponTitle, weaponStack, mainhand, triggerType, dualWield, event.getShotsPerSecond());
-        int fullAutoTaskId = fullAutoTask.runTaskTimer(WeaponMechanics.getPlugin(), 0, 0).getTaskId();
-        handData.setFullAutoTask(fullAutoTask, fullAutoTaskId);
+        TaskImplementation<Void> task = WeaponMechanics.getInstance().getFoliaScheduler().entity(entityWrapper.getEntity()).runAtFixedRate(fullAutoTask, 1, 1);
+        handData.setFullAutoTask(fullAutoTask, task);
         return true;
     }
 
@@ -365,20 +382,18 @@ public class ShootHandler implements IValidator, TriggerListener {
         WeaponInfoDisplay weaponInfoDisplay = playerWrapper == null ? null : getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
 
         // Initiate CLOSE task
-        BukkitRunnable closeRunnable = new BukkitRunnable() {
-            @Override
-            public void run() {
-                ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
-                if (!taskReference.hasItemMeta()) {
-                    handData.stopFirearmActionTasks();
-                    return;
-                }
-
-                firearmAction.changeState(taskReference, FirearmState.READY);
-                if (weaponInfoDisplay != null)
-                    weaponInfoDisplay.send(playerWrapper, slot);
+        EntitySchedulerImplementation scheduler = WeaponMechanics.getInstance().getFoliaScheduler().entity(entityWrapper.getEntity());
+        Runnable closeRunnable = () -> {
+            ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
+            if (!taskReference.hasItemMeta()) {
                 handData.stopFirearmActionTasks();
+                return;
             }
+
+            firearmAction.changeState(taskReference, FirearmState.READY);
+            if (weaponInfoDisplay != null)
+                weaponInfoDisplay.send(playerWrapper, slot);
+            handData.stopFirearmActionTasks();
         };
 
         // Init cast data
@@ -397,7 +412,7 @@ public class ShootHandler implements IValidator, TriggerListener {
             if (weaponInfoDisplay != null)
                 weaponInfoDisplay.send(playerWrapper, slot);
 
-            handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), event.getTime()).getTaskId());
+            handData.addFirearmActionTask(scheduler.runDelayed(closeRunnable, event.getTime()));
 
             // Return since we only want to do close state
             return;
@@ -418,29 +433,29 @@ public class ShootHandler implements IValidator, TriggerListener {
             weaponInfoDisplay.send(playerWrapper, slot);
 
         // Add the task to shoot firearm action tasks
-        handData.addFirearmActionTask(new BukkitRunnable() {
-            @Override
-            public void run() {
-                ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
-                if (!taskReference.hasItemMeta()) {
-                    handData.stopFirearmActionTasks();
-                    return;
-                }
+        handData.addFirearmActionTask(scheduler.runDelayed(() -> {
+            if (!entityWrapper.getEntity().isValid())
+                return;
 
-                firearmAction.changeState(taskReference, FirearmState.CLOSE);
-
-                WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, state);
-                Bukkit.getPluginManager().callEvent(event);
-
-                event.useMechanics(new CastData(shooter, weaponTitle, taskReference, handData::addFirearmActionTask), false);
-
-                if (weaponInfoDisplay != null)
-                    weaponInfoDisplay.send(playerWrapper, slot);
-
-                handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), event.getTime()).getTaskId());
-
+            ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
+            if (!taskReference.hasItemMeta()) {
+                handData.stopFirearmActionTasks();
+                return;
             }
-        }.runTaskLater(WeaponMechanics.getPlugin(), event.getTime()).getTaskId());
+
+            firearmAction.changeState(taskReference, FirearmState.CLOSE);
+
+            WeaponFirearmEvent nestedEvent = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, state);
+            Bukkit.getPluginManager().callEvent(nestedEvent);
+
+            nestedEvent.useMechanics(new CastData(shooter, weaponTitle, taskReference, handData::addFirearmActionTask), false);
+
+            if (weaponInfoDisplay != null)
+                weaponInfoDisplay.send(playerWrapper, slot);
+
+            handData.addFirearmActionTask(scheduler.runDelayed(closeRunnable, nestedEvent.getTime()));
+
+        }, event.getTime()));
     }
 
     /**
