@@ -172,8 +172,7 @@ public class AirStrike implements Serializer<AirStrike> {
                 // each other. Uses distanceBetweenSquared
                 List<Vector2d> spawnLocations = new ArrayList<>(bombs);
 
-                locationFinder:
-                for (int i = 0; i < checks && spawnLocations.size() < bombs; i++) {
+                locationFinder : for (int i = 0; i < checks && spawnLocations.size() < bombs; i++) {
 
                     double x = flareLocation.getX() + RandomUtil.range(-radius, radius);
                     double z = flareLocation.getZ() + RandomUtil.range(-radius, radius);

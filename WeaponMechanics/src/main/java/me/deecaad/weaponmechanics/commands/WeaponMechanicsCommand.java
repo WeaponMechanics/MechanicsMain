@@ -734,11 +734,8 @@ public class WeaponMechanicsCommand {
             File outputPath = new File(pl.getDataFolder().getPath() + "/weapons/crackshotconvert/");
 
             sender.sendMessage(GREEN + "Starting CrackShot conversion");
-            WeaponMechanics.getInstance().getFoliaScheduler().async().runNow(() ->
-                new Converter(sender).convertAllFiles(outputPath)
-            ).asFuture().thenAccept(task ->
-                sender.sendMessage(GREEN + "Output converted files to " + outputPath)
-            );
+            WeaponMechanics.getInstance().getFoliaScheduler().async().runNow(() -> new Converter(sender).convertAllFiles(outputPath)).asFuture().thenAccept(task -> sender.sendMessage(GREEN
+                + "Output converted files to " + outputPath));
 
             return;
         }

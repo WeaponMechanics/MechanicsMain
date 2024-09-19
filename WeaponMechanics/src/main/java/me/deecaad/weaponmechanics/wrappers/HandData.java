@@ -133,8 +133,9 @@ public class HandData {
     }
 
     /**
-     * If you cancel this task, be sure to call {@link #setFullAutoTask(FullAutoTask, TaskImplementation)} with null
-     * and 0. Otherwise, WeaponMechanics will break.
+     * If you cancel this task, be sure to call
+     * {@link #setFullAutoTask(FullAutoTask, TaskImplementation)} with null and 0. Otherwise,
+     * WeaponMechanics will break.
      *
      * @return The full auto task, or null.
      */

@@ -39,8 +39,7 @@ public class FoliaProjectileSpawner extends ProjectileSpawner {
     private void spawn0(
         @NotNull ServerImplementation scheduler,
         @NotNull Location location,
-        @NotNull AProjectile projectile
-    ) {
+        @NotNull AProjectile projectile) {
         if (!projectile.isOwnedByCurrentRegion())
             throw new IllegalStateException("Projectile is not owned by the current region");
 
@@ -53,7 +52,7 @@ public class FoliaProjectileSpawner extends ProjectileSpawner {
             if (!projectile.isOwnedByCurrentRegion()) {
                 WeaponMechanics.debug.log(LogLevel.WARN, "Projectile is not owned by the current region",
                     "This might happen if a projectile slowly moved out of the region while ticking.");
-                //projectile.remove();
+                // projectile.remove();
                 task.cancel();
                 // TODO schedule new task in region?
             }

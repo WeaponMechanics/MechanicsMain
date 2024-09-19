@@ -11,9 +11,9 @@ import java.util.List;
 /**
  * This class is responsible for adding projectiles into some runnable.
  *
- * <p>The implementation varies depending on the server architecture. Typical
- * Spigot/Paper servers will use 1 runnable to handle all
- * projectile ticking. Folia servers use 1 runnable per projectile
+ * <p>
+ * The implementation varies depending on the server architecture. Typical Spigot/Paper servers will
+ * use 1 runnable to handle all projectile ticking. Folia servers use 1 runnable per projectile
  */
 public abstract class ProjectileSpawner {
 
@@ -31,8 +31,8 @@ public abstract class ProjectileSpawner {
     }
 
     /**
-     * Adds the given projectile manager to the list of managers. This manager
-     * will be used to attach scripts to projectiles.
+     * Adds the given projectile manager to the list of managers. This manager will be used to attach
+     * scripts to projectiles.
      *
      * @param manager The non-null manager to add
      */
@@ -43,8 +43,8 @@ public abstract class ProjectileSpawner {
     }
 
     /**
-     * Spawns the given projectile. If the thread has control over the region
-     * where the projectile is spawned, the projectile will be ticked instantly.
+     * Spawns the given projectile. If the thread has control over the region where the projectile is
+     * spawned, the projectile will be ticked instantly.
      *
      * @param projectile The non-null projectile to spawn
      */

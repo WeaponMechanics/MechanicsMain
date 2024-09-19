@@ -188,8 +188,8 @@ public interface EntityCompatibility {
     }
 
     /**
-     * Creates an {@link EntityExplodeEvent} with the given parameters. This is used because Spigot
-     * does not have a backwards compatible constructor for this event.
+     * Creates an {@link EntityExplodeEvent} with the given parameters. This is used because Spigot does
+     * not have a backwards compatible constructor for this event.
      *
      * @param entity The non-null entity that is causing the explosion.
      * @param location The non-null location of the explosion.
@@ -203,8 +203,7 @@ public interface EntityCompatibility {
         @NotNull Location location,
         @NotNull List<Block> blocks,
         float yield,
-        boolean breakBlocks
-    ) {
+        boolean breakBlocks) {
         return new EntityExplodeEvent(entity, location, blocks, yield);
     }
 

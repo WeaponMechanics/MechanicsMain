@@ -396,12 +396,6 @@ public class WeaponProjectile extends AProjectile {
             if (WeaponMechanics.getWeaponHandler().getHitHandler().handleHit(hit, this))
                 continue;
 
-            // Sticky
-            if (sticky != null && sticky.handleSticking(this, hit)) {
-                // Break since projectile sticked to entity or block
-                return false;
-            }
-
             // Through
             if (through != null && through.handleThrough(this, hit)) {
                 // Continue since projectile went through.
@@ -411,6 +405,12 @@ public class WeaponProjectile extends AProjectile {
                 // Update last hit entity / block
                 updateLastHit(hit);
                 continue;
+            }
+
+            // Sticky
+            if (sticky != null && sticky.handleSticking(this, hit)) {
+                // Break since projectile sticked to entity or block
+                return false;
             }
 
             // Bouncy and rolling

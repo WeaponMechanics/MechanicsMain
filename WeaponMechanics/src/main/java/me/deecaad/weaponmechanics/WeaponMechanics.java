@@ -218,7 +218,7 @@ public class WeaponMechanics {
         });
 
         registerCommands();
-        //registerUpdateChecker();
+        // registerUpdateChecker();
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         debug.debug("Enabled WeaponMechanics in " + NumberUtil.toTime((int) (tookMillis / 1000)) + "s");
@@ -581,22 +581,21 @@ public class WeaponMechanics {
             projectileSpawner = new SpigotProjectileSpawner(getPlugin());
         }
 
-        return getFoliaScheduler().async().runNow(this::writeFiles).asFuture().thenCompose((ignore) ->
-            getFoliaScheduler().global().run((task) -> {
-                loadConfig();
-                registerPacketListeners();
-                registerListeners();
-                registerCommands();
-                registerPermissions();
-                registerUpdateChecker();
-                setupDatabase();
+        return getFoliaScheduler().async().runNow(this::writeFiles).asFuture().thenCompose((ignore) -> getFoliaScheduler().global().run((task) -> {
+            loadConfig();
+            registerPacketListeners();
+            registerListeners();
+            registerCommands();
+            registerPermissions();
+            registerUpdateChecker();
+            setupDatabase();
 
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    // Add PlayerWrapper in onEnable in case server is reloaded for example
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                // Add PlayerWrapper in onEnable in case server is reloaded for example
 
-                    PlayerWrapper playerWrapper = getPlayerWrapper(player);
-                    weaponHandler.getStatsHandler().load(playerWrapper);
-                }
+                PlayerWrapper playerWrapper = getPlayerWrapper(player);
+                weaponHandler.getStatsHandler().load(playerWrapper);
+            }
         }).asFuture());
     }
 

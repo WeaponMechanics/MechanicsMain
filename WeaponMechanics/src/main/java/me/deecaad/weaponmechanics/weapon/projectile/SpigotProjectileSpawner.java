@@ -48,7 +48,6 @@ public class SpigotProjectileSpawner extends ProjectileSpawner implements Runnab
         projectiles.add(projectile);
     }
 
-
     @Override
     public void run() {
         if (!Bukkit.getServer().isPrimaryThread())

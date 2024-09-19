@@ -105,8 +105,13 @@ public class HitHandler {
             return true;
 
         Explosion explosion = getConfigurations().getObject(projectile.getWeaponTitle() + ".Explosion", Explosion.class);
-        if (explosion != null)
-            explosion.handleExplosion(projectile.getShooter(), result.getHitLocation().clone().toLocation(projectile.getWorld()), projectile, ExplosionTrigger.BLOCK);
+        if (explosion != null) {
+            // When the explosion is instant, the origin is the hit location
+            Location origin = null;
+            if (explosion.getDetonation().getDelay() <= 1)
+                origin = result.getHitLocation().clone().toLocation(projectile.getWorld());
+            explosion.handleExplosion(projectile.getShooter(), origin, projectile, ExplosionTrigger.BLOCK);
+        }
 
         return false;
     }
@@ -144,8 +149,14 @@ public class HitHandler {
         }
 
         Explosion explosion = getConfigurations().getObject(projectile.getWeaponTitle() + ".Explosion", Explosion.class);
-        if (explosion != null)
-            explosion.handleExplosion(projectile.getShooter(), result.getHitLocation().clone().toLocation(projectile.getWorld()), projectile, ExplosionTrigger.ENTITY);
+        if (explosion != null) {
+            // When the explosion is instant, the origin is the hit location
+            Location origin = null;
+            if (explosion.getDetonation().getDelay() <= 1)
+                origin = result.getHitLocation().clone().toLocation(projectile.getWorld());
+
+            explosion.handleExplosion(projectile.getShooter(), origin, projectile, ExplosionTrigger.ENTITY);
+        }
 
         return false;
     }

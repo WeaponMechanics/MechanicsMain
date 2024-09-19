@@ -1,8 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
+import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState;
@@ -10,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -36,12 +39,26 @@ public class WeaponItemSerializer extends ItemSerializer {
         // supports "faking" the crossbow for other players. I added this check
         // since it is a commonly asked question, and this should save me some
         // time in the long run.
-        if (weaponStack.getType().name().equals("CROSSBOW"))
+        if (weaponStack.getType().name().equals("CROSSBOW")) {
             throw data.exception("Type", "You cannot use 'CROSSBOW' as a WeaponMechanics weapon!",
                 "YES! We know that you want weapons to be 'held up' like a minecraft crossbow",
                 "Purchase WMC to 'fake' the crossbow animation for other players: https://www.spigotmc.org/resources/104539/");
+        }
 
         String weaponTitle = data.key.split("\\.")[0];
+
+        // Saving display name and lore for use in WeaponMechanicsPlus to auto update items
+        Configuration config = WeaponMechanics.getConfigurations();
+        String weaponDisplay = data.of("Name").getAdventure(null);
+        if (weaponDisplay != null) {
+            config.set(weaponTitle + ".Info.Weapon_Item.Display", weaponDisplay);
+        }
+        List<String> weaponLore = data.of("Lore").get(null);
+        if (weaponLore != null) {
+            config.set(weaponTitle + ".Info.Weapon_Item.Lore", weaponLore.stream()
+                .map(line -> "<!italic>" + StringUtil.colorAdventure(line))
+                .toList());
+        }
 
         // Ensure the weapon title uses the correct format, mostly for other plugin compatibility
         Pattern pattern = Pattern.compile("[A-Za-z0-9_]+");
