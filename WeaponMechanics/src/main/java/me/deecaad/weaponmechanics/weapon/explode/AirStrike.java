@@ -206,7 +206,7 @@ public class AirStrike implements Serializer<AirStrike> {
                     task.cancel();
                 }
             }
-        }, 0, delay);
+        }, 1L, delay);
     }
 
     @Override

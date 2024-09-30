@@ -1,10 +1,13 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
+import com.cjcrafter.foliascheduler.SchedulerImplementation;
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -16,6 +19,7 @@ import java.util.List;
 public class SpigotProjectileSpawner extends ProjectileSpawner implements Runnable {
 
     private final List<AProjectile> projectiles;
+    private @Nullable TaskImplementation<Void> task;
 
     /**
      * Initializes the spawner with the given plugin.
@@ -46,6 +50,12 @@ public class SpigotProjectileSpawner extends ProjectileSpawner implements Runnab
             return;
 
         projectiles.add(projectile);
+
+        // If we haven't already started the "ticker," we should start it now
+        if (task == null) {
+            SchedulerImplementation scheduler = WeaponMechanics.getInstance().getFoliaScheduler().global();
+            task = scheduler.runAtFixedRate(this, 1L, 1L);
+        }
     }
 
     @Override
