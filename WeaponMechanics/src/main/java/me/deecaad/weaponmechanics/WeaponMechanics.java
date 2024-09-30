@@ -73,6 +73,7 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -165,7 +166,7 @@ public class WeaponMechanics {
             searcher.findAllSubclasses(Condition.class, getClassLoader(), true)
                 .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
         } catch (Throwable ex) {
-            ex.printStackTrace();
+            debug.log(LogLevel.ERROR, "Failed to load mechanics/targeters/conditions", ex);
         }
     }
 
@@ -344,7 +345,7 @@ public class WeaponMechanics {
             // Find all validators in WeaponMechanics
             validators = new JarInstancer(new JarFile(getFile())).createAllInstances(IValidator.class, getClassLoader(), true);
         } catch (IOException e) {
-            e.printStackTrace();
+            debug.log(LogLevel.ERROR, "Failed to load validators", e);
         }
 
         // Fill configuration mappings (except config.yml)
@@ -356,11 +357,11 @@ public class WeaponMechanics {
             event.addValidators(validators);
             Bukkit.getPluginManager().callEvent(event);
 
-            Configuration temp = new FileReader(debug, event.getSerializers(), event.getValidators()).fillAllFiles(getDataFolder(), "config.yml", "repair_kits", "attachments", "ammos",
-                "placeholders");
+            Configuration temp = new FileReader(debug, event.getSerializers(), event.getValidators())
+                .fillAllFiles(getDataFolder(), "config.yml", "repair_kits", "attachments", "ammos", "placeholders");
             configurations.copyFrom(temp);
         } catch (IOException e) {
-            e.printStackTrace();
+            debug.log(LogLevel.ERROR, "Failed to load config", e);
         } catch (DuplicateKeyException e) {
             debug.error("Error loading config: " + e.getMessage());
         }
@@ -371,7 +372,7 @@ public class WeaponMechanics {
         try {
             new JarInstancer(new JarFile(getFile())).createAllInstances(PlaceholderHandler.class, getClassLoader(), true).forEach(PlaceholderHandler.REGISTRY::add);
         } catch (IOException e) {
-            e.printStackTrace();
+            debug.log(LogLevel.ERROR, "Failed to load placeholders", e);
         }
     }
 
@@ -600,6 +601,16 @@ public class WeaponMechanics {
     }
 
     public void onDisable() {
+        // Try to unregister events, just in case this is a reload and not a
+        // full plugin disable (in which case this would be done already).
+        HandlerList.unregisterAll(getPlugin());
+
+        // This won't cancel move tasks on Folia... We have to do it manually
+        foliaScheduler.cancelTasks();
+        for (EntityWrapper entityWrapper : entityWrappers.values()) {
+            entityWrapper.getMoveTask().cancel();
+        }
+
         BlockDamageData.regenerateAll();
 
         // Close database and save data in SYNC
@@ -622,6 +633,7 @@ public class WeaponMechanics {
         database = null;
         weaponHandler = null;
         // updateChecker = null; do not reset update checker
+        entityWrappers.clear(); // hint to JVM to free memory
         entityWrappers = null;
         mainCommand = null;
         configurations = null;
