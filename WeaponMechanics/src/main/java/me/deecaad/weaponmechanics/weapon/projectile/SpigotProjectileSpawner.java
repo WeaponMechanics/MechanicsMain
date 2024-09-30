@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import com.cjcrafter.foliascheduler.SchedulerImplementation;
+import com.cjcrafter.foliascheduler.GlobalSchedulerImplementation;
 import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -53,7 +53,7 @@ public class SpigotProjectileSpawner extends ProjectileSpawner implements Runnab
 
         // If we haven't already started the "ticker," we should start it now
         if (task == null) {
-            SchedulerImplementation scheduler = WeaponMechanics.getInstance().getFoliaScheduler().global();
+            GlobalSchedulerImplementation scheduler = WeaponMechanics.getInstance().getFoliaScheduler().global();
             task = scheduler.runAtFixedRate(this, 1L, 1L);
         }
     }

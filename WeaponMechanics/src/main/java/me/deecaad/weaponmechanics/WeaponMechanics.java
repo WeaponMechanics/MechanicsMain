@@ -284,26 +284,32 @@ public class WeaponMechanics {
 
         // Ensure that the resource pack exists in the folder
         if (basicConfiguration.getBoolean("Resource_Pack_Download.Enabled")) {
-            getFoliaScheduler().async().runNow((task) -> {
-                String link = basicConfiguration.getString("Resource_Pack_Download.Link");
-                int connection = basicConfiguration.getInt("Resource_Pack_Download.Connection_Timeout");
-                int read = basicConfiguration.getInt("Resource_Pack_Download.Read_Timeout");
 
-                if (("https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack.zip").equals(link)) {
-                    try {
-                        link = "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/resourcepack/WeaponMechanicsResourcePack-" + resourcePackListener.getResourcePackVersion()
-                            + ".zip";
-                    } catch (InternalError e) {
-                        debug.log(LogLevel.DEBUG, "Failed to fetch resource pack version due to timeout", e);
-                        return;
+            // We wait for 5 ticks here *in sync* to wait until the server starts ticking before we download the
+            // resource pack.
+            // This allows the resource pack listener to register before we download the resource pack.
+            getFoliaScheduler().global().runDelayed(() -> {
+                /* do nothing */ }, 5L).asFuture().thenCompose((ignore) -> getFoliaScheduler().async().runNow((task) -> {
+                    String link = basicConfiguration.getString("Resource_Pack_Download.Link");
+                    int connection = basicConfiguration.getInt("Resource_Pack_Download.Connection_Timeout");
+                    int read = basicConfiguration.getInt("Resource_Pack_Download.Read_Timeout");
+
+                    if (("https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack.zip").equals(link)) {
+                        try {
+                            link = "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/resourcepack/WeaponMechanicsResourcePack-" + resourcePackListener.getResourcePackVersion()
+                                + ".zip";
+                        } catch (InternalError e) {
+                            debug.log(LogLevel.DEBUG, "Failed to fetch resource pack version due to timeout", e);
+                            return;
+                        }
                     }
-                }
 
-                File pack = new File(getDataFolder(), "WeaponMechanicsResourcePack.zip");
-                if (!pack.exists()) {
-                    FileUtil.downloadFile(pack, link, connection, read);
-                }
-            });
+                    File pack = new File(getDataFolder(), "WeaponMechanicsResourcePack.zip");
+                    if (!pack.exists()) {
+                        FileUtil.downloadFile(pack, link, connection, read);
+                    }
+                }).asFuture() // Run 1 tick later to let our resource pack listeners register
+            );
         }
     }
 
