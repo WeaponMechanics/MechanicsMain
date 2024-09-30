@@ -1,9 +1,9 @@
 package me.deecaad.weaponmechanics;
 
-import com.cjcrafter.foliascheduler.ServerVersions;
 import com.cjcrafter.foliascheduler.FoliaCompatibility;
 import com.cjcrafter.foliascheduler.ServerImplementation;
 import com.cjcrafter.foliascheduler.TaskImplementation;
+import com.cjcrafter.foliascheduler.util.ServerVersions;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.jeff_media.updatechecker.UpdateCheckSource;
@@ -19,6 +19,7 @@ import me.deecaad.core.database.SQLite;
 import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.DuplicateKeyException;
+import me.deecaad.core.file.FastConfiguration;
 import me.deecaad.core.file.FileReader;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.JarInstancer;

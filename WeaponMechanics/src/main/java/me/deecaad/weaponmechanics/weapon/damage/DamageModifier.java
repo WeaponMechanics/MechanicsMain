@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.weapon.damage;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
-import me.deecaad.core.file.*;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
@@ -11,9 +10,6 @@ import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.core.utils.primitive.DoubleEntry;
-import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;

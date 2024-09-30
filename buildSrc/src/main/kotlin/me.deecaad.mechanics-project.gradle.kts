@@ -4,7 +4,6 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven(url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/") // Spigot API
     maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots/") // Adventure Snapshots
@@ -15,7 +14,7 @@ repositories {
     maven(url = "https://mvn.lumine.io/repository/maven-public/") // MythicMobs
     maven(url = "https://repo.opencollab.dev/main/") // GeyserMC
     maven(url = "https://repo.jeff-media.com/public/") // SpigotUpdateChecker
-    maven(url = "https://nexuslite.gcnt.net/repos/other/") // FoliaLib
+    maven(url = "https://repo.dmulloy2.net/repository/public/")
 }
 
 dependencies {
