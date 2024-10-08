@@ -65,7 +65,7 @@ public class TriggerPlayerListeners implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void toggleSneak(PlayerToggleSneakEvent e) {
-        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sneak"))
+        if (getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.Sneak"))
             return;
 
         Player player = e.getPlayer();
@@ -81,7 +81,7 @@ public class TriggerPlayerListeners implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void toggleSprint(PlayerToggleSprintEvent e) {
-        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sprint"))
+        if (getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.Sprint"))
             return;
 
         weaponHandler.useTrigger(e.getPlayer(), e.isSprinting() ? TriggerType.START_SPRINT : TriggerType.END_SPRINT, false);
@@ -95,7 +95,7 @@ public class TriggerPlayerListeners implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void toggleFlight(PlayerToggleFlightEvent e) {
-        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump"))
+        if (getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.Double_Jump"))
             return;
 
         Player player = e.getPlayer();
@@ -157,7 +157,7 @@ public class TriggerPlayerListeners implements Listener {
             return;
         if (action == Action.PHYSICAL || e.useItemInHand() == Event.Result.DENY)
             return;
-        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click"))
+        if (getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.Right_And_Left_Click"))
             return;
 
         // Basically this just cancel double call to player interact event
@@ -199,13 +199,13 @@ public class TriggerPlayerListeners implements Listener {
         if (mainWeapon == null && offWeapon == null)
             return;
 
-        if ((mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Block_Interactions")
-            || offWeapon != null && getConfigurations().getBool(offWeapon + ".Info.Cancel.Block_Interactions"))) {
+        if ((mainWeapon != null && getConfigurations().getBoolean(mainWeapon + ".Info.Cancel.Block_Interactions")
+            || offWeapon != null && getConfigurations().getBoolean(offWeapon + ".Info.Cancel.Block_Interactions"))) {
             e.setUseInteractedBlock(Event.Result.DENY);
         }
 
-        if ((mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Item_Interactions")
-            || offWeapon != null && getConfigurations().getBool(offWeapon + ".Info.Cancel.Item_Interactions"))) {
+        if ((mainWeapon != null && getConfigurations().getBoolean(mainWeapon + ".Info.Cancel.Item_Interactions")
+            || offWeapon != null && getConfigurations().getBoolean(offWeapon + ".Info.Cancel.Item_Interactions"))) {
             e.setUseItemInHand(Event.Result.DENY);
         }
 
@@ -247,7 +247,7 @@ public class TriggerPlayerListeners implements Listener {
     public void animation(PlayerAnimationEvent e) {
         if (e.getAnimationType() != PlayerAnimationType.ARM_SWING)
             return;
-        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click"))
+        if (getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.Right_And_Left_Click"))
             return;
 
         Player player = e.getPlayer();
@@ -265,7 +265,7 @@ public class TriggerPlayerListeners implements Listener {
         ItemStack mainStack = playerEquipment.getItemInMainHand();
         String mainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(mainStack, false);
 
-        if (mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Arm_Swing_Animation")) {
+        if (mainWeapon != null && getConfigurations().getBoolean(mainWeapon + ".Info.Cancel.Arm_Swing_Animation")) {
             e.setCancelled(true);
             return;
         }
@@ -273,7 +273,7 @@ public class TriggerPlayerListeners implements Listener {
         ItemStack offStack = playerEquipment.getItemInOffHand();
         String offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, false);
 
-        if (offWeapon != null && getConfigurations().getBool(offWeapon + ".Info.Cancel.Arm_Swing_Animation")) {
+        if (offWeapon != null && getConfigurations().getBoolean(offWeapon + ".Info.Cancel.Arm_Swing_Animation")) {
             e.setCancelled(true);
         }
     }
@@ -281,7 +281,7 @@ public class TriggerPlayerListeners implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void dropItem(PlayerDropItemEvent e) {
         Player player = e.getPlayer();
-        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Drop_Item"))
+        if (getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.Drop_Item"))
             return;
 
         EntityEquipment playerEquipment = player.getEquipment();
@@ -305,8 +305,8 @@ public class TriggerPlayerListeners implements Listener {
         // If players are dead, don't do anything... This cancel can sometimes let players keep their
         // weapons
         if (!player.isDead()) {
-            boolean cancelMainHand = mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Drop_Item");
-            boolean cancelOffHand = offWeapon != null && getConfigurations().getBool(offWeapon + ".Info.Cancel.Drop_Item");
+            boolean cancelMainHand = mainWeapon != null && getConfigurations().getBoolean(mainWeapon + ".Info.Cancel.Drop_Item");
+            boolean cancelOffHand = offWeapon != null && getConfigurations().getBoolean(offWeapon + ".Info.Cancel.Drop_Item");
             if (cancelOffHand || cancelMainHand) {
                 e.setCancelled(true);
             }
@@ -323,14 +323,16 @@ public class TriggerPlayerListeners implements Listener {
             // This due to sometimes the instance changes in item drop...
             // - 1 item in slot when dropping -> reference changes
             // - 2 items or more in slot when dropping -> reference stays same
-            Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> weaponHandler.tryUses(playerWrapper, mainWeapon,
-                playerEquipment.getItemInMainHand(), EquipmentSlot.HAND, TriggerType.DROP_ITEM, dualWield, null));
+            WeaponMechanics.getInstance().getFoliaScheduler().entity(player).run(() -> {
+                weaponHandler.tryUses(playerWrapper, mainWeapon, playerEquipment.getItemInMainHand(), EquipmentSlot.HAND, TriggerType.DROP_ITEM, dualWield, null);
+            });
         }
 
         if (offWeapon != null) {
             playerWrapper.droppedWeapon();
-            Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> weaponHandler.tryUses(playerWrapper, offWeapon,
-                playerEquipment.getItemInOffHand(), EquipmentSlot.OFF_HAND, TriggerType.DROP_ITEM, dualWield, null));
+            WeaponMechanics.getInstance().getFoliaScheduler().entity(player).run(() -> {
+                weaponHandler.tryUses(playerWrapper, offWeapon, playerEquipment.getItemInOffHand(), EquipmentSlot.OFF_HAND, TriggerType.DROP_ITEM, dualWield, null);
+            });
         }
     }
 
@@ -339,7 +341,7 @@ public class TriggerPlayerListeners implements Listener {
     // Basically lower priority means that it will be one of the first EventHandlers to run.
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void swapHandItems(PlayerSwapHandItemsEvent e) {
-        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swap_Main_And_Hand_Items"))
+        if (getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.Swap_Main_And_Hand_Items"))
             return;
 
         Player player = e.getPlayer();
@@ -358,8 +360,8 @@ public class TriggerPlayerListeners implements Listener {
         if (toMainWeapon == null && toOffWeapon == null)
             return;
 
-        if ((toMainWeapon != null && getConfigurations().getBool(toMainWeapon + ".Info.Cancel.Swap_Hands"))
-            || (toOffWeapon != null && getConfigurations().getBool(toOffWeapon + ".Info.Cancel.Swap_Hands"))) {
+        if ((toMainWeapon != null && getConfigurations().getBoolean(toMainWeapon + ".Info.Cancel.Swap_Hands"))
+            || (toOffWeapon != null && getConfigurations().getBoolean(toOffWeapon + ".Info.Cancel.Swap_Hands"))) {
 
             e.setCancelled(true);
 
@@ -380,9 +382,8 @@ public class TriggerPlayerListeners implements Listener {
             // Only check off hand going to main hand
             if (toMainWeapon != null) {
                 final ItemStack finalToMain = toMain;
-                Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> {
-                    weaponHandler.tryUses(playerWrapper, toMainWeapon,
-                        finalToMain, EquipmentSlot.OFF_HAND, TriggerType.SWAP_HANDS, dualWield, null);
+                WeaponMechanics.getInstance().getFoliaScheduler().entity(player).run(() -> {
+                    weaponHandler.tryUses(playerWrapper, toMainWeapon, finalToMain, EquipmentSlot.HAND, TriggerType.SWAP_HANDS, dualWield, null);
                 });
             }
         }
@@ -394,8 +395,9 @@ public class TriggerPlayerListeners implements Listener {
             // Only check main hand going to off hand
             if (toOffWeapon != null) {
                 final ItemStack finalToOff = toOff;
-                Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> weaponHandler.tryUses(playerWrapper, toOffWeapon,
-                    finalToOff, EquipmentSlot.HAND, TriggerType.SWAP_HANDS, dualWield, null));
+                WeaponMechanics.getInstance().getFoliaScheduler().entity(player).run(() -> {
+                    weaponHandler.tryUses(playerWrapper, toOffWeapon, finalToOff, EquipmentSlot.OFF_HAND, TriggerType.SWAP_HANDS, dualWield, null);
+                });
             }
         }
     }
@@ -408,7 +410,7 @@ public class TriggerPlayerListeners implements Listener {
         ItemStack weapon = player.getInventory().getItemInMainHand();
         String weaponTitle = !isValid(weapon) ? null : weaponHandler.getInfoHandler().getWeaponTitle(weapon, false);
 
-        if (weaponTitle != null && getConfigurations().getBool(weaponTitle + ".Info.Cancel.Break_Blocks")) {
+        if (weaponTitle != null && getConfigurations().getBoolean(weaponTitle + ".Info.Cancel.Break_Blocks")) {
 
             // WeaponMechanicsCosmetics calls the BlockBreakEvent for block
             // damage, so we need to make sure that this doesn't interfere.

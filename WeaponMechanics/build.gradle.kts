@@ -17,6 +17,7 @@ dependencies {
     implementation("com.jeff_media:SpigotUpdateChecker:3.0.3")
     implementation(Dependencies.GSON)
     adventureChatAPI()
+    implementation(Dependencies.FAST_UTIL)
 
     compileOnly(Dependencies.LATEST_SPIGOT_API)
     compileOnly(project(":MechanicsCore"))
@@ -24,8 +25,10 @@ dependencies {
     compileOnly(Dependencies.PLACEHOLDER_API)
     compileOnly(Dependencies.MYTHIC_MOBS)
     compileOnly(Dependencies.VIVECRAFT)
+    compileOnly(Dependencies.FOLIA_SCHEDULER)
     compileOnly(files(file("../lib/crackshot/CrackShotPlus.jar")))
     compileOnly(files(file("../lib/crackshot/CrackShot.jar")))
+
 }
 
 // Create javadocJar and sourcesJar tasks

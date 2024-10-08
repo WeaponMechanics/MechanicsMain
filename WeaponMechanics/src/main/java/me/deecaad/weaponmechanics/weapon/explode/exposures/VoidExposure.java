@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.explode.exposures;
 
-import me.deecaad.core.utils.primitive.DoubleMap;
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
+import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -11,10 +12,10 @@ import java.util.List;
 public class VoidExposure implements ExplosionExposure {
 
     @NotNull @Override
-    public DoubleMap<LivingEntity> mapExposures(@NotNull Location origin, @NotNull ExplosionShape shape) {
+    public Object2DoubleMap<LivingEntity> mapExposures(@NotNull Location origin, @NotNull ExplosionShape shape) {
 
         List<LivingEntity> entities = shape.getEntities(origin);
-        DoubleMap<LivingEntity> exposures = new DoubleMap<>(entities.size());
+        Object2DoubleMap<LivingEntity> exposures = new Object2DoubleOpenHashMap<>(entities.size());
 
         for (LivingEntity entity : entities) {
             exposures.put(entity, 1.0);

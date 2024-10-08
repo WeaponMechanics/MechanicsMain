@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.commands.testcommands;
 
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -8,10 +9,10 @@ import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 @CommandPermission(permission = "weaponmechanics.commands.test.recoil")
 public class RecoilCommand extends SubCommand {
@@ -46,21 +47,19 @@ public class RecoilCommand extends SubCommand {
 
         Recoil recoil = new Recoil(rotationTime, recoverTime, yaws, pitches, null, null);
         PlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper((Player) sender);
-        new BukkitRunnable() {
+        WeaponMechanics.getInstance().getFoliaScheduler().entity(playerWrapper.getPlayer()).runAtFixedRate(new Consumer<>() {
             int ticks = 0;
-
             @Override
-            public void run() {
-
+            public void accept(TaskImplementation task) {
                 if (playerWrapper.isRightClicking()) {
                     recoil.start((Player) sender, true);
                 }
 
                 ticks += fireRate;
                 if (ticks > shootTime) {
-                    cancel();
+                    task.cancel();
                 }
             }
-        }.runTaskTimer(WeaponMechanics.getPlugin(), 0, fireRate);
+        }, 1, fireRate);
     }
 }

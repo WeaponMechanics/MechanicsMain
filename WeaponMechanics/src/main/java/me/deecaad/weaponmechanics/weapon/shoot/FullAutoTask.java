@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.shoot;
 
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
@@ -10,7 +11,9 @@ import me.deecaad.weaponmechanics.wrappers.HandData;
 import org.bukkit.Location;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Consumer;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
@@ -19,7 +22,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
  * every time you start firing a fully automatic weapon. The task is cancelled when the user is no
  * longer shooting.
  */
-public class FullAutoTask extends BukkitRunnable {
+public class FullAutoTask implements Consumer<TaskImplementation<Void>> {
 
     /**
      * Hardcoded full auto values. For every 1 in the array, the gun will fire on that tick. Some
@@ -51,7 +54,6 @@ public class FullAutoTask extends BukkitRunnable {
      * 
      * </blockquote>
      * <p>
-     * TODO Switch from int -> boolean for 1.6kb -> 400bits of ram
      */
     private static final int[][] AUTO = new int[][]{
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 0 perfect
@@ -111,7 +113,7 @@ public class FullAutoTask extends BukkitRunnable {
         this.perShot = shotsPerSecond / 20;
 
         trigger = getConfigurations().getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
-        consumeItemOnShoot = getConfigurations().getBool(weaponTitle + ".Shoot.Consume_Item_On_Shoot");
+        consumeItemOnShoot = getConfigurations().getBoolean(weaponTitle + ".Shoot.Consume_Item_On_Shoot");
         ammoPerShot = getConfigurations().getInt(weaponTitle + ".Shoot.Ammo_Per_Shot", 1);
     }
 
@@ -154,25 +156,25 @@ public class FullAutoTask extends BukkitRunnable {
     }
 
     @Override
-    public void run() {
+    public void accept(@NotNull TaskImplementation task) {
         ItemStack taskReference = mainHand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
         if (!taskReference.hasItemMeta()) {
-            handData.setFullAutoTask(null, 0);
-            cancel();
+            task.cancel();
+            handData.setFullAutoTask(null, null);
             return;
         }
 
         if (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
-            handData.setFullAutoTask(null, 0);
-            cancel();
+            task.cancel();
+            handData.setFullAutoTask(null, null);
             return;
         }
 
         int ammoLeft = weaponHandler.getReloadHandler().getAmmoLeft(taskReference, weaponTitle);
 
         if (!weaponHandler.getShootHandler().keepFullAutoOn(entityWrapper, triggerType, trigger)) {
-            handData.setFullAutoTask(null, 0);
-            cancel();
+            task.cancel();
+            handData.setFullAutoTask(null, null);
 
             if (ammoLeft == 0) {
                 weaponHandler.getShootHandler().startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, dualWield, false);
@@ -196,8 +198,8 @@ public class FullAutoTask extends BukkitRunnable {
             }
 
             if (!weaponHandler.getReloadHandler().consumeAmmo(taskReference, weaponTitle, shootAmount * ammoPerShot)) {
-                handData.setFullAutoTask(null, 0);
-                cancel();
+                task.cancel();
+                handData.setFullAutoTask(null, null);
 
                 weaponHandler.getShootHandler().startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, dualWield, false);
                 return;
@@ -205,7 +207,7 @@ public class FullAutoTask extends BukkitRunnable {
         }
         // END RELOAD STUFF
 
-        boolean destroyWhenEmpty = WeaponMechanics.getConfigurations().getBool(weaponTitle + ".Shoot.Destroy_When_Empty");
+        boolean destroyWhenEmpty = WeaponMechanics.getConfigurations().getBoolean(weaponTitle + ".Shoot.Destroy_When_Empty");
         for (int i = 0; i < shootAmount; ++i) {
             Location shootLocation = weaponHandler.getShootHandler().getShootLocation(entityWrapper, weaponTitle, mainHand);
             weaponHandler.getShootHandler().shoot(entityWrapper, weaponTitle, taskReference, shootLocation, mainHand, true, false);

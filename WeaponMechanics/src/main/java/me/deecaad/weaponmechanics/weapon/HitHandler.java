@@ -188,8 +188,8 @@ public class HitHandler {
         double body = basicConfiguration.getDouble("Entity_Hitboxes." + type.name() + "." + DamagePoint.BODY.name());
         if (body >= 1.0 || body > 0.0 && maxY - (entityHeight * (head + body)) < hitY) {
 
-            boolean horizontalEntity = basicConfiguration.getBool("Entity_Hitboxes." + type.name() + ".Horizontal_Entity", false);
-            boolean arms = basicConfiguration.getBool("Entity_Hitboxes." + type.name() + "." + DamagePoint.ARMS.name(), false);
+            boolean horizontalEntity = basicConfiguration.getBoolean("Entity_Hitboxes." + type.name() + ".Horizontal_Entity", false);
+            boolean arms = basicConfiguration.getBoolean("Entity_Hitboxes." + type.name() + "." + DamagePoint.ARMS.name(), false);
             if (horizontalEntity || arms) {
                 Vector normalizedEntityDirection = livingEntity.getLocation().getDirection();
 

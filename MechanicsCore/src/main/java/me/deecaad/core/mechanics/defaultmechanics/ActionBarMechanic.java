@@ -1,5 +1,6 @@
 package me.deecaad.core.mechanics.defaultmechanics;
 
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
@@ -8,9 +9,10 @@ import me.deecaad.core.placeholder.PlaceholderMessage;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 public class ActionBarMechanic extends Mechanic {
 
@@ -56,20 +58,20 @@ public class ActionBarMechanic extends Mechanic {
         // 40 ticks before fading, the interval we resend the action bar is 40
         // ticks.
         if (time > 40) {
-            new BukkitRunnable() {
+            MechanicsCore.getPlugin().getFoliaScheduler().entity(player).runAtFixedRate(new Consumer<>() {
                 int ticker = 0;
 
                 @Override
-                public void run() {
+                public void accept(TaskImplementation task) {
                     ticker += 40;
                     if (ticker >= time) {
-                        cancel();
+                        task.cancel();
                         return;
                     }
 
                     audience.sendActionBar(component);
                 }
-            }.runTaskTimer(MechanicsCore.getPlugin(), 40 - (time % 40), 40);
+            }, 40 - (time % 40), 40);
         }
     }
 

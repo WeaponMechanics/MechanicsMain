@@ -1,34 +1,36 @@
 package me.deecaad.weaponmechanics.wrappers;
 
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import net.kyori.adventure.bossbar.BossBar;
+import org.jetbrains.annotations.Nullable;
 
 public class MessageHelper {
 
     private BossBar bossBar;
-    private int bossBarTask;
-    private int expTask;
+    private TaskImplementation bossBarTask;
+    private TaskImplementation expTask;
 
-    public BossBar getBossBar() {
+    public @Nullable BossBar getBossBar() {
         return bossBar;
     }
 
-    public void setBossBar(BossBar bossBar) {
+    public void setBossBar(@Nullable BossBar bossBar) {
         this.bossBar = bossBar;
     }
 
-    public int getBossBarTask() {
+    public @Nullable TaskImplementation getBossBarTask() {
         return bossBarTask;
     }
 
-    public void setBossBarTask(int bossBarTask) {
+    public void setBossBarTask(@Nullable TaskImplementation bossBarTask) {
         this.bossBarTask = bossBarTask;
     }
 
-    public int getExpTask() {
+    public @Nullable TaskImplementation getExpTask() {
         return expTask;
     }
 
-    public void setExpTask(int expTask) {
+    public void setExpTask(@Nullable TaskImplementation expTask) {
         this.expTask = expTask;
     }
 }

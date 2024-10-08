@@ -4,7 +4,7 @@ object Versions {
     const val LATEST_SPIGOT_API = "1.20.6-R0.1-SNAPSHOT" // Keep on 1.20.6 to avoid interface issues
     const val BSTATS = "3.0.1"
     const val PROTOCOL_LIB = "5.1.0"
-    const val PLACEHOLDER_API = "2.11.3"
+    const val PLACEHOLDER_API = "2.11.6"
     const val MYTHIC_MOBS = "5.6.1"
     const val GEYSER = "2.2.0-SNAPSHOT"
     const val VIVECRAFT = "3.0.0"
@@ -21,6 +21,8 @@ object Versions {
     const val GSON = "2.10.1"
     const val KOTLIN = "1.9.21"
     const val X_SERIES = "11.0.0"
+    const val FAST_UTIL = "8.5.13"
+    const val FOLIA_SCHEDULER = "0.6.0"
 }
 
 object Dependencies {
@@ -45,6 +47,8 @@ object Dependencies {
     const val ANNOTATIONS = "org.jetbrains:annotations:${Versions.ANNOTATIONS}"
     const val GSON = "com.google.code.gson:gson:${Versions.GSON}"
     const val X_SERIES = "com.github.cryptomorin:XSeries:${Versions.X_SERIES}"
+    const val FAST_UTIL = "it.unimi.dsi:fastutil:${Versions.FAST_UTIL}"
+    const val FOLIA_SCHEDULER = "com.cjcrafter:foliascheduler:${Versions.FOLIA_SCHEDULER}"
 }
 
 fun org.gradle.api.artifacts.dsl.DependencyHandler.adventureChatAPI() {

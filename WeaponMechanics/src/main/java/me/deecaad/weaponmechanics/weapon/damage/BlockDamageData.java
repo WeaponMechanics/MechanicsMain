@@ -261,7 +261,7 @@ public final class BlockDamageData {
             }
 
             // #212 - Try to copy the block data from the previous block.
-            boolean attemptCopy = WeaponMechanics.getBasicConfigurations().getBool("Explosions.Attempt_Copy_Data", false);
+            boolean attemptCopy = WeaponMechanics.getBasicConfigurations().getBoolean("Explosions.Attempt_Copy_Data", false);
             if (attemptCopy && MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
                 BlockData oldData = block.getBlockData();
                 BlockData newData = mask.createBlockData();

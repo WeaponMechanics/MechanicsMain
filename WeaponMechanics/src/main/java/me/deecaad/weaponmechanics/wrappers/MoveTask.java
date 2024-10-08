@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.wrappers;
 
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.block.BlockCompatibility;
@@ -18,9 +19,11 @@ import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
-public class MoveTask extends BukkitRunnable {
+import java.util.function.Consumer;
+
+public class MoveTask implements Consumer<TaskImplementation<Void>> {
 
     private final EntityWrapper entityWrapper;
     private Location from;
@@ -40,13 +43,13 @@ public class MoveTask extends BukkitRunnable {
     }
 
     @Override
-    public void run() {
+    public void accept(@NotNull TaskImplementation task) {
         LivingEntity entity = entityWrapper.getEntity();
         if (entity == null || !entity.isValid() || entity.isDead()) { // Just an extra check in case something odd happened
 
             // Only cancel task IF it isn't player, otherwise just don't do anything
             if (!entityWrapper.isPlayer())
-                cancel();
+                task.cancel();
 
             return;
         }
@@ -59,7 +62,7 @@ public class MoveTask extends BukkitRunnable {
 
         this.from = to;
 
-        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swim")) {
+        if (!WeaponMechanics.getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.Swim")) {
             if (isSwimming(entity)) {
                 entityWrapper.setSwimming(true);
 
@@ -72,7 +75,7 @@ public class MoveTask extends BukkitRunnable {
 
         boolean inMidairCheck = isInMidair(entity);
 
-        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Standing_And_Walking")) {
+        if (!WeaponMechanics.getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.Standing_And_Walking")) {
             if (isSameLocationNonRotation(from, to)) {
                 ++this.sameMatches;
             } else {
@@ -98,7 +101,7 @@ public class MoveTask extends BukkitRunnable {
             ++groundTicks;
         }
 
-        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.In_Midair")) {
+        if (!WeaponMechanics.getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.In_Midair")) {
             entityWrapper.setInMidair(inMidairCheck);
         }
 
@@ -107,7 +110,7 @@ public class MoveTask extends BukkitRunnable {
         }
 
         if (this.jumps != -1) {
-            if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Jump")) {
+            if (!WeaponMechanics.getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.Jump")) {
                 if (from.getY() < to.getY() && !player.getLocation().getBlock().isLiquid()) {
                     int currentJumps = player.getStatistic(Statistic.JUMP);
                     int jumpsLast = this.jumps;
@@ -122,7 +125,7 @@ public class MoveTask extends BukkitRunnable {
             }
         }
 
-        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump")
+        if (!WeaponMechanics.getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.Double_Jump")
             && (player.getGameMode() == GameMode.SURVIVAL || player.getGameMode() == GameMode.ADVENTURE)) {
             if (player.getFallDistance() > 3.0) {
                 // https://minecraft.gamepedia.com/Damage#Fall_damage

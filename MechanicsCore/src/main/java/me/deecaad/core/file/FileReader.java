@@ -131,13 +131,6 @@ public class FileReader {
         // That's why fillAllFilesLoop method is required
         usePathToSerializersAndValidators(filledMap);
 
-        // Filter out anything with a null value... Sometimes validators will
-        // set to null so the code looks cleaner, but this will be confusing
-        // for containsKey(), and it adds overhead from hash clashing. Just
-        // remove null values for simplicity.
-        LinkedConfig linked = (LinkedConfig) filledMap;
-        linked.values().removeAll(Collections.singleton(null));
-
         return filledMap;
     }
 
@@ -146,7 +139,7 @@ public class FileReader {
         Set<String> fileBlacklist = ignoreFiles == null ? new HashSet<>() : Arrays.stream(ignoreFiles).collect(Collectors.toSet());
 
         // Dummy map to fill
-        Configuration filledMap = new LinkedConfig();
+        Configuration filledMap = new FastConfiguration();
 
         for (File directoryFile : directory.listFiles()) {
 
@@ -163,9 +156,9 @@ public class FileReader {
                         continue;
                     }
 
-                    filledMap.add(newFilledMap);
+                    filledMap.copyFrom(newFilledMap);
                 } else if (directoryFile.isDirectory()) {
-                    filledMap.add(fillAllFilesLoop(directoryFile));
+                    filledMap.copyFrom(fillAllFilesLoop(directoryFile));
                 }
             } catch (DuplicateKeyException ex) {
                 debug.log(LogLevel.ERROR, "Found duplicate keys in configuration!",
@@ -188,7 +181,7 @@ public class FileReader {
      * @return the map with file's configurations
      */
     public Configuration fillOneFile(File file) {
-        Configuration filledMap = new LinkedConfig();
+        Configuration filledMap = new FastConfiguration();
 
         // If a serializer is found, it's path is saved here. Any
         // NON SERIALIZER variable within a serializer is then "skipped"
@@ -301,7 +294,7 @@ public class FileReader {
             Object object = configuration.get(key);
             filledMap.set(key, object);
         }
-        if (filledMap.getKeys().isEmpty()) {
+        if (filledMap.keys().isEmpty()) {
             return null;
         }
 

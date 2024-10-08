@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
@@ -13,8 +14,6 @@ import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.core.utils.VectorUtil;
-import me.deecaad.core.utils.primitive.DoubleEntry;
-import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
@@ -42,7 +41,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -184,20 +182,18 @@ public class Explosion implements Serializer<Explosion> {
         // Set to 1 to indicate that this projectile has been detonated
         projectile.setIntTag("explosion-detonation", 1);
 
-        new BukkitRunnable() {
-            public void run() {
-                ProjectilePreExplodeEvent event = new ProjectilePreExplodeEvent(projectile, Explosion.this);
-                Bukkit.getPluginManager().callEvent(event);
-                if (event.isCancelled())
-                    return;
+        WeaponMechanics.getInstance().getFoliaScheduler().region(projectile.getBukkitLocation()).runDelayed(() -> {
+            ProjectilePreExplodeEvent event = new ProjectilePreExplodeEvent(projectile, Explosion.this);
+            Bukkit.getPluginManager().callEvent(event);
+            if (event.isCancelled())
+                return;
 
-                event.getExplosion().explode(cause, origin != null ? origin : projectile.getLocation().toLocation(projectile.getWorld()), projectile);
+            event.getExplosion().explode(cause, origin != null ? origin : projectile.getLocation().toLocation(projectile.getWorld()), projectile);
 
-                if (currentDetonation.isRemoveProjectileOnDetonation()) {
-                    projectile.remove();
-                }
+            if (currentDetonation.isRemoveProjectileOnDetonation()) {
+                projectile.remove();
             }
-        }.runTaskLater(WeaponMechanics.getPlugin(), currentDetonation.getDelay());
+        }, currentDetonation.getDelay());
     }
 
     public void explode(LivingEntity cause, Location origin, WeaponProjectile projectile) {
@@ -232,7 +228,7 @@ public class Explosion implements Serializer<Explosion> {
 
         List<Block> blocks = shape.getBlocks(origin);
         BlockRegenSorter sorter = new LayerDistanceSorter(origin, this);
-        DoubleMap<LivingEntity> entities = exposure.mapExposures(origin, shape);
+        Object2DoubleMap<LivingEntity> entities = exposure.mapExposures(origin, shape);
         Mechanics mechanics = this.mechanics;
         if (projectile != null) {
             // This event is not cancellable. If developers want to cancel
@@ -247,7 +243,7 @@ public class Explosion implements Serializer<Explosion> {
             // Use Bukkit's EntityExplodeEvent to allow other protection plugins
             // (Towny, for example) to cancel the explosion or filter blocks w/o
             // explicitly depending on WeaponMechanics.
-            if (blockDamage != null && !blocks.isEmpty() && !getBasicConfigurations().getBool("Disable_Entity_Explode_Event")) {
+            if (blockDamage != null && !blocks.isEmpty() && !getBasicConfigurations().getBoolean("Disable_Entity_Explode_Event")) {
                 EntityExplodeEvent entityExplodeEvent = CompatibilityAPI.getEntityCompatibility().createEntityExplodeEvent(
                     projectile.getShooter(), origin, blocks, 5, !blocks.isEmpty());
                 Bukkit.getPluginManager().callEvent(entityExplodeEvent);
@@ -301,11 +297,7 @@ public class Explosion implements Serializer<Explosion> {
             // higher your exposure, the greater the knockback.
             if (isKnockback()) {
                 Vector originVector = origin.toVector();
-                for (DoubleEntry<LivingEntity> entry : entities.entrySet()) {
-
-                    LivingEntity entity = entry.getKey();
-                    double exposure = entry.getValue();
-
+                entities.forEach((entity, exposure) -> {
                     exposure *= knockbackRate;
 
                     // Normalized vector between the explosion and entity involved
@@ -313,7 +305,7 @@ public class Explosion implements Serializer<Explosion> {
                     Vector motion = entity.getVelocity().add(between);
 
                     entity.setVelocity(motion);
-                }
+                });
             }
 
             if (cluster != null)
@@ -324,12 +316,9 @@ public class Explosion implements Serializer<Explosion> {
             // This occurs because of the command /wm test
             // Useful for debugging, and can help users decide which
             // size explosion they may want
-            for (DoubleEntry<LivingEntity> entry : entities.entrySet()) {
-                LivingEntity entity = entry.getKey();
-                double impact = entry.getValue();
-
+            entities.forEach((entity, impact) -> {
                 entity.sendMessage(ChatColor.RED + "You suffered " + impact * 100 + "% of the impact");
-            }
+            });
         }
 
         if (flashbang != null)
@@ -386,20 +375,16 @@ public class Explosion implements Serializer<Explosion> {
                     int time = timeOffset + ((isAtOnce ? size : i) / regeneration.getMaxBlocksPerUpdate() * regeneration.getInterval());
 
                     List<BlockDamageData.DamageData> finalBrokenBlocks = new ArrayList<>(brokenBlocks);
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            for (BlockDamageData.DamageData block : finalBrokenBlocks) {
+                    WeaponMechanics.getInstance().getFoliaScheduler().region(block).runDelayed(() -> {
+                        for (BlockDamageData.DamageData blockWrapper : finalBrokenBlocks) {
 
-                                // The blocks may have been regenerated already
-                                if (block.isBroken()) {
-                                    block.regenerate();
-                                    block.remove();
-                                }
+                            // The blocks may have been regenerated already
+                            if (blockWrapper.isBroken()) {
+                                blockWrapper.regenerate();
+                                blockWrapper.remove();
                             }
                         }
-                    }.runTaskLater(WeaponMechanics.getPlugin(), time);
-
+                    }, time);
                     // Reset back to 0 elements, so we can continue adding
                     // blocks to regenerate to the list.
                     brokenBlocks.clear();
@@ -439,7 +424,7 @@ public class Explosion implements Serializer<Explosion> {
 
         RemoveOnBlockCollisionProjectile projectile = new RemoveOnBlockCollisionProjectile(location, velocity, disguise);
         projectile.setIntTag("explosion-falling-block", 1);
-        WeaponMechanics.getProjectilesRunnable().addProjectile(projectile);
+        WeaponMechanics.getProjectileSpawner().spawn(projectile);
     }
 
     @Override

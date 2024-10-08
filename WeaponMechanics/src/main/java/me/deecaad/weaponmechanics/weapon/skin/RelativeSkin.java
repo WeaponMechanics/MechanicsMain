@@ -53,7 +53,7 @@ public class RelativeSkin implements Skin, Serializer<RelativeSkin> {
             int cmd = Integer.parseInt(str);
 
             // Strict mode so users cannot make mistakes (they must follow a strict format though)
-            if (WeaponMechanics.getBasicConfigurations().getBool("Strict_Relative_Skins", true)) {
+            if (WeaponMechanics.getBasicConfigurations().getBoolean("Strict_Relative_Skins", true)) {
                 int zeros = StringUtil.countOccurrences(str, '0');
                 int nonzeros = str.length() - zeros;
                 boolean isAttachment = data.key.contains("Attachments");

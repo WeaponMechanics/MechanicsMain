@@ -233,7 +233,7 @@ public class SerializeData {
      * @return <code>true</code> if the key exists.
      */
     public boolean has(String relative) {
-        return usingStep ? pathToConfig.containsKey(getPath(relative)) : config.contains(getPath(relative));
+        return usingStep ? pathToConfig.contains(getPath(relative)) : config.contains(getPath(relative));
     }
 
     /**
@@ -500,7 +500,7 @@ public class SerializeData {
                 return Collections.emptyList();
 
             List<String[]> list = new ArrayList<>();
-            List<?> configList = usingStep ? pathToConfig.getList(getPath(relative)) : config.getList(getPath(relative));
+            List<?> configList = usingStep ? pathToConfig.getObject(getPath(relative), List.of(), List.class) : config.getList(getPath(relative));
             for (Object obj : configList) {
                 list.add(StringUtil.split(obj.toString()).toArray(new String[0]));
             }
@@ -915,7 +915,7 @@ public class SerializeData {
          * @throws SerializerException If there is a misconfiguration in config.
          */
         @Nullable public <T extends Enum<T>> T getEnum(@NotNull Class<T> clazz, @Nullable T defaultValue) throws SerializerException {
-            String input = usingStep ? pathToConfig.getString(getPath(relative)) : config.getString(getPath(relative));
+            String input = usingStep ? pathToConfig.getObject(getPath(relative), String.class) : config.getString(getPath(relative));
 
             // Use assertExists for required keys
             if (input == null || input.isBlank())
@@ -1136,7 +1136,7 @@ public class SerializeData {
             if (!has(relative))
                 return defaultValue;
 
-            String value = usingStep ? pathToConfig.getString(getPath(relative)) : config.getString(getPath(relative));
+            String value = usingStep ? pathToConfig.getObject(getPath(relative), String.class) : config.getString(getPath(relative));
             assert value != null;
 
             return StringUtil.colorAdventure(value);
@@ -1309,7 +1309,7 @@ public class SerializeData {
             data.copyMutables(SerializeData.this);
 
             // Allow path-to compatibility when using nested serializers
-            boolean isString = usingStep ? pathToConfig.getString(getPath(relative)) == null : config.isString(getPath(relative));
+            boolean isString = usingStep ? pathToConfig.getObject(getPath(relative), String.class) == null : config.isString(getPath(relative));
             if (serializer.canUsePathTo() && isString) {
 
                 if (usingStep)
