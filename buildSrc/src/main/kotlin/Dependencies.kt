@@ -22,7 +22,7 @@ object Versions {
     const val KOTLIN = "1.9.21"
     const val X_SERIES = "11.0.0"
     const val FAST_UTIL = "8.5.13"
-    const val FOLIA_SCHEDULER = "0.4.8"
+    const val FOLIA_SCHEDULER = "0.6.0"
 }
 
 object Dependencies {
