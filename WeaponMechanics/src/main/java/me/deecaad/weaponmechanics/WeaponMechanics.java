@@ -219,7 +219,7 @@ public class WeaponMechanics {
         });
 
         registerCommands();
-        // registerUpdateChecker();
+        registerUpdateChecker();
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         debug.debug("Enabled WeaponMechanics in " + NumberUtil.toTime((int) (tookMillis / 1000)) + "s");
@@ -475,6 +475,9 @@ public class WeaponMechanics {
     }
 
     void registerUpdateChecker() {
+        if (true) {
+            return; // TODO: Folia compatible update checker
+        }
         if (!basicConfiguration.getBoolean("Update_Checker.Enable", true))
             return;
 
