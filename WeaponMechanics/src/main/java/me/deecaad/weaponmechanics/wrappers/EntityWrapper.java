@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.wrappers;
 
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.EntityToggleInMidairEvent;
@@ -26,7 +27,7 @@ public class EntityWrapper {
 
     private final LivingEntity entity;
 
-    private int moveTask;
+    private TaskImplementation<Void> moveTask;
     private boolean standing;
     private boolean walking;
     private boolean inMidair;
@@ -38,13 +39,12 @@ public class EntityWrapper {
         this.entity = livingEntity;
 
         Configuration config = WeaponMechanics.getBasicConfigurations();
-        if (!config.getBool("Disabled_Trigger_Checks.In_Midair")
-            || !config.getBool("Disabled_Trigger_Checks.Standing_And_Walking")
-            || !config.getBool("Disabled_Trigger_Checks.Jump")
-            || !config.getBool("Disabled_Trigger_Checks.Double_Jump")) {
+        if (!config.getBoolean("Disabled_Trigger_Checks.In_Midair")
+            || !config.getBoolean("Disabled_Trigger_Checks.Standing_And_Walking")
+            || !config.getBoolean("Disabled_Trigger_Checks.Jump")
+            || !config.getBoolean("Disabled_Trigger_Checks.Double_Jump")) {
 
-            this.moveTask = new MoveTask(this).runTaskTimer(WeaponMechanics.getPlugin(), 0, MOVE_TASK_INTERVAL)
-                .getTaskId();
+            this.moveTask = WeaponMechanics.getInstance().getFoliaScheduler().entity(livingEntity).runAtFixedRate(new MoveTask(this), 1, MOVE_TASK_INTERVAL);
         }
     }
 
@@ -52,7 +52,7 @@ public class EntityWrapper {
         return this.entity;
     }
 
-    public int getMoveTaskId() {
+    public TaskImplementation<Void> getMoveTask() {
         return this.moveTask;
     }
 

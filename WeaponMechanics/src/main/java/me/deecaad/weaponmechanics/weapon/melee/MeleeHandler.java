@@ -70,7 +70,7 @@ public class MeleeHandler implements IValidator {
         if (triggerType != TriggerType.MELEE)
             return false;
         Configuration config = getConfigurations();
-        if (!config.getBool(weaponTitle + ".Melee.Enable_Melee")) {
+        if (!config.getBoolean(weaponTitle + ".Melee.Enable_Melee")) {
 
             // Change weapon title to match the attachment
             weaponTitle = config.getString(weaponTitle + ".Melee.Melee_Attachment");
@@ -116,7 +116,7 @@ public class MeleeHandler implements IValidator {
             return false;
         }
 
-        boolean consumeOnMiss = getConfigurations().getBool(weaponTitle + ".Melee.Melee_Miss.Consume_On_Miss");
+        boolean consumeOnMiss = getConfigurations().getBoolean(weaponTitle + ".Melee.Melee_Miss.Consume_On_Miss");
         Mechanics missMechanics = getConfigurations().getObject(weaponTitle + ".Melee.Melee_Miss.Mechanics", Mechanics.class);
 
         WeaponMeleeMissEvent event = new WeaponMeleeMissEvent(weaponTitle, weaponStack, shooter, slot, meleeMissDelay / 50, missMechanics, consumeOnMiss);

@@ -21,8 +21,6 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
  */
 public class CuboidExplosion implements ExplosionShape {
 
-    private static final Configuration config = WeaponMechanics.getBasicConfigurations();
-
     // These are set to be half the actual
     // values, kind of like radius
     private final double width;
@@ -52,6 +50,7 @@ public class CuboidExplosion implements ExplosionShape {
      */
     @NotNull @Override
     public List<Block> getBlocks(@NotNull Location origin) {
+        Configuration config = WeaponMechanics.getBasicConfigurations();
         List<Block> temp = new ArrayList<>((int) (2 * width + 2 * height) + 1);
 
         double noiseDistance = config.getDouble("Explosions.Spherical.Noise_Distance", 1.25);

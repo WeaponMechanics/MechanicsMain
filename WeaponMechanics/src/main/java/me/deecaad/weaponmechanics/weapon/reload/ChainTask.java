@@ -1,9 +1,13 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
+import com.cjcrafter.foliascheduler.EntitySchedulerImplementation;
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Nullable;
 
-public abstract class ChainTask extends BukkitRunnable {
+import java.util.concurrent.CompletableFuture;
+
+public abstract class ChainTask {
 
     private final int delay;
     private ChainTask nextTask;
@@ -28,22 +32,20 @@ public abstract class ChainTask extends BukkitRunnable {
         return this.delay;
     }
 
-    /**
-     * Starts the chain of tasks
-     */
-    public void startChain() {
-        runTaskLater(WeaponMechanics.getPlugin(), getDelay());
-        setup();
-    }
+    public @Nullable CompletableFuture<TaskImplementation<Void>> startChain(EntitySchedulerImplementation scheduler) {
+        TaskImplementation<Void> task = scheduler.runDelayed(this::run, delay);
+        onSchedule(task);
 
-    @Override
-    public void run() {
-        task();
+        if (task == null) {
+            WeaponMechanics.debug.warn("Tried to reload on an invalid entity? Check Entity#isValid");
+            return null;
+        }
 
-        if (nextTask == null)
-            return;
-        this.nextTask.runTaskLater(WeaponMechanics.getPlugin(), this.nextTask.getDelay());
-        this.nextTask.setup();
+        return task.asFuture().thenCompose(scheduledTask -> {
+            if (nextTask == null)
+                return CompletableFuture.completedFuture(null);
+            return nextTask.startChain(scheduler);
+        });
     }
 
     public boolean hasNext() {
@@ -53,10 +55,10 @@ public abstract class ChainTask extends BukkitRunnable {
     /**
      * Does stuff when chain task is run
      */
-    public abstract void task();
+    public abstract void run(TaskImplementation<Void> scheduledTask);
 
     /**
      * Setup this task right after its delay counter has started (e.g. store task id somewhere)
      */
-    public abstract void setup();
+    public abstract void onSchedule(TaskImplementation<Void> scheduledTask);
 }

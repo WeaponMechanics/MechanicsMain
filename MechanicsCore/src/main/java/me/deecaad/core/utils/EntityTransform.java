@@ -1,5 +1,7 @@
 package me.deecaad.core.utils;
 
+import com.cjcrafter.foliascheduler.ServerImplementation;
+import me.deecaad.core.MechanicsCore;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -39,7 +41,8 @@ public class EntityTransform extends Transform {
 
     @Override
     public void setLocalPosition(Vector localPosition) {
-        entity.teleport(localPosition.toLocation(entity.getWorld()));
+        ServerImplementation server = MechanicsCore.getPlugin().getFoliaScheduler();
+        server.teleportAsync(entity, localPosition.toLocation(entity.getWorld()));
     }
 
     @Override
@@ -49,7 +52,7 @@ public class EntityTransform extends Transform {
         if (localUp.equals(view))
             localUp = Quaternion.BACKWARD; // TODO improve
 
-        return Quaternion.lookAt(entity.getLocation().getDirection(), Quaternion.UP);
+        return Quaternion.lookAt(entity.getLocation().getDirection(), localUp);
     }
 
     @Override
@@ -64,7 +67,7 @@ public class EntityTransform extends Transform {
             Location loc = entity.getLocation();
             loc.setYaw((float) euler.getX());
             loc.setPitch((float) euler.getY());
-            entity.teleport(loc);
+            entity.teleport(loc); // This call to legacy teleport is fine, since it is 1.12
         }
     }
 

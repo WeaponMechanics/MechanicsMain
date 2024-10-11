@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.wrappers;
 
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.shoot.FullAutoTask;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
@@ -16,8 +17,8 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 public class HandData {
 
@@ -25,8 +26,8 @@ public class HandData {
     private final boolean mainhand;
 
     private FullAutoTask fullAutoTask;
-    private int fullAutoTaskId;
-    private int burstTask;
+    private TaskImplementation<Void> fullAutoWrappedTask;
+    private TaskImplementation<Void> burstTask;
     private long lastShotTime;
     private long lastScopeTime;
     private long lastEquipTime;
@@ -37,7 +38,7 @@ public class HandData {
 
     // Save weaponstack/weaponTitle for reload complete and cancel events
     private long reloadStart;
-    private final Set<Integer> reloadTasks = new HashSet<>();
+    private final List<TaskImplementation<Void>> reloadTasks = new LinkedList<>();
     private ItemStack reloadWeaponStack;
     private String reloadWeaponTitle;
 
@@ -47,7 +48,7 @@ public class HandData {
     private String lastWeaponShotTitle;
 
     private ZoomData zoomData;
-    private final Set<Integer> firearmActionTasks = new HashSet<>();
+    private final List<TaskImplementation<Void>> firearmActionTasks = new LinkedList<>();
 
     private String currentWeaponTitle;
 
@@ -77,14 +78,14 @@ public class HandData {
      * @param trySkinUpdate whether to also try to update skin
      */
     public void cancelTasks(boolean trySkinUpdate) {
-        if (fullAutoTaskId != 0) {
-            Bukkit.getScheduler().cancelTask(fullAutoTaskId);
-            fullAutoTaskId = 0;
+        if (fullAutoWrappedTask != null) {
+            fullAutoWrappedTask.cancel();
+            fullAutoWrappedTask = null;
             fullAutoTask = null;
         }
-        if (burstTask != 0) {
-            Bukkit.getScheduler().cancelTask(burstTask);
-            burstTask = 0;
+        if (burstTask != null) {
+            burstTask.cancel();
+            burstTask = null;
         }
         stopReloadingTasks();
         stopFirearmActionTasks();
@@ -128,12 +129,13 @@ public class HandData {
     }
 
     public boolean isUsingFullAuto() {
-        return fullAutoTaskId != 0;
+        return fullAutoWrappedTask != null;
     }
 
     /**
-     * If you cancel this task, be sure to call {@link #setFullAutoTask(FullAutoTask, int)} with null
-     * and 0. Otherwise, WeaponMechanics will break.
+     * If you cancel this task, be sure to call
+     * {@link #setFullAutoTask(FullAutoTask, TaskImplementation)} with null and 0. Otherwise,
+     * WeaponMechanics will break.
      *
      * @return The full auto task, or null.
      */
@@ -141,20 +143,20 @@ public class HandData {
         return fullAutoTask;
     }
 
-    public int getFullAutoTaskId() {
-        return fullAutoTaskId;
+    public @Nullable TaskImplementation<Void> getFullAutoWrappedTask() {
+        return fullAutoWrappedTask;
     }
 
-    public void setFullAutoTask(@Nullable FullAutoTask fullAutoTask, int fullAutoTaskId) {
+    public void setFullAutoTask(@Nullable FullAutoTask fullAutoTask, TaskImplementation<Void> fullAutoWrappedTask) {
         this.fullAutoTask = fullAutoTask;
-        this.fullAutoTaskId = fullAutoTaskId;
+        this.fullAutoWrappedTask = fullAutoWrappedTask;
     }
 
     public boolean isUsingBurst() {
-        return burstTask != 0;
+        return burstTask != null;
     }
 
-    public void setBurstTask(int burstTask) {
+    public void setBurstTask(TaskImplementation<Void> burstTask) {
         this.burstTask = burstTask;
     }
 
@@ -218,21 +220,12 @@ public class HandData {
         this.lastMeleeMissTime = lastMeleeMissTime;
     }
 
-    public void addReloadTask(int reloadTask) {
+    public void addReloadTask(TaskImplementation<Void> reloadTask) {
         if (this.reloadTasks.isEmpty()) {
             // Reload is starting
             reloadStart = System.currentTimeMillis();
         }
         this.reloadTasks.add(reloadTask);
-    }
-
-    public void addReloadTasks(int... reloadTasks) {
-        if (this.reloadTasks.isEmpty()) {
-            reloadStart = System.currentTimeMillis();
-        }
-        for (int i : reloadTasks) {
-            this.reloadTasks.add(i);
-        }
     }
 
     public boolean isReloading() {
@@ -245,8 +238,8 @@ public class HandData {
 
     public void finishReload() {
         if (!reloadTasks.isEmpty()) {
-            for (int task : reloadTasks) {
-                Bukkit.getScheduler().cancelTask(task);
+            for (TaskImplementation<Void> task : reloadTasks) {
+                task.cancel();
             }
             reloadTasks.clear();
 
@@ -259,8 +252,8 @@ public class HandData {
 
     public void stopReloadingTasks() {
         if (!reloadTasks.isEmpty()) {
-            for (int task : reloadTasks) {
-                Bukkit.getScheduler().cancelTask(task);
+            for (TaskImplementation<Void> task : reloadTasks) {
+                task.cancel();
             }
             reloadTasks.clear();
 
@@ -306,17 +299,8 @@ public class HandData {
     /**
      * Only used with shoot firearm actions. Reload firearm actions use addReloadTask()
      */
-    public void addFirearmActionTask(int firearmTask) {
+    public void addFirearmActionTask(TaskImplementation<Void> firearmTask) {
         firearmActionTasks.add(firearmTask);
-    }
-
-    /**
-     * Only used with shoot firearm actions Reload firearm actions use addReloadTask()
-     */
-    public void addFirearmActionTasks(int... firearmTask) {
-        for (int i : firearmTask) {
-            firearmActionTasks.add(i);
-        }
     }
 
     /**
@@ -331,8 +315,8 @@ public class HandData {
      */
     public void stopFirearmActionTasks() {
         if (!firearmActionTasks.isEmpty()) {
-            for (int task : firearmActionTasks) {
-                Bukkit.getScheduler().cancelTask(task);
+            for (TaskImplementation<Void> task : firearmActionTasks) {
+                task.cancel();
             }
             firearmActionTasks.clear();
         }

@@ -74,7 +74,7 @@ public class TriggerEntityListeners implements Listener {
         boolean isSweep = cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK;
         if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK && !isSweep)
             return;
-        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click"))
+        if (getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.Right_And_Left_Click"))
             return;
 
         Entity damager = e.getDamager();
@@ -158,7 +158,7 @@ public class TriggerEntityListeners implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void toggleGlide(EntityToggleGlideEvent e) {
-        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Glide"))
+        if (getBasicConfigurations().getBoolean("Disabled_Trigger_Checks.Glide"))
             return;
 
         if (!e.getEntityType().isAlive())

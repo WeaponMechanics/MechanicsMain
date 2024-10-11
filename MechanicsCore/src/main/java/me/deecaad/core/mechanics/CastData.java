@@ -1,5 +1,6 @@
 package me.deecaad.core.mechanics;
 
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.utils.LogLevel;
@@ -32,7 +33,7 @@ public class CastData implements Cloneable, PlaceholderData {
     private Supplier<Location> targetLocation;
 
     // Extra data used by some mechanics
-    private Consumer<Integer> taskIdConsumer;
+    private Consumer<TaskImplementation<Void>> taskIdConsumer;
     private final @NotNull Map<String, String> tempPlaceholders;
 
     public CastData(@NotNull LivingEntity source, @Nullable String itemTitle, @Nullable ItemStack itemStack) {
@@ -51,7 +52,7 @@ public class CastData implements Cloneable, PlaceholderData {
         addDefaultPlaceholders();
     }
 
-    public CastData(@NotNull LivingEntity source, @Nullable String itemTitle, @Nullable ItemStack itemStack, @Nullable Consumer<Integer> taskIdConsumer) {
+    public CastData(@NotNull LivingEntity source, @Nullable String itemTitle, @Nullable ItemStack itemStack, @Nullable Consumer<TaskImplementation<Void>> taskIdConsumer) {
         this.source = source;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
@@ -140,7 +141,7 @@ public class CastData implements Cloneable, PlaceholderData {
         this.targetLocation = targetLocation;
     }
 
-    @Nullable public Consumer<Integer> getTaskIdConsumer() {
+    @Nullable public Consumer<TaskImplementation<Void>> getTaskIdConsumer() {
         return taskIdConsumer;
     }
 

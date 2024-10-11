@@ -122,7 +122,7 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
         BaseSkin base = new BaseSkin(data.of("Default").assertExists().getInt());
 
         // Strict check
-        if (WeaponMechanics.getBasicConfigurations().getBool("Strict_Relative_Skins", true)) {
+        if (WeaponMechanics.getBasicConfigurations().getBoolean("Strict_Relative_Skins", true)) {
 
             // base skin should be [1, 999]
             if (base.getCustomModelData() < 1 || base.getCustomModelData() > 999) {

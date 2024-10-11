@@ -19,6 +19,6 @@ public abstract class ProjectileScriptManager {
     public abstract void attach(@NotNull AProjectile projectile);
 
     public void register() {
-        WeaponMechanics.getProjectilesRunnable().addScriptManager(this);
+        WeaponMechanics.getProjectileSpawner().addScriptManager(this);
     }
 }

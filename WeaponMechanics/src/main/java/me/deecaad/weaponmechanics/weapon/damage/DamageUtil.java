@@ -60,11 +60,11 @@ public class DamageUtil {
         // Skip armor stands for better plugin compatibility
         if (victim instanceof ArmorStand armorStand) {
 
-            if (config.getBool("Damage.Ignore_Armor_Stand.Always"))
+            if (config.getBoolean("Damage.Ignore_Armor_Stand.Always"))
                 return true;
-            if (config.getBool("Damage.Ignore_Armor_Stand.Marker") && armorStand.isMarker())
+            if (config.getBoolean("Damage.Ignore_Armor_Stand.Marker") && armorStand.isMarker())
                 return true;
-            if (config.getBool("Damage.Ignore_Armor_Stand.Invisible") && armorStand.isInvisible())
+            if (config.getBoolean("Damage.Ignore_Armor_Stand.Invisible") && armorStand.isInvisible())
                 return true;
         }
 
@@ -107,7 +107,7 @@ public class DamageUtil {
         if (damage < 0)
             damage = 0;
 
-        if (getBasicConfigurations().getBool("Damage.Use_Vanilla_Damaging", false)) {
+        if (getBasicConfigurations().getBoolean("Damage.Use_Vanilla_Damaging", false)) {
             if (damage == 0)
                 return true;
 

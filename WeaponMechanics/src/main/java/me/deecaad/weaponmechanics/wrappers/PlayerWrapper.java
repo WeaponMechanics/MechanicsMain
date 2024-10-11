@@ -28,7 +28,7 @@ public class PlayerWrapper extends EntityWrapper {
         super(player);
         this.player = player;
         Configuration config = WeaponMechanics.getBasicConfigurations();
-        if (config.getBool("Database.Enable", true)) {
+        if (config.getBoolean("Database.Enable", true)) {
             statsData = new StatsData(player.getUniqueId());
         }
     }

@@ -33,8 +33,8 @@ public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
         this.scopeType = scopeType;
         this.zoomAmount = zoomAmount;
         this.zoomStack = zoomStack;
-        this.isNightVision = WeaponMechanics.getConfigurations().getBool(weaponTitle + ".Scope.Night_Vision", false);
-        this.isPumpkinOverlay = WeaponMechanics.getConfigurations().getBool(weaponTitle + ".Scope.Pumpkin_Overlay", false);
+        this.isNightVision = WeaponMechanics.getConfigurations().getBoolean(weaponTitle + ".Scope.Night_Vision", false);
+        this.isPumpkinOverlay = WeaponMechanics.getConfigurations().getBoolean(weaponTitle + ".Scope.Pumpkin_Overlay", false);
         this.mechanics = mechanics;
     }
 

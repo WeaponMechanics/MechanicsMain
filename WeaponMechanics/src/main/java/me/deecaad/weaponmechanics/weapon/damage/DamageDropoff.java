@@ -33,7 +33,7 @@ public class DamageDropoff implements Serializer<DamageDropoff> {
      * @return Damage modifier
      */
     public double getDamage(double distance) {
-        if (WeaponMechanics.getBasicConfigurations().getBool("Smooth_Damage_Dropoff", false)) {
+        if (WeaponMechanics.getBasicConfigurations().getBoolean("Smooth_Damage_Dropoff", false)) {
             Map.Entry<Double, Double> floor = distances.floorEntry(distance);
             Map.Entry<Double, Double> ceiling = distances.ceilingEntry(distance);
 

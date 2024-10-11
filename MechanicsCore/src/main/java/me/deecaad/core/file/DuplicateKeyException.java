@@ -1,15 +1,11 @@
 package me.deecaad.core.file;
 
-import org.bukkit.configuration.ConfigurationSection;
-
 import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * This class outlines an {@link Exception} that occurs when 2 configuration files with a matching
  * key are added to the same {@link Configuration}
- *
- * @see Configuration#add(Configuration)
- * @see Configuration#add(ConfigurationSection)
  */
 public class DuplicateKeyException extends Exception {
 
@@ -19,6 +15,10 @@ public class DuplicateKeyException extends Exception {
         super("Duplicate Key(s): " + Arrays.toString(keys));
 
         this.keys = keys;
+    }
+
+    public DuplicateKeyException(Collection<String> keys) {
+        this(keys.toArray(new String[0]));
     }
 
     /**
