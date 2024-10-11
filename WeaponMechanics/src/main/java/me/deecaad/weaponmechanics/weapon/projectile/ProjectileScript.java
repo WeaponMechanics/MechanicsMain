@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
  * <p>
  * In order for you to attach a script to a projectile, you need to register your
  * {@link ProjectileScriptManager} (which handles which projectiles to use) using
- * {@link ProjectilesRunnable#addScriptManager(ProjectileScriptManager)}.
+ * {@link ProjectileSpawner#addScriptManager(ProjectileScriptManager)}.
  *
  * <p>
  * While you can use bukkit events and scripts interchangeably, scripts have the added advantage of
