@@ -4,7 +4,7 @@ import io.lumine.mythic.api.adapters.AbstractItemStack;
 import io.lumine.mythic.api.config.MythicLineConfig;
 import io.lumine.mythic.api.drops.DropMetadata;
 import io.lumine.mythic.api.drops.IItemDrop;
-import io.lumine.mythic.bukkit.adapters.BukkitItemStack;
+import io.lumine.mythic.bukkit.adapters.item.ItemComponentBukkitItemStack;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
@@ -43,6 +43,6 @@ public class MythicMobsWeaponDrop implements IItemDrop {
             return null;
         }
 
-        return new BukkitItemStack(item);
+        return new ItemComponentBukkitItemStack(item);
     }
 }
