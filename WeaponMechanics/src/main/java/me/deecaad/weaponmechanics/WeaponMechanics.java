@@ -35,7 +35,6 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
 import me.deecaad.weaponmechanics.lib.MythicMobsLoader;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
 import me.deecaad.weaponmechanics.listeners.RepairItemListener;

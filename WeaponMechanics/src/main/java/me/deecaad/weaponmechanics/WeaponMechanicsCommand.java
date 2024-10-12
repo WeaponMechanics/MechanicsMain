@@ -1,19 +1,46 @@
-package me.deecaad.weaponmechanics.commands;
+package me.deecaad.weaponmechanics;
 
 import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.commands.*;
-import me.deecaad.core.commands.arguments.*;
+import me.deecaad.core.commands.Argument;
+import me.deecaad.core.commands.CommandBuilder;
+import me.deecaad.core.commands.CommandData;
+import me.deecaad.core.commands.CommandExecutor;
+import me.deecaad.core.commands.HelpCommandBuilder;
+import me.deecaad.core.commands.SuggestionsBuilder;
+import me.deecaad.core.commands.Tooltip;
+import me.deecaad.core.commands.arguments.BlockPredicateArgumentType;
+import me.deecaad.core.commands.arguments.BooleanArgumentType;
+import me.deecaad.core.commands.arguments.ColorArgumentType;
+import me.deecaad.core.commands.arguments.DoubleArgumentType;
+import me.deecaad.core.commands.arguments.EntityArgumentType;
+import me.deecaad.core.commands.arguments.EntityListArgumentType;
+import me.deecaad.core.commands.arguments.EntityTypeArgumentType;
+import me.deecaad.core.commands.arguments.EnumArgumentType;
+import me.deecaad.core.commands.arguments.GreedyArgumentType;
+import me.deecaad.core.commands.arguments.IntegerArgumentType;
+import me.deecaad.core.commands.arguments.ListArgumentType;
+import me.deecaad.core.commands.arguments.LocationArgumentType;
+import me.deecaad.core.commands.arguments.MapArgumentType;
+import me.deecaad.core.commands.arguments.PlayerArgumentType;
+import me.deecaad.core.commands.arguments.StringArgumentType;
+import me.deecaad.core.commands.arguments.TimeArgumentType;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.utils.*;
+import me.deecaad.core.utils.EntityTransform;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.MinecraftVersions;
+import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.Quaternion;
+import me.deecaad.core.utils.RandomUtil;
+import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.StringUtil;
+import me.deecaad.core.utils.TableBuilder;
+import me.deecaad.core.utils.Transform;
 import me.deecaad.core.utils.ray.RayTrace;
-import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
-import me.deecaad.weaponmechanics.lib.CrackShotConvert.Converter;
 import me.deecaad.weaponmechanics.listeners.RepairItemListener;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
@@ -23,7 +50,11 @@ import me.deecaad.weaponmechanics.weapon.explode.Flashbang;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExposureFactory;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
-import me.deecaad.weaponmechanics.weapon.explode.shapes.*;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.CuboidExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.DefaultExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.ParabolicExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.SphericalExplosion;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ProjectileSettings;
@@ -40,20 +71,40 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.EntityEffect;
+import org.bukkit.FireworkEffect;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.*;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.util.Vector;
 
-import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -64,7 +115,12 @@ import static me.deecaad.core.commands.arguments.IntegerArgumentType.ITEM_COUNT;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 import static net.kyori.adventure.text.Component.empty;
 import static net.kyori.adventure.text.Component.text;
-import static org.bukkit.ChatColor.*;
+import static org.bukkit.ChatColor.BOLD;
+import static org.bukkit.ChatColor.GOLD;
+import static org.bukkit.ChatColor.GRAY;
+import static org.bukkit.ChatColor.GREEN;
+import static org.bukkit.ChatColor.ITALIC;
+import static org.bukkit.ChatColor.RED;
 
 @SuppressWarnings("unchecked")
 public class WeaponMechanicsCommand {
@@ -192,14 +248,6 @@ public class WeaponMechanicsCommand {
                 .withDescription("Gives you wiki links (click!)")
                 .executes(CommandExecutor.any((sender, args) -> {
                     wiki(sender);
-                })))
-
-            .withSubcommand(new CommandBuilder("convert")
-                .withPermission("weaponmechanics.commands.convert")
-                .withDescription("Convert weapons from another plugin")
-                .withArgument(new Argument<>("plugin", new StringArgumentType().withLiterals("crackshot")))
-                .executes(CommandExecutor.any((sender, args) -> {
-                    convert(sender, (String) args[0]);
                 })))
 
             .withSubcommand(new CommandBuilder("reload")
@@ -724,23 +772,6 @@ public class WeaponMechanicsCommand {
             .build();
 
         MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(table);
-    }
-
-    public static void convert(CommandSender sender, String plugin) {
-        if (plugin.equalsIgnoreCase("crackshot")) {
-
-            sender.sendMessage(GREEN + "Converting config...");
-            WeaponMechanics pl = WeaponMechanicsAPI.getInstance();
-            File outputPath = new File(pl.getDataFolder().getPath() + "/weapons/crackshotconvert/");
-
-            sender.sendMessage(GREEN + "Starting CrackShot conversion");
-            WeaponMechanics.getInstance().getFoliaScheduler().async().runNow(() -> new Converter(sender).convertAllFiles(outputPath)).asFuture().thenAccept(task -> sender.sendMessage(GREEN
-                + "Output converted files to " + outputPath));
-
-            return;
-        }
-
-        sender.sendMessage(RED + "Conversion currently only supports CrackShot!");
     }
 
     public static void nbt(CommandSender sender, Entity target) {
