@@ -614,7 +614,9 @@ public class WeaponMechanics {
         // This won't cancel move tasks on Folia... We have to do it manually
         foliaScheduler.cancelTasks();
         for (EntityWrapper entityWrapper : entityWrappers.values()) {
-            entityWrapper.getMoveTask().cancel();
+            TaskImplementation<Void> moveTask = entityWrapper.getMoveTask();
+            if (moveTask != null)
+                moveTask.cancel();
         }
 
         BlockDamageData.regenerateAll();
