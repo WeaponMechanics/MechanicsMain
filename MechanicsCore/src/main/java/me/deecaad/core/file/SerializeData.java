@@ -1005,19 +1005,19 @@ public class SerializeData {
             // Wildcards are not allowed for singleton enums, they are only
             // allowed for lists.
             input = input.trim();
-            XEntityType entityType = XEntityType.of(input);
-            if (entityType == null) {
+            Optional<XEntityType> entityType = XEntityType.of(input);
+            if (entityType.isEmpty()) {
                 throw new SerializerEnumException(serializer, EntityType.class, input, false, getLocation())
                     .addMessage(wikiLink != null, getWikiMessage());
             }
 
-            EntityType parsed = entityType.get();
+            EntityType parsed = entityType.get().get();
             if (parsed == null) {
-                throw exception(relative, "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + entityType.name() + "'",
+                throw exception(relative, "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + entityType.get().name() + "'",
                     "Try using a different material or update your server to a newer version!");
             }
 
-            return entityType.get();
+            return parsed;
         }
 
         public @Nullable Particle getParticle(@Nullable Particle defaultValue) throws SerializerException {
@@ -1030,15 +1030,15 @@ public class SerializeData {
             // Wildcards are not allowed for singleton enums, they are only
             // allowed for lists.
             input = input.trim();
-            XParticle particle = XParticle.of(input);
-            if (particle == null) {
+            Optional<XParticle> particle = XParticle.of(input);
+            if (particle.isEmpty()) {
                 throw new SerializerEnumException(serializer, Particle.class, input, false, getLocation())
                     .addMessage(wikiLink != null, getWikiMessage());
             }
 
-            Particle parsed = particle.get();
+            Particle parsed = particle.get().get();
             if (parsed == null) {
-                throw exception(relative, "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + particle.name() + "'",
+                throw exception(relative, "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + particle.get().name() + "'",
                     "Try using a different material or update your server to a newer version!");
             }
 

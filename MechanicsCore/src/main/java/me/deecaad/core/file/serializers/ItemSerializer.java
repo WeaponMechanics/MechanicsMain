@@ -1,7 +1,9 @@
 package me.deecaad.core.file.serializers;
 
 import com.cryptomorin.xseries.XMaterial;
-import com.cryptomorin.xseries.XSkull;
+import com.cryptomorin.xseries.profiles.builder.XSkull;
+import com.cryptomorin.xseries.profiles.objects.ProfileInputType;
+import com.cryptomorin.xseries.profiles.objects.Profileable;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
@@ -321,7 +323,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 // https://www.spigotmc.org/threads/create-a-skull-item-stack-with-a-custom-texture-base64.82416/
                 if (uuid != null && url != null) {
                     // XSkull.of(itemMeta).profile(XSkull.SkullInputType.UUID, id).apply();
-                    XSkull.of(skullMeta).profile(XSkull.SkullInputType.TEXTURE_URL, url).apply();
+                    XSkull.of(skullMeta).profile(Profileable.of(ProfileInputType.TEXTURE_URL, url)).apply();
                 }
 
                 // Standard player name SkullMeta... "CJCrafter", "DeeCaaD", "Darkman_Bree"
