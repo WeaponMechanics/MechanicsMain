@@ -36,8 +36,14 @@ class FastConfiguration : Configuration() {
         all[key] = value
         when (value) {
             is Boolean -> booleans.put(key, value)
-            is Int -> ints.put(key, value)
-            is Double -> doubles.put(key, value)
+            is Int -> {
+                ints.put(key, value)
+                doubles.put(key, value.toDouble())
+            }
+            is Double -> {
+                ints.put(key, value.toInt())
+                doubles.put(key, value)
+            }
             else -> objects[key] = value
         }
     }
