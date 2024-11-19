@@ -923,7 +923,7 @@ public class SerializeData {
 
             // Wildcards are not allowed for singleton enums, they are only
             // allowed for lists.
-            input = input.trim();
+            input = input.trim().toUpperCase(Locale.ROOT);
             if (input.startsWith("$"))
                 throw new SerializerEnumException(serializer, clazz, input, false, getLocation())
                     .addMessage(wikiLink != null, getWikiMessage());
@@ -956,7 +956,7 @@ public class SerializeData {
 
             // Wildcards are not allowed for singleton enums, they are only
             // allowed for lists.
-            input = input.trim();
+            input = input.trim().toUpperCase(Locale.ROOT);;
             Optional<XMaterial> xmat = XMaterial.matchXMaterial(input);
             if (xmat.isEmpty()) {
                 throw new SerializerEnumException(serializer, Material.class, input, false, getLocation())
@@ -1004,7 +1004,7 @@ public class SerializeData {
 
             // Wildcards are not allowed for singleton enums, they are only
             // allowed for lists.
-            input = input.trim();
+            input = input.trim().toUpperCase(Locale.ROOT);
             Optional<XEntityType> entityType = XEntityType.of(input);
             if (entityType.isEmpty()) {
                 throw new SerializerEnumException(serializer, EntityType.class, input, false, getLocation())
@@ -1029,7 +1029,7 @@ public class SerializeData {
 
             // Wildcards are not allowed for singleton enums, they are only
             // allowed for lists.
-            input = input.trim();
+            input = input.trim().toUpperCase(Locale.ROOT);
             Optional<XParticle> particle = XParticle.of(input);
             if (particle.isEmpty()) {
                 throw new SerializerEnumException(serializer, Particle.class, input, false, getLocation())
