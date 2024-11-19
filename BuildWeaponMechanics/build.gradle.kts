@@ -3,7 +3,6 @@ import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 plugins {
     id("me.deecaad.mechanics-project")
-    //id("com.github.johnrengelman.shadow") version "8.1.1"
     id("io.github.goooler.shadow") version "8.1.7"
     id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
 }
@@ -12,18 +11,10 @@ dependencies {
     implementation(project(":WeaponMechanics"))
 
     // Add all compatibility modules
-    val devMode = findProperty("devMode") == "true"
     var addedOne = false
     file("../WeaponCompatibility").listFiles()?.forEach {
         if (it.isDirectory && it.name.matches(Regex("Weapon_\\d+_\\d+_R\\d+"))) {
-            // Use the reobf variant for all modules 1.17+
-            val major = it.name.split("_")[2].toInt()
-
-            if (major >= 17) {
-                implementation(project(":${it.name}", "reobf"))
-            } else if (!devMode) {
-                implementation(project(":${it.name}"))
-            }
+            implementation(project(":${it.name}", "reobf"))
             addedOne = true
         }
     }
@@ -62,15 +53,9 @@ tasks.shadowJar {
     dependencies {
         include(project(":WeaponMechanics"))
 
-        val devMode = findProperty("devMode") == "true"
         var addedOne = false
         file("../WeaponCompatibility").listFiles()?.forEach {
             if (it.isDirectory && it.name.matches(Regex("Weapon_\\d+_\\d+_R\\d+"))) {
-                // Filter out projects when in devMode
-                val major = it.name.split("_")[2].toInt()
-                if (devMode && major < 17)
-                    return@forEach
-
                 include(project(":${it.name}"))
                 addedOne = true
             }
