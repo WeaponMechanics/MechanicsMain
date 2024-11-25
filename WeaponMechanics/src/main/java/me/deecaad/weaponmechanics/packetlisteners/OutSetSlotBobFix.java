@@ -4,7 +4,7 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
-import me.deecaad.core.utils.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

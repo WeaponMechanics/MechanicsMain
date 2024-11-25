@@ -5,7 +5,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;

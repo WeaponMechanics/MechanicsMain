@@ -1,5 +1,7 @@
 package me.deecaad.core.utils;
 
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
+
 import java.util.UUID;
 
 /**

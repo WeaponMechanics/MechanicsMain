@@ -1,5 +1,8 @@
 package me.deecaad.core.compatibility;
 
+import com.cjcrafter.foliascheduler.util.ConstructorInvoker;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.block.BlockCompatibility;
 import me.deecaad.core.compatibility.command.CommandCompatibility;
@@ -9,11 +12,7 @@ import me.deecaad.core.compatibility.vault.IVaultCompatibility;
 import me.deecaad.core.compatibility.worldguard.NoWorldGuard;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.MinecraftVersions;
-import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
-
-import java.lang.reflect.Constructor;
 
 public final class CompatibilityAPI {
 
@@ -53,12 +52,12 @@ public final class CompatibilityAPI {
                 Class.forName("com.sk89q.worldguard.bukkit.WorldGuardPlugin");
                 if (!MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
                     // World Guard V6 for 1.12.2 support
-                    Constructor<?> worldGuardV6Constructor = ReflectionUtil.getConstructor(Class.forName("me.deecaad.core.compatibility.worldguard.WorldGuardV6"));
-                    worldGuardCompatibility1 = (WorldGuardCompatibility) ReflectionUtil.newInstance(worldGuardV6Constructor);
+                    ConstructorInvoker<?> worldGuardV6Constructor = ReflectionUtil.getConstructor(Class.forName("me.deecaad.core.compatibility.worldguard.WorldGuardV6"));
+                    worldGuardCompatibility1 = (WorldGuardCompatibility) worldGuardV6Constructor.newInstance();
                 } else {
                     // World Guard V7 for 1.13+ support
-                    Constructor<?> worldGuardV7Constructor = ReflectionUtil.getConstructor(Class.forName("me.deecaad.core.compatibility.worldguard.WorldGuardV7"));
-                    worldGuardCompatibility1 = (WorldGuardCompatibility) ReflectionUtil.newInstance(worldGuardV7Constructor);
+                    ConstructorInvoker<?> worldGuardV7Constructor = ReflectionUtil.getConstructor(Class.forName("me.deecaad.core.compatibility.worldguard.WorldGuardV7"));
+                    worldGuardCompatibility1 = (WorldGuardCompatibility) worldGuardV7Constructor.newInstance();
                 }
             } catch (Throwable e) {
                 worldGuardCompatibility1 = new NoWorldGuard();
@@ -102,7 +101,8 @@ public final class CompatibilityAPI {
             // * ----- Vault ----- * //
             boolean hasVault = Bukkit.getPluginManager().getPlugin("Vault") != null;
             String path = "me.deecaad.core.compatibility.vault." + (hasVault ? "VaultCompatibility" : "NoVaultCompatibility");
-            vaultCompatibility = ReflectionUtil.newInstance(ReflectionUtil.getClass(path));
+            ConstructorInvoker<?> vaultCompatibilityConstructor = ReflectionUtil.getConstructor(ReflectionUtil.getClass(path));
+            vaultCompatibility = (IVaultCompatibility) vaultCompatibilityConstructor.newInstance();
         }
         return vaultCompatibility;
     }

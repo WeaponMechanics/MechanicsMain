@@ -1,6 +1,7 @@
 package me.deecaad.core.utils;
 
 import com.cjcrafter.foliascheduler.ServerImplementation;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.MechanicsCore;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;

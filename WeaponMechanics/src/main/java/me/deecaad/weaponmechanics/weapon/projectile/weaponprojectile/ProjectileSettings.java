@@ -5,7 +5,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;

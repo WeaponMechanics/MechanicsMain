@@ -1,7 +1,7 @@
 package me.deecaad.core.compatibility;
 
 import me.deecaad.core.file.serializers.ColorSerializer;
-import me.deecaad.core.utils.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.utils.ray.BlockTraceResult;
 import me.deecaad.core.utils.ray.EntityTraceResult;
 import me.deecaad.core.utils.ray.RayTraceResult;

@@ -3,6 +3,8 @@ package me.deecaad.weaponmechanics;
 import com.cjcrafter.foliascheduler.FoliaCompatibility;
 import com.cjcrafter.foliascheduler.ServerImplementation;
 import com.cjcrafter.foliascheduler.TaskImplementation;
+import com.cjcrafter.foliascheduler.util.ConstructorInvoker;
+import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import com.cjcrafter.foliascheduler.util.ServerVersions;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
@@ -32,9 +34,8 @@ import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.lib.MythicMobsLoader;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
 import me.deecaad.weaponmechanics.listeners.RepairItemListener;
@@ -125,11 +126,11 @@ public class WeaponMechanics {
     }
 
     public ClassLoader getClassLoader() {
-        return (ClassLoader) ReflectionUtil.invokeMethod(ReflectionUtil.getMethod(JavaPlugin.class, "getClassLoader"), javaPlugin);
+        return (ClassLoader) ReflectionUtil.getMethod(JavaPlugin.class, "getClassLoader").invoke(javaPlugin);
     }
 
     public File getFile() {
-        return (File) ReflectionUtil.invokeMethod(ReflectionUtil.getMethod(JavaPlugin.class, "getFile"), javaPlugin);
+        return (File) ReflectionUtil.getMethod(JavaPlugin.class, "getFile").invoke(javaPlugin);
     }
 
     public void onLoad() {
@@ -153,11 +154,20 @@ public class WeaponMechanics {
         try {
             JarSearcher searcher = new JarSearcher(new JarFile(getFile()));
             searcher.findAllSubclasses(Mechanic.class, getClassLoader(), true)
-                .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.MECHANICS::add);
+                .stream()
+                .map(ReflectionUtil::getConstructor)
+                .map(ConstructorInvoker::newInstance)
+                .forEach(Mechanics.MECHANICS::add);
             searcher.findAllSubclasses(Targeter.class, getClassLoader(), true)
-                .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.TARGETERS::add);
+                .stream()
+                .map(ReflectionUtil::getConstructor)
+                .map(ConstructorInvoker::newInstance)
+                .forEach(Mechanics.TARGETERS::add);
             searcher.findAllSubclasses(Condition.class, getClassLoader(), true)
-                .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
+                .stream()
+                .map(ReflectionUtil::getConstructor)
+                .map(ConstructorInvoker::newInstance)
+                .forEach(Mechanics.CONDITIONS::add);
         } catch (Throwable ex) {
             debug.log(LogLevel.ERROR, "Failed to load mechanics/targeters/conditions", ex);
         }

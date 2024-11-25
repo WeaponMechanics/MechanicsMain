@@ -1,23 +1,22 @@
 package me.deecaad.weaponmechanics.packetlisteners;
 
+import com.cjcrafter.foliascheduler.util.FieldAccessor;
+import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
-import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.plugin.Plugin;
 
-import java.lang.reflect.Field;
-
 public class OutRemoveEntityEffectListener extends PacketAdapter {
 
-    private static final Field idField;
+    private static final FieldAccessor idField;
 
     static {
-        Class<?> effectPacket = ReflectionUtil.getPacketClass("PacketPlayOutRemoveEntityEffect");
+        Class<?> effectPacket = ReflectionUtil.getMinecraftClass("network.protocol.game", "PacketPlayOutRemoveEntityEffect");
 
         idField = ReflectionUtil.getField(effectPacket, int.class);
     }

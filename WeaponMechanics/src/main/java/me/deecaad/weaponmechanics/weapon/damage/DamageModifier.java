@@ -8,7 +8,7 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Material;

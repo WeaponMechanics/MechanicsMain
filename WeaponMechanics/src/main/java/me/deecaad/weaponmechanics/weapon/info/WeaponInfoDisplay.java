@@ -1,6 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
 import com.cjcrafter.foliascheduler.TaskImplementation;
+import com.cjcrafter.foliascheduler.util.ConstructorInvoker;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.SerializeData;
@@ -8,9 +11,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderMessage;
-import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.wrappers.MessageHelper;
@@ -26,19 +27,18 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MainHand;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Constructor;
-
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getWeaponHandler;
 
 public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
-    private static Constructor<?> packetPlayOutExperienceConstructor;
+    private static ConstructorInvoker<?> packetPlayOutExperienceConstructor;
 
     static {
         if (!MinecraftVersions.BUZZY_BEES.isAtLeast()) {
-            packetPlayOutExperienceConstructor = ReflectionUtil.getConstructor(ReflectionUtil.getPacketClass("PacketPlayOutExperience"), float.class, int.class, int.class);
+            Class<?> packetClass = ReflectionUtil.getMinecraftClass("network.protocol.game", "PacketPlayOutExperience");
+            packetPlayOutExperienceConstructor = ReflectionUtil.getConstructor(packetClass, float.class, int.class, int.class);
         }
     }
 
@@ -244,13 +244,14 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
             if (!MinecraftVersions.BUZZY_BEES.isAtLeast()) {
                 CompatibilityAPI.getCompatibility().sendPackets(player,
-                    ReflectionUtil.newInstance(packetPlayOutExperienceConstructor, showAmmoInExpProgress
-                        ? (float) (magazineProgress != -1 ? magazineProgress : getMagazineProgress(useStack, useWeapon))
-                        : player.getExp(),
+                    packetPlayOutExperienceConstructor.newInstance(
+                        showAmmoInExpProgress
+                            ? (float) (magazineProgress != -1 ? magazineProgress : getMagazineProgress(useStack, useWeapon))
+                            : player.getExp(),
                         player.getTotalExperience(),
                         showAmmoInExpLevel ? getAmmoLeft(useStack, useWeapon) : player.getLevel()));
                 messageHelper.setExpTask(WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(() -> {
-                    Object packet = ReflectionUtil.newInstance(packetPlayOutExperienceConstructor, player.getExp(), player.getTotalExperience(), player.getLevel());
+                    Object packet = packetPlayOutExperienceConstructor.newInstance(player.getExp(), player.getTotalExperience(), player.getLevel());
                     CompatibilityAPI.getCompatibility().sendPackets(player, packet);
                     messageHelper.setExpTask(null);
                 }, 40));

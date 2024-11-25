@@ -4,7 +4,7 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerMissingKeyException;
 import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.file.SerializerTypeException;
-import me.deecaad.core.utils.ReflectionUtil;
+import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -86,7 +86,36 @@ public class Factory<T> {
             }
         }
 
-        return ReflectionUtil.newInstance(args.manufacturedType, objects);
+        return newInstance(args.manufacturedType, objects);
+    }
+
+    /**
+     * Instantiates a new {@link Object} of the generic class time defined by
+     * <code>constructorSupplier</code>.
+     *
+     * @param constructorSupplier The class to instantiate.
+     * @param parameters The parameters of the constructor to use.
+     * @param <T> The generic class type to return.
+     * @return A new object of the given class.
+     */
+    @NotNull public static <T> T newInstance(@NotNull Class<T> constructorSupplier, Object... parameters) {
+        Class<?>[] classes = new Class[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            classes[i] = parameters[i].getClass();
+
+            classes[i] = switch (parameters[i].getClass().getSimpleName()) {
+                case "Double" -> double.class;
+                case "Integer" -> int.class;
+                case "Float" -> float.class;
+                case "Boolean" -> boolean.class;
+                case "Byte" -> byte.class;
+                case "Short" -> short.class;
+                case "Long" -> long.class;
+                default -> classes[i];
+            };
+        }
+
+        return ReflectionUtil.getConstructor(constructorSupplier, classes).newInstance(parameters);
     }
 
     public final void set(@NotNull String key, @NotNull Arguments args) {

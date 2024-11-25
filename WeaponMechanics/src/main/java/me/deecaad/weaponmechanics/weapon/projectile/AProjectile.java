@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.compatibility.entity.FakeEntity;
-import me.deecaad.core.utils.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.weaponmechanics.WeaponMechanics;

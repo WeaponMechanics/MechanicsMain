@@ -1,5 +1,6 @@
 package me.deecaad.core.compatibility.command;
 
+import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import com.google.common.io.Files;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.CommandDispatcher;
@@ -17,7 +18,6 @@ import me.deecaad.core.commands.wrappers.ParticleHolder;
 import me.deecaad.core.commands.wrappers.Rotation;
 import me.deecaad.core.commands.wrappers.SoundHolder;
 import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.commands.CommandBuildContext;
@@ -459,7 +459,7 @@ public class Command_1_21_R1 implements CommandCompatibility {
         // Setting this field allows non-op users to use entity selectors.
         // We let command permissions handle the permission system. We may have
         // to check if a vanished player can be seen in this list. TODO.
-        ReflectionUtil.setField(ReflectionUtil.getField(EntitySelector.class, boolean.class, 3), selector, false);
+        ReflectionUtil.getField(EntitySelector.class, boolean.class, 3).set(selector, false);
 
         CommandSourceStack source = (CommandSourceStack) context.getSource();
         return selector.findSingleEntity(source).getBukkitEntity();
@@ -472,7 +472,7 @@ public class Command_1_21_R1 implements CommandCompatibility {
         // Setting this field allows non-op users to use entity selectors.
         // We let command permissions handle the permission system. We may have
         // to check if a vanished player can be seen in this list. TODO.
-        ReflectionUtil.setField(ReflectionUtil.getField(EntitySelector.class, boolean.class, 3), selector, false);
+        ReflectionUtil.getField(EntitySelector.class, boolean.class, 3).set(selector, false);
 
         CommandSourceStack source = (CommandSourceStack) context.getSource();
         return selector.findEntities(source).stream()
@@ -487,7 +487,7 @@ public class Command_1_21_R1 implements CommandCompatibility {
         // Setting this field allows non-op users to use entity selectors.
         // We let command permissions handle the permission system. We may have
         // to check if a vanished player can be seen in this list. TODO.
-        ReflectionUtil.setField(ReflectionUtil.getField(EntitySelector.class, boolean.class, 3), selector, false);
+        ReflectionUtil.getField(EntitySelector.class, boolean.class, 3).set(selector, false);
 
         CommandSourceStack source = (CommandSourceStack) context.getSource();
         return selector.findSinglePlayer(source).getBukkitEntity();
@@ -500,7 +500,7 @@ public class Command_1_21_R1 implements CommandCompatibility {
         // Setting this field allows non-op users to use entity selectors.
         // We let command permissions handle the permission system. We may have
         // to check if a vanished player can be seen in this list. TODO.
-        ReflectionUtil.setField(ReflectionUtil.getField(EntitySelector.class, boolean.class, 3), selector, false);
+        ReflectionUtil.getField(EntitySelector.class, boolean.class, 3).set(selector, false);
 
         CommandSourceStack source = (CommandSourceStack) context.getSource();
         return selector.findPlayers(source).stream()

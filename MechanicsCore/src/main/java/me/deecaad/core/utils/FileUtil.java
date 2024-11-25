@@ -1,5 +1,6 @@
 package me.deecaad.core.utils;
 
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 

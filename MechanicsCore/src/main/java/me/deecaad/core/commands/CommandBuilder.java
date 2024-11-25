@@ -3,7 +3,7 @@ package me.deecaad.core.commands;
 import me.deecaad.core.commands.arguments.GreedyArgumentType;
 import me.deecaad.core.commands.arguments.LiteralArgumentType;
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.utils.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;

@@ -1,9 +1,10 @@
 package me.deecaad.core.compatibility.entity;
 
+import com.cjcrafter.foliascheduler.util.FieldAccessor;
+import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import com.mojang.datafixers.util.Pair;
 import me.deecaad.core.compatibility.equipevent.NonNullList_1_21_R1;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
-import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -23,14 +24,13 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 // https://nms.screamingsandals.org/1.18.1/
 public class Entity_1_21_R1 implements EntityCompatibility {
 
-    public static final Field itemsById = ReflectionUtil.getField(SynchedEntityData.class, SynchedEntityData.DataItem[].class);
+    public static final FieldAccessor itemsById = ReflectionUtil.getField(SynchedEntityData.class, SynchedEntityData.DataItem[].class);
 
     @Override
     public Vector getLastLocation(Entity entity) {
@@ -90,7 +90,7 @@ public class Entity_1_21_R1 implements EntityCompatibility {
 
         // 1.19.3 changed the packet arguments, so in order to unpack ALL data
         // (not just the dirty data) we need to manually get it and unpack it.
-        SynchedEntityData.DataItem<?>[] metaData = (SynchedEntityData.DataItem<?>[]) ReflectionUtil.invokeField(itemsById, data);
+        SynchedEntityData.DataItem<?>[] metaData = (SynchedEntityData.DataItem<?>[]) itemsById.get(data);
         List<SynchedEntityData.DataValue<?>> packed = new ArrayList<>(metaData.length);
         for (SynchedEntityData.DataItem<?> element : metaData)
             packed.add(element.value());

@@ -2,7 +2,7 @@ package me.deecaad.core.compatibility.nbt;
 
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.AttributeType;
-import me.deecaad.core.utils.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.NamespacedKey;

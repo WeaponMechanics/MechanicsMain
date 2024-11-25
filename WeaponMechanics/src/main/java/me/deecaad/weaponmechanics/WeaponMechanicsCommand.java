@@ -32,11 +32,11 @@ import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.EntityTransform;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.Quaternion;
 import me.deecaad.core.utils.RandomUtil;
-import me.deecaad.core.utils.ReflectionUtil;
+import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.core.utils.TableBuilder;
 import me.deecaad.core.utils.Transform;
@@ -822,7 +822,7 @@ public class WeaponMechanicsCommand {
                 }
             };
 
-            ExplosionExposure exposure = ReflectionUtil.newInstance(ExposureFactory.getInstance().getMap().get(exposureString));
+            ExplosionExposure exposure = ReflectionUtil.getConstructor(ExposureFactory.getInstance().getMap().get(exposureString)).newInstance();
             Explosion explosion = new Explosion(shape, exposure, blockDamage, regeneration, null, 0.0, 1.0,
                 null, null, new Flashbang(10.0, null), null);
             explosion.explode(cause, origin, null);

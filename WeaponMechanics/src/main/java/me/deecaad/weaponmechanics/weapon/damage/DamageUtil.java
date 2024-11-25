@@ -1,11 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.RandomUtil;
-import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
@@ -36,11 +35,6 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 
 public class DamageUtil {
-
-    private static final EntityType SNOW_GOLEM_ENTITY = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? EntityType.SNOW_GOLEM : EntityType.valueOf("SNOWMAN");
-    private static final Enchantment UNBREAKING_ENCHANTMENT = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()
-        ? Enchantment.UNBREAKING
-        : (Enchantment) ReflectionUtil.invokeField(ReflectionUtil.getField(Enchantment.class, "DURABILITY"), null);
 
     /**
      * Do not let anyone instantiate this class
@@ -145,7 +139,7 @@ public class DamageUtil {
         } catch (LinkageError ex) {
             debug.error("You are using an outdated version of Spigot 1.20.4. Please update to the latest version.",
                 "This is required for the new damage source API to work.",
-                "Detected version: " + MinecraftVersions.getCURRENT(), "");
+                "Detected version: " + MinecraftVersions.getCurrent(), "");
             return true;
         }
 
@@ -236,7 +230,7 @@ public class DamageUtil {
             return true;
 
         // snow golem had a name change in 1.20.5+
-        if (type == SNOW_GOLEM_ENTITY)
+        if (type == EntityType.SNOW_GOLEM)
             return false;
 
         return switch (type) {
@@ -299,7 +293,7 @@ public class DamageUtil {
             return;
 
         // Formula taken from Unbreaking enchant code
-        int level = meta.getEnchantLevel(UNBREAKING_ENCHANTMENT);
+        int level = meta.getEnchantLevel(Enchantment.UNBREAKING);
         boolean skipDamage = !RandomUtil.chance(0.6 + 0.4 / (level + 1));
         if (skipDamage)
             return;

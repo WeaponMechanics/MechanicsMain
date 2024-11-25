@@ -1,12 +1,12 @@
 package me.deecaad.core.file;
 
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import com.cryptomorin.xseries.XEntityType;
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.particles.XParticle;
 import me.deecaad.core.mechanics.Registry;
 import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.MinecraftVersions;
-import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.SerializerUtil;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Keyed;
@@ -140,7 +140,7 @@ public class SerializeData {
      * @throws InternalError If the serializer has no default constructor.
      */
     @NotNull public <T extends Serializer<T>> SerializeData step(@NotNull Class<T> serializer) throws SerializerException {
-        return step(ReflectionUtil.newInstance(serializer));
+        return step(ReflectionUtil.getConstructor(serializer).newInstance());
     }
 
     /**
@@ -981,7 +981,7 @@ public class SerializeData {
 
             ItemStack parsed = xmat.parseItem();
             if (parsed == null) {
-                throw exception(relative, "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + xmat.name() + "'",
+                throw exception(relative, "Your version, " + MinecraftVersions.getCurrent() + ", doesn't support '" + xmat.name() + "'",
                     "Try using a different material or update your server to a newer version!");
             }
 
@@ -1013,7 +1013,7 @@ public class SerializeData {
 
             EntityType parsed = entityType.get().get();
             if (parsed == null) {
-                throw exception(relative, "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + entityType.get().name() + "'",
+                throw exception(relative, "Your version, " + MinecraftVersions.getCurrent() + ", doesn't support '" + entityType.get().name() + "'",
                     "Try using a different material or update your server to a newer version!");
             }
 
@@ -1038,7 +1038,7 @@ public class SerializeData {
 
             Particle parsed = particle.get().get();
             if (parsed == null) {
-                throw exception(relative, "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + particle.get().name() + "'",
+                throw exception(relative, "Your version, " + MinecraftVersions.getCurrent() + ", doesn't support '" + particle.get().name() + "'",
                     "Try using a different material or update your server to a newer version!");
             }
 
@@ -1287,7 +1287,7 @@ public class SerializeData {
          * @throws SerializerException If there is a mistake in config found during serialization.
          */
         @Nullable public <T extends Serializer<T>> T serialize(@NotNull Class<T> serializerClass) throws SerializerException {
-            return serialize(ReflectionUtil.newInstance(serializerClass));
+            return serialize(ReflectionUtil.getConstructor(serializerClass).newInstance());
         }
 
         /**

@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.weaponmechanics.weapon.info.WeaponConverter;
 import org.jetbrains.annotations.NotNull;
 

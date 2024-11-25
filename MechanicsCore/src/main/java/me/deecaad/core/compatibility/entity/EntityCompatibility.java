@@ -2,7 +2,7 @@ package me.deecaad.core.compatibility.entity;
 
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
-import me.deecaad.core.utils.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
