@@ -3,7 +3,7 @@ import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 plugins {
     id("me.deecaad.mechanics-project")
-    id("io.github.goooler.shadow") version "8.1.7"
+    id("com.gradleup.shadow") version "8.3.3"
     id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
 }
 
