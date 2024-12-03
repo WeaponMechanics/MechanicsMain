@@ -15,6 +15,7 @@ repositories {
     maven(url = "https://repo.opencollab.dev/main/") // GeyserMC
     maven(url = "https://repo.jeff-media.com/public/") // SpigotUpdateChecker
     maven(url = "https://repo.dmulloy2.net/repository/public/")
+    maven(url = "https://repo.codemc.org/repository/maven-public/") // NBTAPI from CommandAPI
 }
 
 dependencies {

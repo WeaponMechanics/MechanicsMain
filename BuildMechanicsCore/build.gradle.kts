@@ -92,5 +92,9 @@ tasks.shadowJar {
         relocate("com.cjcrafter.foliascheduler", "me.deecaad.core.lib.scheduler") {
             include(dependency("com.cjcrafter:foliascheduler:"))
         }
+
+        relocate("net.bytebuddy", "me.deecaad.core.lib.bytebuddy") {
+            include(dependency("net.bytebuddy::"))
+        }
     }
 }

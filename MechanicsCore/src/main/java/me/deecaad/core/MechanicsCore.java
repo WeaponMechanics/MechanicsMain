@@ -5,6 +5,8 @@ import com.cjcrafter.foliascheduler.ServerImplementation;
 import com.cjcrafter.foliascheduler.util.ConstructorInvoker;
 import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import com.cjcrafter.foliascheduler.util.ReflectionUtil;
+import dev.jorel.commandapi.CommandAPI;
+import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.events.triggers.EquipListener;
 import me.deecaad.core.file.JarSearcher;
@@ -117,6 +119,8 @@ public class MechanicsCore extends JavaPlugin {
                 debug.log(LogLevel.ERROR, "Error while searching Jar", ex);
             }
         }
+
+        CommandAPI.onLoad(new CommandAPIBukkitConfig(this));
     }
 
     public void onEnable() {
@@ -141,9 +145,8 @@ public class MechanicsCore extends JavaPlugin {
             debug.error("Found Items folder... This feature is no longer supported. Please remove the Items folder.");
         }
 
-        if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
-            MechanicsCoreCommand.build();
-        }
+        CommandAPI.onEnable();
+        MechanicsCoreCommand.build();
 
         Bukkit.getPluginManager().registerEvents(new Listener() {
             @EventHandler
@@ -155,6 +158,7 @@ public class MechanicsCore extends JavaPlugin {
     }
 
     public void onDisable() {
+        CommandAPI.onDisable();
         HandlerList.unregisterAll(this);
         debug = null;
         adventure.close();

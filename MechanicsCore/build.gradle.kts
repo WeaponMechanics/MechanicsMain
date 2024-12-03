@@ -12,33 +12,43 @@ repositories {
 }
 
 dependencies {
+
+    // Core Minecraft/Bukkit libs
     compileOnly(Dependencies.LATEST_SPIGOT_API)
-    compileOnly(Dependencies.PLACEHOLDER_API)
     compileOnly("com.mojang:authlib:1.5.21")
     compileOnly("io.netty:netty-all:4.1.90.Final")
     compileOnly("com.mojang:brigadier:1.0.18")
 
+    // External plugins that we hook into
     compileOnly(Dependencies.PROTOCOL_LIB)
     compileOnly(Dependencies.GEYSER)
+    compileOnly(Dependencies.PLACEHOLDER_API)
+    compileOnly(Dependencies.MYTHIC_MOBS)
 
-    implementation(Dependencies.JSON_SIMPLE)
+    // Misc libs
+    compileOnly(Dependencies.JSON_SIMPLE)
+    compileOnly(Dependencies.ADVENTURE_API)
+    compileOnly(Dependencies.ADVENTURE_BUKKIT)
+    compileOnly(Dependencies.ADVENTURE_TEXT_LEGACY)
+    compileOnly(Dependencies.ADVENTURE_TEXT_MINIMESSAGE)
+    compileOnly("com.zaxxer:HikariCP:5.1.0")
+    compileOnly("org.slf4j:slf4j-nop:1.7.30")
+    compileOnly("net.bytebuddy:byte-buddy:1.15.10")
+    compileOnly(Dependencies.X_SERIES)
+    compileOnly(Dependencies.FOLIA_SCHEDULER)
+    compileOnly(Dependencies.FAST_UTIL)
+    compileOnly(Dependencies.COMMAND_API)
 
-    implementation(Dependencies.ADVENTURE_API)
-    implementation(Dependencies.ADVENTURE_BUKKIT)
-    implementation(Dependencies.ADVENTURE_TEXT_LEGACY)
-    implementation(Dependencies.ADVENTURE_TEXT_MINIMESSAGE)
-    implementation("com.zaxxer:HikariCP:5.1.0")
-    implementation("org.slf4j:slf4j-nop:1.7.30")
-    implementation(Dependencies.MYTHIC_MOBS)
-    implementation(Dependencies.X_SERIES)
-    implementation(Dependencies.FOLIA_SCHEDULER)
-    implementation("xyz.jpenilla:reflection-remapper:0.1.1")
-    implementation("net.fabricmc:mapping-io:0.5.0")
-    implementation(Dependencies.FAST_UTIL)
-
+    // Testing
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+    testImplementation("net.bytebuddy:byte-buddy:1.15.10")
+    testImplementation("com.mojang:brigadier:1.0.18")
+    testImplementation("com.github.seeseemelk:MockBukkit-v1.21:3.128.0")
+    //testImplementation("dev.jorel.commandapi-bukkit-test-toolkit:9.6.2-SNAPSHOT")
     testImplementation(Dependencies.LATEST_SPIGOT_API)
     testImplementation(Dependencies.ANNOTATIONS)
+    testImplementation(Dependencies.FOLIA_SCHEDULER)
+    testImplementation(Dependencies.COMMAND_API)
 }
 
 // Create javadocJar and sourcesJar tasks

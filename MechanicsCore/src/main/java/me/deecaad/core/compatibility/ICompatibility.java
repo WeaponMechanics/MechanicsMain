@@ -1,10 +1,8 @@
 package me.deecaad.core.compatibility;
 
 import me.deecaad.core.compatibility.block.BlockCompatibility;
-import me.deecaad.core.compatibility.command.CommandCompatibility;
 import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
-import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -89,8 +87,4 @@ public interface ICompatibility {
      * @return This version's non-null block compatibility.
      */
     @NotNull BlockCompatibility getBlockCompatibility();
-
-    @NotNull default CommandCompatibility getCommandCompatibility() {
-        throw new IllegalStateException("Tried to use command compatibility on " + MinecraftVersions.getCurrent());
-    }
 }
