@@ -1,7 +1,7 @@
 object Versions {
 
     // Spigot + Plugins
-    const val LATEST_SPIGOT_API = "1.20.6-R0.1-SNAPSHOT" // Keep on 1.20.6 to avoid interface issues
+    const val LATEST_SPIGOT_API = "1.21.4-R0.1-SNAPSHOT"
     const val BSTATS = "3.0.1"
     const val PROTOCOL_LIB = "5.1.0"
     const val PLACEHOLDER_API = "2.11.6"
@@ -22,7 +22,8 @@ object Versions {
     const val KOTLIN = "1.9.21"
     const val X_SERIES = "11.3.0"
     const val FAST_UTIL = "8.5.13"
-    const val FOLIA_SCHEDULER = "0.6.0"
+    const val FOLIA_SCHEDULER = "0.6.1"
+    const val COMMAND_API = "9.6.2-SNAPSHOT"
 }
 
 object Dependencies {
@@ -49,6 +50,8 @@ object Dependencies {
     const val X_SERIES = "com.github.cryptomorin:XSeries:${Versions.X_SERIES}"
     const val FAST_UTIL = "it.unimi.dsi:fastutil:${Versions.FAST_UTIL}"
     const val FOLIA_SCHEDULER = "com.cjcrafter:foliascheduler:${Versions.FOLIA_SCHEDULER}"
+    const val COMMAND_API = "dev.jorel:commandapi-bukkit-core:${Versions.COMMAND_API}"
+    const val COMMAND_API_SHADE = "dev.jorel:commandapi-bukkit-shade:${Versions.COMMAND_API}"
 }
 
 fun org.gradle.api.artifacts.dsl.DependencyHandler.adventureChatAPI() {

@@ -3,7 +3,7 @@ package me.deecaad.weaponmechanics.weapon.skin;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -126,14 +126,14 @@ public class BaseSkin implements Skin, Serializer<BaseSkin> {
         OptionalInt customModelData = data.has("Custom_Model_Data") ? OptionalInt.of(data.of("Custom_Model_Data").assertExists().getInt()) : OptionalInt.empty();
 
         if (legacyData.isPresent() && MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
-            throw data.exception("Legacy_Data", "Cannot use 'Legacy_Data' on MC version " + MinecraftVersions.getCURRENT(),
+            throw data.exception("Legacy_Data", "Cannot use 'Legacy_Data' on MC version " + MinecraftVersions.getCurrent(),
                 "Instead, use the '" + (shouldUseCmd ? "Custom_Model_Data" : "Durability") + "' feature",
                 "Wiki: https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/skin");
         }
 
         // Cannot use Custom_Model_Data before 1.14
         if (!shouldUseCmd && customModelData.isPresent()) {
-            throw data.exception("Custom_Model_Data", "Cannot use 'Custom_Model_Data' on MC version " + MinecraftVersions.getCURRENT(),
+            throw data.exception("Custom_Model_Data", "Cannot use 'Custom_Model_Data' on MC version " + MinecraftVersions.getCurrent(),
                 "Custom_Model_Data was added in Minecraft 1.14",
                 "To fix, you can either update your server, or use 'Durability' instead");
         }

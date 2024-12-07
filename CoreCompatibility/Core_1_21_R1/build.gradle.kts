@@ -6,6 +6,7 @@ plugins {
 dependencies {
     compileOnly(project(":MechanicsCore"))
     adventureChatAPI()
+    compileOnly(Dependencies.FOLIA_SCHEDULER)
 
     paperweight.paperDevBundle("1.21-R0.1-SNAPSHOT")
 }

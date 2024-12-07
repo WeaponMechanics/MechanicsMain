@@ -1,5 +1,6 @@
 package me.deecaad.core.utils;
 
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.MechanicsCore;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;

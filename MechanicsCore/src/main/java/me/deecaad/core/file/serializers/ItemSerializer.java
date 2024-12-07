@@ -1,5 +1,8 @@
 package me.deecaad.core.file.serializers;
 
+import com.cjcrafter.foliascheduler.util.FieldAccessor;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.profiles.builder.XSkull;
 import com.cryptomorin.xseries.profiles.objects.ProfileInputType;
@@ -17,8 +20,6 @@ import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.core.utils.AdventureUtil;
 import me.deecaad.core.utils.AttributeType;
 import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.MinecraftVersions;
-import me.deecaad.core.utils.ReflectionUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -45,7 +46,6 @@ import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -63,7 +63,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
     public static final Map<String, Supplier<ItemStack>> ITEM_REGISTRY = new HashMap<>();
 
-    private static final Field ingredientsField;
+    private static final FieldAccessor ingredientsField;
 
     static {
         ingredientsField = ReflectionUtil.getField(ShapedRecipe.class, "ingredients");
@@ -141,7 +141,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             if (type != null) {
                 ItemStack parsed = type.parseItem();
                 if (parsed == null) {
-                    throw data.exception("Type", "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + type.name() + "'",
+                    throw data.exception("Type", "Your version, " + MinecraftVersions.getCurrent() + ", doesn't support '" + type.name() + "'",
                         "Try using a different material or update your server to a newer version!");
                 }
                 return parsed;
@@ -169,7 +169,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         ItemStack itemStack = type.parseItem();
 
         if (itemStack == null) {
-            throw data.exception("Type", "Your version, " + MinecraftVersions.getCURRENT() + ", doesn't support '" + type.name() + "'",
+            throw data.exception("Type", "Your version, " + MinecraftVersions.getCurrent() + ", doesn't support '" + type.name() + "'",
                 "Try using a different material or update your server to a newer version!");
         }
 
@@ -210,7 +210,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             if (!MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
                 throw data.exception("Max_Stack_Size", "Tried to use max stack size before MC 1.20.5!",
                     "The max stack size was added in Minecraft version 1.20.5!",
-                    "Your version: " + MinecraftVersions.getCURRENT());
+                    "Your version: " + MinecraftVersions.getCurrent());
             }
 
             int newStackSize = data.of("Max_Stack_Size").assertExists().assertRange(1, 99).getInt();
@@ -221,7 +221,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             if (!MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
                 throw data.exception("Enchantment_Glint_Override", "Tried to use enchantment glint override before MC 1.20.5!",
                     "The enchantment glint override component was added in Minecraft version 1.20.5!",
-                    "Your version: " + MinecraftVersions.getCURRENT());
+                    "Your version: " + MinecraftVersions.getCurrent());
             }
 
             boolean glintOverride = data.of("Enchantment_Glint_Override").assertExists().getBool();
@@ -232,7 +232,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             if (!MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
                 throw data.exception("Is_Fire_Resistant", "Tried to use fire resistance before MC 1.20.5!",
                     "The fire resistance component was added in Minecraft version 1.20.5!",
-                    "Your version: " + MinecraftVersions.getCURRENT());
+                    "Your version: " + MinecraftVersions.getCurrent());
             }
 
             boolean fireResistant = data.of("Is_Fire_Resistant").assertExists().getBool();
@@ -516,7 +516,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         }
 
         // Finalize and register the new recipe.
-        ReflectionUtil.setField(ingredientsField, recipe, ingredients);
+        ingredientsField.set(recipe, ingredients);
         try {
             Bukkit.addRecipe(recipe);
         } catch (IllegalStateException ex) {
