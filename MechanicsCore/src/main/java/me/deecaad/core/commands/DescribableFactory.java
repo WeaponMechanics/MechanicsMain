@@ -3,7 +3,6 @@ package me.deecaad.core.commands;
 import com.cjcrafter.foliascheduler.util.ConstructorInvoker;
 import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import com.cjcrafter.foliascheduler.util.WrappedReflectiveOperationException;
-import dev.jorel.commandapi.arguments.Argument;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.implementation.FixedValue;
@@ -26,7 +25,7 @@ public class DescribableFactory {
      * @return The new instance
      * @param <T> The type of the argument
      */
-    public static <T extends Argument<?>> @NotNull T makeArgumentDescribable(@NotNull T instance, @NotNull String description) {
+    public static <T> @NotNull T makeArgumentDescribable(@NotNull T instance, @NotNull String description) {
         Class<T> baseClass = (Class<T>) instance.getClass();
         Class<? extends T> clazz = new ByteBuddy()
             .subclass(baseClass)

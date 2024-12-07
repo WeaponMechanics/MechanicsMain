@@ -42,13 +42,9 @@ dependencies {
     // Testing
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
     testImplementation("net.bytebuddy:byte-buddy:1.15.10")
-    testImplementation("com.mojang:brigadier:1.0.18")
-    testImplementation("com.github.seeseemelk:MockBukkit-v1.21:3.128.0")
-    //testImplementation("dev.jorel.commandapi-bukkit-test-toolkit:9.6.2-SNAPSHOT")
     testImplementation(Dependencies.LATEST_SPIGOT_API)
     testImplementation(Dependencies.ANNOTATIONS)
     testImplementation(Dependencies.FOLIA_SCHEDULER)
-    testImplementation(Dependencies.COMMAND_API)
 }
 
 // Create javadocJar and sourcesJar tasks

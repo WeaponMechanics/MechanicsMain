@@ -1,4 +1,0 @@
-# mocked plugin.yml for testing
-name: 'MechanicsCore'
-version: '1.0'
-main: 'me.deecaad.core.MechanicsCore'
