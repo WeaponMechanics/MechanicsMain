@@ -1,7 +1,7 @@
 object Versions {
 
     // Spigot + Plugins
-    const val LATEST_SPIGOT_API = "1.20.6-R0.1-SNAPSHOT" // Keep on 1.20.6 to avoid interface issues
+    const val LATEST_SPIGOT_API = "1.21.4-R0.1-SNAPSHOT"
     const val BSTATS = "3.0.1"
     const val PROTOCOL_LIB = "5.1.0"
     const val PLACEHOLDER_API = "2.11.6"

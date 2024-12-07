@@ -16,15 +16,12 @@ WeaponMechanics leverages the following technologies:
 
 ## New contributor guide
 
-When cloning the repository, you will need to either:
-1. Set `devMode=true` in [gradle.properties](../gradle.properties) to disable legacy versions.
-2. Use [download-spigot-libs.bat](../lib/download-spigot-libs.bat) to build legacy versions.
-
-This will allow you to compile the plugin. Make sure to reload the gradle project
-after making changes to gradle files. To build the `.jar` files, run
+To build the plugin for Spigot, run:
 ```shell
 ./gradlew buildForSpigotRelease
 ```
+
+The `.jar` files will be located in the `build/` directory.
 
 ## Making a pull request
 

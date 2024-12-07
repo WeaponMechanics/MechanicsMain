@@ -7,7 +7,6 @@ plugins {
 dependencies {
     implementation(project(":MechanicsCore"))
     implementation(project(":CoreCompatibility"))
-    implementation(project(":WorldGuardV6"))
     implementation(project(":WorldGuardV7"))
 
     // Add all compatibility modules
@@ -47,7 +46,6 @@ tasks.shadowJar {
     dependencies {
         include(project(":MechanicsCore"))
         include(project(":CoreCompatibility"))
-        include(project(":WorldGuardV6"))
         include(project(":WorldGuardV7"))
 
         // Add all compatibility modules
