@@ -3,7 +3,6 @@ package me.deecaad.core.file;
 import me.deecaad.core.utils.EnumUtil;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
@@ -69,11 +68,9 @@ public class SerializerEnumException extends SerializerException {
             };
         }
 
-        String link = "https://github.com/WeaponMechanics/MechanicsMain/wiki/References";
+        String link = "https://cjcrafter.gitbook.io/core/references";
         if (enumClass == Material.class)
             link += "#materials";
-        else if (enumClass == Sound.class)
-            link += "#sounds";
         else if (enumClass == Particle.class)
             link += "#particles";
         else if (enumClass == EntityType.class)

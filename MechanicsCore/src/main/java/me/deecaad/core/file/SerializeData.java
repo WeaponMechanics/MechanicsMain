@@ -403,12 +403,15 @@ public class SerializeData {
 
                 // Show the user the correct format
                 StringBuilder format = new StringBuilder("<");
-                arguments.forEach(arg -> {
+                for (int j = 0; j < arguments.size(); j++) {
+                    ClassArgument arg = arguments.get(j);
                     format.append(arg.clazz.getSimpleName());
                     if (arg.required)
                         format.append('*');
-                    format.append("> <");
-                });
+
+                    if (j != arguments.size() - 1)
+                        format.append("> <");
+                }
                 format.append('>');
 
                 // Empty string in config is probably a mistake (Perhaps they
