@@ -3,7 +3,6 @@ package me.deecaad.core.file.serializers;
 import com.cjcrafter.foliascheduler.util.FieldAccessor;
 import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import com.cjcrafter.foliascheduler.util.ReflectionUtil;
-import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.profiles.builder.XSkull;
 import com.cryptomorin.xseries.profiles.objects.ProfileInputType;
 import com.cryptomorin.xseries.profiles.objects.Profileable;
@@ -12,15 +11,10 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.file.SerializerEnumException;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerOptionsException;
-import me.deecaad.core.file.SerializerRangeException;
-import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.core.utils.AdventureUtil;
 import me.deecaad.core.utils.AttributeType;
 import me.deecaad.core.utils.EnumUtil;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -45,15 +39,17 @@ import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -84,7 +80,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
         // When the key is null, that probably means we are currently in an
         // inline serializer. Skip the fancy shit.
-        if (data.key == null) {
+        if (data.getKey() == null) {
             ItemStack itemStack = serializeWithoutRecipe(data);
             applyTags(itemStack, tags);
             itemStack = serializeRecipe(data, itemStack);
@@ -127,111 +123,83 @@ public class ItemSerializer implements Serializer<ItemStack> {
         }
     }
 
-    public ItemStack attemptInline(@NotNull SerializeData data) throws SerializerException {
-        try {
+    public @Nullable ItemStack attemptInline(@NotNull SerializeData data) throws SerializerException {
+        // If the data here is a String (not a ConfigurationSection), then we
+        // can assume that the user is trying to inline an item.
+        if (data.of().is(String.class)) {
+            String inlineString = data.of().assertExists().get(String.class).get();
+            if (ITEM_REGISTRY.containsKey(inlineString))
+                return ITEM_REGISTRY.get(inlineString).get();
 
-            // Check the ITEM_REGISTRY to see if they are trying to inline
-            // an item... Like pathto in serializers but easier.
-            String registry = data.of().assertType(String.class).assertExists().get();
-            if (ITEM_REGISTRY.containsKey(registry))
-                return ITEM_REGISTRY.get(registry).get();
-
-            // Support for one-liner item serializer
-            XMaterial type = data.of().assertExists().getMaterial(null);
-            if (type != null) {
-                ItemStack parsed = type.parseItem();
-                if (parsed == null) {
-                    throw data.exception("Type", "Your version, " + MinecraftVersions.getCurrent() + ", doesn't support '" + type.name() + "'",
-                        "Try using a different material or update your server to a newer version!");
-                }
-                return parsed;
-            }
-        } catch (SerializerTypeException ex) {
-            // We only catch **TYPE** exceptions, since when this element is
-            // NOT a 1 liner, the type exception will be thrown.
-        } catch (SerializerEnumException ex) {
-            // We catch the ENUM exception since we want to compare it against
-            // the ITEM_REGISTRY as well. For example, steel_sheet from the
-            // registry should be included as a valid option.
-            Collection<String> options = ex.getOptions();
-            options.addAll(ITEM_REGISTRY.keySet());
-            throw new SerializerOptionsException(ex.getSerializerName(), "Material", options, ex.getActual(), data.of().getLocation())
-                .addMessage("https://github.com/WeaponMechanics/MechanicsMain/wiki/References#materials");
+            return data.of().assertExists().getMaterialAsItem().get();
         }
 
         return null;
     }
 
     public ItemStack serializeWithoutRecipe(@NotNull SerializeData data) throws SerializerException {
-
-        // TODO Add byte data support using 'Data:' or 'Extra_Data:' key
-        XMaterial type = data.of("Type").assertExists().getMaterial(null);
-        ItemStack itemStack = type.parseItem();
-
-        if (itemStack == null) {
-            throw data.exception("Type", "Your version, " + MinecraftVersions.getCurrent() + ", doesn't support '" + type.name() + "'",
-                "Try using a different material or update your server to a newer version!");
-        }
-
+        ItemStack itemStack = data.of("Type").assertExists().getMaterialAsItem().get();
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null) {
             throw data.exception("Type", "Did you use air as a material? This is not allowed!",
-                SerializerException.forValue(type));
+                "Found item: " + itemStack);
         }
 
-        String name = data.of("Name").getAdventure(null);
+        String name = data.of("Name").getAdventure().orElse(null);
         if (name != null) {
-            Component component = MechanicsCore.getPlugin().message.deserialize("<!italic>" + name);
-            AdventureUtil.setName(itemMeta, component);
+            AdventureUtil.setNameUnparsed(itemMeta, name);
         }
 
-        List<?> lore = data.of("Lore").assertType(List.class).get(null);
+        List<?> lore = data.of("Lore").get(List.class).orElse(null);
         if (lore != null) {
             AdventureUtil.setLoreUnparsed(itemMeta, lore);
         }
 
-        short durability = (short) data.of("Durability").assertPositive().getInt(-99);
-        if (durability != -99) {
-            if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
-                ((org.bukkit.inventory.meta.Damageable) itemMeta).setDamage(durability);
-            } else {
-                itemStack.setDurability(durability);
+        OptionalInt durability = data.of("Durability").assertRange(0, null).getInt();
+        if (durability.isPresent()) {
+            if (!(itemMeta instanceof org.bukkit.inventory.meta.Damageable damageable)) {
+                throw data.exception("Durability", "Tried to set durability on a non-damageable item!",
+                    "Your item: " + itemStack);
             }
+
+            damageable.setDamage(durability.getAsInt());
         }
 
-        boolean unbreakable = data.of("Unbreakable").getBool(false);
+        boolean unbreakable = data.of("Unbreakable").getBool().orElse(false);
         itemMeta.setUnbreakable(unbreakable);
 
-        if (data.has("Custom_Model_Data") && MinecraftVersions.VILLAGE_AND_PILLAGE.isAtLeast()) {
-            itemMeta.setCustomModelData(data.of("Custom_Model_Data").assertExists().getInt());
+        OptionalInt customModelData = data.of("Custom_Model_Data").getInt();
+        if (customModelData.isPresent()) {
+            itemMeta.setCustomModelData(customModelData.getAsInt());
         }
 
-        if (data.has("Max_Stack_Size")) {
+        OptionalInt maxStackSize = data.of("Max_Stack_Size").assertRange(1, 99).getInt();
+        if (maxStackSize.isPresent()) {
             if (!MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
                 throw data.exception("Max_Stack_Size", "Tried to use max stack size before MC 1.20.5!",
                     "The max stack size was added in Minecraft version 1.20.5!",
                     "Your version: " + MinecraftVersions.getCurrent());
             }
 
-            int newStackSize = data.of("Max_Stack_Size").assertExists().assertRange(1, 99).getInt();
-            itemMeta.setMaxStackSize(newStackSize);
+            itemMeta.setMaxStackSize(maxStackSize.getAsInt());
         }
 
-        if (data.has("Enchantment_Glint_Override")) {
+        Optional<Boolean> enchantmentGlintOverride = data.of("Enchantment_Glint_Override").getBool();
+        if (enchantmentGlintOverride.isPresent()) {
             if (!MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
                 throw data.exception("Enchantment_Glint_Override", "Tried to use enchantment glint override before MC 1.20.5!",
                     "The enchantment glint override component was added in Minecraft version 1.20.5!",
                     "Your version: " + MinecraftVersions.getCurrent());
             }
 
-            boolean glintOverride = data.of("Enchantment_Glint_Override").assertExists().getBool();
-            itemMeta.setEnchantmentGlintOverride(glintOverride);
+            itemMeta.setEnchantmentGlintOverride(enchantmentGlintOverride.get());
         }
 
+        data.of("Damage_Resistances").get
         if (data.has("Is_Fire_Resistant")) {
-            if (!MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
+            if (!MinecraftVersions.TRICKY_TRIALS.get(2).isAtLeast()) {
                 throw data.exception("Is_Fire_Resistant", "Tried to use fire resistance before MC 1.20.5!",
-                    "The fire resistance component was added in Minecraft version 1.20.5!",
+                    "The fire resistance component was added in Minecraft version 1.21.2!",
                     "Your version: " + MinecraftVersions.getCurrent());
             }
 

@@ -47,7 +47,6 @@ public abstract class AProjectile {
     /**
      * @see ProjectileScriptManager
      * @see ProjectileScript
-     * @see ProjectilesRunnable
      */
     private final List<ProjectileScript<?>> scripts;
 

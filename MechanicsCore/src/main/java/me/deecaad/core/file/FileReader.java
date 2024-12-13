@@ -260,7 +260,7 @@ public class FileReader {
                                 savedSerializer = serializer;
                             }
 
-                        } catch (SerializerPathToException ex) {
+                        } catch (PathToSerializerException ex) {
                             nestedPathToSerializers.add(new NestedPathToSerializer(serializer, key, ex));
                             if (startsWithDeny == null) {
                                 startsWithDeny = key;
@@ -312,7 +312,7 @@ public class FileReader {
         // Handle nested-path-to serializers
         for (NestedPathToSerializer nestedPathTo : nestedPathToSerializers) {
             try {
-                SerializeData data = new SerializeData(nestedPathTo.serializer, nestedPathTo.ex.data.file, nestedPathTo.path, nestedPathTo.ex.data.config);
+                SerializeData data = new SerializeData(nestedPathTo.serializer, nestedPathTo.ex.getSerializeData().file, nestedPathTo.path, nestedPathTo.ex.getSerializeData().config);
                 data.pathToConfig = filledMap;
                 Object serialized = data.of().serialize(nestedPathTo.serializer);
                 filledMap.set(nestedPathTo.path, serialized);
@@ -356,7 +356,7 @@ public class FileReader {
      * @param path The "base-key" location of the outer serialized object.
      * @param ex The failure which contains copy-from and paste-to locations.
      */
-    public record NestedPathToSerializer(Serializer<?> serializer, String path, SerializerPathToException ex) {
+    public record NestedPathToSerializer(Serializer<?> serializer, String path, PathToSerializerException ex) {
     }
 
     /**

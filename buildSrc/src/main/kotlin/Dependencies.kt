@@ -20,7 +20,7 @@ object Versions {
     const val ANNOTATIONS = "24.0.1"
     const val GSON = "2.10.1"
     const val KOTLIN = "1.9.21"
-    const val X_SERIES = "11.3.0"
+    const val X_SERIES = "12.0.0"
     const val FAST_UTIL = "8.5.13"
     const val FOLIA_SCHEDULER = "0.6.1"
     const val COMMAND_API = "9.6.2-SNAPSHOT"
