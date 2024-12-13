@@ -7,22 +7,13 @@ plugins {
 dependencies {
     implementation(project(":MechanicsCore"))
     implementation(project(":CoreCompatibility"))
-    implementation(project(":WorldGuardV6"))
     implementation(project(":WorldGuardV7"))
 
     // Add all compatibility modules
-    val devMode = findProperty("devMode") == "true"
     var addedOne = false
     file("../CoreCompatibility").listFiles()?.forEach {
         if (it.isDirectory && it.name.matches(Regex("Core_\\d+_\\d+_R\\d+"))) {
-            // Use check the reobf variant for all modules 1.17+
-            val major = it.name.split("_")[2].toInt()
-
-            if (major >= 17) {
-                implementation(project(":${it.name}", "reobf"))
-            } else if (!devMode) {
-                implementation(project(":${it.name}"))
-            }
+            implementation(project(":${it.name}", "reobf"))
             addedOne = true
         }
     }
@@ -55,19 +46,12 @@ tasks.shadowJar {
     dependencies {
         include(project(":MechanicsCore"))
         include(project(":CoreCompatibility"))
-        include(project(":WorldGuardV6"))
         include(project(":WorldGuardV7"))
 
         // Add all compatibility modules
-        val devMode = findProperty("devMode") == "true"
         var addedOne = false
         file("../CoreCompatibility").listFiles()?.forEach {
             if (it.isDirectory && it.name.matches(Regex("Core_\\d+_\\d+_R\\d+"))) {
-                // Filter out projects when in devMode
-                val major = it.name.split("_")[2].toInt()
-                if (devMode && major < 17)
-                    return@forEach
-
                 include(project(":${it.name}"))
                 addedOne = true
             }
@@ -105,6 +89,10 @@ tasks.shadowJar {
 
         relocate("com.cjcrafter.foliascheduler", "me.deecaad.core.lib.scheduler") {
             include(dependency("com.cjcrafter:foliascheduler:"))
+        }
+
+        relocate("net.bytebuddy", "me.deecaad.core.lib.bytebuddy") {
+            include(dependency("net.bytebuddy::"))
         }
     }
 }

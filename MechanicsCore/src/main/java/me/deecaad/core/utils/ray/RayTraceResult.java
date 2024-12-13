@@ -1,7 +1,7 @@
 package me.deecaad.core.utils.ray;
 
 import me.deecaad.core.compatibility.HitBox;
-import me.deecaad.core.utils.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;

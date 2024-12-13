@@ -1,11 +1,12 @@
 package me.deecaad.core.events.triggers;
 
+import com.cjcrafter.foliascheduler.util.FieldAccessor;
+import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import com.google.common.collect.ImmutableList;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.events.EntityEquipmentEvent;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -27,7 +28,6 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -42,28 +42,28 @@ import java.util.logging.Level;
 public class EquipListener implements Listener {
 
     // * ----- REFLECTIONS ----- * //
-    private static final Field playerInventoryField;
+    private static final FieldAccessor playerInventoryField;
     private static final Class<?> playerInventoryClass;
-    private static final Field inventoryField;
-    private static final Field armorField;
-    private static final Field offHandField;
-    private static final Field hotBarSlotField;
-    private static final Field combinedField;
+    private static final FieldAccessor inventoryField;
+    private static final FieldAccessor armorField;
+    private static final FieldAccessor offHandField;
+    private static final FieldAccessor hotBarSlotField;
+    private static final FieldAccessor combinedField;
 
     static {
-        Class<?> humanClass = ReflectionUtil.getNMSClass("world.entity.player", "EntityHuman");
-        playerInventoryClass = ReflectionUtil.getNMSClass("world.entity.player", "PlayerInventory");
+        Class<?> humanClass = ReflectionUtil.getMinecraftClass("world.entity.player", "EntityHuman");
+        playerInventoryClass = ReflectionUtil.getMinecraftClass("world.entity.player", "PlayerInventory");
         playerInventoryField = ReflectionUtil.getField(humanClass, playerInventoryClass);
 
         // Used to get player inventory fields
-        Class<?> nonNullListClass = ReflectionUtil.getNMSClass("core", "NonNullList");
+        Class<?> nonNullListClass = ReflectionUtil.getMinecraftClass("core", "NonNullList");
 
         inventoryField = ReflectionUtil.getField(playerInventoryClass, nonNullListClass, 0);
         armorField = ReflectionUtil.getField(playerInventoryClass, nonNullListClass, 1);
         offHandField = ReflectionUtil.getField(playerInventoryClass, nonNullListClass, 2);
         combinedField = ReflectionUtil.getField(playerInventoryClass, List.class, 3); // index 3 since nonNonList is a List
 
-        hotBarSlotField = ReflectionUtil.getField(playerInventoryClass, int.class, 0, true);
+        hotBarSlotField = ReflectionUtil.getField(playerInventoryClass, int.class, 0, ReflectionUtil.IS_NOT_STATIC);
     }
 
     // * ----- END OF REFLECTIONS ----- * //
@@ -172,7 +172,7 @@ public class EquipListener implements Listener {
     @SuppressWarnings("unchecked")
     public void inject(Player player) {
         Object handle = CompatibilityAPI.getCompatibility().getEntityPlayer(player);
-        Object playerInventory = ReflectionUtil.invokeField(playerInventoryField, handle);
+        Object playerInventory = playerInventoryField.get(handle);
 
         List<Object> inventory = CompatibilityAPI.getEntityCompatibility().generateNonNullList(36, (old, current, index) -> {
             if (isIllegalModification())
@@ -183,7 +183,7 @@ public class EquipListener implements Listener {
                 return;
             }
 
-            int hotBar = (int) ReflectionUtil.invokeField(hotBarSlotField, playerInventory);
+            int hotBar = hotBarSlotField.getInt(playerInventory);
 
             // Not sure how important this check is, but the MC code does it.
             // I assume that means hot bar can mean something else.
@@ -216,20 +216,20 @@ public class EquipListener implements Listener {
             Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(player, EquipmentSlot.OFF_HAND, old, current));
         });
 
-        List<Object> oldItems = (List<Object>) ReflectionUtil.invokeField(inventoryField, playerInventory);
+        List<Object> oldItems = (List<Object>) inventoryField.get(playerInventory);
         for (int i = 0; i < oldItems.size(); i++) {
             inventory.set(i, oldItems.get(i));
         }
-        List<Object> oldArmor = (List<Object>) ReflectionUtil.invokeField(armorField, playerInventory);
+        List<Object> oldArmor = (List<Object>) armorField.get(playerInventory);
         for (int i = 0; i < oldArmor.size(); i++) {
             armor.set(i, oldArmor.get(i));
         }
-        offhand.set(0, ((List<Object>) ReflectionUtil.invokeField(offHandField, playerInventory)).get(0));
+        offhand.set(0, ((List<Object>) offHandField.get(playerInventory)).get(0));
 
-        ReflectionUtil.setField(inventoryField, playerInventory, inventory);
-        ReflectionUtil.setField(armorField, playerInventory, armor);
-        ReflectionUtil.setField(offHandField, playerInventory, offhand);
-        ReflectionUtil.setField(combinedField, playerInventory, ImmutableList.of(inventory, armor, offhand));
+        inventoryField.set(playerInventory, inventory);
+        armorField.set(playerInventory, armor);
+        offHandField.set(playerInventory, offhand);
+        combinedField.set(playerInventory, ImmutableList.of(inventory, armor, offhand));
     }
 
     private static boolean isEmpty(ItemStack item) {

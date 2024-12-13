@@ -1,16 +1,20 @@
 package me.deecaad.core.file;
 
+import com.cjcrafter.foliascheduler.util.ServerVersions;
 import com.google.common.io.ByteStreams;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -96,7 +100,7 @@ public class JarSearcher {
                 // java.
                 InputStream stream = jar.getInputStream(entry);
                 byte[] bytes = ByteStreams.toByteArray(stream);
-                int runtimeVersion = 44 + ReflectionUtil.getJavaVersion(); // ! THIS MAY NOT ALWAYS BE TRUE, but it is true for java 1.2+, so it is probably fine forever
+                int runtimeVersion = 44 + ServerVersions.getJavaVersion(); // ! THIS MAY NOT ALWAYS BE TRUE, but it is true for java 1.2+, so it is probably fine forever
                 int classVersion = (((bytes[6] & 0xFF) << 8) | (bytes[6 + 1] & 0xFF));
                 if (classVersion > runtimeVersion) {
                     MechanicsCore.debug.debug("Skipping " + name + " because it has class version " + classVersion + "(We are expecting " + runtimeVersion + ")");

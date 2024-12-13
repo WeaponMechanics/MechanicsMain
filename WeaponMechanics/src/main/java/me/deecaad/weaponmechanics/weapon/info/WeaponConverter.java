@@ -3,7 +3,7 @@ package me.deecaad.weaponmechanics.weapon.info;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;

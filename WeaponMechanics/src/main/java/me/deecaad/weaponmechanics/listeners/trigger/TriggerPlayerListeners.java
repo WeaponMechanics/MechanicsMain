@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.listeners.trigger;
 
-import me.deecaad.core.utils.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;

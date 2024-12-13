@@ -1,7 +1,8 @@
 package me.deecaad.core.compatibility.nbt;
 
+import com.cjcrafter.foliascheduler.util.FieldAccessor;
+import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import com.google.common.collect.Lists;
-import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.component.DataComponentMap;
@@ -14,7 +15,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -78,8 +78,8 @@ public class NBT_1_21_R1 extends NBT_Persistent {
         }
 
         public TagColorVisitor(int indents, int colorOffset) {
-            Field field = ReflectionUtil.getField(StringTagVisitor.class, StringBuilder.class);
-            this.builder = (StringBuilder) ReflectionUtil.invokeField(field, this);
+            FieldAccessor field = ReflectionUtil.getField(StringTagVisitor.class, StringBuilder.class);
+            this.builder = (StringBuilder) field.get(this);
             this.indents = indents;
             this.colorOffset = colorOffset;
         }

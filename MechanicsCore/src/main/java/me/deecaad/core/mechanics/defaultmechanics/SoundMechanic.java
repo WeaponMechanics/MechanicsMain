@@ -10,6 +10,7 @@ import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.mechanics.targeters.WorldTargeter;
 import me.deecaad.core.utils.RandomUtil;
 import org.bukkit.Location;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
@@ -125,13 +126,13 @@ public class SoundMechanic extends PlayerEffectMechanic {
 
     @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
-        Sound sound = data.of("Sound").assertExists().getEnum(Sound.class);
-        float volume = (float) data.of("Volume").assertPositive().getDouble(1.0);
-        float pitch = (float) data.of("Pitch").assertRange(0.5, 2.0).getDouble(1.0);
-        float noise = (float) data.of("Noise").assertRange(0.0, 1.5).getDouble(0.0);
-        SoundCategory category = data.of("Category").getEnum(SoundCategory.class, SoundCategory.PLAYERS);
+        Sound sound = data.of("Sound").assertExists().getBukkitRegistry(Registry.SOUNDS).get();
+        float volume = (float) data.of("Volume").assertRange(0, null).getDouble().orElse(1.0);
+        float pitch = (float) data.of("Pitch").assertRange(0.5, 2.0).getDouble().orElse(1.0);
+        float noise = (float) data.of("Noise").assertRange(0.0, 1.5).getDouble().orElse(0.0);
+        SoundCategory category = data.of("Category").getEnum(SoundCategory.class).orElse(SoundCategory.PLAYERS);
 
-        Targeter listeners = data.of("Listeners").getRegistry(Mechanics.TARGETERS, null);
+        Targeter listeners = data.of("Listeners").getRegistry(Mechanics.TARGETERS).orElse(null);
         List<Condition> listenerConditions = data.of("Listener_Conditions").getRegistryList(Mechanics.CONDITIONS);
 
         // If the user wants to use listener conditions, be sure to use a

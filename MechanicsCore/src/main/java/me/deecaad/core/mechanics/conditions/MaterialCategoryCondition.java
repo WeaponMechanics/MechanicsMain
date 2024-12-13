@@ -1,9 +1,9 @@
 package me.deecaad.core.mechanics.conditions;
 
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.utils.MinecraftVersions;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
