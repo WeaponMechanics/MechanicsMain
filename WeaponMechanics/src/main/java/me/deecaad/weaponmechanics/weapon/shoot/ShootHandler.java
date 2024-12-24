@@ -9,8 +9,6 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerMissingKeyException;
-import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderData;

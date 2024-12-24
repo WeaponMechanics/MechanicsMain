@@ -348,11 +348,11 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 // <FireworkEffect.Type>-<Color>-<Boolean=Trail>-<Boolean=Flicker>-<Color=Fade>
                 List<List<Optional<Object>>> list = data.ofList("Firework.Effects")
                     .addArgument(new EnumValueSerializer<>(FireworkEffect.Type.class, false))
-                    .addArgument(new CsvSerializer<>(ColorSerializer.class))  // colors
+                    .addArgument(new CsvSerializer<>(ColorSerializer.class)) // colors
                     .requireAllPreviousArgs()
-                    .addArgument(new BooleanSerializer())  // isTrail
-                    .addArgument(new BooleanSerializer())  // isFlicker
-                    .addArgument(new CsvSerializer<>(ColorSerializer.class))  // fadeColors
+                    .addArgument(new BooleanSerializer()) // isTrail
+                    .addArgument(new BooleanSerializer()) // isFlicker
+                    .addArgument(new CsvSerializer<>(ColorSerializer.class)) // fadeColors
                     .assertExists().assertList();
 
                 FireworkMeta meta = (FireworkMeta) itemMeta;

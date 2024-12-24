@@ -1,7 +1,6 @@
 package me.deecaad.core.compatibility.entity;
 
 import com.cjcrafter.foliascheduler.util.MinecraftVersions;
-import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
@@ -10,8 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.ComplexEntityPart;
-import org.bukkit.entity.ComplexLivingEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -22,8 +19,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.BoundingBox;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,38 +27,6 @@ import java.util.List;
 public interface EntityCompatibility {
 
     EntityType ITEM_ENTITY = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? EntityType.ITEM : EntityType.valueOf("DROPPED_ITEM");
-
-    /**
-     * Null in cases where entity is invulnerable or dead.
-     *
-     * @param entity the entity
-     * @return the living entity's hit box or null
-     */
-    default HitBox getHitBox(Entity entity) {
-        if (entity.isInvulnerable() || !entity.getType().isAlive() || entity.isDead())
-            return null;
-
-        // This default should only be used after 1.13 R2
-
-        HitBox hitBox = new HitBox(entity.getLocation().toVector(), getLastLocation(entity))
-            .grow(entity.getWidth(), entity.getHeight());
-        hitBox.setLivingEntity((LivingEntity) entity);
-
-        if (entity instanceof ComplexLivingEntity) {
-            for (ComplexEntityPart entityPart : ((ComplexLivingEntity) entity).getParts()) {
-                BoundingBox boxPart = entityPart.getBoundingBox();
-                hitBox.addVoxelShapePart(new HitBox(boxPart.getMinX(), boxPart.getMinY(), boxPart.getMinZ(), boxPart.getMaxX(), boxPart.getMaxY(), boxPart.getMaxZ()));
-            }
-        }
-
-        return hitBox;
-    }
-
-    /**
-     * @param entity the entity whose last location to get
-     * @return the vector of entity's last location
-     */
-    Vector getLastLocation(Entity entity);
 
     /**
      * Generates an NMS non-null-list (used by the player's inventory). This is used internally for the

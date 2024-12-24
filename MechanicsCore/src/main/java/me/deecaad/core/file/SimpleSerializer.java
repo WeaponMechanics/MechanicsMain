@@ -5,12 +5,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * A serializer that can parse objects from strings. The serializer is "simple"
- * because the string is expected in a human-readable format. This means no
- * JSON, XML, or other complex formats. A value more like "DIRT" or "5" is
- * expected.
+ * A serializer that can parse objects from strings. The serializer is "simple" because the string
+ * is expected in a human-readable format. This means no JSON, XML, or other complex formats. A
+ * value more like "DIRT" or "5" is expected.
  *
- * <p>This is a type of {@link Serializer}, but it only works on strings.
+ * <p>
+ * This is a type of {@link Serializer}, but it only works on strings.
  *
  * @param <T> The type of object to parse.
  */
