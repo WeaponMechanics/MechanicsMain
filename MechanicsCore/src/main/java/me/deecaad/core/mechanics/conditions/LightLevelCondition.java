@@ -56,9 +56,9 @@ public class LightLevelCondition extends Condition {
 
     @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
-        LightLevelMode mode = data.of("Mode").getEnum(LightLevelMode.class, LightLevelMode.BOTH);
-        int min = data.of("Min").getInt(0);
-        int max = data.of("Max").getInt(15);
+        LightLevelMode mode = data.of("Mode").getEnum(LightLevelMode.class).orElse(LightLevelMode.BOTH);
+        int min = data.of("Min").assertRange(0, 15).getInt().orElse(0);
+        int max = data.of("Max").assertRange(0, 15).getInt().orElse(15);
 
         return applyParentArgs(data, new LightLevelCondition(mode, min, max));
     }

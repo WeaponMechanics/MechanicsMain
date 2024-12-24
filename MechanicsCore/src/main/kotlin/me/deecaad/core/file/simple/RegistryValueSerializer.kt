@@ -1,6 +1,7 @@
 package me.deecaad.core.file.simple
 
 import me.deecaad.core.file.SerializerException
+import me.deecaad.core.file.SimpleSerializer
 import org.bukkit.Keyed
 import org.bukkit.NamespacedKey
 import org.bukkit.Registry
@@ -9,14 +10,13 @@ class RegistryValueSerializer<T : Keyed>(
     private val registry: Registry<T>,
     private val isAllowWildcard: Boolean,
 ) : SimpleSerializer<List<T>> {
-    override val typeName: String
-        get(){
-            // TODO: Make Spigot contribution
-            for (item in registry) {
-                return item.javaClass.simpleName
-            }
-            return "unknown register value"
+    override fun getTypeName(): String {
+        // TODO: Make Spigot contribution
+        for (item in registry) {
+            return item.javaClass.simpleName
         }
+        return "unknown register value"
+    }
 
     override fun deserialize(data: String, errorLocation: String): List<T> {
         var data = data.trim().lowercase()

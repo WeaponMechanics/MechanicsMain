@@ -1,15 +1,14 @@
 package me.deecaad.core.compatibility.entity;
 
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
-import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.ComplexEntityPart;
 import org.bukkit.entity.ComplexLivingEntity;
@@ -17,7 +16,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -66,26 +64,6 @@ public interface EntityCompatibility {
      * @return the vector of entity's last location
      */
     Vector getLastLocation(Entity entity);
-
-    /**
-     * Returns the amount of absorption hearts that the entity currently has.
-     *
-     * @param entity The non-null bukkit entity who has absorption hearts.
-     * @return The amount of absorption hearts.
-     */
-    default double getAbsorption(@NotNull LivingEntity entity) {
-        return entity.getAbsorptionAmount();
-    }
-
-    /**
-     * Sets the amount of absorption hearts for a given <code>entity</code>.
-     *
-     * @param entity The non-null bukkit entity to set the hearts of.
-     * @param absorption The amount of absorption hearts.
-     */
-    default void setAbsorption(@NotNull LivingEntity entity, double absorption) {
-        entity.setAbsorptionAmount(absorption);
-    }
 
     /**
      * Generates an NMS non-null-list (used by the player's inventory). This is used internally for the
@@ -185,26 +163,6 @@ public interface EntityCompatibility {
         entity.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 800, 0));
         entity.playEffect(EntityEffect.TOTEM_RESURRECT);
         return true;
-    }
-
-    /**
-     * Creates an {@link EntityExplodeEvent} with the given parameters. This is used because Spigot does
-     * not have a backwards compatible constructor for this event.
-     *
-     * @param entity The non-null entity that is causing the explosion.
-     * @param location The non-null location of the explosion.
-     * @param blocks The non-null list of blocks that are being exploded.
-     * @param yield The yield of the explosion.
-     * @param breakBlocks Whether the blocks should be broken.
-     * @return The non-null event.
-     */
-    default @NotNull EntityExplodeEvent createEntityExplodeEvent(
-        @NotNull Entity entity,
-        @NotNull Location location,
-        @NotNull List<Block> blocks,
-        float yield,
-        boolean breakBlocks) {
-        return new EntityExplodeEvent(entity, location, blocks, yield);
     }
 
     /**

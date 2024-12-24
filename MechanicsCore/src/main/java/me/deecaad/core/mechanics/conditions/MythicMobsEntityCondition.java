@@ -44,7 +44,7 @@ public class MythicMobsEntityCondition extends Condition implements JarSearcherE
 
     @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
-        String type = data.of("Entity").assertExists().get();
+        String type = data.of("Entity").assertExists().get(String.class).get();
 
         return applyParentArgs(data, new MythicMobsEntityCondition(type));
     }

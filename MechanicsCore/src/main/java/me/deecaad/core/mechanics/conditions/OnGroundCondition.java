@@ -2,12 +2,12 @@ package me.deecaad.core.mechanics.conditions;
 
 import me.deecaad.core.file.MapConfigLike;
 import me.deecaad.core.file.SerializeData;
-import me.deecaad.core.file.SerializerEnumException;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.simple.RegistryValueSerializer;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.utils.EnumUtil;
-import org.bukkit.Material;
+import org.bukkit.Registry;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class OnGroundCondition extends Condition {
 
-    private Set<Material> blocks;
+    private Set<BlockType> blocks;
 
     /**
      * Default constructor for serializer.
@@ -25,7 +25,7 @@ public class OnGroundCondition extends Condition {
     public OnGroundCondition() {
     }
 
-    public OnGroundCondition(Set<Material> blocks) {
+    public OnGroundCondition(Set<BlockType> blocks) {
         this.blocks = blocks;
     }
 
@@ -34,8 +34,8 @@ public class OnGroundCondition extends Condition {
         if (cast.getTarget() == null)
             return false;
 
-        Material material = cast.getTargetLocation().getBlock().getRelative(BlockFace.DOWN).getType();
-        return cast.getTarget().isOnGround() && blocks.contains(material);
+        BlockType block = cast.getTargetLocation().getBlock().getRelative(BlockFace.DOWN).getType().asBlockType();
+        return cast.getTarget().isOnGround() && blocks.contains(block);
     }
 
     @Override
@@ -48,19 +48,17 @@ public class OnGroundCondition extends Condition {
         return "https://cjcrafter.gitbook.io/mechanics/conditions/on-ground";
     }
 
-    @NotNull @Override
-    public Condition serialize(@NotNull SerializeData data) throws SerializerException {
-        List<MapConfigLike.Holder> materials = data.of("Blocks").assertType(List.class).get(List.of());
-        Set<Material> blocks = new HashSet<>();
+    @Override
+    public @NotNull Condition serialize(@NotNull SerializeData data) throws SerializerException {
+        List<MapConfigLike.Holder> materials = data.of("Blocks").get(List.class).get();
+        Set<BlockType> blocks = new HashSet<>();
 
         for (MapConfigLike.Holder holder : materials) {
             String block = holder.value().toString();
-            List<Material> temp = EnumUtil.parseEnums(Material.class, block);
+            RegistryValueSerializer<BlockType> serializer = new RegistryValueSerializer<>(Registry.BLOCK, true);
+            List<BlockType> localBlocks = serializer.deserialize(block, data.of().getLocation());
 
-            if (temp.isEmpty())
-                throw new SerializerEnumException(this, Material.class, block, true, data.of("Blocks").getLocation());
-
-            blocks.addAll(temp);
+            blocks.addAll(localBlocks);
         }
 
         return applyParentArgs(data, new OnGroundCondition(blocks));

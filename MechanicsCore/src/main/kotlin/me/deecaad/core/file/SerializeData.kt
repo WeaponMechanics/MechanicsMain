@@ -8,7 +8,6 @@ import com.cryptomorin.xseries.particles.XParticle
 import me.deecaad.core.file.SerializerException.Companion.builder
 import me.deecaad.core.file.simple.EnumValueSerializer
 import me.deecaad.core.file.simple.RegistryValueSerializer
-import me.deecaad.core.file.simple.SimpleSerializer
 import me.deecaad.core.utils.SerializerUtil.foundAt
 import me.deecaad.core.utils.StringUtil.colorAdventure
 import me.deecaad.core.utils.StringUtil.split
@@ -257,18 +256,16 @@ class SerializeData {
      */
     inner class ConfigListAccessor(private val relative: String?) {
         // Stores the class arguments, which is used to check the format
-        private val arguments: LinkedList<ClassArgument<*>> = LinkedList()
+        private val arguments: MutableList<SimpleSerializer<*>> = ArrayList()
+        private var requiredArgs: Int = 0
 
-        fun <T : Any> addArgument(serializer: SimpleSerializer<T>, defaultValue: Optional<T>): ConfigListAccessor {
-            // Ensure that all required arguments are in order. For example,
-            // true~true~false is fine, but true~false~true is impossible to
-            // serialize.
+        fun <T : Any> addArgument(serializer: SimpleSerializer<T>): ConfigListAccessor {
+            arguments.add(serializer)
+            return this
+        }
 
-            val required = defaultValue.isEmpty
-            require(!(required && !arguments.isEmpty() && !arguments.last.isRequired)) { "Required arguments must be consecutive" }
-
-            val arg = ClassArgument(serializer, defaultValue)
-            arguments.add(arg)
+        fun requireAllPreviousArgs(): ConfigListAccessor {
+            requiredArgs = arguments.size
             return this
         }
 
@@ -291,18 +288,18 @@ class SerializeData {
         }
 
         @Throws(SerializerException::class)
-        fun assertList(): List<List<Any>> {
-            check(!arguments.isEmpty()) { "Need to set arguments before assertions" }
+        fun assertList(): List<List<Optional<Any>>> {
+            check(arguments.isNotEmpty()) { "Need to set arguments before assertions" }
 
             // A formatted string like: <material*> <integer*> <true/false>
             // This helps the user understand what they need to put in
             val expectedInputFormat = StringBuilder("<")
-            for (j in arguments.indices) {
-                val arg = arguments[j]
-                expectedInputFormat.append(arg.serializer.typeName)
-                if (arg.isRequired) expectedInputFormat.append('*')
+            for (i in arguments.indices) {
+                val arg = arguments[i]
+                expectedInputFormat.append(arg.typeName)
+                if (i < requiredArgs) expectedInputFormat.append('*')
 
-                if (j != arguments.size - 1) expectedInputFormat.append("> <")
+                if (i != arguments.size - 1) expectedInputFormat.append("> <")
             }
             expectedInputFormat.append('>')
 
@@ -321,11 +318,11 @@ class SerializeData {
             if (value.isEmpty()) return listOf()
 
             // The resulting list of parsed values
-            val listOfParsedData: MutableList<List<Any>> = ArrayList()
+            val listOfParsedData: MutableList<List<Optional<Any>>> = ArrayList()
 
             for (i in value.indices) {
                 val string = Objects.toString(value[i])
-                val parsedData: MutableList<Any> = ArrayList()
+                val parsedData: MutableList<Optional<Any>> = ArrayList()
 
                 // Empty string in config is probably a mistake (Perhaps they
                 // forgot to save?). Instead of ignoring this, we should tell
@@ -342,12 +339,11 @@ class SerializeData {
                 val split = split(string)
 
                 // Missing required data
-                val required = arguments.stream().filter { obj: ClassArgument<*> -> obj.isRequired }.count().toInt()
-                if (split.size < required) {
+                if (split.size < requiredArgs) {
                     throw listException(
-                        relative, i, "$relative requires the first $required arguments to be defined.",
+                        relative, i, "$relative requires the first $requiredArgs arguments to be defined.",
                         "For value: $string",
-                        "You are missing " + (required - split.size) + " arguments",
+                        "You are missing " + (requiredArgs - split.size) + " arguments",
                         "Valid Format: $expectedInputFormat"
                     )
                 }
@@ -370,14 +366,13 @@ class SerializeData {
 
                     val component = split[j]
                     val argument = arguments[j]
-                    val parsedValue = argument.serializer.deserialize(component, getLocation(i))!!
-                    parsedData.add(parsedValue)
+                    val parsedValue = argument.deserialize(component, getLocation(i))
+                    parsedData.add(Optional.of(parsedValue))
                 }
 
-                // Fill up the rest of the arguments with their default values
-                for (j in split.size..<arguments.size) {
-                    val argument = arguments[j]
-                    parsedData.add(argument.defaultValue.orElse(null)!!)
+                // Fill up the rest of the arguments with empty values
+                for (j in split.size until arguments.size) {
+                    parsedData.add(Optional.empty<Any>())
                 }
 
                 listOfParsedData.add(parsedData)
@@ -406,14 +401,6 @@ class SerializeData {
         }
     }
 
-    private data class ClassArgument<T : Any>(
-        val serializer: SimpleSerializer<T>,
-        val defaultValue: Optional<T>
-    ) {
-        val isRequired: Boolean
-            get() = defaultValue.isEmpty
-    }
-
     /**
      * Wraps a configuration KEY to some helper functions to facilitate data serialization. The (public)
      * methods of this class will throw a [SerializerException] if the configuration is invalid.
@@ -430,17 +417,14 @@ class SerializeData {
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the key is not explicitly defined.
          */
-        @JvmOverloads
         @Throws(SerializerException::class)
-        fun assertExists(exists: Boolean = true): ConfigAccessor {
-            if (exists) {
-                if (!has(relative)) {
-                    throw builder()
-                        .locationRaw(location)
-                        .buildMissingRequiredKey(relative)
-                }
-                this.exists = true
+        fun assertExists(): ConfigAccessor {
+            if (!has(relative)) {
+                throw builder()
+                    .locationRaw(location)
+                    .buildMissingRequiredKey(relative)
             }
+            this.exists = true
 
             return this
         }
@@ -1018,18 +1002,32 @@ class SerializeData {
         }
 
         /**
-         * Handles nested serializers. Uses the given class as a serializer and attempts to serialize an
-         * object from this relative key. Returns null when the key hasn't been explicitly defined.
+         * Uses the given class as a serializer and attempts to serialize an
+         * object from this relative key.
          *
          * @param serializerClass The non-null serializer class.
-         * @param <T> The serializer type.
+         * @param <S> The serializer type.
+         * @param <T> The serialized type.
          * @return The serialized object.
          * @throws SerializerException If there is a mistake in config found during serialization.
          */
         @Throws(SerializerException::class)
-        fun <T : Any> serialize(serializerClass: Class<Serializer<T>>): Optional<T> {
+        fun <S : Serializer<T>, T : Any> serialize(serializerClass: Class<S>): Optional<T> {
             val serializer = ReflectionUtil.getConstructor(serializerClass).newInstance()
+            return serialize(serializer)
+        }
 
+        /**
+         * Uses the given serializer and attempts to serialize an object from
+         * this relative key.
+         *
+         * @param serializer The non-null serializer.
+         * @param <S> The serializer type.
+         * @param <T> The serialized type.
+         * @return The serialized object.
+         */
+        @Throws(SerializerException::class)
+        fun <S : Serializer<T>, T : Any> serialize(serializer: S): Optional<T> {
             // Use assertExists for required keys
             if (!has(relative)) {
                 return Optional.empty()

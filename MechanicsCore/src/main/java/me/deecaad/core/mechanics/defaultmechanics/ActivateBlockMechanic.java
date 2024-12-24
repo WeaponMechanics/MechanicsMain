@@ -74,8 +74,8 @@ public abstract class ActivateBlockMechanic<T extends BlockState> extends Mechan
     @Override
     public Mechanic applyParentArgs(SerializeData data, Mechanic mechanic) throws SerializerException {
         ActivateBlockMechanic<?> blockMechanic = (ActivateBlockMechanic<?>) super.applyParentArgs(data, mechanic);
-        blockMechanic.maxBlocks = data.of("Max_Blocks").assertPositive().getInt(1);
-        blockMechanic.searchRadius = (int) Math.ceil(data.of("Search_Radius").assertPositive().getDouble(8.0));
+        blockMechanic.maxBlocks = data.of("Max_Blocks").assertRange(0, null).getInt().orElse(1);
+        blockMechanic.searchRadius = (int) Math.ceil(data.of("Search_Radius").assertRange(0, null).getDouble().orElse(8.0));
         return blockMechanic;
     }
 

@@ -8,7 +8,7 @@ import me.deecaad.core.file.InlineSerializer;
 import me.deecaad.core.file.MapConfigLike;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerTypeException;
+import me.deecaad.core.file.SimpleSerializer;
 import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
@@ -62,38 +62,33 @@ public class FireworkMechanic extends PlayerEffectMechanic {
 
         @NotNull @Override
         public FireworkData serialize(@NotNull SerializeData data) throws SerializerException {
-            FireworkEffect.Type type = data.of("Shape").getEnum(FireworkEffect.Type.class, FireworkEffect.Type.BALL);
-            boolean trail = data.of("Trail").getBool(false);
-            boolean flicker = data.of("Flicker").getBool(false);
+            SimpleSerializer<Color> colorSerializer = new ColorSerializer();
+
+            FireworkEffect.Type type = data.of("Shape").getEnum(FireworkEffect.Type.class).orElse(FireworkEffect.Type.BALL);
+            boolean trail = data.of("Trail").getBool().orElse(false);
+            boolean flicker = data.of("Flicker").getBool().orElse(false);
 
             // We allow either one color format '#ffffff' or multi color
             // format '[#ffffff, #ffffff]'
             List<Color> colors = new ArrayList<>();
             List<Color> fadeColors = new ArrayList<>();
 
-            try {
-                List<MapConfigLike.Holder> temp = data.of("Color").assertExists().assertType(List.class).get();
-                for (MapConfigLike.Holder holder : temp)
-                    colors.add(ColorSerializer.fromString(data.move("Color"), holder.value().toString()));
-
-            } catch (SerializerTypeException ex) {
-                ColorSerializer color = data.of("Color").serialize(new ColorSerializer());
-                if (color == null)
-                    throw data.exception("Color", "Could not determine 'color'", "Try using 'color=RED' or 'color=[RED, GREEN]'");
-
-                // Using List.of() saves space vs. ArrayList
-                colors = List.of(color.getColor());
+            Object colorData = data.of("Color").assertExists().get(Object.class).get();
+            if (colorData instanceof List<?> temp) {
+                for (MapConfigLike.Holder holder : (List<MapConfigLike.Holder>) temp)
+                    colors.add(colorSerializer.deserialize(holder.value().toString(), data.of("Color").getLocation()));
+            } else {
+                Color color = colorSerializer.deserialize(colorData.toString(), data.of("Color").getLocation());
+                colors = List.of(color);
             }
 
-            try {
-                List<MapConfigLike.Holder> temp = data.of("Fade_Color").assertType(List.class).get(List.of());
-                for (MapConfigLike.Holder holder : temp)
-                    fadeColors.add(ColorSerializer.fromString(data.move("Fade_Color"), holder.value().toString()));
-
-            } catch (SerializerTypeException ex) {
-                ColorSerializer color = data.of("Fade_Color").serialize(new ColorSerializer());
-                if (color != null)
-                    fadeColors = List.of(color.getColor());
+            Object fadeData = data.of("Fade_Color").assertExists().get(Object.class).get();
+            if (fadeData instanceof List<?> temp) {
+                for (MapConfigLike.Holder holder : (List<MapConfigLike.Holder>) temp)
+                    fadeColors.add(colorSerializer.deserialize(holder.value().toString(), data.of("Fade_Color").getLocation()));
+            } else {
+                Color color = colorSerializer.deserialize(fadeData.toString(), data.of("Fade_Color").getLocation());
+                fadeColors = List.of(color);
             }
 
             FireworkEffect effect = FireworkEffect.builder().with(type).withColor(colors).trail(trail).flicker(flicker).withFade(fadeColors).build();
@@ -190,12 +185,12 @@ public class FireworkMechanic extends PlayerEffectMechanic {
         ItemStack fireworkItem = new ItemStack(MinecraftVersions.UPDATE_AQUATIC.isAtLeast() ? Material.FIREWORK_ROCKET : Material.valueOf("FIREWORK"));
         FireworkMeta meta = (FireworkMeta) fireworkItem.getItemMeta();
         List<FireworkEffect> effects = data.of("Effects").getImpliedList(new FireworkData()).stream().map(FireworkData::getEffect).toList();
-        int flightTime = data.of("Flight_Time").getInt(0);
+        int flightTime = data.of("Flight_Time").getInt().orElse(1);
         meta.addEffects(effects);
         meta.setPower(flightTime);
         fireworkItem.setItemMeta(meta);
 
-        Targeter viewers = data.of("Viewers").getRegistry(Mechanics.TARGETERS, null);
+        Targeter viewers = data.of("Viewers").getRegistry(Mechanics.TARGETERS).orElse(null);
         List<Condition> viewerConditions = data.of("Viewer_Conditions").getRegistryList(Mechanics.CONDITIONS);
 
         // If the user wants to use listener conditions, be sure to use a

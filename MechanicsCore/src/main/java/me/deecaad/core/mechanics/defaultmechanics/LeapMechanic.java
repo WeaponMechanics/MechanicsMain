@@ -40,9 +40,6 @@ public class LeapMechanic extends Mechanic {
         // an empty vector.
         if (VectorUtil.isZero(velocity))
             return;
-        // if (!Double.isFinite(velocity.getX()) || !Double.isFinite(velocity.getY()) ||
-        // !Double.isFinite(velocity.getZ()))
-        // return;
 
         velocity.setY(velocity.getY() * verticalMultiplier);
         velocity.normalize().multiply(speed);
@@ -61,8 +58,8 @@ public class LeapMechanic extends Mechanic {
 
     @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
-        double speed = data.of("Speed").assertExists().getDouble();
-        double verticalMultiplier = data.of("Vertical_Multiplier").getDouble(1.0);
+        double speed = data.of("Speed").assertExists().getDouble().getAsDouble();
+        double verticalMultiplier = data.of("Vertical_Multiplier").getDouble().orElse(1.0);
 
         return applyParentArgs(data, new LeapMechanic(speed, verticalMultiplier));
     }

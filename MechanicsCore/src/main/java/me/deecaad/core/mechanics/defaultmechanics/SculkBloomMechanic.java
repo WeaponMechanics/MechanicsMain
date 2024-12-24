@@ -52,7 +52,7 @@ public class SculkBloomMechanic extends ActivateBlockMechanic<SculkCatalyst> imp
             throw data.exception(null, "The SculkBloom{} Mechanic is only available in 1.20.2+");
         }
 
-        int charge = data.of("Charge").assertRange(1, 32000).getInt(5);
+        int charge = data.of("Charge").assertRange(1, null).getInt().orElse(5);
         return applyParentArgs(data, new SculkBloomMechanic(charge));
     }
 }

@@ -60,7 +60,7 @@ val sourcesJar by tasks.registering(Jar::class) {
 
 tasks.compileKotlin {
     kotlinOptions {
-        jvmTarget = "16"
+        jvmTarget = "21"
     }
 }
 

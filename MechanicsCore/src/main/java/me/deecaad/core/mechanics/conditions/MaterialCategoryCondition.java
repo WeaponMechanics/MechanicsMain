@@ -48,7 +48,7 @@ public class MaterialCategoryCondition extends Condition {
 
     @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
-        MaterialCategory category = data.of("Category").assertExists().getEnum(MaterialCategory.class);
+        MaterialCategory category = data.of("Category").assertExists().getEnum(MaterialCategory.class).get();
         return applyParentArgs(data, new MaterialCategoryCondition(category));
     }
 

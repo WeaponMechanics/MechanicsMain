@@ -1,5 +1,9 @@
 package me.deecaad.core.file;
 
+import me.deecaad.core.file.simple.BooleanSerializer;
+import me.deecaad.core.file.simple.DoubleSerializer;
+import me.deecaad.core.file.simple.IntSerializer;
+import me.deecaad.core.file.simple.StringSerializer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -12,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -49,20 +54,21 @@ public class SerializerListTest {
     public void test_valid(String key) throws Exception {
         SerializeData data = new SerializeData(DUMMY, file, "a", new BukkitConfig(config));
 
-        List<String[]> list = data.ofList(key)
-            .addArgument(String.class, true)
-            .addArgument(int.class, true).assertArgumentPositive()
-            .addArgument(double.class, false).assertArgumentRange(0.0, 1.0)
-            .addArgument(boolean.class, false)
-            .addArgument(int.class, false)
-            .assertExists().assertList().get();
+        List<List<Optional<Object>>> list = data.ofList()
+            .addArgument(new StringSerializer())
+            .addArgument(new IntSerializer(0, null))
+            .requireAllPreviousArgs()
+            .addArgument(new DoubleSerializer(0.0, 1.0))
+            .addArgument(new BooleanSerializer())
+            .addArgument(new IntSerializer())
+            .assertList();
 
-        for (String[] split : list) {
-            String str = split[0];
-            int positive = Integer.parseInt(split[1]);
-            double decimal = split.length > 2 ? Double.parseDouble(split[2]) : 0.0;
-            boolean bool = split.length > 3 ? Boolean.parseBoolean(split[3]) : false;
-            int i = split.length > 4 ? Integer.parseInt(split[4]) : 0;
+        for (List<Optional<Object>> split : list) {
+            String str = (String) split.get(0).get();
+            int positive = (Integer) split.get(1).get();
+            double decimal = (Double) split.get(2).orElse(0.0);
+            boolean bool = (Boolean) split.get(3).orElse(false);
+            int i = (Integer) split.get(4).orElse(0);
         }
     }
 
@@ -71,12 +77,13 @@ public class SerializerListTest {
     public void test_invalid(String key) {
         SerializeData data = new SerializeData(DUMMY, file, "a", new BukkitConfig(config));
 
-        assertThrows(SerializerException.class, () -> data.ofList(key)
-            .addArgument(String.class, true)
-            .addArgument(int.class, true).assertArgumentPositive()
-            .addArgument(double.class, false).assertArgumentRange(0.0, 1.0)
-            .addArgument(boolean.class, false)
-            .addArgument(int.class, false)
-            .assertExists().assertList().get());
+        assertThrows(SerializerException.class, () -> data.ofList()
+            .addArgument(new StringSerializer())
+            .addArgument(new IntSerializer(0, null))
+            .requireAllPreviousArgs()
+            .addArgument(new DoubleSerializer(0.0, 1.0))
+            .addArgument(new BooleanSerializer())
+            .addArgument(new IntSerializer())
+            .assertList());
     }
 }

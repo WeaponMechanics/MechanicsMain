@@ -88,13 +88,14 @@ public abstract class Targeter implements InlineSerializer<Targeter> {
     protected abstract Iterator<CastData> getTargets0(CastData cast);
 
     protected Targeter applyParentArgs(SerializeData data, Targeter targeter) throws SerializerException {
-        VectorSerializer offset = data.of("Offset").serialize(VectorSerializer.class);
-        if (!isEntity() && offset != null && offset.isRelative())
+        VectorSerializer offset = data.of("Offset").serialize(VectorSerializer.class).orElse(null);
+        if (!isEntity() && offset != null && offset.isRelative()) {
             throw data.exception("offset", "Did you try to use relative locations ('~') with '" + getInlineKeyword() + "'?",
                 getInlineKeyword() + " is a LOCATION targeter, so it cannot use relative locations.");
+        }
 
         targeter.offset = offset;
-        targeter.eye = data.of("Eye").getBool(false);
+        targeter.eye = data.of("Eye").getBool().orElse(false);
         return targeter;
     }
 }

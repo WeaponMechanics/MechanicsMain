@@ -2,13 +2,9 @@ package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.weaponmechanics.weapon.shoot.AModifyWhen;
 import me.deecaad.weaponmechanics.weapon.shoot.NumberModifier;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nonnull;
-import java.util.Objects;
 
 public class ModifyRecoilWhen extends AModifyWhen {
 
@@ -56,7 +52,7 @@ public class ModifyRecoilWhen extends AModifyWhen {
     }
 
     private NumberModifier getModifierHandler(SerializeData.ConfigAccessor data) throws SerializerException {
-        String value = Objects.toString(data.get(null), null);
+        String value = data.get(Object.class).map(Object::toString).orElse(null);
         if (value == null)
             return null;
         try {
@@ -68,8 +64,10 @@ public class ModifyRecoilWhen extends AModifyWhen {
 
             return new NumberModifier(number, percentage);
         } catch (NumberFormatException e) {
-            throw new SerializerTypeException(this, Number.class, null, value, data.getLocation())
-                .addMessage("Remember that you can use percentages like '10%' to add 10% more recoil");
+            throw SerializerException.builder()
+                .locationRaw(data.getLocation())
+                .addMessage("Remember that you can use percentages like '10%' to add 10% more recoil")
+                .build();
         }
     }
 }

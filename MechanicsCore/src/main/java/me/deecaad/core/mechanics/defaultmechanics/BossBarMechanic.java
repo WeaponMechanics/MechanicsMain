@@ -79,12 +79,11 @@ public class BossBarMechanic extends Mechanic {
 
     @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
-        String title = data.of("Title").assertExists().getAdventure();
-        BossBar.Color color = data.of("Color").getEnum(BossBar.Color.class, BossBar.Color.RED);
-        BossBar.Overlay style = data.of("Style").getEnum(BossBar.Overlay.class, BossBar.Overlay.PROGRESS);
-        Double progressTemp = data.of("Progress").serialize(new ChanceSerializer());
-        float progress = progressTemp == null ? 1.0f : progressTemp.floatValue();
-        int time = data.of("Time").assertPositive().getInt(100);
+        String title = data.of("Title").assertExists().getAdventure().get();
+        BossBar.Color color = data.of("Color").getEnum(BossBar.Color.class).orElse(BossBar.Color.RED);
+        BossBar.Overlay style = data.of("Style").getEnum(BossBar.Overlay.class).orElse(BossBar.Overlay.PROGRESS);
+        float progress = (float) (double) data.of("Progress").serialize(ChanceSerializer.class).orElse(1.0);
+        int time = data.of("Time").assertRange(0, null).getInt().orElse(100);
 
         return applyParentArgs(data, new BossBarMechanic(title, color, style, progress, time));
     }

@@ -16,7 +16,7 @@ public abstract class RelativeTargeter extends Targeter {
     @Override
     protected Targeter applyParentArgs(SerializeData data, Targeter targeter) throws SerializerException {
         RelativeTargeter relativeTargeter = (RelativeTargeter) super.applyParentArgs(data, targeter);
-        relativeTargeter.isUseTarget = data.of("Use_Target").getBool(false);
+        relativeTargeter.isUseTarget = data.of("Use_Target").getBool().orElse(false);
         return relativeTargeter;
     }
 }

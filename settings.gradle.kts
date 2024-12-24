@@ -13,13 +13,11 @@ include(":BuildMechanicsCore")
 include(":BuildWeaponMechanics")
 
 include(":CoreCompatibility")
-include(":WorldGuardV6")
 include(":WorldGuardV7")
 
 // All projects in the non-root directory need to have their directories updates.
 
 project(":WorldGuardV7").projectDir = file("CoreCompatibility/WorldGuardV7")
-project(":WorldGuardV6").projectDir = file("CoreCompatibility/WorldGuardV6")
 
 /**
  * Utility function to add all compatibility modules of a given type.

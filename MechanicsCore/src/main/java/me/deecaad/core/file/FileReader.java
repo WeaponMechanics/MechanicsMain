@@ -312,8 +312,8 @@ public class FileReader {
         // Handle nested-path-to serializers
         for (NestedPathToSerializer nestedPathTo : nestedPathToSerializers) {
             try {
-                SerializeData data = new SerializeData(nestedPathTo.serializer, nestedPathTo.ex.getSerializeData().file, nestedPathTo.path, nestedPathTo.ex.getSerializeData().config);
-                data.pathToConfig = filledMap;
+                SerializeData data = new SerializeData(nestedPathTo.serializer, nestedPathTo.ex.getSerializeData().getFile(), nestedPathTo.path, nestedPathTo.ex.getSerializeData().getConfig());
+                data.setPathToConfig(filledMap);
                 Object serialized = data.of().serialize(nestedPathTo.serializer);
                 filledMap.set(nestedPathTo.path, serialized);
             } catch (SerializerException ex) {
@@ -330,7 +330,7 @@ public class FileReader {
         for (ValidatorData validatorData : validatorDatas) {
 
             SerializeData data = new SerializeData(validatorData.validator.getKeyword(), validatorData.file, validatorData.path, new BukkitConfig(validatorData.configurationSection));
-            data.pathToConfig = filledMap;
+            data.setPathToConfig(filledMap);
 
             if (!validatorData.validator.shouldValidate(data)) {
                 debug.debug("Skipping " + validatorData.path + " due to skip");

@@ -1,12 +1,13 @@
 package me.deecaad.core.file.simple
 
 import me.deecaad.core.file.SerializerException
+import me.deecaad.core.file.SimpleSerializer
 
 class DoubleSerializer @JvmOverloads constructor(
     private val min: Double? = null,
     private val max: Double? = null,
 ) : SimpleSerializer<Double> {
-    override val typeName: String = "floating point number"
+    override fun getTypeName(): String = "floating point number"
 
     override fun deserialize(data: String, errorLocation: String): Double {
         val value = data.toDoubleOrNull()

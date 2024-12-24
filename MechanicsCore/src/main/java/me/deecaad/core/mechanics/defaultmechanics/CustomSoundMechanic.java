@@ -124,13 +124,13 @@ public class CustomSoundMechanic extends PlayerEffectMechanic {
 
     @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
-        String sound = data.of("Sound").assertExists().assertType(String.class).get();
-        float volume = (float) data.of("Volume").assertPositive().getDouble(1.0);
-        float pitch = (float) data.of("Pitch").assertRange(0.5, 2.0).getDouble(1.0);
-        float noise = (float) data.of("Noise").assertRange(0.0, 1.5).getDouble(0.0);
-        SoundCategory category = data.of("Category").getEnum(SoundCategory.class, SoundCategory.PLAYERS);
+        String sound = data.of("Sound").assertExists().get(String.class).get();
+        float volume = (float) data.of("Volume").assertRange(0, null).getDouble().orElse(1.0);
+        float pitch = (float) data.of("Pitch").assertRange(0.5, 2.0).getDouble().orElse(1.0);
+        float noise = (float) data.of("Noise").assertRange(0.0, 1.5).getDouble().orElse(0.0);
+        SoundCategory category = data.of("Category").getEnum(SoundCategory.class).orElse(SoundCategory.PLAYERS);
 
-        Targeter listeners = data.of("Listeners").getRegistry(Mechanics.TARGETERS, null);
+        Targeter listeners = data.of("Listeners").getRegistry(Mechanics.TARGETERS).orElse(null);
         List<Condition> listenerConditions = data.of("Listener_Conditions").getRegistryList(Mechanics.CONDITIONS);
 
         // If the user wants to use listener conditions, be sure to use a

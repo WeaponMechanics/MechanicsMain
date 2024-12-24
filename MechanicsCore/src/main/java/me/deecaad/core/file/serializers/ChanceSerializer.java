@@ -13,8 +13,8 @@ public class ChanceSerializer implements Serializer<Double> {
 
     @NotNull @Override
     public Double serialize(@NotNull SerializeData data) throws SerializerException {
-        Object value = data.of().assertExists().get();
-        double chance = 0.0;
+        Object value = data.of().assertExists().get(Object.class).get();
+        double chance;
 
         // Handle percentages. This is the officially supported method of
         // parsing a chance. Users may use decimals when using percentages.
@@ -30,7 +30,7 @@ public class ChanceSerializer implements Serializer<Double> {
                 chance = Double.parseDouble(str.substring(0, str.length() - 1)) / 100.0;
             } else {
                 throw data.exception(null, "Chance input had a '%' in the middle when it should have been on the end",
-                    SerializerException.forValue(value));
+                    "Found value: " + str);
             }
         }
 
@@ -42,12 +42,18 @@ public class ChanceSerializer implements Serializer<Double> {
         // After checking for numbers, and percentages, there is nothing else
         // we can do except yell at the user for being stupid.
         else {
-            throw new SerializerTypeException(data.serializer, Number.class, value.getClass(), value, data.of().getLocation());
+            throw SerializerException.builder()
+                .locationRaw(data.of().getLocation())
+                .addMessage("Expected a number or percentage")
+                .example("50%")
+                .buildInvalidType("Chance", value);
         }
 
         if (chance < 0.0 || chance > 1.0) {
-            throw new SerializerRangeException(data.serializer, 0.0, chance, 1.0, data.of().getLocation())
-                .addMessage("When using percentages, make sure to stay between 0% and 100%");
+            throw SerializerException.builder()
+                .locationRaw(data.of().getLocation())
+                .addMessage("When using percentages, make sure to stay between 0% and 100%")
+                .buildInvalidRange(chance, 0.0, 1.0);
         }
 
         return chance;

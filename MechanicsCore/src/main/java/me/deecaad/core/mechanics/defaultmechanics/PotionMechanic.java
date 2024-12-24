@@ -1,19 +1,14 @@
 package me.deecaad.core.mechanics.defaultmechanics;
 
-import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerOptionsException;
+import me.deecaad.core.file.simple.RegistryValueSerializer;
 import me.deecaad.core.mechanics.CastData;
-import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 public class PotionMechanic extends Mechanic {
 
@@ -53,44 +48,16 @@ public class PotionMechanic extends Mechanic {
 
     @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
-        String potionStr = data.of("Potion").assertExists().assertType(String.class).get().toString().trim();
-        String potionLower = potionStr.toLowerCase(Locale.ROOT);
-        PotionEffectType potion = PotionEffectType.getByName(potionStr.toUpperCase(Locale.ROOT));
-        int time = data.of("Time").assertPositive().getInt(100);
-        int amplifier = data.of("Level").assertPositive().getInt(1) - 1;
-        boolean ambient = data.of("Particles").getEnum(ParticleMode.class, ParticleMode.NORMAL) == ParticleMode.AMBIENT;
-        boolean showParticles = data.of("Particles").getEnum(ParticleMode.class, ParticleMode.NORMAL) != ParticleMode.HIDE;
-        boolean showIcon = !data.of("Hide_Icon").getBool(false);
+        RegistryValueSerializer<PotionEffectType> potionSerializer = new RegistryValueSerializer<>(Registry.EFFECT, true);
+        PotionEffectType potion = data.of("Potion").assertExists().serialize(potionSerializer).get().getFirst();
+        int time = data.of("Time").assertRange(0, null).getInt().orElse(100);
+        int amplifier = data.of("Level").assertRange(0, null).getInt().orElse(1) - 1;
+        ParticleMode particleMode = data.of("Particles").getEnum(ParticleMode.class).orElse(ParticleMode.NORMAL);
+        boolean ambient = particleMode == ParticleMode.AMBIENT;
+        boolean showParticles = particleMode != ParticleMode.HIDE;
+        boolean showIcon = !data.of("Hide_Icon").getBool().orElse(false);
 
-        // If we failed to find the potion, try to use the more user-friendly
-        // minecraft keys instead of the legacy enum. This also technically
-        // supports custom potion effects, but I don't know if those exist...
-        if (potion == null && MinecraftVersions.CAVES_AND_CLIFFS_2.isAtLeast()) {
-            potion = PotionEffectType.getByKey(NamespacedKey.fromString(potionLower));
-        }
-
-        // Try by name for name support
-        if (potion == null) {
-            potion = PotionEffectType.getByName(potionLower);
-        }
-
-        if (potion == null) {
-            List<String> options = new ArrayList<>();
-            for (PotionEffectType type : PotionEffectType.values()) {
-                options.add(type.getName());
-                if (MinecraftVersions.CAVES_AND_CLIFFS_2.isAtLeast())
-                    options.add(type.getKey().getKey());
-            }
-
-            throw new SerializerOptionsException(this, "Potion", options, potionStr, data.of("Potion").getLocation());
-        }
-
-        PotionEffect effect;
-        if (MinecraftVersions.VILLAGE_AND_PILLAGE.isAtLeast())
-            effect = new PotionEffect(potion, time, amplifier, ambient, showParticles, showIcon);
-        else
-            effect = new PotionEffect(potion, time, amplifier, ambient, showParticles);
-
+        PotionEffect effect = new PotionEffect(potion, time, amplifier, ambient, showParticles, showIcon);
         return applyParentArgs(data, new PotionMechanic(effect));
     }
 

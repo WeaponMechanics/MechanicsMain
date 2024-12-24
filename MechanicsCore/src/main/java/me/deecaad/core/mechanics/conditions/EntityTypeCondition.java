@@ -3,6 +3,7 @@ package me.deecaad.core.mechanics.conditions;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
+import org.bukkit.Registry;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +39,7 @@ public class EntityTypeCondition extends Condition {
 
     @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
-        EntityType type = data.of("Entity").assertExists().getEnum(EntityType.class);
+        EntityType type = data.of("Entity").assertExists().getBukkitRegistry(Registry.ENTITY_TYPE).get();
         return applyParentArgs(data, new EntityTypeCondition(type));
     }
 }

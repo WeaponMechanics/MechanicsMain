@@ -212,26 +212,22 @@ public class AirStrike implements Serializer<AirStrike> {
     @Override
     @NotNull public AirStrike serialize(@NotNull SerializeData data) throws SerializerException {
 
-        int min = data.of("Minimum_Bombs").assertExists().assertPositive().getInt();
-        int max = data.of("Maximum_Bombs").assertExists().assertPositive().getInt();
+        int min = data.of("Minimum_Bombs").assertExists().assertRange(1, null).getInt().getAsInt();
+        int max = data.of("Maximum_Bombs").assertExists().assertRange(min, null).getInt().orElse(min);
 
-        if (min > max) {
-            throw data.exception("Minimum_Bombs", "The number for 'Minimum_Bombs' should be less then 'Maximum_Bombs'");
-        }
+        Projectile projectile = data.of("Dropped_Projectile").assertExists().serialize(Projectile.class).get();
 
-        Projectile projectile = data.of("Dropped_Projectile").assertExists().serialize(Projectile.class);
+        double yOffset = data.of("Height").assertRange(0.0, null).getDouble().orElse(60.0);
+        double yNoise = data.of("Vertical_Randomness").assertRange(0.0, null).getDouble().orElse(5.0);
 
-        double yOffset = data.of("Height").assertPositive().getDouble(60.0);
-        double yNoise = data.of("Vertical_Randomness").assertPositive().getDouble(5.0);
+        double separation = data.of("Distance_Between_Bombs").assertRange(0.0, null).getDouble().orElse(3.0);
+        double range = data.of("Maximum_Distance_From_Center").assertRange(0.0, null).getDouble().orElse(25.0);
 
-        double separation = data.of("Distance_Between_Bombs").assertPositive().getDouble(3.0);
-        double range = data.of("Maximum_Distance_From_Center").assertPositive().getDouble(25.0);
+        int layers = data.of("Layers").assertRange(1, null).getInt().orElse(1);
+        int interval = data.of("Delay_Between_Layers").assertRange(1, null).getInt().orElse(40);
 
-        int layers = data.of("Layers").assertPositive().getInt(1);
-        int interval = data.of("Delay_Between_Layers").assertPositive().getInt(40);
-
-        Detonation detonation = data.of("Detonation").serialize(Detonation.class);
-        Mechanics mechanics = data.of("Mechanics").serialize(Mechanics.class);
+        Detonation detonation = data.of("Detonation").serialize(Detonation.class).orElse(null);
+        Mechanics mechanics = data.of("Mechanics").serialize(Mechanics.class).orElse(null);
 
         return new AirStrike(projectile, min, max, yOffset, yNoise, separation, range, layers, interval, detonation, mechanics);
     }

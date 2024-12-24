@@ -7,7 +7,7 @@ dependencies {
     compileOnly(project(":MechanicsCore"))
     compileOnly(project(":WeaponMechanics"))
 
-    paperweight.paperDevBundle("1.21-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21.1-R0.1-SNAPSHOT")
 
     compileOnly(Dependencies.PROTOCOL_LIB)
 }

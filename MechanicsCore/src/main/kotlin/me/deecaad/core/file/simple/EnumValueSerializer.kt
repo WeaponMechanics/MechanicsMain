@@ -1,14 +1,14 @@
 package me.deecaad.core.file.simple
 
 import me.deecaad.core.file.SerializerException
+import me.deecaad.core.file.SimpleSerializer
 import me.deecaad.core.utils.EnumUtil
 
 class EnumValueSerializer<T : Enum<T>>(
     private val enumClass: Class<T>,
     private val isAllowWildcard: Boolean,
 ) : SimpleSerializer<List<T>> {
-    override val typeName: String
-        get() = enumClass.simpleName
+    override fun getTypeName(): String = enumClass.simpleName
 
     override fun deserialize(data: String, errorLocation: String): List<T> {
         var data = data.trim().lowercase()

@@ -3,6 +3,7 @@ package me.deecaad.core.mechanics.conditions;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
+import org.bukkit.Registry;
 import org.bukkit.block.Biome;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +39,7 @@ public class BiomeCondition extends Condition {
 
     @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
-        Biome biome = data.of("Biome").assertExists().getEnum(Biome.class);
+        Biome biome = data.of("Biome").assertExists().getBukkitRegistry(Registry.BIOME).get();
         return applyParentArgs(data, new BiomeCondition(biome));
     }
 }

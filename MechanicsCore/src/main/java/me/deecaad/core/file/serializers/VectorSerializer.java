@@ -3,7 +3,6 @@ package me.deecaad.core.file.serializers;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.core.utils.*;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
@@ -102,7 +101,7 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
 
     @NotNull @Override
     public VectorSerializer serialize(@NotNull SerializeData data) throws SerializerException {
-        String input = data.of().assertExists().get().toString().trim();
+        String input = data.of().assertExists().get(Object.class).get().toString().trim();
 
         // Allow for easy 0 option
         if ("0".equals(input))
@@ -120,7 +119,11 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
                 try {
                     randomLength = Double.parseDouble(input.substring(1));
                 } catch (NumberFormatException ex) {
-                    throw new SerializerTypeException(this, Number.class, String.class, input, data.of().getLocation());
+                    throw SerializerException.builder()
+                        .locationRaw(data.of().getLocation())
+                        .addMessage("Expected a number after 'r' for random length")
+                        .addMessage("Found value: " + input)
+                        .build();
                 }
             }
 
@@ -133,7 +136,7 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
             List<String> split = StringUtil.split(input);
             if (split.size() != 3) {
                 throw data.exception(null, "Expected 3 numbers in left~up~forward format, instead got '" + split.size() + "'",
-                    SerializerException.forValue(input));
+                    "Found value: " + input);
             }
 
             try {
@@ -143,7 +146,11 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
 
                 raw = new Vector(x, y, z);
             } catch (NumberFormatException ex) {
-                throw new SerializerTypeException(this, Number.class, String.class, input, data.of().getLocation());
+                throw SerializerException.builder()
+                    .locationRaw(data.of().getLocation())
+                    .addMessage("Expected 3 numbers in left~up~forward format")
+                    .addMessage("Found value: " + input)
+                    .build();
             }
         }
 

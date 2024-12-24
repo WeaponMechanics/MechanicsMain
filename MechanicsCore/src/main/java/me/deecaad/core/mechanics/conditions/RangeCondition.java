@@ -55,11 +55,11 @@ public class RangeCondition extends Condition {
 
     @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
-        double minNum = data.of("Min").assertPositive().getDouble(-1.0);
-        double maxNum = data.of("Max").assertPositive().getDouble(-1.0);
+        OptionalDouble minNum = data.of("Min").assertRange(0.0, null).getDouble();
+        OptionalDouble maxNum = data.of("Max").assertRange(0.0, null).getDouble();
 
-        OptionalDouble min = data.has("Min") ? OptionalDouble.of(minNum * minNum) : OptionalDouble.empty();
-        OptionalDouble max = data.has("Max") ? OptionalDouble.of(maxNum * maxNum) : OptionalDouble.empty();
+        OptionalDouble min = minNum.isPresent() ? OptionalDouble.of(minNum.getAsDouble() * minNum.getAsDouble()) : OptionalDouble.empty();
+        OptionalDouble max = maxNum.isPresent() ? OptionalDouble.of(maxNum.getAsDouble() * maxNum.getAsDouble()) : OptionalDouble.empty();
         return applyParentArgs(data, new RangeCondition(min, max));
     }
 }

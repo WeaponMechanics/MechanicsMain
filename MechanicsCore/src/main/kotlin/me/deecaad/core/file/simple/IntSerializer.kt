@@ -1,12 +1,13 @@
 package me.deecaad.core.file.simple
 
 import me.deecaad.core.file.SerializerException
+import me.deecaad.core.file.SimpleSerializer
 
 class IntSerializer @JvmOverloads constructor(
     private val min: Int? = null,
     private val max: Int? = null,
 ) : SimpleSerializer<Int> {
-    override val typeName: String = "integer"
+    override fun getTypeName(): String = "integer"
 
     override fun deserialize(data: String, errorLocation: String): Int {
         val value = data.toIntOrNull()
