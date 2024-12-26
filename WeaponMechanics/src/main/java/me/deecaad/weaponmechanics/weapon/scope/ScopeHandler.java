@@ -2,7 +2,11 @@ package me.deecaad.weaponmechanics.weapon.scope;
 
 import com.cjcrafter.vivecraft.VSE;
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.file.*;
+import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.IValidator;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.simple.DoubleSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderData;
@@ -31,8 +35,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.*;
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class ScopeHandler implements IValidator, TriggerListener {
 
@@ -316,37 +323,22 @@ public class ScopeHandler implements IValidator, TriggerListener {
 
     @Override
     public void validate(Configuration configuration, SerializeData data) throws SerializerException {
-        Trigger trigger = configuration.getObject(data.key + ".Trigger", Trigger.class);
-        if (trigger == null)
-            throw new SerializerMissingKeyException(data.serializer, data.key + ".Trigger", data.of("Trigger").getLocation());
+        data.of("Trigger").assertExists();
 
-        double zoomAmount = configuration.getDouble(data.key + ".Zoom_Amount");
-        if (zoomAmount < 1 || zoomAmount > 10)
-            throw new SerializerRangeException(data.serializer, 1.0, zoomAmount, 10.0, data.of("Zoom_Amount").getLocation());
+        double zoomAmount = data.of("Zoom_Amount").assertExists().assertRange(1, 10).getDouble().getAsDouble();
+        List<List<Optional<Object>>> splitStacksList = data.ofList("Zoom_Stacking.Stacks")
+            .addArgument(new DoubleSerializer(1.0, 10.0))
+            .requireAllPreviousArgs()
+            .assertList();
 
-        List<?> zoomStacks = configuration.getObject(data.key + ".Zoom_Stacking.Stacks", List.class);
-        if (zoomStacks != null) {
-            for (int i = 0; i < zoomStacks.size(); i++) {
-                String zoomStack = zoomStacks.get(i).toString();
-                try {
-                    double v = Double.parseDouble(zoomStack);
-                    if (v < 1 || v > 10)
-                        throw new SerializerRangeException(data.serializer, 1.0, v, 10.0, data.ofList("Zoom_Stacking.Stacks").getLocation(i));
-                } catch (NumberFormatException e) {
-                    throw new SerializerTypeException(data.serializer, Number.class, String.class, zoomStack, data.ofList("Zoom_Stacking.Stacks").getLocation(i));
-                }
-            }
-        }
-
-        int shootDelayAfterScope = configuration.getInt(data.key + ".Shoot_Delay_After_Scope");
+        int shootDelayAfterScope = data.of("Shoot_Delay_After_Scope").getInt().orElse(0);
         if (shootDelayAfterScope != 0) {
             // Convert to millis
-            configuration.set(data.key + ".Shoot_Delay_After_Scope", shootDelayAfterScope * 50);
+            configuration.set(data.getKey() + ".Shoot_Delay_After_Scope", shootDelayAfterScope * 50);
         }
 
         // Convert from percentage to decimal
-        String scopeMovementSpeedStr = data.of("Movement_Speed").get("100%");
-        double scopeMovementSpeed = Double.parseDouble(scopeMovementSpeedStr.replace("%", "")) / 100;
-        configuration.set(data.key + ".Movement_Speed", scopeMovementSpeed);
+        double scopeMovementSpeed = data.of("Movement_Speed").assertRange(0.0, null).getDouble().orElse(1.0);
+        configuration.set(data.getKey() + ".Movement_Speed", scopeMovementSpeed);
     }
 }

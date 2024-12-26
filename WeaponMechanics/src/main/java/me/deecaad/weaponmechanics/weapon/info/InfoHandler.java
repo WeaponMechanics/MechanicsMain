@@ -327,10 +327,10 @@ public class InfoHandler implements IValidator {
 
     @Override
     public void validate(Configuration configuration, SerializeData data) throws SerializerException {
-        int weaponEquipDelay = data.of("Weapon_Equip_Delay").assertPositive().getInt(0);
+        int weaponEquipDelay = data.of("Weapon_Equip_Delay").assertRange(0, null).getInt().orElse(0);
         if (weaponEquipDelay != 0) {
             // Convert to millis
-            configuration.set(data.key + ".Weapon_Equip_Delay", weaponEquipDelay * 50);
+            configuration.set(data.getKey() + ".Weapon_Equip_Delay", weaponEquipDelay * 50);
         }
     }
 }

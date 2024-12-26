@@ -1,10 +1,13 @@
 package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
 import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.NumberConversions;
@@ -16,14 +19,30 @@ import java.util.stream.Collectors;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
-public class SphericalExplosion implements ExplosionShape {
+public class SphereExplosion implements ExplosionShape {
 
-    private final double radius;
-    private final double radiusSquared;
+    private double radius;
+    private double radiusSquared;
 
-    public SphericalExplosion(double radius) {
+    /**
+     * Default constructor for serializer.
+     */
+    public SphereExplosion() {
+    }
+
+    public SphereExplosion(double radius) {
         this.radius = radius;
         this.radiusSquared = radius * radius;
+    }
+
+    /**
+     * Return the namespaced identifier for this object.
+     *
+     * @return this object's key
+     */
+    @Override
+    public @NotNull NamespacedKey getKey() {
+        return new NamespacedKey("weaponmechanics", "sphere");
     }
 
     @NotNull @Override
@@ -86,6 +105,12 @@ public class SphericalExplosion implements ExplosionShape {
     @Override
     public double getArea() {
         return 4.0 / 3.0 * Math.PI * radius * radius * radius;
+    }
+
+    @Override
+    public @NotNull ExplosionShape serialize(@NotNull SerializeData data) throws SerializerException {
+        double radius = data.of("Radius").assertExists().assertRange(0.0, null).getDouble().getAsDouble();
+        return new SphereExplosion(radius);
     }
 
     @Override

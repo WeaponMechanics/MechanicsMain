@@ -1,10 +1,13 @@
 package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
 import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
@@ -19,18 +22,34 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
  * xOffset)^2 + yOffset xOffset is ignored here yOffset is the depth. Negative values ONLY are
  * allowed. m is the angle. Under 1 makes the explosion wider. Over 1 makes the explosion thinner
  */
-public class ParabolicExplosion implements ExplosionShape {
+public class ParabolaExplosion implements ExplosionShape {
 
-    private final double depth; // This is assumed to be negative
-    private final double angle;
+    private double depth; // always negative
+    private double angle;
 
-    public ParabolicExplosion(double depth) {
-        this(depth, 0.5);
+    /**
+     * Default constructor for serializer.
+     */
+    public ParabolaExplosion() {
     }
 
-    public ParabolicExplosion(double depth, double angle) {
-        this.depth = -Math.abs(depth); // this check is also done by serializer, but add it here for devs
+    public ParabolaExplosion(double depth, double angle) {
+        if (depth <= 0.0) {
+            throw new IllegalArgumentException("Depth must be a non-zero, negative number");
+        }
+
+        this.depth = depth;
         this.angle = angle;
+    }
+
+    /**
+     * Return the namespaced identifier for this object.
+     *
+     * @return this object's key
+     */
+    @Override
+    public @NotNull NamespacedKey getKey() {
+        return new NamespacedKey("weaponmechanics", "parabola");
     }
 
     /**
@@ -145,6 +164,14 @@ public class ParabolicExplosion implements ExplosionShape {
             temp2 < distance ||
             temp3 > -distance ||
             temp4 < distance;
+    }
+
+    @Override
+    public @NotNull ExplosionShape serialize(@NotNull SerializeData data) throws SerializerException {
+        double depth = data.of("Depth").assertExists().assertRange(0.0, null).getDouble().getAsDouble();
+        double angle = data.of("Angle").assertExists().assertRange(0.0, null).getDouble().getAsDouble();
+
+        return new ParabolaExplosion(depth, angle);
     }
 
     @Override

@@ -1,8 +1,11 @@
 package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -10,7 +13,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -21,26 +23,37 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 /**
  * This explosion uses the minecraft explosion system, instead of using a shape.
- *
- * https://minecraft.gamepedia.com/Explosion
  */
 public class DefaultExplosion implements ExplosionShape {
 
     private static final double DECAY_RATE = 0.3;
     private static final double ABSORB_RATE = 0.3;
 
-    private final float yield;
-    private final int gridSize;
-    private final int bound;
+    private float yield;
+    private int gridSize;
+    private int bound;
 
-    public DefaultExplosion(double yield) {
-        this(yield, 16);
+    /**
+     * Default constructor for serializer.
+     */
+    public DefaultExplosion() {
     }
 
+    /**
+     * Constructs a DefaultExplosion object.
+     *
+     * @param yield The yield of the explosion, typically 4.0.
+     * @param gridSize How many grids on the cube, typically 16.
+     */
     public DefaultExplosion(double yield, int gridSize) {
         this.yield = (float) yield;
         this.gridSize = gridSize;
         this.bound = gridSize - 1;
+    }
+
+    @Override
+    public @NotNull NamespacedKey getKey() {
+        return new NamespacedKey("weaponmechanics", "default");
     }
 
     @NotNull @Override
@@ -140,15 +153,23 @@ public class DefaultExplosion implements ExplosionShape {
 
     @Override
     public double getArea() {
-
         // Sphere volume estimate, 4/3 * PI * r^3
         return 4.0 / 3.0 * Math.PI * yield * yield * yield;
+    }
+
+    @Override
+    public @NotNull ExplosionShape serialize(@NotNull SerializeData data) throws SerializerException {
+        double yield = data.of("Yield").assertExists().assertRange(0.0, null).getDouble().getAsDouble();
+        int gridSize = data.of("Rays").assertRange(1, null).getInt().orElse(16);
+
+        return new DefaultExplosion(yield, gridSize);
     }
 
     @Override
     public String toString() {
         return "DefaultExplosion{" +
             "yield=" + yield +
+            ", gridSize=" + gridSize +
             '}';
     }
 }

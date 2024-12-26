@@ -1,10 +1,13 @@
 package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
 import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
@@ -19,12 +22,18 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
  * This explosion defines a rectangular prism shaped explosion, where a valid (non-negative) width
  * and height are specified.
  */
-public class CuboidExplosion implements ExplosionShape {
+public class CubeExplosion implements ExplosionShape {
 
     // These are set to be half the actual
     // values, kind of like radius
-    private final double width;
-    private final double height;
+    private double width;
+    private double height;
+
+    /**
+     * Default constructor for serializer.
+     */
+    public CubeExplosion() {
+    }
 
     /**
      * Constructs a <code>CuboidExplosion</code> object. The width and height are divided by 2 to get
@@ -36,9 +45,14 @@ public class CuboidExplosion implements ExplosionShape {
      * @param width Total width of the explosion
      * @param height Total height of the explosion
      */
-    public CuboidExplosion(double width, double height) {
+    public CubeExplosion(double width, double height) {
         this.width = width / 2.0;
         this.height = height / 2.0;
+    }
+
+    @Override
+    public @NotNull NamespacedKey getKey() {
+        return new NamespacedKey("weaponmechanics", "cube");
     }
 
     /**
@@ -159,6 +173,14 @@ public class CuboidExplosion implements ExplosionShape {
         return x < distance ||
             y < distance ||
             z < distance;
+    }
+
+    @Override
+    public @NotNull ExplosionShape serialize(@NotNull SerializeData data) throws SerializerException {
+        double width = data.of("Width").assertExists().getDouble().getAsDouble();
+        double height = data.of("Height").assertExists().getDouble().getAsDouble();
+
+        return new CubeExplosion(width, height);
     }
 
     @Override

@@ -1,12 +1,14 @@
 package me.deecaad.weaponmechanics.weapon.explode.exposures;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
-import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.HitBox;
+import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
+import org.bukkit.Keyed;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -16,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision.BLOCK_OR_ENTITY;
 
-public interface ExplosionExposure {
+public interface ExplosionExposure extends Keyed, Serializer<ExplosionExposure> {
 
     double FOV = Math.toRadians(70.0);
 
@@ -99,7 +101,7 @@ public interface ExplosionExposure {
                 } else if (name.equals("SLIME_BLOCK")) {
                     return false;
                 } else {
-                    return CompatibilityAPI.getBlockCompatibility().getHitBox(block) != null;
+                    return HitBox.getHitbox(block, false) != null;
                 }
             }
 

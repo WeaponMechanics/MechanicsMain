@@ -727,45 +727,43 @@ public class ShootHandler implements IValidator, TriggerListener {
 
     @Override
     public void validate(Configuration configuration, SerializeData data) throws SerializerException {
-        Trigger trigger = configuration.getObject(data.key + ".Trigger", Trigger.class);
-        if (trigger == null)
-            throw new SerializerMissingKeyException(data.serializer, data.key + ".Trigger", data.of("Trigger").getLocation());
-
-        double projectileSpeed = data.of("Projectile_Speed").assertPositive().getDouble(80);
+        data.of("Trigger").assertExists();
+        double projectileSpeed = data.of("Projectile_Speed").assertRange(0.0001, null).getDouble().orElse(80.0);
 
         // Convert from more config friendly speed to normal
         // E.g. 80 -> 4.0
-        configuration.set(data.key + ".Projectile_Speed", projectileSpeed / 20);
+        configuration.set(data.getKey() + ".Projectile_Speed", projectileSpeed / 20);
 
-        int delayBetweenShots = data.of("Delay_Between_Shots").assertPositive().getInt(0);
+        int delayBetweenShots = data.of("Delay_Between_Shots").assertRange(0, null).getInt().orElse(0);
         if (delayBetweenShots != 0) {
             // Convert to millis
-            configuration.set(data.key + ".Delay_Between_Shots", delayBetweenShots * 50);
+            configuration.set(data.getKey() + ".Delay_Between_Shots", delayBetweenShots * 50);
         }
 
-        int projectilesPerShot = data.of("Projectiles_Per_Shot").assertRange(1, 100).getInt(1);
-        configuration.set(data.key + ".Projectiles_Per_Shot", projectilesPerShot);
+        int projectilesPerShot = data.of("Projectiles_Per_Shot").assertRange(1, 100).getInt().orElse(1);
+        configuration.set(data.getKey() + ".Projectiles_Per_Shot", projectilesPerShot);
 
         boolean hasBurst = false;
         boolean hasAuto = false;
 
-        int shotsPerBurst = data.of("Burst.Shots_Per_Burst").assertRange(1, 100).getInt(0);
-        int ticksBetweenEachShot = data.of("Burst.Ticks_Between_Each_Shot").assertPositive().getInt(0);
+        int shotsPerBurst = data.of("Burst.Shots_Per_Burst").assertRange(1, 100).getInt().orElse(0);
+        int ticksBetweenEachShot = data.of("Burst.Ticks_Between_Each_Shot").assertRange(0, null).getInt().orElse(0);
         if (shotsPerBurst != 0 || ticksBetweenEachShot != 0) {
             hasBurst = true;
         }
 
-        int fullyAutomaticShotsPerSecond = data.of("Fully_Automatic_Shots_Per_Second").assertRange(0, 120).getInt(0);
+        int fullyAutomaticShotsPerSecond = data.of("Fully_Automatic_Shots_Per_Second").assertRange(0, 120).getInt().orElse(0);
         if (fullyAutomaticShotsPerSecond != 0) {
             hasAuto = true;
         }
 
-        boolean usesSelectiveFire = configuration.getObject(data.key + ".Selective_Fire.Trigger", Trigger.class) != null;
+        boolean usesSelectiveFire = configuration.getObject(data.getKey() + ".Selective_Fire.Trigger", Trigger.class) != null;
         if (usesSelectiveFire && !hasBurst && !hasAuto) {
             throw data.exception("Selective_Fire", "When using selective fire, make sure to set up 2 of: 'Burst' and/or 'Fully_Automatic_Shots_Per_Second' and/or 'Delay_Between_Shots'");
         }
 
         String invalidTrigger = "";
+        Trigger trigger = configuration.getObject(data.getKey() + ".Trigger", Trigger.class);
         if (hasAuto) {
             if (isInvalidFullAuto(trigger.getMainhand()))
                 invalidTrigger += invalidTrigger.isEmpty() ? "Mainhand (" + trigger.getMainhand() + ")" : ", Mainhand (" + trigger.getMainhand() + ")";
@@ -783,22 +781,24 @@ public class ShootHandler implements IValidator, TriggerListener {
             }
         }
 
-        String defaultSelectiveFire = configuration.getString(data.key + ".Selective_Fire.Default");
+        String defaultSelectiveFire = configuration.getString(data.getKey() + ".Selective_Fire.Default");
         if (defaultSelectiveFire != null) {
             if (!defaultSelectiveFire.equalsIgnoreCase("SINGLE")
                 && !defaultSelectiveFire.equalsIgnoreCase("BURST")
                 && !defaultSelectiveFire.equalsIgnoreCase("AUTO")) {
 
-                throw new SerializerOptionsException(data.serializer, "Selective Fire Default", Arrays.asList("SINGLE", "BURST", "AUTO"), defaultSelectiveFire, data.of("Selective_Fire.Default")
-                    .getLocation());
+                throw SerializerException.builder()
+                    .locationRaw(data.of("Selective_Fire.Default").getLocation())
+                    .buildInvalidOption(defaultSelectiveFire, Arrays.asList("SINGLE", "BURST", "AUTO"));
+
             }
         }
 
-        CustomDurability durability = data.of("Custom_Durability").serialize(CustomDurability.class);
+        CustomDurability durability = data.of("Custom_Durability").serialize(CustomDurability.class).orElse(null);
         if (durability != null)
-            configuration.set(data.key + ".Custom_Durability", durability);
+            configuration.set(data.getKey() + ".Custom_Durability", durability);
 
-        configuration.set(data.key + ".Reset_Fall_Distance", data.of("Reset_Fall_Distance").getBool(false));
+        configuration.set(data.getKey() + ".Reset_Fall_Distance", data.of("Reset_Fall_Distance").getBool().orElse(false));
     }
 
     private boolean isInvalidFullAuto(TriggerType triggerType) {

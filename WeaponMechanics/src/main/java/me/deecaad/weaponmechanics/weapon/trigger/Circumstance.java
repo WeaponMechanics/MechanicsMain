@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.weapon.trigger;
 
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.file.SerializerEnumException;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
@@ -56,9 +55,9 @@ public class Circumstance implements Serializer<Circumstance> {
 
     @NotNull @Override
     public Circumstance serialize(@NotNull SerializeData data) throws SerializerException {
-        ConfigurationSection circumstanceSection = data.of().assertExists().assertType(ConfigurationSection.class).get();
+        ConfigurationSection circumstanceSection = data.of().assertExists().get(ConfigurationSection.class).get();
         List<CircumstanceData> circumstances = new ArrayList<>(1);
-        Mechanics denyMechanics = data.of("Deny_Mechanics").serialize(Mechanics.class);
+        Mechanics denyMechanics = data.of("Deny_Mechanics").serialize(Mechanics.class).orElse(null);
 
         for (String type : circumstanceSection.getKeys(false)) {
             if (type.equals("Deny_Mechanics"))
@@ -66,7 +65,8 @@ public class Circumstance implements Serializer<Circumstance> {
 
             String typeToUpper = type.toUpperCase(Locale.ROOT);
 
-            String value = data.config.getString(data.key + "." + type);
+            // safe to get the optional without checking... we are in the loop of existing keys :)
+            String value = data.of(type).get(String.class).get();
             if (!value.equalsIgnoreCase("DENY") && !value.equalsIgnoreCase("REQUIRED")) {
                 throw data.exception(type, "Only DENY and REQUIRED are allowed, now there was " + value + "!");
             }
@@ -74,7 +74,9 @@ public class Circumstance implements Serializer<Circumstance> {
             try {
                 circumstances.add(new CircumstanceData(CircumstanceType.valueOf(typeToUpper), value.equalsIgnoreCase("REQUIRED")));
             } catch (IllegalArgumentException e) {
-                throw new SerializerEnumException(this, CircumstanceType.class, type, false, data.of().getLocation());
+                throw SerializerException.builder()
+                    .locationRaw(data.of(type).getLocation())
+                    .buildInvalidEnumOption(type, CircumstanceType.class);
             }
         }
 
