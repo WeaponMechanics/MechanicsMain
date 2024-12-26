@@ -5,7 +5,6 @@ import me.deecaad.core.utils.EnumUtil
 import me.deecaad.core.utils.LogLevel
 import me.deecaad.core.utils.StringUtil
 import java.io.File
-import java.util.stream.Stream
 import kotlin.math.abs
 
 /**
@@ -22,16 +21,18 @@ import kotlin.math.abs
  */
 open class SerializerException(
     private val location: String,
-    private val messages: MutableList<String> = mutableListOf()
+    private val messages: MutableList<String> = mutableListOf(),
 ) : Exception() {
-
     @JvmOverloads
-    fun log(debug: Debugger, level: LogLevel = LogLevel.ERROR) {
+    fun log(
+        debug: Debugger,
+        level: LogLevel = LogLevel.ERROR,
+    ) {
         val fullError = mutableListOf<String>()
         fullError.add("A mistake was found in your config!")
         fullError.addAll(messages)
         fullError.add(location)
-        fullError.add("")  // An empty line to separate the error from the rest of the log
+        fullError.add("") // An empty line to separate the error from the rest of the log
 
         debug.log(level, fullError)
     }
@@ -43,12 +44,13 @@ open class SerializerException(
         fun location(
             file: File,
             path: String,
-            index: Int? = null
+            index: Int? = null,
         ): Builder {
-            this.location = when {
-                index != null -> "Located in file '$file' at '$path' (The ${StringUtil.ordinal(index)} list item)"
-                else -> "Located in file '$file' at '$path'"
-            }
+            this.location =
+                when {
+                    index != null -> "Located in file '$file' at '$path' (The ${StringUtil.ordinal(index)} list item)"
+                    else -> "Located in file '$file' at '$path'"
+                }
             return this
         }
 
@@ -67,29 +69,37 @@ open class SerializerException(
             return this
         }
 
-        fun didYouMean(actual: String, options: Iterable<String>) {
+        fun didYouMean(
+            actual: String,
+            options: Iterable<String>,
+        ) {
             val expected = StringUtil.didYouMean(actual, options)
             messages.add("Did you mean to use '$expected' instead of '$actual'?")
         }
 
-        fun possibleValues(actual: String, options: Iterable<String>, count: Int): Builder {
+        fun possibleValues(
+            actual: String,
+            options: Iterable<String>,
+            count: Int,
+        ): Builder {
             val arr = options.toList()
             val actualTable = StringUtil.toCharTable(actual)
 
-            val sortedArr = arr.sortedWith { a, b ->
-                val aTable = StringUtil.toCharTable(a)
-                val bTable = StringUtil.toCharTable(b)
+            val sortedArr =
+                arr.sortedWith { a, b ->
+                    val aTable = StringUtil.toCharTable(a)
+                    val bTable = StringUtil.toCharTable(b)
 
-                var diffA = abs(actual.length - a.length)
-                var diffB = abs(actual.length - b.length)
+                    var diffA = abs(actual.length - a.length)
+                    var diffB = abs(actual.length - b.length)
 
-                for (i in actualTable.indices) {
-                    diffA += abs(actualTable[i] - aTable[i])
-                    diffB += abs(actualTable[i] - bTable[i])
+                    for (i in actualTable.indices) {
+                        diffA += abs(actualTable[i] - aTable[i])
+                        diffB += abs(actualTable[i] - bTable[i])
+                    }
+
+                    diffA.compareTo(diffB)
                 }
-
-                diffA.compareTo(diffB)
-            }
 
             val limitedCount = minOf(sortedArr.size, count)
             val builder = StringBuilder("Showing ")
@@ -110,7 +120,11 @@ open class SerializerException(
             return this
         }
 
-        fun buildInvalidRange(actual: Int, min: Int?, max: Int?): SerializerException {
+        fun buildInvalidRange(
+            actual: Int,
+            min: Int?,
+            max: Int?,
+        ): SerializerException {
             if (location == null) {
                 throw IllegalStateException("Location must be set before calling buildInvalidRange")
             }
@@ -121,7 +135,11 @@ open class SerializerException(
             return SerializerException(location!!, messages)
         }
 
-        fun buildInvalidRange(actual: Double, min: Double?, max: Double?): SerializerException {
+        fun buildInvalidRange(
+            actual: Double,
+            min: Double?,
+            max: Double?,
+        ): SerializerException {
             if (location == null) {
                 throw IllegalStateException("Location must be set before calling buildInvalidRange")
             }
@@ -132,15 +150,24 @@ open class SerializerException(
             return SerializerException(location!!, messages)
         }
 
-        fun buildInvalidRegistryOption(input: String, registry: org.bukkit.Registry<*>): SerializerException {
+        fun buildInvalidRegistryOption(
+            input: String,
+            registry: org.bukkit.Registry<*>,
+        ): SerializerException {
             return buildInvalidOption(input, registry.map { it.key.key })
         }
 
-        fun <T : Enum<T>> buildInvalidEnumOption(input: String, enumClass: Class<T>): SerializerException {
+        fun <T : Enum<T>> buildInvalidEnumOption(
+            input: String,
+            enumClass: Class<T>,
+        ): SerializerException {
             return buildInvalidOption(input, EnumUtil.getOptions(enumClass))
         }
 
-        fun buildInvalidOption(input: String, options: Iterable<String>): SerializerException {
+        fun buildInvalidOption(
+            input: String,
+            options: Iterable<String>,
+        ): SerializerException {
             if (location == null) {
                 throw IllegalStateException("Location must be set before calling buildInvalidOption")
             }
@@ -163,7 +190,10 @@ open class SerializerException(
             return SerializerException(location!!, messages)
         }
 
-        fun buildInvalidType(expectedTyped: String, actualValue: Any) : SerializerException {
+        fun buildInvalidType(
+            expectedTyped: String,
+            actualValue: Any,
+        ): SerializerException {
             if (location == null) {
                 throw IllegalStateException("Location must be set before calling buildInvalidType")
             }
@@ -174,7 +204,7 @@ open class SerializerException(
             return SerializerException(location!!, messages)
         }
 
-        fun build() : SerializerException {
+        fun build(): SerializerException {
             if (location == null) {
                 throw IllegalStateException("Location must be set before calling build")
             }

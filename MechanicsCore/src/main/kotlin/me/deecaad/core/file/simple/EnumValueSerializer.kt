@@ -10,7 +10,10 @@ class EnumValueSerializer<T : Enum<T>>(
 ) : SimpleSerializer<List<T>> {
     override fun getTypeName(): String = enumClass.simpleName
 
-    override fun deserialize(data: String, errorLocation: String): List<T> {
+    override fun deserialize(
+        data: String,
+        errorLocation: String,
+    ): List<T> {
         var data = data.trim().lowercase()
         var isWildcard = false
 
@@ -38,10 +41,11 @@ class EnumValueSerializer<T : Enum<T>>(
             }
             return values
         } else {
-            val value = EnumUtil.parseEnums(enumClass, data)
-                ?: throw SerializerException.builder()
-                    .locationRaw(errorLocation)
-                    .buildInvalidEnumOption(data, enumClass)
+            val value =
+                EnumUtil.parseEnums(enumClass, data)
+                    ?: throw SerializerException.builder()
+                        .locationRaw(errorLocation)
+                        .buildInvalidEnumOption(data, enumClass)
 
             return value
         }

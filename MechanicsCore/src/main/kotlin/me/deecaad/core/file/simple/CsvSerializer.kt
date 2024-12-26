@@ -14,7 +14,10 @@ class CsvSerializer<T : Any, S : SimpleSerializer<T>> : SimpleSerializer<List<T>
         return "${serializer.typeName}1, ${serializer.typeName}2, ${serializer.typeName}3, ..."
     }
 
-    override fun deserialize(data: String, errorLocation: String): List<T> {
+    override fun deserialize(
+        data: String,
+        errorLocation: String,
+    ): List<T> {
         return data.split(", ?".toRegex()).map { serializer.deserialize(it, errorLocation) }
     }
 }
