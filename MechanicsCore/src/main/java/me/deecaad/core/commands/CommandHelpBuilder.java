@@ -23,7 +23,15 @@ public class CommandHelpBuilder {
     }
 
     public void register(@NotNull CommandAPICommand command) {
+        CommandAPICommand help = new CommandAPICommand("help")
+            .withAliases("?")
+            .withPermission(command.getPermission())
+            .withRequirement(command.getRequirements())
+            .withShortDescription(command.getName()); // This MUST be the original command's name
 
+        handleSubcommands(help, command);
+        help.withShortDescription("Shows help for the command.");
+        command.withSubcommand(help);
     }
 
     private void handleSubcommands(@NotNull CommandAPICommand help, @NotNull CommandAPICommand parent) {
@@ -47,14 +55,40 @@ public class CommandHelpBuilder {
                 TextComponent.Builder helpResponse = showArguments(help, parent);
                 MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(helpResponse);
             });
+
+            // When there is a required argument, we can show the help for
+            // users that forget to provide the required argument.
+            if (parent.getArguments().stream().anyMatch(arg -> !arg.isOptional())) {
+                CommandAPICommand friend = new CommandAPICommand(parent.getName())
+                    .withShortDescription(parent.getShortDescription())
+                    .withFullDescription(parent.getFullDescription())
+                    .withPermission(parent.getPermission())
+                    .withRequirement(parent.getRequirements());
+
+                friend.executes((sender, args) -> {
+                    TextComponent.Builder helpResponse = showArguments(help, parent);
+                    MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(helpResponse);
+                });
+            }
         }
 
         // When the parent command has subcommands, we can show a list of each
         // subcommand when you run the help command.
         else {
+            help.executes((sender, args) -> {
+                TextComponent.Builder helpResponse = showSubcommands(help, parent);
+                MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(helpResponse);
+            });
 
+            // When the command only has subcommands, we can show help when the
+            // user fails to choose a subcommand.
+            if (!parent.getExecutor().hasAnyExecutors()) {
+                parent.executes((sender, args) -> {
+                    TextComponent.Builder helpResponse = showSubcommands(help, parent);
+                    MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(helpResponse);
+                });
+            }
         }
-
     }
 
     private @NotNull TextComponent.Builder showMeta(@NotNull CommandAPICommand help, @NotNull CommandAPICommand parent) {
@@ -81,6 +115,23 @@ public class CommandHelpBuilder {
             builder.append(text().content("Aliases: ").style(primaryStyle));
             builder.append(text().content(String.join(", ", parent.getAliases())).style(secondaryStyle));
             builder.appendNewline();
+        }
+
+        return builder;
+    }
+
+    private @NotNull TextComponent.Builder showSubcommands(@NotNull CommandAPICommand help, @NotNull CommandAPICommand parent) {
+        TextComponent.Builder builder = showMeta(help, parent);
+
+        // Show each subcommand as a clickable text
+        for (CommandAPICommand subcommand : parent.getSubcommands()) {
+            builder.appendNewline();
+            builder.append(text().content("<" + subcommand.getName() + ">: ").style(primaryStyle)
+                .clickEvent(ClickEvent.suggestCommand("/" + subcommand.getName())))
+                .hoverEvent(text("Click to run"));
+            builder.append(text().content(subcommand.getShortDescription()).style(secondaryStyle)
+                .clickEvent(ClickEvent.suggestCommand("/" + subcommand.getName())))
+                .hoverEvent(text("Click to run"));
         }
 
         return builder;

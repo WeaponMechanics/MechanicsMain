@@ -32,6 +32,7 @@ dependencies {
     compileOnly(Dependencies.FAST_UTIL)
     compileOnly(Dependencies.FOLIA_SCHEDULER)
     compileOnly(Dependencies.COMMAND_API)
+    compileOnly(Dependencies.COMMAND_API_KOTLIN)
 }
 
 // Create javadocJar and sourcesJar tasks

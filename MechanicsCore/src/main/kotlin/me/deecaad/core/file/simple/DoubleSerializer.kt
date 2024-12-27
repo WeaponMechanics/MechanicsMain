@@ -64,4 +64,17 @@ class DoubleSerializer
             // If it was indicated as a percentage, divide by 100
             return if (isPercentage) signedValue / 100.0 else signedValue
         }
+
+        override fun examples(): MutableList<String> {
+            // Since there are infinite doubles, let's just return a few samples
+            // in the range
+            val min = min ?: 0.0
+            val max = max ?: 100.0
+
+            return mutableListOf(
+                min.toString(),
+                ((min + max) / 2).toString(),
+                max.toString(),
+            )
+        }
     }

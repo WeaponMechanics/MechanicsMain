@@ -23,7 +23,7 @@ object Versions {
     const val X_SERIES = "12.0.0"
     const val FAST_UTIL = "8.5.13"
     const val FOLIA_SCHEDULER = "0.6.1"
-    const val COMMAND_API = "9.6.2-SNAPSHOT"
+    const val COMMAND_API = "9.7.0"
 }
 
 object Dependencies {
@@ -52,6 +52,7 @@ object Dependencies {
     const val FOLIA_SCHEDULER = "com.cjcrafter:foliascheduler:${Versions.FOLIA_SCHEDULER}"
     const val COMMAND_API = "dev.jorel:commandapi-bukkit-core:${Versions.COMMAND_API}"
     const val COMMAND_API_SHADE = "dev.jorel:commandapi-bukkit-shade:${Versions.COMMAND_API}"
+    const val COMMAND_API_KOTLIN = "dev.jorel:commandapi-bukkit-kotlin:${Versions.COMMAND_API}"
 }
 
 fun org.gradle.api.artifacts.dsl.DependencyHandler.adventureChatAPI() {

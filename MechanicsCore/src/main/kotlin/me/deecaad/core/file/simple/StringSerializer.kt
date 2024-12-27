@@ -11,4 +11,8 @@ class StringSerializer : SimpleSerializer<String> {
     ): String {
         return data
     }
+
+    override fun examples(): MutableList<String> {
+        return mutableListOf("example")
+    }
 }

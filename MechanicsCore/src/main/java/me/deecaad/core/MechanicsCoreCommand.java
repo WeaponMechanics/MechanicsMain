@@ -27,8 +27,6 @@ import static net.kyori.adventure.text.Component.text;
 
 public final class MechanicsCoreCommand {
 
-    public static char SYM = '\u27A2';
-
     /**
      * Don't let anyone instantiate this class
      */
@@ -57,6 +55,8 @@ public final class MechanicsCoreCommand {
 
         CommandHelpBuilder helpBuilder = new CommandHelpBuilder(Style.style(NamedTextColor.GOLD), Style.style(NamedTextColor.GRAY));
         helpBuilder.register(command);
+
+        command.register();
     }
 
     public static void listPlugins(CommandSender sender) {

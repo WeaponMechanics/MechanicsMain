@@ -67,4 +67,8 @@ class RegistryValueSerializer<T : Keyed>(
             return listOf(value)
         }
     }
+
+    override fun examples(): MutableList<String> {
+        return registry.map { it.key.toString() }.toMutableList()
+    }
 }

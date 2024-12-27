@@ -50,4 +50,8 @@ class EnumValueSerializer<T : Enum<T>>(
             return value
         }
     }
+
+    override fun examples(): MutableList<String> {
+        return EnumUtil.getOptions(enumClass).toMutableList()
+    }
 }

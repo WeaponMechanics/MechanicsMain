@@ -1,5 +1,6 @@
 package me.deecaad.core.file;
 
+import me.deecaad.core.file.simple.DoubleSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -29,6 +30,17 @@ public interface SimpleSerializer<T> extends Serializer<T> {
      * @return The parsed object.
      */
     @NotNull T deserialize(@NotNull String data, @NotNull String errorLocation) throws SerializerException;
+
+    /**
+     * Returns the set of all possible values that can be parsed by this serializer.
+     *
+     * <p>
+     * The set of values will always be finite. Thus, any type that can take on an infinite number of
+     * values (like a {@link DoubleSerializer double}) will return a finite set of example values.
+     *
+     * @return The set of all possible values that can be parsed by this serializer.
+     */
+    @NotNull List<String> examples();
 
     @Override
     default @NotNull T serialize(@NotNull SerializeData data) throws SerializerException {

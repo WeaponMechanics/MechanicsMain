@@ -29,4 +29,13 @@ class IntSerializer
 
             return value
         }
+
+        override fun examples(): MutableList<String> {
+            // Since there are infinite integers, let's just return a couple integers
+            // in the correct range
+            val min = min ?: 0
+            val max = max ?: 100
+
+            return (min..max).map { it.toString() }.toMutableList()
+        }
     }

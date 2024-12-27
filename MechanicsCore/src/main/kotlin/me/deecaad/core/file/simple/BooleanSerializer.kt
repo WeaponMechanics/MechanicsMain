@@ -18,4 +18,8 @@ class BooleanSerializer : SimpleSerializer<Boolean> {
                 .buildInvalidType("true/false", data)
         }
     }
+
+    override fun examples(): MutableList<String> {
+        return mutableListOf("true", "false")
+    }
 }
