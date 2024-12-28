@@ -96,12 +96,12 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
 
     @Override
     @NotNull public ClusterBomb serialize(@NotNull SerializeData data) throws SerializerException {
-        int bombs = data.of("Number_Of_Bombs").assertExists().assertPositive().getInt();
-        Projectile projectileSettings = data.of("Split_Projectile").serialize(Projectile.class);
-        double speed = data.of("Projectile_Speed").assertPositive().getDouble(30.0) / 20.0;
-        int splits = data.of("Number_Of_Splits").assertPositive().getInt(1);
-        Detonation detonation = data.of("Detonation").serialize(Detonation.class);
-        Mechanics mechanics = data.of("Mechanics").serialize(Mechanics.class);
+        int bombs = data.of("Number_Of_Bombs").assertExists().assertRange(1, null).getInt().getAsInt();
+        Projectile projectileSettings = data.of("Split_Projectile").serialize(Projectile.class).orElse(null);
+        double speed = data.of("Projectile_Speed").assertRange(0.0, null).getDouble().orElse(30.0) / 20.0;
+        int splits = data.of("Number_Of_Splits").assertRange(1, null).getInt().orElse(1);
+        Detonation detonation = data.of("Detonation").serialize(Detonation.class).orElse(null);
+        Mechanics mechanics = data.of("Mechanics").serialize(Mechanics.class).orElse(null);
 
         return new ClusterBomb(projectileSettings, speed, splits, bombs, detonation, mechanics);
     }

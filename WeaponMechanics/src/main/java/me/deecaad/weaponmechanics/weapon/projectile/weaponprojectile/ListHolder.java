@@ -3,13 +3,15 @@ package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.EnumUtil;
+import me.deecaad.core.file.simple.DoubleSerializer;
+import me.deecaad.core.file.simple.EnumValueSerializer;
 import org.jetbrains.annotations.NotNull;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> {
 
@@ -70,25 +72,20 @@ public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> 
 
     @Override
     @NotNull public ListHolder<T> serialize(@NotNull SerializeData data) throws SerializerException {
-        boolean allowAny = data.of("Allow_Any").getBool(false);
+        boolean allowAny = data.of("Allow_Any").getBool().orElse(false);
 
         Map<T, Double> mapList = new HashMap<>();
-        List<String[]> list = data.ofList("List")
-            .addArgument(clazz, true)
-            .addArgument(double.class, false)
-            .assertList().get();
+        List<List<Optional<Object>>> list = data.ofList("List")
+            .addArgument(new EnumValueSerializer<>(clazz, true))
+            .requireAllPreviousArgs()
+            .addArgument(new DoubleSerializer())
+            .assertList();
 
-        for (String[] split : list) {
-            Double speedMultiplier = null;
+        for (List<Optional<Object>> split : list) {
+            List<T> matches = (List<T>) split.get(0).get();
+            Double speedMultiplier = (Double) split.get(1).orElse(null);
 
-            // Make optional to use speed multiplier
-            if (split.length >= 2) {
-                speedMultiplier = Double.parseDouble(split[1]);
-            }
-
-            List<T> validValues = EnumUtil.parseEnums(clazz, split[0]);
-
-            for (T validValue : validValues) {
+            for (T validValue : matches) {
                 // Speed multiplier is null if it isn't defined
                 mapList.put(validValue, speedMultiplier);
             }
@@ -102,8 +99,8 @@ public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> 
             mapList = null;
         }
 
-        double defaultSpeedMultiplier = data.of("Default_Speed_Multiplier").assertPositive().getDouble(1.0);
-        boolean whitelist = data.of("Whitelist").getBool(true);
+        double defaultSpeedMultiplier = data.of("Default_Speed_Multiplier").assertRange(0.0, null).getDouble().orElse(1.0);
+        boolean whitelist = data.of("Whitelist").getBool().orElse(true);
         return new ListHolder<>(allowAny, whitelist, defaultSpeedMultiplier, mapList);
     }
 }

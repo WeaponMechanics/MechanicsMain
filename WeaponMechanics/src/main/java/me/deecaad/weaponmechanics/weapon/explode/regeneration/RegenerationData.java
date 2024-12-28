@@ -5,8 +5,6 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-
 public class RegenerationData implements Serializer<RegenerationData> {
 
     private int ticksBeforeStart;
@@ -51,9 +49,9 @@ public class RegenerationData implements Serializer<RegenerationData> {
 
     @Override
     @NotNull public RegenerationData serialize(@NotNull SerializeData data) throws SerializerException {
-        int ticksBeforeStart = data.of("Ticks_Before_Start").assertPositive().getInt(1200); // 1 minute, in ticks
-        int maxBlocksPerUpdate = data.of("Max_Blocks_Per_Update").assertPositive().getInt(1);
-        int interval = data.of("Ticks_Between_Updates").assertPositive().getInt(1);
+        int ticksBeforeStart = data.of("Ticks_Before_Start").assertRange(1, null).getInt().orElse(1200); // 1 minute, in ticks
+        int maxBlocksPerUpdate = data.of("Max_Blocks_Per_Update").assertRange(1, null).getInt().orElse(1);
+        int interval = data.of("Ticks_Between_Updates").assertRange(1, null).getInt().orElse(1);
 
         return new RegenerationData(ticksBeforeStart, maxBlocksPerUpdate, interval);
     }

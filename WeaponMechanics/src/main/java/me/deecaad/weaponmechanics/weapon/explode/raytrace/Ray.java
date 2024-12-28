@@ -1,10 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.explode.raytrace;
 
 import com.cjcrafter.foliascheduler.TaskImplementation;
-import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.compatibility.HitBox;
-import me.deecaad.core.compatibility.block.BlockCompatibility;
 import com.cjcrafter.foliascheduler.util.MinecraftVersions;
+import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Chunk;
@@ -112,7 +110,6 @@ public class Ray {
      * @return The collision data
      */
     public TraceResult trace(@NotNull TraceCollision collision, @Nonnegative double accuracy, boolean isShow) {
-        BlockCompatibility factory = CompatibilityAPI.getBlockCompatibility();
 
         // Store the entities between the starting and ending point of the ray. Map the
         // entities to their hit box. If this ray is too long, this method becomes
@@ -148,7 +145,7 @@ public class Ray {
 
             // We can collide with a block if the collision can actually effect blocks,
             // if this specific block can be hit, and if we actually collide with the block's hitbox
-            if (collision.isHitBlock() && collision.canHit(block) && contains(factory.getHitBox(block), point)) {
+            if (collision.isHitBlock() && collision.canHit(block) && contains(HitBox.getHitbox(block, false), point)) {
                 blocks.add(block);
                 collides = true;
             }
@@ -215,7 +212,7 @@ public class Ray {
 
                 for (Entity entity : chunk.getEntities()) {
                     if (contains(min, max, entity.getLocation(reuse)) && collision.canHit(entity)) {
-                        temp.put(entity, CompatibilityAPI.getEntityCompatibility().getHitBox(entity));
+                        temp.put(entity, HitBox.getHitbox(entity));
                     }
                 }
             }

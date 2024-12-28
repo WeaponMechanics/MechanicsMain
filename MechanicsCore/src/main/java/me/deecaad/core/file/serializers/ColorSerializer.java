@@ -7,6 +7,8 @@ import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Color;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -111,6 +113,21 @@ public class ColorSerializer implements SimpleSerializer<Color> {
                     .buildInvalidEnumOption(data, ColorType.class);
             }
         }
+    }
+
+    @Override
+    public @NotNull List<String> examples() {
+        List<String> examples = new ArrayList<>(100);
+        for (ColorType colorType : ColorType.values()) {
+            examples.add(colorType.name());
+            Color color = colorType.getBukkitColor();
+
+            examples.add(String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue()));
+            examples.add(String.format("%d-%d-%d", color.getRed(), color.getGreen(), color.getBlue()));
+            examples.add(String.format("0x%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue()));
+        }
+
+        return examples;
     }
 
     public enum ColorType {

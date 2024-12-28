@@ -51,7 +51,7 @@ public class AmmoRegistry {
                     for (String key : config.getKeys(false)) {
                         try {
                             SerializeData data = new SerializeData(new Ammo(), file.toFile(), key, new BukkitConfig(config));
-                            Ammo ammo = data.of().serialize(new Ammo());
+                            Ammo ammo = data.of().assertExists().serialize(new Ammo()).get();
                             AmmoRegistry.AMMO_REGISTRY.add(ammo);
                         } catch (SerializerException ex) {
                             ex.log(WeaponMechanics.debug);

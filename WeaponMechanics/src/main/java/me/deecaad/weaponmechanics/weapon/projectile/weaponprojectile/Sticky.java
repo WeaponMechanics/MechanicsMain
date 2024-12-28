@@ -10,8 +10,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-
 public class Sticky implements Serializer<Sticky>, Cloneable {
 
     private ListHolder<Material> blocks;
@@ -56,8 +54,8 @@ public class Sticky implements Serializer<Sticky>, Cloneable {
 
     @Override
     @NotNull public Sticky serialize(@NotNull SerializeData data) throws SerializerException {
-        ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class));
-        ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
+        ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class)).orElse(null);
+        ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class)).orElse(null);
 
         if (blocks == null && entities == null) {
             throw data.exception(null, "'Sticky' requires at least one of 'Blocks' or 'Entities'");

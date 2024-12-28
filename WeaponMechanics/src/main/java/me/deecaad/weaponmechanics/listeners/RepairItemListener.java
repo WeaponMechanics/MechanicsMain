@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.listeners;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.*;
 import me.deecaad.core.file.serializers.ItemSerializer;
+import me.deecaad.core.file.simple.StringSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.FileUtil;
@@ -87,7 +88,7 @@ public class RepairItemListener implements Listener {
                     for (String key : config.getKeys(false)) {
                         try {
                             SerializeData data = new SerializeData(new RepairKit(), file.toFile(), key, new BukkitConfig(config));
-                            RepairKit repairKit = data.of().serialize(RepairKit.class);
+                            RepairKit repairKit = data.of().assertExists().serialize(RepairKit.class).get();
 
                             if (repairKits.containsKey(key))
                                 throw data.exception(null, "Found duplicate Repair Kit name '" + key + "'");
@@ -408,20 +409,32 @@ public class RepairItemListener implements Listener {
 
         @NotNull @Override
         public RepairKit serialize(@NotNull SerializeData data) throws SerializerException {
-            String repairKitTitle = data.key.split("\\.")[0];
+            String repairKitTitle = data.getKey().split("\\.")[0];
 
-            int totalDurability = data.of("Total_Durability").assertPositive().assertExists().getInt();
-            int overrideMaxDurabilityLoss = data.of("Override_Max_Durability_Loss").assertPositive().getInt(-1);
-            boolean blacklist = data.of("Blacklist").getBool(false);
-            Set<String> weapons = data.ofList("Weapons").addArgument(String.class, true).assertList().stream().map(arr -> arr[0]).collect(Collectors.toSet());
-            Set<String> armors = data.ofList("Armors").addArgument(String.class, true).assertList().stream().map(arr -> arr[0]).collect(Collectors.toSet());
+            int totalDurability = data.of("Total_Durability").assertExists().assertRange(1, null).getInt().getAsInt();
+            int overrideMaxDurabilityLoss = data.of("Override_Max_Durability_Loss").assertRange(1, null).getInt().orElse(-1);
+            boolean blacklist = data.of("Blacklist").getBool().orElse(false);
+            Set<String> weapons = data.ofList("Weapons")
+                .addArgument(new StringSerializer())
+                .requireAllPreviousArgs()
+                .assertList()
+                .stream()
+                .map(split -> (String) split.get(0).get())
+                .collect(Collectors.toSet());
+            Set<String> armors = data.ofList("Armors")
+                .addArgument(new StringSerializer())
+                .requireAllPreviousArgs()
+                .assertList()
+                .stream()
+                .map(split -> (String) split.get(0).get())
+                .collect(Collectors.toSet());
 
             data.of("Item").assertExists();
             Map<String, Object> tags = Map.of(CustomTag.DURABILITY.getKey(), totalDurability, CustomTag.REPAIR_KIT_TITLE.getKey(), repairKitTitle);
             ItemStack item = new ItemSerializer().serializeWithTags(data.move("Item"), tags);
 
-            Mechanics breakMechanics = data.of("Break_Mechanics").serialize(Mechanics.class);
-            boolean consumeOnUse = data.of("Consume_On_Use").getBool(false);
+            Mechanics breakMechanics = data.of("Break_Mechanics").serialize(Mechanics.class).orElse(null);
+            boolean consumeOnUse = data.of("Consume_On_Use").getBool().orElse(false);
 
             return new RepairKit(item, totalDurability, overrideMaxDurabilityLoss, blacklist, weapons, armors, breakMechanics, consumeOnUse);
         }

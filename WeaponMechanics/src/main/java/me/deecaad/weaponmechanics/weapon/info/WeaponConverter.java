@@ -120,11 +120,11 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
 
     @Override
     public @NotNull WeaponConverter serialize(@NotNull SerializeData data) throws SerializerException {
-        boolean type = data.of("Type").getBool(false);
-        boolean name = data.of("Name").getBool(false);
-        boolean lore = data.of("Lore").getBool(false);
-        boolean enchantments = data.of("Enchantments").getBool(false);
-        boolean cmd = data.of("Custom_Model_Data").getBool(false);
+        boolean type = data.of("Type").getBool().orElse(false);
+        boolean name = data.of("Name").getBool().orElse(false);
+        boolean lore = data.of("Lore").getBool().orElse(false);
+        boolean enchantments = data.of("Enchantments").getBool().orElse(false);
+        boolean cmd = data.of("Custom_Model_Data").getBool().orElse(false);
 
         if (!type && !name && !lore && !enchantments && !cmd) {
             throw data.exception(null, "'Type', 'Name', 'Lore', 'Enchantments', 'Custom_Model_Data' are all 'false'",
@@ -132,12 +132,7 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
                 "If you want to remove the weapon conversion feature, remove the '" + getKeyword() + "' option from config");
         }
 
-        if (cmd && !MinecraftVersions.VILLAGE_AND_PILLAGE.isAtLeast()) {
-            throw data.exception("Custom_Model_Data", "Custom_Model_Data is only available for 1.14+");
-        }
-
-        WeaponMechanics.getWeaponHandler().getInfoHandler().addWeaponWithConvert(data.key.split("\\.")[0]);
-
+        WeaponMechanics.getWeaponHandler().getInfoHandler().addWeaponWithConvert(data.getKey().split("\\.")[0]);
         return new WeaponConverter(type, name, lore, enchantments, cmd);
     }
 }

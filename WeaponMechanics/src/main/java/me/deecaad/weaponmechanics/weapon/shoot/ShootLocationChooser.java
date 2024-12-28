@@ -12,7 +12,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.MainHand;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -109,9 +108,9 @@ public class ShootLocationChooser implements Serializer<ShootLocationChooser> {
 
     @Override
     public @NotNull ShootLocationChooser serialize(@NotNull SerializeData data) throws SerializerException {
-        ShootLocation def = data.of().serialize(ShootLocation::serialize);
-        ShootLocation vr = data.of("Vive").serialize(ShootLocation::serialize);
-        ShootLocation scope = data.of("Scope").serialize(ShootLocation::serialize);
+        ShootLocation def = data.of().serialize(ShootLocation.class).orElse(null);
+        ShootLocation vr = data.of("Vive").serialize(ShootLocation.class).orElse(null);
+        ShootLocation scope = data.of("Scope").serialize(ShootLocation.class).orElse(null);
 
         if (def == null) {
             throw data.exception(null, "Somehow, the default shoot location in the ShootLocationChooser is null",
@@ -144,13 +143,24 @@ public class ShootLocationChooser implements Serializer<ShootLocationChooser> {
     /**
      * Keeps track of the left and right shoot locations, since the position should probably be
      * different for each arm.
-     *
-     * @param left The left arm, or {@link EquipmentSlot#OFF_HAND}
-     * @param right The right arm, or {@link EquipmentSlot#HAND}
      */
-    public record ShootLocation(VectorSerializer left, VectorSerializer right) {
+    public static class ShootLocation implements Serializer<ShootLocation> {
 
-        public void offset(boolean isRightHand, Location source, Vector direction) {
+        private VectorSerializer left;
+        private VectorSerializer right;
+
+        /**
+         * Default constructor for serializer.
+         */
+        public ShootLocation() {
+        }
+
+        public ShootLocation(@NotNull VectorSerializer left, @NotNull VectorSerializer right) {
+            this.left = left;
+            this.right = right;
+        }
+
+        public void offset(boolean isRightHand, @NotNull Location source, @Nullable Vector direction) {
             if (isRightHand) {
                 source.add(right.getVector(direction));
             } else {
@@ -158,10 +168,10 @@ public class ShootLocationChooser implements Serializer<ShootLocationChooser> {
             }
         }
 
-        public static @NotNull ShootLocation serialize(@NotNull SerializeData data) throws SerializerException {
-            return new ShootLocation(
-                data.of("Left_Hand").assertExists().serialize(new VectorSerializer()),
-                data.of("Right_Hand").assertExists().serialize(new VectorSerializer()));
+        public @NotNull ShootLocation serialize(@NotNull SerializeData data) throws SerializerException {
+            VectorSerializer left = data.of("Left_Hand").assertExists().serialize(VectorSerializer.class).get();
+            VectorSerializer right = data.of("Right_Hand").assertExists().serialize(VectorSerializer.class).get();
+            return new ShootLocation(left, right);
         }
     }
 }

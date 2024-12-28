@@ -4,6 +4,7 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.simple.StringSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -11,12 +12,11 @@ import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
 import org.jetbrains.annotations.Nullable;
-import java.util.HashSet;
-import java.util.List;
+
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class DualWield implements Serializer<DualWield> {
 
@@ -84,15 +84,18 @@ public class DualWield implements Serializer<DualWield> {
 
     @Override
     @NotNull public DualWield serialize(@NotNull SerializeData data) throws SerializerException {
-        List<String[]> weaponsList = data.ofList("Weapons")
-            .addArgument(String.class, true, true)
-            .assertExists().assertList().get();
-        Set<String> weapons = new HashSet<>();
+        Set<String> weapons = data.ofList("Weapons")
+            .addArgument(new StringSerializer())
+            .requireAllPreviousArgs()
+            .assertExists()
+            .assertList()
+            .stream()
+            .map(split -> split.get(0).get().toString().trim().toLowerCase(Locale.ROOT))
+            .collect(Collectors.toSet());
 
         // Saves weapons in lower case
-        weaponsList.forEach(weaponTitle -> weapons.add(weaponTitle[0].toLowerCase(Locale.ROOT)));
-        boolean whitelist = data.of("Whitelist").getBool(false);
-        Mechanics mechanics = data.of("Mechanics_On_Deny").serialize(Mechanics.class);
+        boolean whitelist = data.of("Whitelist").getBool().orElse(false);
+        Mechanics mechanics = data.of("Mechanics_On_Deny").serialize(Mechanics.class).orElse(null);
         return new DualWield(whitelist, weapons, mechanics);
     }
 }

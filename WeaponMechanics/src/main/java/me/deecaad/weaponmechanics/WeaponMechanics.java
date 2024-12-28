@@ -34,7 +34,6 @@ import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
 import me.deecaad.core.utils.LogLevel;
-import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.lib.MythicMobsLoader;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
@@ -427,12 +426,7 @@ public class WeaponMechanics {
     void registerCommands() {
         debug.debug("Registering commands");
 
-        // In 1.13+, we should use the built-in 'brigadier' system which
-        // has really nice tab-completions/validation
-        if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
-            WeaponMechanicsCommand.build();
-            return;
-        }
+        WeaponMechanicsCommand.registerCommands();
     }
 
     void registerPermissions() {

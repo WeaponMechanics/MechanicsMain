@@ -3,11 +3,14 @@ package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.serializers.ChanceSerializer;
+import me.deecaad.core.file.simple.DoubleSerializer;
 import me.deecaad.core.utils.RandomUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class RecoilPattern implements Serializer<RecoilPattern> {
 
@@ -46,30 +49,23 @@ public class RecoilPattern implements Serializer<RecoilPattern> {
 
     @Override
     @NotNull public RecoilPattern serialize(@NotNull SerializeData data) throws SerializerException {
-        List<String[]> list = data.ofList("List")
-            .addArgument(double.class, true)
-            .addArgument(double.class, true)
-            .addArgument(String.class, false, true)
-            .assertList().assertExists().get();
+        List<List<Optional<Object>>> list = data.ofList("List")
+            .addArgument(new DoubleSerializer())
+            .addArgument(new DoubleSerializer())
+            .addArgument(new ChanceSerializer())
+            .assertList();
 
         List<ExtraRecoilPatternData> recoilPatternList = new ArrayList<>();
-        for (String[] split : list) {
+        for (List<Optional<Object>> split : list) {
 
-            float horizontalRecoil = Float.parseFloat(split[0]);
-            float verticalRecoil = Float.parseFloat(split[1]);
-            double chanceToSkip = split.length > 2 ? Double.parseDouble(split[2].split("%")[0]) : 0.0;
+            float horizontalRecoil = ((Number) split.get(0).get()).floatValue();
+            float verticalRecoil = ((Number) split.get(1).get()).floatValue();
+            double chanceToSkip = (Double) split.get(2).get();
 
-            if (chanceToSkip > 100 || chanceToSkip < 0) {
-                throw data.exception(null, "Chance to skip should be between 0 and 100",
-                    SerializerException.forValue(split[2]));
-            }
-
-            // Convert to 0-1 range
-            chanceToSkip *= 0.01;
             recoilPatternList.add(new ExtraRecoilPatternData(horizontalRecoil, verticalRecoil, chanceToSkip));
         }
 
-        boolean repeatPattern = data.of("Repeat_Pattern").getBool(false);
+        boolean repeatPattern = data.of("Repeat_Pattern").getBool().orElse(false);
         return new RecoilPattern(repeatPattern, recoilPatternList);
     }
 

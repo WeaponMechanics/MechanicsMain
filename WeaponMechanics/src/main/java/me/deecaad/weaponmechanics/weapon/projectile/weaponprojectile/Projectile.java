@@ -124,12 +124,12 @@ public class Projectile implements Serializer<Projectile> {
 
     @Override
     @NotNull public Projectile serialize(@NotNull SerializeData data) throws SerializerException {
-        ProjectileSettings projectileSettings = data.of("Projectile_Settings").assertExists().serialize(ProjectileSettings.class);
+        ProjectileSettings projectileSettings = data.of("Projectile_Settings").assertExists().serialize(ProjectileSettings.class).get();
 
-        Sticky sticky = data.of("Sticky").serialize(Sticky.class);
-        Through through = data.of("Through").serialize(Through.class);
-        Bouncy bouncy = data.of("Bouncy").serialize(Bouncy.class);
-        Mechanics mechanics = data.of("Mechanics").serialize(Mechanics.class);
+        Sticky sticky = data.of("Sticky").serialize(Sticky.class).orElse(null);
+        Through through = data.of("Through").serialize(Through.class).orElse(null);
+        Bouncy bouncy = data.of("Bouncy").serialize(Bouncy.class).orElse(null);
+        Mechanics mechanics = data.of("Mechanics").serialize(Mechanics.class).orElse(null);
         return new Projectile(projectileSettings, sticky, through, bouncy, mechanics);
     }
 }

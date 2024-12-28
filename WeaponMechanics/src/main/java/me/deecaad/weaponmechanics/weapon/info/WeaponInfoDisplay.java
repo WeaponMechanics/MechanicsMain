@@ -345,25 +345,25 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     @NotNull public WeaponInfoDisplay serialize(@NotNull SerializeData data) throws SerializerException {
 
         // ACTION BAR
-        String actionBarMessage = data.of("Action_Bar.Message").getAdventure(null);
+        String actionBarMessage = data.of("Action_Bar.Message").getAdventure().orElse(null);
 
-        String bossBarMessage = data.of("Boss_Bar.Title").getAdventure(null);
+        String bossBarMessage = data.of("Boss_Bar.Title").getAdventure().orElse(null);
         BossBar.Color barColor = null;
         BossBar.Overlay barStyle = null;
         if (bossBarMessage != null) {
-            barColor = data.of("Boss_Bar.Bar_Color").getEnum(BossBar.Color.class, BossBar.Color.WHITE);
-            barStyle = data.of("Boss_Bar.Bar_Style").getEnum(BossBar.Overlay.class, BossBar.Overlay.NOTCHED_20);
+            barColor = data.of("Boss_Bar.Bar_Color").getEnum(BossBar.Color.class).orElse(BossBar.Color.WHITE);
+            barStyle = data.of("Boss_Bar.Bar_Style").getEnum(BossBar.Overlay.class).orElse(BossBar.Overlay.NOTCHED_20);
         }
 
-        boolean expLevel = data.of("Show_Ammo_In.Exp_Level").getBool(false);
-        boolean expProgress = data.of("Show_Ammo_In.Exp_Progress").getBool(false);
-        boolean bossBarProgress = data.of("Show_Ammo_In.Boss_Bar_Progress").getBool(false);
+        boolean expLevel = data.of("Show_Ammo_In.Exp_Level").getBool().orElse(false);
+        boolean expProgress = data.of("Show_Ammo_In.Exp_Progress").getBool().orElse(false);
+        boolean bossBarProgress = data.of("Show_Ammo_In.Boss_Bar_Progress").getBool().orElse(false);
 
-        String dualWieldMainActionBar = data.of("Action_Bar.Dual_Wield.Main_Hand").getAdventure(null);
-        String dualWieldMainBossBar = data.of("Boss_Bar.Dual_Wield.Main_Hand").getAdventure(null);
+        String dualWieldMainActionBar = data.of("Action_Bar.Dual_Wield.Main_Hand").getAdventure().orElse(null);
+        String dualWieldMainBossBar = data.of("Boss_Bar.Dual_Wield.Main_Hand").getAdventure().orElse(null);
 
-        String dualWieldOffActionBar = data.of("Action_Bar.Dual_Wield.Off_Hand").getAdventure(null);
-        String dualWieldOffBossBar = data.of("Boss_Bar.Dual_Wield.Off_Hand").getAdventure(null);
+        String dualWieldOffActionBar = data.of("Action_Bar.Dual_Wield.Off_Hand").getAdventure().orElse(null);
+        String dualWieldOffBossBar = data.of("Boss_Bar.Dual_Wield.Off_Hand").getAdventure().orElse(null);
 
         if (actionBarMessage == null && bossBarMessage == null && !expLevel && !expProgress) {
             throw data.exception(null, "Found an empty Weapon_Info_Display... Users won't be able to see any changes in their ammo!");

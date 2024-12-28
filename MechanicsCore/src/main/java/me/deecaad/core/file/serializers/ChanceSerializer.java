@@ -3,7 +3,10 @@ package me.deecaad.core.file.serializers;
 import me.deecaad.core.file.*;
 import org.jetbrains.annotations.NotNull;
 
-public class ChanceSerializer implements Serializer<Double> {
+import java.util.List;
+import java.util.stream.IntStream;
+
+public class ChanceSerializer implements SimpleSerializer<Double> {
 
     /**
      * Default constructor for serializer.
@@ -11,16 +14,20 @@ public class ChanceSerializer implements Serializer<Double> {
     public ChanceSerializer() {
     }
 
-    @NotNull @Override
-    public Double serialize(@NotNull SerializeData data) throws SerializerException {
-        Object value = data.of().assertExists().get(Object.class).get();
+    @Override
+    public @NotNull String getTypeName() {
+        return "chance";
+    }
+
+    @Override
+    public @NotNull Double deserialize(@NotNull String value, @NotNull String errorLocation) throws SerializerException {
         double chance;
 
         // Handle percentages. This is the officially supported method of
         // parsing a chance. Users may use decimals when using percentages.
         // For example, 10.5% = 0.105
-        if (value.toString().contains("%")) {
-            String str = value.toString().trim();
+        if (value.contains("%")) {
+            String str = value.trim();
 
             // We should account for %50 and 50%, since it can be easy to mix
             // those up.
@@ -29,33 +36,39 @@ public class ChanceSerializer implements Serializer<Double> {
             } else if (str.endsWith("%")) {
                 chance = Double.parseDouble(str.substring(0, str.length() - 1)) / 100.0;
             } else {
-                throw data.exception(null, "Chance input had a '%' in the middle when it should have been on the end",
-                    "Found value: " + str);
+                throw SerializerException.builder()
+                    .locationRaw(errorLocation)
+                    .addMessage("Expected a percentage")
+                    .example("50%")
+                    .buildInvalidType("Chance", value);
             }
         }
 
         // Consider all numbers to be valid
-        else if (value instanceof Number) {
-            chance = ((Number) value).doubleValue();
-        }
-
-        // After checking for numbers, and percentages, there is nothing else
-        // we can do except yell at the user for being stupid.
         else {
-            throw SerializerException.builder()
-                .locationRaw(data.of().getLocation())
-                .addMessage("Expected a number or percentage")
-                .example("50%")
-                .buildInvalidType("Chance", value);
+            try {
+                chance = Double.parseDouble(value);
+            } catch (NumberFormatException e) {
+                throw SerializerException.builder()
+                    .locationRaw(errorLocation)
+                    .addMessage("Expected a number or percentage")
+                    .example("50%")
+                    .buildInvalidType("Chance", value);
+            }
         }
 
         if (chance < 0.0 || chance > 1.0) {
             throw SerializerException.builder()
-                .locationRaw(data.of().getLocation())
+                .locationRaw(errorLocation)
                 .addMessage("When using percentages, make sure to stay between 0% and 100%")
                 .buildInvalidRange(chance, 0.0, 1.0);
         }
 
         return chance;
+    }
+
+    @Override
+    public @NotNull List<String> examples() {
+        return IntStream.rangeClosed(0, 100).mapToObj(i -> i + "%").toList();
     }
 }

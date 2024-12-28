@@ -4,14 +4,16 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ChanceSerializer;
-import me.deecaad.core.utils.EnumUtil;
-import com.cjcrafter.foliascheduler.util.MinecraftVersions;
+import me.deecaad.core.file.simple.EnumValueSerializer;
+import me.deecaad.core.file.simple.IntSerializer;
+import me.deecaad.core.file.simple.RegistryValueSerializer;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Registry;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
@@ -26,8 +28,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 public class BlockDamage implements Serializer<BlockDamage> {
 
@@ -315,64 +317,58 @@ public class BlockDamage implements Serializer<BlockDamage> {
                 "You need to update your 'Block_Damage' to match the new format");
         }
 
-        Double dropBlockChance = data.of("Drop_Broken_Block_Chance").serialize(new ChanceSerializer());
-        if (dropBlockChance == null)
-            dropBlockChance = 0.0;
+        Double dropBlockChance = data.of("Drop_Broken_Block_Chance").serialize(ChanceSerializer.class).orElse(0.0);
 
-        int damagePerHit = data.of("Damage_Per_Hit").assertPositive().getInt(1);
-        int defaultBlockDurability = data.of("Default_Block_Durability").assertPositive().getInt(1);
-        BreakMode defaultMode = data.of("Default_Mode").getEnum(BreakMode.class, BreakMode.BREAK);
-        Material defaultMask = data.of("Default_Mask").getEnum(Material.class, Material.AIR);
+        int damagePerHit = data.of("Damage_Per_Hit").assertRange(0, null).getInt().orElse(1);
+        int defaultBlockDurability = data.of("Default_Block_Durability").assertRange(0, null).getInt().orElse(1);
+        BreakMode defaultMode = data.of("Default_Mode").getEnum(BreakMode.class).orElse(BreakMode.BREAK);
+        Material defaultMask = data.of("Default_Mask").getEnum(Material.class).orElse(Material.AIR);
 
         Map<Material, DamageConfig> blocks = new EnumMap<>(Material.class);
-        List<String[]> list = data.ofList("Blocks")
-            .addArgument(Material.class, true)
-            .addArgument(BreakMode.class, true)
-            .addArgument(int.class, false).assertArgumentPositive()
-            .addArgument(Material.class, false)
-            .assertExists().assertList().get();
+        List<List<Optional<Object>>> list = data.ofList("Blocks")
+            .addArgument(new RegistryValueSerializer<>(Registry.BLOCK, true))
+            .addArgument(new EnumValueSerializer<>(BreakMode.class, false))
+            .requireAllPreviousArgs()
+            .addArgument(new IntSerializer(1))
+            .addArgument(new RegistryValueSerializer<>(Registry.BLOCK, false))
+            .assertExists().assertList();
 
         for (int i = 0; i < list.size(); i++) {
-            String[] split = list.get(i);
+            List<Optional<Object>> split = list.get(i);
 
-            List<Material> materials = EnumUtil.parseEnums(Material.class, split[0]);
-            BreakMode mode = BreakMode.valueOf(split[1].toUpperCase(Locale.ROOT));
-            int blockDurability = split.length > 2 ? Integer.parseInt(split[2]) : -1;
-            Material mask = split.length > 3 ? Material.valueOf(split[3]) : null;
+            List<Material> materials = (List<Material>) split.get(0).get();
+            BreakMode mode = ((List<BreakMode>) split.get(1).get()).getFirst();
+            Optional<Integer> blockDurability = (Optional<Integer>) (Optional<?>) split.get(2);
+            Material mask = (Material) split.get(3).orElse(null);
 
             // Cannot apply a mask to blocks that cannot be broken
             if (mode != BreakMode.BREAK && mask != null) {
                 throw data.listException("Blocks", i, "You cannot use material masks with '" + mode + "'",
-                    SerializerException.forValue(String.join(" ", split)),
+                    "Found mask: " + mask,
                     "In order to use masks, use 'BREAK' mode");
             }
 
             // Cannot use durability or masks with blocks that cancel durability
-            if (mode == BreakMode.CANCEL && blockDurability != -1) {
+            if (mode == BreakMode.CANCEL && blockDurability.isPresent()) {
                 throw data.listException("Blocks", i, "You cannot use durability with 'CANCEL'",
-                    SerializerException.forValue(String.join(" ", split)),
+                    "Found durability: " + blockDurability.get(),
                     "In order to use durability, use 'BREAK' or 'CRACK'");
             }
 
             // If user wants to break or crack this block, then they are
             // trying to override the default block durability. Hence,
             // block durability is a required argument.
-            if ((mode == BreakMode.CRACK || mode == BreakMode.BREAK) && blockDurability == -1) {
-                int goodNumber = MinecraftVersions.UPDATE_AQUATIC.isAtLeast() ? (int) materials.get(0).getBlastResistance() + 1 : 1;
+            if ((mode == BreakMode.CRACK || mode == BreakMode.BREAK) && blockDurability.isEmpty()) {
+                int goodNumber = (int) materials.get(0).getBlastResistance() + 1;
                 throw data.listException("Blocks", i, "When using '" + mode + "', you MUST also use durability",
-                    SerializerException.forValue(String.join(" ", split)),
-                    "For example, try '" + String.join(" ", split) + " " + goodNumber + "' instead");
-            }
-
-            // Illegal value... how can something have 0 health?
-            if (blockDurability == 0) {
-                throw data.listException("Blocks", i, "Tried to use '0' for block durability, must be at least '1'");
+                    "Found: " + blockDurability,
+                    "Use a number like " + goodNumber + "' instead");
             }
 
             if (mask == null)
                 mask = Material.AIR;
 
-            DamageConfig config = new DamageConfig(mode, blockDurability, mask);
+            DamageConfig config = new DamageConfig(mode, blockDurability.orElse(-1), mask);
             for (Material mat : materials)
                 blocks.put(mat, config);
         }

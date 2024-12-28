@@ -140,15 +140,15 @@ public class AssistData implements IValidator {
 
     @Override
     public void validate(Configuration configuration, SerializeData data) throws SerializerException {
-        int timer = data.of("Timer").assertPositive().getInt(100);
+        int timer = data.of("Timer").assertRange(1, null).getInt().orElse(100);
         if (timer != 0) {
             // Convert to millis
-            configuration.set(data.key + ".Timer", timer * 50);
+            configuration.set(data.getKey() + ".Timer", timer * 50);
         }
 
-        double damageAmount = data.of("Required_Damage_Amount").assertPositive().getDouble(0);
+        double damageAmount = data.of("Required_Damage_Amount").assertRange(0.0, null).getDouble().orElse(0);
 
-        if (data.of("Enable").getBool(true) && timer == 0 && damageAmount == 0) {
+        if (data.of("Enable").getBool().orElse(true) && timer == 0 && damageAmount == 0) {
             throw data.exception("", "When using assists, make sure to either use Timer or Required_Damage_Amount");
         }
     }

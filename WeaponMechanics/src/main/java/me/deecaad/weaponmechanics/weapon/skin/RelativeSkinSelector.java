@@ -119,7 +119,7 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
         Map<String, RelativeSkin> attachments = new LinkedHashMap<>();
 
         // The base skin is the starting integer for the custom_model_data
-        BaseSkin base = new BaseSkin(data.of("Default").assertExists().getInt());
+        BaseSkin base = new BaseSkin(data.of("Default").assertExists().getInt().getAsInt());
 
         // Strict check
         if (WeaponMechanics.getBasicConfigurations().getBoolean("Strict_Relative_Skins", true)) {
@@ -133,7 +133,7 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
 
         // Now everything else is expected to be a relative skin. Anything else
         // is an error.
-        ConfigurationSection section = data.of().assertExists().assertType(ConfigurationSection.class).get();
+        ConfigurationSection section = data.of().assertExists().get(ConfigurationSection.class).get();
         Set<String> keys = section.getKeys(false);
         for (String key : keys) {
 
@@ -146,7 +146,7 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
             // When this is null, that means that it is a skin
             SkinAction action = SkinAction.fromString(key);
             if (action == null) {
-                skins.put(key, data.of(key).serialize(RelativeSkin.class));
+                skins.put(key, data.of(key).assertExists().serialize(RelativeSkin.class).get());
                 continue;
             }
 
@@ -154,19 +154,20 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
             if (action == SkinAction.SCOPE_STACK)
                 action = new SkinAction(key);
 
-            actions.put(action, data.of(key).serialize(RelativeSkin.class));
+            actions.put(action, data.of(key).assertExists().serialize(RelativeSkin.class).get());
         }
 
         // Check for attachments
-        ConfigurationSection attachmentSection = data.of("Attachments").assertType(ConfigurationSection.class).get(null);
-        Set<String> attachmentKeys = attachmentSection == null ? null : attachmentSection.getKeys(false);
+        Set<String> attachmentKeys = data.of("Attachments").get(ConfigurationSection.class)
+            .map(attachmentSection -> attachmentSection.getKeys(false))
+            .orElse(null);
 
         if (attachmentKeys != null) {
             for (String attachment : attachmentKeys) {
 
                 // We can't really check if an attachment exists since we
                 // cannot access the WMP API, so users may be prone to error
-                RelativeSkin relativeSkin = data.of("Attachments." + attachment).serialize(RelativeSkin.class);
+                RelativeSkin relativeSkin = data.of("Attachments." + attachment).serialize(RelativeSkin.class).orElse(null);
                 if (relativeSkin == null) {
                     throw data.exception("Attachments." + attachment, "Some error occurred when making the relative skin",
                         "Please make sure you formatted things correctly... An example value is something like '+10' or '+100'");

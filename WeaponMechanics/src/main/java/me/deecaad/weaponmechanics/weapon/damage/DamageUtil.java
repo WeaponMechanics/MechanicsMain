@@ -152,9 +152,9 @@ public class DamageUtil {
 
         // Calculate the amount of damage to absorption hearts, and
         // determine how much damage is left over to deal to the victim
-        double absorption = CompatibilityAPI.getEntityCompatibility().getAbsorption(victim);
+        double absorption = victim.getAbsorptionAmount();
         double absorbed = Math.max(0, absorption - damage);
-        CompatibilityAPI.getEntityCompatibility().setAbsorption(victim, absorbed);
+        victim.setAbsorptionAmount(absorbed);
         damage = Math.max(damage - absorption, 0);
 
         double oldHealth = victim.getHealth();
@@ -172,7 +172,7 @@ public class DamageUtil {
         victim.setLastDamage(damage);
         // victim.setLastDamageCause(entityDamageByEntityEvent);
 
-        double newHealth = NumberUtil.clamp(oldHealth - damage, 0, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+        double newHealth = NumberUtil.clamp(oldHealth - damage, 0, victim.getAttribute(Attribute.MAX_HEALTH).getValue());
         boolean killed = newHealth <= 0.0;
         boolean resurrected = false;
 
@@ -192,7 +192,7 @@ public class DamageUtil {
                 player.incrementStatistic(Statistic.DAMAGE_ABSORBED, Math.round((float) absorbed * 10));
             if (damage >= 0.1)
                 player.incrementStatistic(Statistic.DAMAGE_TAKEN, Math.round((float) damage * 10));
-            if (killed && isWhitelisted(cause.getType()))
+            if (killed)
                 player.incrementStatistic(Statistic.ENTITY_KILLED_BY, cause.getType());
         }
         if (cause instanceof Player player) {
@@ -201,8 +201,7 @@ public class DamageUtil {
             if (damage >= 0.1)
                 player.incrementStatistic(Statistic.DAMAGE_DEALT, Math.round((float) damage * 10));
             if (killed) {
-                if (isWhitelisted(victim.getType()))
-                    player.incrementStatistic(Statistic.KILL_ENTITY, victim.getType());
+                player.incrementStatistic(Statistic.KILL_ENTITY, victim.getType());
 
                 // In newer versions (probably 1.13, but only confirmed in 1.18.2+),
                 // these statistics are automatically tracked.
@@ -216,27 +215,6 @@ public class DamageUtil {
         }
 
         return false;
-    }
-
-    /**
-     * Mobs without spawn eggs didn't have statistics associated with them before 1.13. See
-     * https://bugs.mojang.com/browse/MC-33710.
-     *
-     * @param type The entity type.
-     * @return false if there is no statistic.
-     */
-    public static boolean isWhitelisted(EntityType type) {
-        if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast())
-            return true;
-
-        // snow golem had a name change in 1.20.5+
-        if (type == EntityType.SNOW_GOLEM)
-            return false;
-
-        return switch (type) {
-            case IRON_GOLEM, ENDER_DRAGON, WITHER, GIANT, PLAYER -> false;
-            default -> type != EntityType.ILLUSIONER;
-        };
     }
 
     public static void damageArmor(LivingEntity victim, int amount) {
@@ -298,18 +276,11 @@ public class DamageUtil {
         if (skipDamage)
             return;
 
-        if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
-            if (meta instanceof Damageable damageable) {
-                damageable.setDamage(damageable.getDamage() + amount);
-                armor.setItemMeta(meta);
+        if (meta instanceof Damageable damageable) {
+            damageable.setDamage(damageable.getDamage() + amount);
+            armor.setItemMeta(meta);
 
-                if (damageable.getDamage() >= armor.getType().getMaxDurability())
-                    armor.setAmount(0);
-            }
-        } else {
-            armor.setDurability((short) (armor.getDurability() + amount));
-
-            if (armor.getDurability() >= armor.getType().getMaxDurability())
+            if (damageable.getDamage() >= armor.getType().getMaxDurability())
                 armor.setAmount(0);
         }
 

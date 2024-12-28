@@ -4,6 +4,7 @@ import com.cjcrafter.vivecraft.VSE;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.simple.DoubleSerializer;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
@@ -13,7 +14,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
@@ -111,31 +111,28 @@ public class Recoil implements Serializer<Recoil> {
 
     @Override
     @NotNull public Recoil serialize(@NotNull SerializeData data) throws SerializerException {
-        RecoilPattern recoilPattern = data.of("Recoil_Pattern").serialize(RecoilPattern.class);
-        List<Float> randomHorizontal = convertToFloatList(data.ofList("Horizontal"));
-        List<Float> randomVertical = convertToFloatList(data.ofList("Vertical"));
+        RecoilPattern recoilPattern = data.of("Recoil_Pattern").serialize(RecoilPattern.class).orElse(null);
+        List<Float> randomHorizontal = data.ofList("Horizontal")
+            .addArgument(new DoubleSerializer())
+            .assertList()
+            .stream()
+            .map(split -> (float) (double) split.get(0).get())
+            .toList();
+        List<Float> randomVertical = data.ofList("Vertical")
+            .addArgument(new DoubleSerializer())
+            .assertList()
+            .stream()
+            .map(split -> (float) (double) split.get(0).get())
+            .toList();
 
         if (recoilPattern == null && randomHorizontal == null && randomVertical == null) {
             throw data.exception(null, "When using Recoil, you need to use at least one of: 'Recoil_Pattern', 'Horizontal', 'Vertical'");
         }
 
-        ModifyRecoilWhen modifyRecoilWhen = (ModifyRecoilWhen) data.of("Modify_Recoil_When").serialize(new ModifyRecoilWhen());
-        long pushTime = data.of("Push_Time").assertPositive().getNumber(0L).longValue();
-        long recoverTime = data.of("Recover_Time").assertPositive().getNumber(0L).longValue();
+        ModifyRecoilWhen modifyRecoilWhen = (ModifyRecoilWhen) data.of("Modify_Recoil_When").serialize(new ModifyRecoilWhen()).orElse(null);
+        long pushTime = data.of("Push_Time").assertRange(0, null).getInt().getAsInt();
+        long recoverTime = data.of("Recover_Time").assertRange(0, null).getInt().getAsInt();
 
         return new Recoil(pushTime, recoverTime, randomHorizontal, randomVertical, recoilPattern, modifyRecoilWhen);
-    }
-
-    private List<Float> convertToFloatList(SerializeData.ConfigListAccessor accessor) throws SerializerException {
-        List<String[]> list = accessor.addArgument(double.class, true).assertList().get();
-        if (list == null || list.isEmpty())
-            return null;
-
-        List<Float> floatList = new ArrayList<>();
-        for (String[] split : list) {
-            floatList.add(Float.parseFloat(split[0]));
-        }
-
-        return floatList;
     }
 }

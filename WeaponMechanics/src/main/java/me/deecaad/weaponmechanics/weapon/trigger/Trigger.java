@@ -113,15 +113,15 @@ public class Trigger implements Serializer<Trigger> {
 
     @Override
     @NotNull public Trigger serialize(@NotNull SerializeData data) throws SerializerException {
-        TriggerType main = data.of("Main_Hand").getEnum(TriggerType.class, null);
-        TriggerType off = data.of("Off_Hand").getEnum(TriggerType.class, null);
+        TriggerType main = data.of("Main_Hand").getEnum(TriggerType.class).orElse(null);
+        TriggerType off = data.of("Off_Hand").getEnum(TriggerType.class).orElse(null);
 
         if (main == null && off == null) {
             throw data.exception(null, "At least one of Main_Hand or Off_Hand should be used");
         }
 
-        TriggerType dualMain = data.of("Dual_Wield.Main_Hand").getEnum(TriggerType.class, null);
-        TriggerType dualOff = data.of("Dual_Wield.Off_Hand").getEnum(TriggerType.class, null);
+        TriggerType dualMain = data.of("Dual_Wield.Main_Hand").getEnum(TriggerType.class).orElse(null);
+        TriggerType dualOff = data.of("Dual_Wield.Off_Hand").getEnum(TriggerType.class).orElse(null);
 
         if (isDisabled(main))
             throw data.exception("Main_Hand", "Tried to use trigger which is disabled in config.yml");
@@ -132,16 +132,16 @@ public class Trigger implements Serializer<Trigger> {
         if (isDisabled(dualOff))
             throw data.exception("Dual_Wield.Off_Hand", "Tried to use trigger which is disabled in config.yml");
 
-        Circumstance circumstance = data.of("Circumstance").serialize(Circumstance.class);
+        Circumstance circumstance = data.of("Circumstance").serialize(Circumstance.class).orElse(null);
 
         // Check to make sure the gun denies swapping hands, otherwise this
         // won't work.
         if (dualMain == TriggerType.SWAP_HANDS || dualOff == TriggerType.SWAP_HANDS) {
-            String weaponTitle = data.key.split("\\.")[0];
+            String weaponTitle = data.getKey().split("\\.")[0];
 
-            if (data.config.get(weaponTitle + ".Info.Cancel.Swap_Hands", false) instanceof Boolean bool && !bool) {
+            if (data.getConfig().get(weaponTitle + ".Info.Cancel.Swap_Hands", false) instanceof Boolean bool && !bool) {
                 throw data.exception(null, "When using 'SWAP_HANDS', make sure that '" + weaponTitle + ".Info.Cancel.Swap_Hands: true'",
-                    SerializerException.forValue(dualMain) + " & " + SerializerException.forValue(dualOff));
+                    "For value: " + dualMain + " & For value: " + dualOff);
             }
         }
 

@@ -9,8 +9,6 @@ import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-
 public class FirearmAction implements Serializer<FirearmAction> {
 
     private FirearmType firearmType;
@@ -90,15 +88,15 @@ public class FirearmAction implements Serializer<FirearmAction> {
     @Override
     @NotNull public FirearmAction serialize(@NotNull SerializeData data) throws SerializerException {
 
-        FirearmType type = data.of("Type").assertExists().getEnum(FirearmType.class);
+        FirearmType type = data.of("Type").assertExists().getEnum(FirearmType.class).get();
 
         // Default to 1 in order to make it easier to use
-        int firearmActionFrequency = data.of("Firearm_Action_Frequency").assertRange(1, Integer.MAX_VALUE).getInt(1);
-        int openTime = data.of("Open.Time").assertRange(1, Integer.MAX_VALUE).getInt(1);
-        int closeTime = data.of("Close.Time").assertRange(1, Integer.MAX_VALUE).getInt(1);
+        int firearmActionFrequency = data.of("Firearm_Action_Frequency").assertRange(1, null).getInt().orElse(1);
+        int openTime = data.of("Open.Time").assertRange(1, null).getInt().orElse(1);
+        int closeTime = data.of("Close.Time").assertRange(1, null).getInt().orElse(1);
 
-        Mechanics open = data.of("Open.Mechanics").serialize(Mechanics.class);
-        Mechanics close = data.of("Close.Mechanics").serialize(Mechanics.class);
+        Mechanics open = data.of("Open.Mechanics").serialize(Mechanics.class).orElse(null);
+        Mechanics close = data.of("Close.Mechanics").serialize(Mechanics.class).orElse(null);
 
         return new FirearmAction(type, firearmActionFrequency, openTime, closeTime, open, close);
     }

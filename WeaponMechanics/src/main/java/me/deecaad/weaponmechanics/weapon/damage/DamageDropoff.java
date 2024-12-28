@@ -3,12 +3,14 @@ package me.deecaad.weaponmechanics.weapon.damage;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.simple.DoubleSerializer;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 public class DamageDropoff implements Serializer<DamageDropoff> {
@@ -58,16 +60,17 @@ public class DamageDropoff implements Serializer<DamageDropoff> {
     @Override
     @NotNull public DamageDropoff serialize(@NotNull SerializeData data) throws SerializerException {
 
-        List<String[]> list = data.ofList()
-            .addArgument(double.class, true)
-            .addArgument(double.class, true)
-            .assertExists().assertList().get();
+        List<List<Optional<Object>>> list = data.ofList()
+            .addArgument(new DoubleSerializer())
+            .addArgument(new DoubleSerializer())
+            .requireAllPreviousArgs()
+            .assertExists().assertList();
 
         TreeMap<Double, Double> distances = new TreeMap<>();
 
-        for (String[] split : list) {
-            Double blocks = Double.valueOf(split[0]);
-            Double damage = Double.valueOf(split[1]);
+        for (List<Optional<Object>> split : list) {
+            Double blocks = (Double) split.get(0).get();
+            Double damage = (Double) split.get(1).get();
             distances.put(blocks, damage);
         }
 

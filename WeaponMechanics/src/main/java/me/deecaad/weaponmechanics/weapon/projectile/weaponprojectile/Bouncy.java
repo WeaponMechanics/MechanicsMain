@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
@@ -136,7 +136,7 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
     public boolean checkForRollingCancel(WeaponProjectile projectile) {
         Vector slightlyBelow = projectile.getLocation().add(new Vector(0, -0.05, 0));
         Block slightlyBelowBlock = projectile.getWorld().getBlockAt(slightlyBelow.getBlockX(), slightlyBelow.getBlockY(), slightlyBelow.getBlockZ());
-        if (CompatibilityAPI.getBlockCompatibility().getHitBox(slightlyBelowBlock) != null) {
+        if (HitBox.getHitbox(slightlyBelowBlock, false) != null) {
             // Check speed modifier of block below and apply it
             if (!handleRolling(projectile, slightlyBelowBlock)) {
                 // Block below wasn't valid rolling block, remove projectile
@@ -162,18 +162,18 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
 
     @Override
     @NotNull public Bouncy serialize(@NotNull SerializeData data) throws SerializerException {
-        ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class));
-        ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
+        ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class)).orElse(null);
+        ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class)).orElse(null);
 
         if (blocks == null && entities == null) {
             throw data.exception(null, "'Bouncy' requires at least one of 'Blocks' or 'Entities'");
         }
 
         // 0 or negative numbers will lead to infinite amounts of bouncing.
-        int maximumBounceAmount = data.of("Maximum_Bounce_Amount").getInt(1);
+        int maximumBounceAmount = data.of("Maximum_Bounce_Amount").getInt().orElse(1);
 
-        ListHolder<Material> rollingBlocks = data.of("Rolling.Blocks").serialize(new ListHolder<>(Material.class));
-        double requiredMotionToStartRolling = data.of("Rolling.Required_Motion_To_Start_Rolling").assertPositive().getDouble(6.0) / 20;
+        ListHolder<Material> rollingBlocks = data.of("Rolling.Blocks").serialize(new ListHolder<>(Material.class)).orElse(null);
+        double requiredMotionToStartRolling = data.of("Rolling.Required_Motion_To_Start_Rolling").assertRange(0.0, null).getDouble().orElse(6.0) / 20;
 
         return new Bouncy(maximumBounceAmount, blocks, entities, requiredMotionToStartRolling, rollingBlocks);
     }

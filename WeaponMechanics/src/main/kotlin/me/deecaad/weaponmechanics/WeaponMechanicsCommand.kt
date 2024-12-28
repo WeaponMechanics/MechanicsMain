@@ -106,6 +106,7 @@ import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sin
 
+@Suppress("UNCHECKED_CAST")
 object WeaponMechanicsCommand {
     const val WIKI: String = "https://cjcrafter.gitbook.io/weaponmechanics/"
 

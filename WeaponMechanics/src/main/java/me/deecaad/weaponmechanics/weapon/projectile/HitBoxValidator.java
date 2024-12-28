@@ -29,10 +29,10 @@ public class HitBoxValidator implements IValidator {
             if (!entityType.isAlive())
                 continue;
 
-            double head = data.of(entityType.name() + "." + DamagePoint.HEAD.name()).getDouble(-1.0);
-            double body = data.of(entityType.name() + "." + DamagePoint.BODY.name()).getDouble(-1.0);
-            double legs = data.of(entityType.name() + "." + DamagePoint.LEGS.name()).getDouble(-1.0);
-            double feet = data.of(entityType.name() + "." + DamagePoint.FEET.name()).getDouble(-1.0);
+            double head = data.of(entityType.name() + "." + DamagePoint.HEAD.name()).getDouble().orElse(-1.0);
+            double body = data.of(entityType.name() + "." + DamagePoint.BODY.name()).getDouble().orElse(-1.0);
+            double legs = data.of(entityType.name() + "." + DamagePoint.LEGS.name()).getDouble().orElse(-1.0);
+            double feet = data.of(entityType.name() + "." + DamagePoint.FEET.name()).getDouble().orElse(-1.0);
 
             if (head < 0 || body < 0 || legs < 0 || feet < 0) {
                 debug.log(LogLevel.WARN, "Entity type " + entityType.name() + " is missing some of its damage point values, please add it",

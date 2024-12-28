@@ -331,13 +331,11 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
     @NotNull @Override
     public CustomDurability serialize(@NotNull SerializeData data) throws SerializerException {
-        int maxDurability = data.of("Max_Durability").assertPositive().assertExists().getInt();
-        int minMaxDurability = data.of("Min_Max_Durability").assertPositive().getInt(0);
-        int loseMaxDurabilityPerRepair = data.of("Lose_Max_Durability_Per_Repair").assertPositive().getInt(0);
-        int durabilityPerShot = data.of("Durability_Per_Shot").assertPositive().getInt(1);
-        Double chance = data.of("Chance_To_Lose").serialize(new ChanceSerializer());
-        if (chance == null)
-            chance = 1.0;
+        int maxDurability = data.of("Max_Durability").assertRange(0, null).assertExists().getInt().getAsInt();
+        int minMaxDurability = data.of("Min_Max_Durability").assertRange(0.0, null).getInt().getAsInt();
+        int loseMaxDurabilityPerRepair = data.of("Lose_Max_Durability_Per_Repair").assertRange(0.0, null).getInt().orElse(0);
+        int durabilityPerShot = data.of("Durability_Per_Shot").assertRange(0.0, null).getInt().orElse(1);
+        Double chance = data.of("Chance_To_Lose").serialize(ChanceSerializer.class).orElse(1.0);
 
         // Make sure users aren't entering tiny values.
         if (maxDurability <= durabilityPerShot) {
@@ -346,27 +344,27 @@ public class CustomDurability implements Serializer<CustomDurability> {
                 "Found Durability_Per_Shot: " + durabilityPerShot);
         }
 
-        ItemStack replaceItem = data.of("Broken_Item").serialize(new ItemSerializer());
-        Mechanics durabilityMechanics = data.of("Lose_Durability_Mechanics").serialize(Mechanics.class);
-        Mechanics breakMechanics = data.of("Break_Mechanics").serialize(Mechanics.class);
+        ItemStack replaceItem = data.of("Broken_Item").serialize(ItemSerializer.class).orElse(null);
+        Mechanics durabilityMechanics = data.of("Lose_Durability_Mechanics").serialize(Mechanics.class).orElse(null);
+        Mechanics breakMechanics = data.of("Break_Mechanics").serialize(Mechanics.class).orElse(null);
 
         // Items, in a repair station or anvil, are able to repair weapons
         // for a certain amount of durability.
         Map<ItemStack, Integer> repairItems = new HashMap<>();
         if (data.has("Repair_Items")) {
-            ConfigurationSection section = data.of("Repair_Items").assertType(ConfigurationSection.class).get(null);
+            ConfigurationSection section = data.of("Repair_Items").get(ConfigurationSection.class).get();
             for (String key : section.getKeys(false)) {
-                ItemStack item = data.of("Repair_Items." + key + ".Item").assertExists().serialize(new ItemSerializer());
-                int healAmount = data.of("Repair_Items." + key + ".Repair_Amount").assertExists().assertPositive().getInt();
+                ItemStack item = data.of("Repair_Items." + key + ".Item").assertExists().serialize(ItemSerializer.class).get();
+                int healAmount = data.of("Repair_Items." + key + ".Repair_Amount").assertExists().assertRange(0.0, null).getInt().getAsInt();
 
                 repairItems.put(item, healAmount);
             }
         }
 
-        int repairPerExp = data.of("Repair_Per_Exp").assertPositive().getInt(0);
-        Mechanics repairMechanics = data.of("Repair_Mechanics").serialize(Mechanics.class);
-        Mechanics denyRepairMechanics = data.of("Deny_Repair_Mechanics").serialize(Mechanics.class);
-        boolean repairOnlyBroken = data.of("Repair_Only_Broken").getBool(false);
+        int repairPerExp = data.of("Repair_Per_Exp").assertRange(0, null).getInt().orElse(0);
+        Mechanics repairMechanics = data.of("Repair_Mechanics").serialize(Mechanics.class).orElse(null);
+        Mechanics denyRepairMechanics = data.of("Deny_Repair_Mechanics").serialize(Mechanics.class).orElse(null);
+        boolean repairOnlyBroken = data.of("Repair_Only_Broken").getBool().orElse(false);
 
         return new CustomDurability(maxDurability, minMaxDurability, loseMaxDurabilityPerRepair, durabilityPerShot,
             chance, replaceItem, durabilityMechanics, breakMechanics, repairItems, repairPerExp, repairMechanics, denyRepairMechanics,
