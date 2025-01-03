@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
@@ -91,7 +90,7 @@ public class DefaultExplosion implements ExplosionShape {
                             Block block = world.getBlockAt((int) x, (int) y, (int) z);
 
                             if (!block.isEmpty()) {
-                                float resistance = CompatibilityAPI.getBlockCompatibility().getBlastResistance(block);
+                                float resistance = block.getType().getBlastResistance();
 
                                 intensity -= (resistance + 0.3F) * ABSORB_RATE;
                             }

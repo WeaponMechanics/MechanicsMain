@@ -1,7 +1,6 @@
 package me.deecaad.core.compatibility;
 
 import com.cjcrafter.foliascheduler.util.ConstructorInvoker;
-import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.block.BlockCompatibility;
@@ -18,29 +17,15 @@ public final class CompatibilityAPI {
     private static ICompatibility compatibility;
     private static WorldGuardCompatibility worldGuardCompatibility;
     private static IVaultCompatibility vaultCompatibility;
-    private static boolean isPaper;
 
     static {
         try {
-            boolean isPaper1;
-            try {
-                Class.forName("com.destroystokyo.paper.VersionHistoryManager$VersionData");
-                isPaper1 = true;
-            } catch (ClassNotFoundException ex) {
-                isPaper1 = false;
-            }
-            isPaper = isPaper1;
-
             compatibility = new CompatibilitySetup().getCompatibleVersion(ICompatibility.class, "me.deecaad.core.compatibility");
 
-            // This happens when a server is using an unsupported version of
-            // minecraft, like 1.18.1, 1.8.8, etc.
+            // When we don't have a compatibility interface for this version
             if (compatibility == null) {
                 MechanicsCore.debug.error("Unsupported server version: " + Bukkit.getVersion() + " (" + Bukkit.getBukkitVersion() + ")",
-                    "Remember that MechanicsCore supports all major versions 1.12.2+, HOWEVER it doesn't support outdated versions",
-                    "For example, 1.18.1 is NOT a support version, but 1.18.2 IS a supported version",
-                    "If you are running a brand new version of Minecraft, ask DeeCaaD or CJCrafter to update the plugin",
-                    "",
+                    "If you are running a new version of Minecraft, make sure to update",
                     "!!! CRITICAL ERROR !!!");
             }
 
@@ -49,15 +34,8 @@ public final class CompatibilityAPI {
             try {
                 // Check if WorldGuard is there
                 Class.forName("com.sk89q.worldguard.bukkit.WorldGuardPlugin");
-                if (!MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
-                    // World Guard V6 for 1.12.2 support
-                    ConstructorInvoker<?> worldGuardV6Constructor = ReflectionUtil.getConstructor(Class.forName("me.deecaad.core.compatibility.worldguard.WorldGuardV6"));
-                    worldGuardCompatibility1 = (WorldGuardCompatibility) worldGuardV6Constructor.newInstance();
-                } else {
-                    // World Guard V7 for 1.13+ support
-                    ConstructorInvoker<?> worldGuardV7Constructor = ReflectionUtil.getConstructor(Class.forName("me.deecaad.core.compatibility.worldguard.WorldGuardV7"));
-                    worldGuardCompatibility1 = (WorldGuardCompatibility) worldGuardV7Constructor.newInstance();
-                }
+                ConstructorInvoker<?> worldGuardV7Constructor = ReflectionUtil.getConstructor(Class.forName("me.deecaad.core.compatibility.worldguard.WorldGuardV7"));
+                worldGuardCompatibility1 = (WorldGuardCompatibility) worldGuardV7Constructor.newInstance();
             } catch (Throwable e) {
                 worldGuardCompatibility1 = new NoWorldGuard();
             }
@@ -65,10 +43,6 @@ public final class CompatibilityAPI {
         } catch (Throwable ex) {
             MechanicsCore.debug.log(LogLevel.ERROR, "Failed to init CompatibilityAPI", ex);
         }
-    }
-
-    public static boolean isPaper() {
-        return isPaper;
     }
 
     public static ICompatibility getCompatibility() {

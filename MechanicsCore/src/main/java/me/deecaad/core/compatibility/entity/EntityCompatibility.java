@@ -7,7 +7,6 @@ import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
-import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -25,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public interface EntityCompatibility {
-
-    EntityType ITEM_ENTITY = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? EntityType.ITEM : EntityType.valueOf("DROPPED_ITEM");
 
     /**
      * Generates an NMS non-null-list (used by the player's inventory). This is used internally for the
@@ -58,7 +55,7 @@ public interface EntityCompatibility {
      * @return The fake entity.
      */
     default FakeEntity generateFakeEntity(Location location, ItemStack item) {
-        return generateFakeEntity(location, ITEM_ENTITY, item);
+        return generateFakeEntity(location, EntityType.ITEM, item);
     }
 
     /**
@@ -127,16 +124,6 @@ public interface EntityCompatibility {
         entity.playEffect(EntityEffect.TOTEM_RESURRECT);
         return true;
     }
-
-    /**
-     * Gets the id of the entity from the metadata packet. This can be used to get the bukkit
-     * {@link Entity} using
-     * {@link me.deecaad.core.compatibility.ICompatibility#getEntityById(World, int)}.
-     *
-     * @param obj The entity metadata packet.
-     * @return The entity's id.
-     */
-    int getId(Object obj);
 
     /**
      * Uses a packet to spawn a fake item in the player's inventory. If the player is in

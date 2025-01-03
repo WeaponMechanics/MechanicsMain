@@ -38,14 +38,9 @@ public class Entity_1_21_R1 implements EntityCompatibility {
     }
 
     @Override
-    public int getId(Object obj) {
-        return ((ClientboundSetEntityDataPacket) obj).id();
-    }
-
-    @Override
     public void setSlot(Player bukkit, EquipmentSlot slot, @Nullable ItemStack item) {
         if (item == null) {
-            item = bukkit.getEquipment().getItem(slot); // added in 1.15
+            item = bukkit.getEquipment().getItem(slot);
         }
 
         int id = bukkit.getEntityId();

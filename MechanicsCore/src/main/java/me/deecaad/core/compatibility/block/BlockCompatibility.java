@@ -1,10 +1,7 @@
 package me.deecaad.core.compatibility.block;
 
 import me.deecaad.core.compatibility.ICompatibility;
-import org.bukkit.Sound;
-import org.bukkit.SoundGroup;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -60,50 +57,4 @@ public interface BlockCompatibility {
      * @return The non-null animation packet.
      */
     @NotNull Object getCrackPacket(@NotNull Block block, int crack, int id);
-
-    default SoundData getBlockSound(Object blockData, SoundType type) {
-        BlockData data = (BlockData) blockData;
-        SoundGroup sounds = data.getSoundGroup();
-
-        SoundData soundData = new SoundData();
-        soundData.type = type;
-        soundData.pitch = sounds.getPitch();
-        soundData.volume = sounds.getVolume();
-
-        soundData.sound = switch (type) {
-            case BREAK -> sounds.getBreakSound();
-            case STEP -> sounds.getStepSound();
-            case PLACE -> sounds.getPlaceSound();
-            case HIT -> sounds.getHitSound();
-            case FALL -> sounds.getFallSound();
-        };
-
-        return soundData;
-    }
-
-    /**
-     * Returns a positive float representing the blast material of a given block. Materials with a
-     * higher blast resistance are less likely to be destroyed by explosions.
-     *
-     * @param block The non-null bukkit block.
-     * @return Positive float representing the blast resistance.
-     */
-    default float getBlastResistance(Block block) {
-        return block.getType().getBlastResistance();
-    }
-
-    class SoundData {
-        public SoundType type;
-        public Sound sound;
-        public float volume;
-        public float pitch;
-    }
-
-    enum SoundType {
-        BREAK,
-        STEP,
-        PLACE,
-        HIT,
-        FALL
-    }
 }
