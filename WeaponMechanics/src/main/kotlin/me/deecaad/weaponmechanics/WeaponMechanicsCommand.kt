@@ -295,7 +295,6 @@ object WeaponMechanicsCommand {
                 withShortDescription("Reloads config")
 
                 anyExecutor { sender, _ ->
-                    // Async reload
                     WeaponMechanicsAPI.getInstance().onReload().thenAccept {
                         sender.sendMessage("${org.bukkit.ChatColor.GREEN}Reloaded configuration")
                     }
@@ -873,7 +872,7 @@ object WeaponMechanicsCommand {
                 for (item in items) {
                     if (item == null || !item.hasItemMeta()) continue
 
-                    val title = WeaponMechanicsAPI.getWeaponTitle(item) ?: CustomTag.BROKEN_WEAPON.getString(item)
+                    val title = WeaponMechanicsAPI.getWeaponTitle(item)
                     val customDurability =
                         config.getObject("$title.Shoot.Custom_Durability", CustomDurability::class.java)
                             ?: continue
@@ -890,8 +889,7 @@ object WeaponMechanicsCommand {
                 val equipment = entity.equipment
                 val item = equipment?.itemInMainHand ?: continue
                 val meta = item.itemMeta ?: continue
-                var weaponTitle =
-                    WeaponMechanicsAPI.getWeaponTitle(item) ?: CustomTag.BROKEN_WEAPON.getString(item) ?: continue
+                val weaponTitle = WeaponMechanicsAPI.getWeaponTitle(item) ?: continue
 
                 val customDurability =
                     config.getObject("$weaponTitle.Shoot.Custom_Durability", CustomDurability::class.java)

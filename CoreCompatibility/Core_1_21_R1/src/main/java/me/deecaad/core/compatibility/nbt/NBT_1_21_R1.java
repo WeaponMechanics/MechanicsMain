@@ -4,16 +4,14 @@ import com.cjcrafter.foliascheduler.util.FieldAccessor;
 import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import com.google.common.collect.Lists;
 import me.deecaad.core.utils.StringUtil;
-import net.kyori.adventure.text.Component;
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTagVisitor;
 import net.minecraft.nbt.Tag;
-import net.minecraft.world.item.Item;
+import net.minecraft.server.MinecraftServer;
+import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,43 +21,26 @@ import java.util.Objects;
 public class NBT_1_21_R1 extends NBT_Persistent {
 
     @Override
-    public void copyTagsFromTo(@NotNull ItemStack fromItem, @NotNull ItemStack toItem, @Nullable String path) {
-        Item nms = getNMSStack(toItem).getItem();
-        DataComponentMap from = getNMSStack(fromItem).getItem().components();
-        DataComponentMap to = nms.components();
+    public @NotNull String getNBTDebug(@NotNull org.bukkit.inventory.ItemStack bukkitStack) {
+        net.minecraft.world.item.ItemStack nmsStack = CraftItemStack.asNMSCopy(bukkitStack);
+        if (nmsStack.isEmpty()) {
+            return "null";
+        }
 
-        /*
-         * if (path == null) { nms.setTag(from.copy());
-         * toItem.setItemMeta(getBukkitStack(nms).getItemMeta()); return; }
-         * 
-         * to.put(path, from.getCompound(path).copy());
-         * toItem.setItemMeta(getBukkitStack(nms).getItemMeta());
-         */
-    }
+        MinecraftServer nmsServer = ((CraftServer) Bukkit.getServer()).getServer();
+        net.minecraft.nbt.Tag rawTag;
+        try {
+            rawTag = nmsStack.save(nmsServer.registryAccess());
+        } catch (IllegalStateException ex) {
+            // Thrown by nmsStack.save(...) if the stack is truly empty
+            return "null";
+        }
 
-    @NotNull @Override
-    public net.minecraft.world.item.ItemStack getNMSStack(@NotNull ItemStack bukkitStack) {
-        return CraftItemStack.asNMSCopy(bukkitStack);
-    }
+        if (!(rawTag instanceof net.minecraft.nbt.CompoundTag compoundTag)) {
+            return "null";
+        }
 
-    @NotNull @Override
-    public ItemStack getBukkitStack(@NotNull Object nmsStack) {
-        return CraftItemStack.asBukkitCopy((net.minecraft.world.item.ItemStack) nmsStack);
-    }
-
-    @NotNull @Override
-    public String getNBTDebug(@NotNull ItemStack bukkitStack) {
-        // CompoundTag nbt = getNMSStack(bukkitStack).getTag();
-        // return nbt == null ? "null" : new TagColorVisitor().visit(nbt);
-        return null;
-    }
-
-    @Override
-    public @NotNull Component getDisplayName(@NotNull ItemStack item) {
-        // net.minecraft.network.chat.Component component = CraftItemStack.asNMSCopy(item).getDisplayName();
-        // JsonElement json = net.minecraft.network.chat.Component.Serializer.toJsonTree(component);
-        // return GsonComponentSerializer.gson().serializer().fromJson(json, Component.class);
-        return null;
+        return new TagColorVisitor().visit(compoundTag);
     }
 
     private static class TagColorVisitor extends StringTagVisitor {

@@ -164,7 +164,8 @@ public class EquipListener implements Listener {
             return;
 
         if (event.getItemInHand().getAmount() - 1 == 0) {
-            ItemStack placementItem = CompatibilityAPI.getNBTCompatibility().getPlacementItem(event.getBlockPlaced());
+            Material placementMaterial = event.getBlockPlaced().getBlockData().getPlacementMaterial();
+            ItemStack placementItem = new ItemStack(placementMaterial);
             Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(event.getPlayer(), event.getHand(), placementItem, null));
         }
     }

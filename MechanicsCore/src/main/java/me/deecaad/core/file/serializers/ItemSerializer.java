@@ -13,6 +13,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.simple.BooleanSerializer;
+import me.deecaad.core.file.simple.ByNameSerializer;
 import me.deecaad.core.file.simple.CsvSerializer;
 import me.deecaad.core.file.simple.DoubleSerializer;
 import me.deecaad.core.file.simple.EnumValueSerializer;
@@ -20,7 +21,6 @@ import me.deecaad.core.file.simple.IntSerializer;
 import me.deecaad.core.file.simple.RegistryValueSerializer;
 import me.deecaad.core.file.simple.StringSerializer;
 import me.deecaad.core.utils.AdventureUtil;
-import me.deecaad.core.utils.AttributeType;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -28,10 +28,13 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.Tag;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
@@ -242,20 +245,39 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 CompatibilityAPI.getNBTCompatibility().setInt(itemStack, "Custom", tag, value);
             });
 
+        // TODO: Spigot will surely improve this
+        Map<String, EquipmentSlotGroup> slotGroupsByName = new HashMap<>();
+        slotGroupsByName.put("any", EquipmentSlotGroup.ANY);
+        slotGroupsByName.put("mainhand", EquipmentSlotGroup.MAINHAND);
+        slotGroupsByName.put("offhand", EquipmentSlotGroup.OFFHAND);
+        slotGroupsByName.put("hand", EquipmentSlotGroup.HAND);
+        slotGroupsByName.put("head", EquipmentSlotGroup.HEAD);
+        slotGroupsByName.put("chest", EquipmentSlotGroup.CHEST);
+        slotGroupsByName.put("legs", EquipmentSlotGroup.LEGS);
+        slotGroupsByName.put("feet", EquipmentSlotGroup.FEET);
+        slotGroupsByName.put("armor", EquipmentSlotGroup.ARMOR);
+
         List<List<Optional<Object>>> attributesData = data.ofList("Attributes")
             .addArgument(new RegistryValueSerializer<>(Registry.ATTRIBUTE, true))
             .addArgument(new DoubleSerializer())
             .requireAllPreviousArgs()
-            .addArgument(new EnumValueSerializer<>(NBTCompatibility.AttributeSlot.class, false))
+            .addArgument(new ByNameSerializer<>(EquipmentSlotGroup.class, slotGroupsByName))
+            .addArgument(new EnumValueSerializer<>(AttributeModifier.Operation.class, false))
             .assertList();
 
         for (List<Optional<Object>> split : attributesData) {
-            List<AttributeType> attributes = (List<AttributeType>) split.get(0).get();
+            List<Attribute> attributes = (List<Attribute>) split.get(0).get();
             double amount = (double) split.get(1).get();
-            NBTCompatibility.AttributeSlot slot = (NBTCompatibility.AttributeSlot) split.get(2).orElse(null);
+            EquipmentSlotGroup slot = (EquipmentSlotGroup) split.get(2).orElse(EquipmentSlotGroup.ANY);
+            AttributeModifier.Operation operation = ((List<AttributeModifier.Operation>) split.get(3).orElse(AttributeModifier.Operation.ADD_NUMBER)).getFirst();
 
-            for (AttributeType attribute : attributes) {
-                CompatibilityAPI.getNBTCompatibility().setAttribute(itemStack, attribute, slot, amount);
+            for (Attribute attribute : attributes) {
+
+                // Attributes need a completely unique key to avoid attributes
+                // overridding each other.
+                NamespacedKey key = new NamespacedKey(MechanicsCore.getPlugin(), attribute.getKey().getKey() + "-" + slot);
+                AttributeModifier modifier = new AttributeModifier(key, amount, operation, slot);
+                itemMeta.addAttributeModifier(attribute, modifier);
             }
         }
 
