@@ -1,11 +1,9 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.entity.Player;
-
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -95,11 +93,10 @@ public class PlayerWrapper extends EntityWrapper {
         if (player.isBlocking())
             return true;
 
-        int ping = CompatibilityAPI.getCompatibility().getPing(player);
-        if (ping > 215) {
+        if (player.getPing() > 215) {
             // Ping was more than 215 so lets take player's ping in account
             // when checking if it is still right clicking
-            return !NumberUtil.hasMillisPassed(lastRightClick, ping + 15);
+            return !NumberUtil.hasMillisPassed(lastRightClick, player.getPing() + 15);
         }
         return !NumberUtil.hasMillisPassed(lastRightClick, 215);
     }

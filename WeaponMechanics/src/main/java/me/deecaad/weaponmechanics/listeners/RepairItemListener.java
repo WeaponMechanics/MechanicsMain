@@ -1,7 +1,10 @@
 package me.deecaad.weaponmechanics.listeners;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.file.*;
+import me.deecaad.core.file.BukkitConfig;
+import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.file.simple.StringSerializer;
 import me.deecaad.core.mechanics.CastData;
@@ -135,56 +138,19 @@ public class RepairItemListener implements Listener {
             // is replaced with a broken "dummy" item. This prevents people from
             // losing their hard-earned weapons. This repair system is a bit more
             // complicated, so we handle it separately.
-            if (CustomTag.BROKEN_WEAPON.hasString(weapon)) {
-                repairBrokenItem(event);
 
-            } else {
+            // Only attempt to repair guns with proper repair items
+            if (weaponTitle == null || event.getCursor() == null)
+                return;
 
-                // Only attempt to repair guns with proper repair items
-                if (weaponTitle == null || event.getCursor() == null)
-                    return;
+            Configuration config = WeaponMechanics.getConfigurations();
+            CustomDurability customDurability = config.getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
+            if (customDurability != null)
+                return;
 
-                Configuration config = WeaponMechanics.getConfigurations();
-                CustomDurability customDurability = config.getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
-                if (customDurability != null && customDurability.isRepairOnlyBroken()) {
-                    return;
-                }
-
-                CastData cast = new CastData(event.getWhoClicked(), weaponTitle, weapon);
-                repair(weapon, weaponTitle, event.getCursor(), cast);
-            }
+            CastData cast = new CastData(event.getWhoClicked(), weaponTitle, weapon);
+            repair(weapon, weaponTitle, event.getCursor(), cast);
         }
-    }
-
-    /**
-     * Handles repairing a completely broken item. Remember that when items are completely broken, their
-     * type and meta have been completely changed to a separate item.
-     *
-     * @param event The non-null click event involved.
-     */
-    public void repairBrokenItem(InventoryClickEvent event) {
-        ItemStack weapon = event.getClickedInventory().getItem(event.getSlot());
-        String weaponTitle = CustomTag.BROKEN_WEAPON.getString(weapon);
-        CastData cast = new CastData(event.getWhoClicked(), weaponTitle, weapon);
-        boolean isConsumedItem = repair(weapon, weaponTitle, event.getCursor(), cast);
-
-        // Only change back to working weapon if durability changed
-        if (!isConsumedItem)
-            return;
-
-        ItemStack weaponTemplate = WeaponMechanics.getWeaponHandler().getInfoHandler().generateWeapon(weaponTitle, 1);
-
-        // Weapon no longer exists in config
-        if (weaponTemplate == null) {
-            WeaponMechanics.debug.debug(event.getWhoClicked() + " has old configuration of weapon '" + weaponTitle + "'");
-            return;
-        }
-
-        CompatibilityAPI.getNBTCompatibility().copyTagsFromTo(weapon, weaponTemplate, "PublicBukkitValues");
-        weapon.setType(weaponTemplate.getType());
-        weapon.setItemMeta(weaponTemplate.getItemMeta());
-        CustomTag.WEAPON_TITLE.setString(weapon, weaponTitle);
-        CustomTag.BROKEN_WEAPON.remove(weapon);
     }
 
     public boolean repair(ItemStack weapon, String weaponTitle, ItemStack repairItem, CastData cast) {

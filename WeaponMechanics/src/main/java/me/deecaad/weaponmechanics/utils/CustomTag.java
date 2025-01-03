@@ -71,12 +71,6 @@ public enum CustomTag {
     MAX_DURABILITY,
 
     /**
-     * Broken weapon is stored as a String, and is used by WeaponMechanics to determine which weapon
-     * this item was before breaking. The stored value is a weapon title.
-     */
-    BROKEN_WEAPON,
-
-    /**
      * Repair kit title is stored as a String, and is used by WeaponMechanics to determine if an item is
      * a repair kit. This title can be used to get repair kit information from config.
      */

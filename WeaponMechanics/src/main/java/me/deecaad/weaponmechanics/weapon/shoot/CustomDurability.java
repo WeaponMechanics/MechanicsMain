@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.shoot;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
@@ -9,7 +8,6 @@ import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.RandomUtil;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
@@ -35,7 +33,6 @@ public class CustomDurability implements Serializer<CustomDurability> {
     private int loseMaxDurabilityPerRepair;
     private int durabilityPerShot;
     private double chance;
-    private ItemStack replaceItem;
     private Mechanics durabilityMechanics;
     private Mechanics breakMechanics;
 
@@ -44,7 +41,6 @@ public class CustomDurability implements Serializer<CustomDurability> {
     private int repairPerExp;
     private Mechanics repairMechanics;
     private Mechanics denyRepairMechanics;
-    private boolean repairOnlyBroken;
 
     /**
      * Default constructor for serializer
@@ -53,22 +49,19 @@ public class CustomDurability implements Serializer<CustomDurability> {
     }
 
     public CustomDurability(int maxDurability, int minMaxDurability, int loseMaxDurabilityPerRepair, int durabilityPerShot,
-        double chance, ItemStack replaceItem, Mechanics durabilityMechanics, Mechanics breakMechanics,
-        Map<ItemStack, Integer> repairItems, int repairPerExp, Mechanics repairMechanics, Mechanics denyRepairMechanics,
-        boolean repairOnlyBroken) {
+        double chance, Mechanics durabilityMechanics, Mechanics breakMechanics, Map<ItemStack, Integer> repairItems,
+        int repairPerExp, Mechanics repairMechanics, Mechanics denyRepairMechanics) {
         this.maxDurability = maxDurability;
         this.minMaxDurability = minMaxDurability;
         this.loseMaxDurabilityPerRepair = loseMaxDurabilityPerRepair;
         this.durabilityPerShot = durabilityPerShot;
         this.chance = chance;
-        this.replaceItem = replaceItem;
         this.durabilityMechanics = durabilityMechanics;
         this.breakMechanics = breakMechanics;
         this.repairItems = repairItems;
         this.repairPerExp = repairPerExp;
         this.repairMechanics = repairMechanics;
         this.denyRepairMechanics = denyRepairMechanics;
-        this.repairOnlyBroken = repairOnlyBroken;
     }
 
     public int getMaxDurability() {
@@ -109,14 +102,6 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
     public void setChance(double chance) {
         this.chance = chance;
-    }
-
-    public ItemStack getReplaceItem() {
-        return replaceItem;
-    }
-
-    public void setReplaceItem(ItemStack replaceItem) {
-        this.replaceItem = replaceItem;
     }
 
     public Mechanics getDurabilityMechanics() {
@@ -165,14 +150,6 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
     public void setDenyRepairMechanics(Mechanics denyRepairMechanics) {
         this.denyRepairMechanics = denyRepairMechanics;
-    }
-
-    public boolean isRepairOnlyBroken() {
-        return repairOnlyBroken;
-    }
-
-    public void setRepairOnlyBroken(boolean repairOnlyBroken) {
-        this.repairOnlyBroken = repairOnlyBroken;
     }
 
     /**
@@ -260,19 +237,9 @@ public class CustomDurability implements Serializer<CustomDurability> {
         // the broken item with the 'replaceItem'
         if (breakMechanics != null)
             breakMechanics.use(new CastData(entity, weaponTitle, item));
-        if (replaceItem == null) {
-            item.setAmount(0);
-            return true;
-        }
 
-        ItemStack template = replaceItem.clone();
-        CompatibilityAPI.getNBTCompatibility().copyTagsFromTo(item, template, "PublicBukkitValues");
-        item.setType(template.getType());
-        item.setItemMeta(template.getItemMeta());
-        CustomTag.WEAPON_TITLE.remove(item);
-        CustomTag.BROKEN_WEAPON.setString(item, CustomTag.WEAPON_TITLE.getString(template));
-        CustomTag.DURABILITY.setInteger(item, 0);
-
+        // Break the item
+        item.setAmount(0);
         return true;
     }
 
@@ -288,32 +255,6 @@ public class CustomDurability implements Serializer<CustomDurability> {
     public boolean repair(ItemStack weapon, boolean repairMaxDurability) {
         if (weapon == null || !weapon.hasItemMeta())
             throw new IllegalArgumentException("Cannot repair " + weapon + " since it is not a weapon");
-
-        // When weapon is fully broken, we have to set it back to the weapon item.
-        String weaponTitle = CustomTag.BROKEN_WEAPON.getString(weapon);
-        if (weaponTitle != null) {
-            ItemStack weaponTemplate = WeaponMechanics.getWeaponHandler().getInfoHandler().generateWeapon(weaponTitle, 1);
-
-            // Weapon no longer exists in config
-            if (weaponTemplate == null) {
-                WeaponMechanics.debug.warn("Tried to repair weapon '" + weaponTitle + "' when it no longer exists in config... ignoring...");
-                return false;
-            }
-
-            // Turn the broken-weapon into a functional weapon
-            CompatibilityAPI.getNBTCompatibility().copyTagsFromTo(weapon, weaponTemplate, "PublicBukkitValues");
-            weapon.setType(weaponTemplate.getType());
-            weapon.setItemMeta(weaponTemplate.getItemMeta());
-            CustomTag.WEAPON_TITLE.setString(weapon, weaponTitle);
-            CustomTag.BROKEN_WEAPON.remove(weapon);
-
-            // Add durability back to the weapon
-            if (repairMaxDurability)
-                CustomTag.MAX_DURABILITY.setInteger(weapon, getMaxDurability());
-            CustomTag.DURABILITY.setInteger(weapon, getMaxDurability(weapon));
-
-            return true;
-        }
 
         boolean changes = false;
 
@@ -344,7 +285,6 @@ public class CustomDurability implements Serializer<CustomDurability> {
                 "Found Durability_Per_Shot: " + durabilityPerShot);
         }
 
-        ItemStack replaceItem = data.of("Broken_Item").serialize(ItemSerializer.class).orElse(null);
         Mechanics durabilityMechanics = data.of("Lose_Durability_Mechanics").serialize(Mechanics.class).orElse(null);
         Mechanics breakMechanics = data.of("Break_Mechanics").serialize(Mechanics.class).orElse(null);
 
@@ -364,11 +304,9 @@ public class CustomDurability implements Serializer<CustomDurability> {
         int repairPerExp = data.of("Repair_Per_Exp").assertRange(0, null).getInt().orElse(0);
         Mechanics repairMechanics = data.of("Repair_Mechanics").serialize(Mechanics.class).orElse(null);
         Mechanics denyRepairMechanics = data.of("Deny_Repair_Mechanics").serialize(Mechanics.class).orElse(null);
-        boolean repairOnlyBroken = data.of("Repair_Only_Broken").getBool().orElse(false);
 
         return new CustomDurability(maxDurability, minMaxDurability, loseMaxDurabilityPerRepair, durabilityPerShot,
-            chance, replaceItem, durabilityMechanics, breakMechanics, repairItems, repairPerExp, repairMechanics, denyRepairMechanics,
-            repairOnlyBroken);
+            chance, durabilityMechanics, breakMechanics, repairItems, repairPerExp, repairMechanics, denyRepairMechanics);
     }
 
     /**
