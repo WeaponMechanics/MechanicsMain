@@ -10,6 +10,11 @@ plugins {
 dependencies {
     implementation(project(":WeaponMechanics"))
 
+    // Implementation for all the libraries we shade:
+    implementation(Dependencies.BSTATS)
+    implementation("com.jeff_media:SpigotUpdateChecker:3.0.3")
+    implementation(Dependencies.GSON)
+
     // Add all compatibility modules
     var addedOne = false
     file("../WeaponCompatibility").listFiles()?.forEach {
