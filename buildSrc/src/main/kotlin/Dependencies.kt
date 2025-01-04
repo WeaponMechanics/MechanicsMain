@@ -3,6 +3,7 @@ object Versions {
     // Spigot + Plugins
     const val LATEST_SPIGOT_API = "1.21.4-R0.1-SNAPSHOT"
     const val BSTATS = "3.0.1"
+    const val PACKET_EVENTS = "2.7.0"
     const val PROTOCOL_LIB = "5.1.0"
     const val PLACEHOLDER_API = "2.11.6"
     const val MYTHIC_MOBS = "5.7.2"
@@ -31,7 +32,7 @@ object Dependencies {
     // Spigot + Plugins
     const val LATEST_SPIGOT_API = "org.spigotmc:spigot-api:${Versions.LATEST_SPIGOT_API}"
     const val BSTATS = "org.bstats:bstats-bukkit:${Versions.BSTATS}"
-    const val PROTOCOL_LIB = "com.comphenix.protocol:ProtocolLib:${Versions.PROTOCOL_LIB}"
+    const val PACKET_EVENTS = "com.github.retrooper:packetevents-spigot:${Versions.PACKET_EVENTS}"
     const val PLACEHOLDER_API = "me.clip:placeholderapi:${Versions.PLACEHOLDER_API}"
     const val MYTHIC_MOBS = "io.lumine:Mythic-Dist:${Versions.MYTHIC_MOBS}"
     const val GEYSER = "org.geysermc.geyser:api:${Versions.GEYSER}"

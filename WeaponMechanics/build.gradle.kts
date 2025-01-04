@@ -19,7 +19,7 @@ dependencies {
 
     // External plugins that we hook into
     compileOnly(project(":MechanicsCore"))
-    compileOnly(Dependencies.PROTOCOL_LIB)
+    compileOnly(Dependencies.PACKET_EVENTS)
     compileOnly(Dependencies.PLACEHOLDER_API)
     compileOnly(Dependencies.MYTHIC_MOBS)
     compileOnly(Dependencies.VIVECRAFT)

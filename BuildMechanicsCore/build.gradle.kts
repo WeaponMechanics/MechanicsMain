@@ -9,6 +9,19 @@ dependencies {
     implementation(project(":CoreCompatibility"))
     implementation(project(":WorldGuardV7"))
 
+    // Implementation for all the libraries we shade:
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.21")
+    implementation("net.kyori:adventure-api:${Versions.ADVENTURE_API}")
+    implementation("net.kyori:adventure-platform-bukkit:${Versions.ADVENTURE_BUKKIT}")
+    implementation("net.kyori:adventure-text-serializer-legacy:${Versions.ADVENTURE_API}")
+    implementation("net.kyori:adventure-text-minimessage:${Versions.ADVENTURE_API}")
+    implementation("com.zaxxer:HikariCP:5.1.0")
+    implementation("org.slf4j:slf4j-api:1.7.30")
+    implementation(Dependencies.X_SERIES)
+    implementation(Dependencies.FOLIA_SCHEDULER)
+    implementation(Dependencies.COMMAND_API_SHADE)
+    implementation("net.bytebuddy:byte-buddy:1.15.10")
+
     // Add all compatibility modules
     var addedOne = false
     file("../CoreCompatibility").listFiles()?.forEach {
@@ -75,20 +88,16 @@ tasks.shadowJar {
             include(dependency("org.slf4j::"))
         }
 
-        relocate("xyz.jpenilla", "me.deecaad.core.lib.reflection") {
-            include(dependency("xyz.jpenilla::"))
-        }
-
-        relocate("net.fabricmc", "me.deecaad.core.lib.fabric") {
-            include(dependency("net.fabricmc::"))
-        }
-
         relocate("com.cryptomorin.xseries", "me.deecaad.core.lib.xseries") {
             include(dependency("com.github.cryptomorin:XSeries:"))
         }
 
         relocate("com.cjcrafter.foliascheduler", "me.deecaad.core.lib.scheduler") {
             include(dependency("com.cjcrafter:foliascheduler:"))
+        }
+
+        relocate("dev.jorel.commandapi", "me.deecaad.core.lib.commandapi") {
+            include(dependency("dev.jorel:commandapi-bukkit-shade:"))
         }
 
         relocate("net.bytebuddy", "me.deecaad.core.lib.bytebuddy") {

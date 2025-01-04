@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.compatibility;
 
-import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
 import org.bukkit.EntityEffect;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
@@ -8,14 +7,8 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.jetbrains.annotations.NotNull;
 
 public interface IWeaponCompatibility {
-
-    /**
-     * @return the scope compatibility
-     */
-    @NotNull IScopeCompatibility getScopeCompatibility();
 
     /**
      * Rotates player's camera rotation with given values. Absolute true means that yaw and pitch will

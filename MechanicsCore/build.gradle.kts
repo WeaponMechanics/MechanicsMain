@@ -20,7 +20,7 @@ dependencies {
     compileOnly("com.mojang:brigadier:1.0.18")
 
     // External plugins that we hook into
-    compileOnly(Dependencies.PROTOCOL_LIB)
+    compileOnly(Dependencies.PACKET_EVENTS)
     compileOnly(Dependencies.GEYSER)
     compileOnly(Dependencies.PLACEHOLDER_API)
     compileOnly(Dependencies.MYTHIC_MOBS)

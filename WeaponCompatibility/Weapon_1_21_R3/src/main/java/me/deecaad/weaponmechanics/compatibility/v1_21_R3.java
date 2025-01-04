@@ -1,7 +1,5 @@
 package me.deecaad.weaponmechanics.compatibility;
 
-import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
-import me.deecaad.weaponmechanics.compatibility.scope.Scope_1_21_R3;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -13,7 +11,6 @@ import net.minecraft.world.phys.Vec3;
 import org.bukkit.craftbukkit.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -33,15 +30,7 @@ public class v1_21_R3 implements IWeaponCompatibility {
         Relative.Y,
         Relative.Z));
 
-    private final IScopeCompatibility scopeCompatibility;
-
     public v1_21_R3() {
-        this.scopeCompatibility = new Scope_1_21_R3();
-    }
-
-    @NotNull @Override
-    public IScopeCompatibility getScopeCompatibility() {
-        return scopeCompatibility;
     }
 
     @Override

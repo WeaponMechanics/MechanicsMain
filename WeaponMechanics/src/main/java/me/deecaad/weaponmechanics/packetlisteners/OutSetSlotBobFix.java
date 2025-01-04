@@ -1,10 +1,11 @@
 package me.deecaad.weaponmechanics.packetlisteners;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
 import com.cjcrafter.foliascheduler.util.MinecraftVersions;
+import com.github.retrooper.packetevents.event.PacketListener;
+import com.github.retrooper.packetevents.event.PacketSendEvent;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSetSlot;
+import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -27,16 +28,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class OutSetSlotBobFix extends PacketAdapter implements Listener {
+public class OutSetSlotBobFix implements PacketListener, Listener {
 
     private final Map<Player, SimpleItemData> mainHand;
     private final Map<Player, SimpleItemData> offHand;
+    private final Plugin plugin;
 
     public OutSetSlotBobFix(Plugin plugin) {
-        super(plugin, ListenerPriority.NORMAL, PacketType.Play.Server.SET_SLOT);
-        mainHand = new HashMap<>();
-        offHand = new HashMap<>();
+        this.plugin = plugin;
+        this.mainHand = new HashMap<>();
+        this.offHand = new HashMap<>();
 
+        // Register normal Bukkit events
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
@@ -48,8 +51,8 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
     @EventHandler
     public void click(InventoryClickEvent event) {
         HumanEntity humanEntity = event.getWhoClicked();
-        if (!(humanEntity instanceof Player player))
-            return;
+        if (!(humanEntity instanceof Player player)) return;
+
         mainHand.put(player, null);
         offHand.put(player, null);
     }
@@ -57,8 +60,8 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
     @EventHandler
     public void click(InventoryDragEvent event) {
         HumanEntity humanEntity = event.getWhoClicked();
-        if (!(humanEntity instanceof Player player))
-            return;
+        if (!(humanEntity instanceof Player player)) return;
+
         mainHand.put(player, null);
         offHand.put(player, null);
     }
@@ -75,49 +78,67 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
     }
 
     @Override
-    public void onPacketReceiving(PacketEvent event) {
-    }
-
-    @Override
-    public void onPacketSending(PacketEvent event) {
-
-        // Temporary players do not have inventories. This check avoids an unsupported
-        // operation exception. Seems to be an issue with NPC plugins/GeyserMC.
-        if (event.isPlayerTemporary())
+    public void onPacketSend(PacketSendEvent event) {
+        if (!event.getPacketType().equals(PacketType.Play.Server.SET_SLOT)) {
             return;
+        }
 
+        // Make sure the player is online to try and prevent fake players
         Player player = event.getPlayer();
-
-        // 0 is the player's inventory.
-        if (event.getPacket().getIntegers().read(0) != 0)
+        if (player == null || !player.isOnline()) {
             return;
+        }
 
-        int slotNum = event.getPacket().getIntegers().read(MinecraftVersions.CAVES_AND_CLIFFS_1.isAtLeast() ? 2 : 1);
+        // Wrap the outgoing SET_SLOT packet for easy reading
+        WrapperPlayServerSetSlot wrapper = new WrapperPlayServerSetSlot(event);
 
-        boolean mainHand = slotNum == 36 + player.getInventory().getHeldItemSlot();
-        if (!mainHand && slotNum != 45)
+        int windowId = wrapper.getWindowId();
+        // 0 is the player's main inventory
+        if (windowId != 0) {
             return;
+        }
 
-        Map<Player, SimpleItemData> data = mainHand ? this.mainHand : this.offHand;
+        int slotNum = wrapper.getSlot();
+        boolean isMainHandSlot = slotNum == 36 + player.getInventory().getHeldItemSlot();
+        boolean isOffHandSlot = (slotNum == 45);
 
-        ItemStack packetItem = event.getPacket().getItemModifier().read(0);
+        // We only care about main/off-hand
+        if (!isMainHandSlot && !isOffHandSlot) {
+            return;
+        }
+
+        Map<Player, SimpleItemData> dataMap = isMainHandSlot ? mainHand : offHand;
+
+        // Convert the PacketEvents item to a Bukkit ItemStack
+        ItemStack packetItem = SpigotConversionUtil.toBukkitItemStack(wrapper.getItem());
+        if (packetItem == null) {
+            // No item; remove old data and exit
+            dataMap.put(player, null);
+            return;
+        }
+
+        // Check the custom tag
         if (!packetItem.hasItemMeta() || !CustomTag.WEAPON_TITLE.hasString(packetItem)) {
-            data.put(player, null);
+            dataMap.put(player, null);
             return;
         }
 
-        SimpleItemData lastData = data.get(player);
+        SimpleItemData lastData = dataMap.get(player);
         if (lastData == null) {
-            data.put(player, new SimpleItemData(slotNum, packetItem));
+            // We haven't stored data for this item slot yet
+            dataMap.put(player, new SimpleItemData(slotNum, packetItem));
             return;
         }
 
+        // Check if it's different from what we have stored
         SimpleItemData newData = new SimpleItemData(slotNum, packetItem);
         if (newData.isDifferent(lastData)) {
-            data.put(player, newData);
+            dataMap.put(player, newData);
             return;
         }
 
+        // If we get here, it's the same item data as last time
+        // => Cancel this packet to prevent the "bob" animation glitch
         event.setCancelled(true);
     }
 
@@ -135,21 +156,26 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
             this.sentToSlot = sentToSlot;
             this.type = itemStack.getType();
             this.amount = itemStack.getAmount();
-            ItemMeta itemMeta = itemStack.getItemMeta();
-            if (itemMeta == null)
-                return;
 
-            if (itemMeta.hasDisplayName())
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            if (itemMeta == null) return;
+
+            if (itemMeta.hasDisplayName()) {
                 this.displayName = itemMeta.getDisplayName();
-            if (itemMeta.hasLore())
+            }
+            if (itemMeta.hasLore()) {
                 this.lore = itemMeta.getLore();
-            if (MinecraftVersions.VILLAGE_AND_PILLAGE.isAtLeast() && itemMeta.hasCustomModelData())
+            }
+            if (MinecraftVersions.VILLAGE_AND_PILLAGE.isAtLeast() && itemMeta.hasCustomModelData()) {
                 this.customModelData = itemMeta.getCustomModelData();
+            }
+
             if (!MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
                 this.durability = itemStack.getDurability();
             } else if (itemMeta instanceof Damageable damageableItemMeta) {
-                if (damageableItemMeta.hasDamage())
-                    this.durability = ((Damageable) itemMeta).getDamage();
+                if (damageableItemMeta.hasDamage()) {
+                    this.durability = damageableItemMeta.getDamage();
+                }
             }
         }
 
@@ -158,8 +184,12 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
         }
 
         public boolean isDifferent(SimpleItemData other) {
-            return sentToSlot != other.sentToSlot || type != other.type || amount != other.amount || customModelData != other.customModelData
-                || durability != other.durability || !Objects.equals(displayName, other.displayName)
+            return sentToSlot != other.sentToSlot
+                || type != other.type
+                || amount != other.amount
+                || customModelData != other.customModelData
+                || durability != other.durability
+                || !Objects.equals(displayName, other.displayName)
                 || !Objects.equals(lore, other.lore);
         }
     }

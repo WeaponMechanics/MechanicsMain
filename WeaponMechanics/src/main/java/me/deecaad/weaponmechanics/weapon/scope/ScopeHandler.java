@@ -1,6 +1,11 @@
 package me.deecaad.weaponmechanics.weapon.scope;
 
 import com.cjcrafter.vivecraft.VSE;
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerAbilities;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityEffect;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerRemoveEntityEffect;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
@@ -13,8 +18,6 @@ import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderMessage;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerListener;
@@ -26,11 +29,14 @@ import me.deecaad.weaponmechanics.wrappers.ZoomData;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -43,7 +49,6 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class ScopeHandler implements IValidator, TriggerListener {
 
-    private static final IScopeCompatibility scopeCompatibility = WeaponCompatibilityAPI.getScopeCompatibility();
     private WeaponHandler weaponHandler;
 
     /**
@@ -280,7 +285,16 @@ public class ScopeHandler implements IValidator, TriggerListener {
         zoomData.setZoomAmount(newZoomAmount);
 
         // Update abilities sets the FOV change
-        scopeCompatibility.updateAbilities(player);
+        WrapperPlayClientPlayerAbilities abilities = new WrapperPlayClientPlayerAbilities(
+            player.isFlying(),
+            Optional.of(player.isInvulnerable()),
+            Optional.of(player.getAllowFlight()),
+            Optional.of(player.getGameMode() == GameMode.CREATIVE),
+            Optional.of(player.getFlySpeed()),
+            Optional.of(player.getWalkSpeed())
+        );
+
+        PacketEvents.getAPI().getPlayerManager().sendPacket(player, abilities);
     }
 
     /**
@@ -299,7 +313,17 @@ public class ScopeHandler implements IValidator, TriggerListener {
                 return;
 
             zoomData.setZoomNightVision(true);
-            scopeCompatibility.addNightVision(player);
+            WrapperPlayServerEntityEffect entityEffect = new WrapperPlayServerEntityEffect(
+                player.getEntityId(),
+                PotionTypes.NIGHT_VISION,
+                2,
+                -1, // infinite duration
+                (byte) 0
+            );
+
+            entityEffect.setVisible(false);
+            entityEffect.setShowIcon(false);
+            PacketEvents.getAPI().getPlayerManager().sendPacket(player, entityEffect);
         }
 
         else {
@@ -308,7 +332,29 @@ public class ScopeHandler implements IValidator, TriggerListener {
                 return;
 
             zoomData.setZoomNightVision(false);
-            scopeCompatibility.removeNightVision(player);
+
+            // Remove the fake night vision effect from the player
+            WrapperPlayServerRemoveEntityEffect removeEntityEffect = new WrapperPlayServerRemoveEntityEffect(
+                player.getEntityId(),
+                PotionTypes.NIGHT_VISION
+            );
+            PacketEvents.getAPI().getPlayerManager().sendPacket(player, removeEntityEffect);
+
+            // If the player has night vision effect from other source, show it to them again
+            PotionEffect nightVision = player.getPotionEffect(PotionEffectType.NIGHT_VISION);
+            if (nightVision != null) {
+                WrapperPlayServerEntityEffect entityEffect = new WrapperPlayServerEntityEffect(
+                    player.getEntityId(),
+                    PotionTypes.NIGHT_VISION,
+                    nightVision.getAmplifier(),
+                    nightVision.getDuration(),
+                    (byte) 0
+                );
+                entityEffect.setVisible(nightVision.hasParticles());
+                entityEffect.setShowIcon(nightVision.hasIcon());
+                entityEffect.setAmbient(nightVision.isAmbient());
+                PacketEvents.getAPI().getPlayerManager().sendPacket(player, entityEffect);
+            }
         }
     }
 

@@ -6,8 +6,9 @@ import com.cjcrafter.foliascheduler.TaskImplementation;
 import com.cjcrafter.foliascheduler.util.ConstructorInvoker;
 import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import com.cjcrafter.foliascheduler.util.ServerVersions;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.event.EventManager;
+import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.jeff_media.updatechecker.UpdateCheckSource;
 import com.jeff_media.updatechecker.UpdateChecker;
 import com.jeff_media.updatechecker.UserAgentBuilder;
@@ -100,7 +101,6 @@ public class WeaponMechanics {
     WeaponHandler weaponHandler;
     ResourcePackListener resourcePackListener;
     ProjectileSpawner projectileSpawner;
-    ProtocolManager protocolManager;
     Metrics metrics;
     Database database;
     ServerImplementation foliaScheduler;
@@ -415,12 +415,12 @@ public class WeaponMechanics {
 
     void registerPacketListeners() {
         debug.debug("Creating packet listeners");
-        protocolManager = ProtocolLibrary.getProtocolManager();
 
-        protocolManager.addPacketListener(new OutAbilitiesListener(javaPlugin));
-        protocolManager.addPacketListener(new OutEntityEffectListener(javaPlugin));
-        protocolManager.addPacketListener(new OutRemoveEntityEffectListener(javaPlugin));
-        protocolManager.addPacketListener(new OutSetSlotBobFix(javaPlugin));
+        EventManager em = PacketEvents.getAPI().getEventManager();
+        em.registerListener(new OutAbilitiesListener(), PacketListenerPriority.NORMAL);
+        em.registerListener(new OutEntityEffectListener(), PacketListenerPriority.NORMAL);
+        em.registerListener(new OutRemoveEntityEffectListener(), PacketListenerPriority.NORMAL);
+        em.registerListener(new OutSetSlotBobFix(javaPlugin), PacketListenerPriority.NORMAL);
     }
 
     void registerCommands() {
@@ -571,7 +571,6 @@ public class WeaponMechanics {
 
         return getFoliaScheduler().async().runNow(this::writeFiles).asFuture().thenCompose((ignore) -> getFoliaScheduler().global().run((task) -> {
             loadConfig();
-            registerPacketListeners();
             registerListeners();
             registerCommands();
             registerPermissions();
@@ -615,9 +614,6 @@ public class WeaponMechanics {
                 debug.log(LogLevel.WARN, "Couldn't close database properly...", e);
             }
         }
-
-        // Unregister packet listeners
-        protocolManager.removePacketListeners(javaPlugin);
 
         database = null;
         weaponHandler = null;

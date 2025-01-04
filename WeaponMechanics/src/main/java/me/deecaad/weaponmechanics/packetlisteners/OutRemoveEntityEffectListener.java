@@ -1,44 +1,33 @@
 package me.deecaad.weaponmechanics.packetlisteners;
 
-import com.cjcrafter.foliascheduler.util.FieldAccessor;
-import com.cjcrafter.foliascheduler.util.ReflectionUtil;
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
+import com.github.retrooper.packetevents.event.PacketListener;
+import com.github.retrooper.packetevents.event.PacketSendEvent;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerRemoveEntityEffect;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.entity.Player;
 
-public class OutRemoveEntityEffectListener extends PacketAdapter {
-
-    private static final FieldAccessor idField;
-
-    static {
-        Class<?> effectPacket = ReflectionUtil.getMinecraftClass("network.protocol.game", "PacketPlayOutRemoveEntityEffect");
-
-        idField = ReflectionUtil.getField(effectPacket, int.class);
-    }
-
-    public OutRemoveEntityEffectListener(Plugin plugin) {
-        super(plugin, ListenerPriority.NORMAL, PacketType.Play.Server.REMOVE_ENTITY_EFFECT);
-    }
+public class OutRemoveEntityEffectListener implements PacketListener {
 
     @Override
-    public void onPacketReceiving(PacketEvent event) {
-    }
-
-    @Override
-    public void onPacketSending(PacketEvent event) {
-        if (event.getPacket().getIntegers().read(0) != event.getPlayer().getEntityId())
+    public void onPacketSend(PacketSendEvent event) {
+        if (event.getPacketType() != PacketType.Play.Server.REMOVE_ENTITY_EFFECT)
             return;
 
-        EntityWrapper entity = WeaponMechanics.getEntityWrapper(event.getPlayer());
+        Player player = event.getPlayer();
+        WrapperPlayServerRemoveEntityEffect wrapper = new WrapperPlayServerRemoveEntityEffect(event);
+        int entityId = wrapper.getEntityId();
+
+        if (entityId != player.getEntityId())
+            return;
+
+        EntityWrapper entity = WeaponMechanics.getEntityWrapper(player);
 
         if (!entity.getMainHandData().getZoomData().hasZoomNightVision() && !entity.getOffHandData().getZoomData().hasZoomNightVision())
             return;
-        if (!WeaponCompatibilityAPI.getScopeCompatibility().isRemoveNightVisionPacket(event))
+        if (wrapper.getPotionType() != PotionTypes.NIGHT_VISION)
             return;
 
         event.setCancelled(true);

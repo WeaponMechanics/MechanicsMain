@@ -33,7 +33,7 @@ bukkit {
     foliaSupported = true
 
     authors = listOf("DeeCaaD", "CJCrafter")
-    depend = listOf("ProtocolLib")
+    depend = listOf("packetevents")
     softDepend = listOf("MechanicsCore", "MythicMobs", "CrackShot", "CrackShotPlus", "VivecraftSpigot")
 
     permissions {
