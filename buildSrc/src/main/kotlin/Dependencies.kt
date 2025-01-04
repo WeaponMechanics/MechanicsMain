@@ -4,7 +4,6 @@ object Versions {
     const val LATEST_SPIGOT_API = "1.21.4-R0.1-SNAPSHOT"
     const val BSTATS = "3.0.1"
     const val PACKET_EVENTS = "2.7.0"
-    const val PROTOCOL_LIB = "5.1.0"
     const val PLACEHOLDER_API = "2.11.6"
     const val MYTHIC_MOBS = "5.7.2"
     const val GEYSER = "2.2.0-SNAPSHOT"
@@ -23,7 +22,7 @@ object Versions {
     const val KOTLIN = "1.9.21"
     const val X_SERIES = "12.0.0"
     const val FAST_UTIL = "8.5.13"
-    const val FOLIA_SCHEDULER = "0.6.1"
+    const val FOLIA_SCHEDULER = "0.6.3"
     const val COMMAND_API = "9.7.0"
 }
 

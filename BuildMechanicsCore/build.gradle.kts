@@ -16,11 +16,11 @@ dependencies {
     implementation("net.kyori:adventure-text-serializer-legacy:${Versions.ADVENTURE_API}")
     implementation("net.kyori:adventure-text-minimessage:${Versions.ADVENTURE_API}")
     implementation("com.zaxxer:HikariCP:5.1.0")
-    implementation("org.slf4j:slf4j-api:1.7.30")
+    implementation("org.slf4j:slf4j-nop:1.7.30")
     implementation(Dependencies.X_SERIES)
     implementation(Dependencies.FOLIA_SCHEDULER)
     implementation(Dependencies.COMMAND_API_SHADE)
-    implementation("net.bytebuddy:byte-buddy:1.15.10")
+    implementation("net.bytebuddy:byte-buddy:1.15.10")  // Making classes describable
 
     // Add all compatibility modules
     var addedOne = false

@@ -82,7 +82,9 @@ tasks.shadowJar {
 
     // This doesn't actually include any dependencies, this relocates all references
     // to the mechanics core lib.
+    relocate("kotlin.", "me.deecaad.core.lib.kotlin.")
     relocate("net.kyori", "me.deecaad.core.lib")
-    relocate("kotlin.", "me.deecaad.weaponmechanics.lib.kotlin.")
+    relocate("com.cryptomorin.xseries", "me.deecaad.core.lib.xseries")
     relocate("com.cjcrafter.foliascheduler", "me.deecaad.core.lib.scheduler")
+    relocate("dev.jorel.commandapi", "me.deecaad.core.lib.commandapi")
 }

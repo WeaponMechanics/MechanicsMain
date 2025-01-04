@@ -1,6 +1,7 @@
 package me.deecaad.core.compatibility;
 
 import com.cjcrafter.foliascheduler.util.ConstructorInvoker;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.block.BlockCompatibility;
@@ -24,7 +25,7 @@ public final class CompatibilityAPI {
 
             // When we don't have a compatibility interface for this version
             if (compatibility == null) {
-                MechanicsCore.debug.error("Unsupported server version: " + Bukkit.getVersion() + " (" + Bukkit.getBukkitVersion() + ")",
+                MechanicsCore.debug.error("Unsupported server version: " + MinecraftVersions.getCurrent() + " (" + Bukkit.getBukkitVersion() + ")",
                     "If you are running a new version of Minecraft, make sure to update",
                     "!!! CRITICAL ERROR !!!");
             }
