@@ -12,7 +12,7 @@ Stim:
       Hide_Flags: true
       Deny_Use_In_Crafting: true
     Weapon_Get_Mechanics:
-      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75}"
+      - "Sound{sound=item.armor.equip_chain, pitch=0.75}"
     Cancel:
       Block_Interactions: true
       Item_Interactions: true
@@ -29,5 +29,5 @@ Stim:
     Consume_Item_On_Shoot: true
     Delay_Between_Shots: 20
     Mechanics:
-      - "Sound{sound=ENTITY_GENERIC_DRINK, noise=0.1}"
-      - "Potion{potion=HEAL, level=3}"
+      - "Sound{sound=entity.generic.drink, noise=0.1}"
+      - "Potion{potion=instant_health, level=3}"

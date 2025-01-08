@@ -16,13 +16,13 @@ FN_FAL:
       Unbreakable: true
       Hide_Flags: true
       Attributes:
-        - "GENERIC_MOVEMENT_SPEED -0.017"
+        - "movement_speed -0.017"
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
         Message: "<gold>FN FAL<firearm_state> <gray>«<gold><ammo_left><gray>»<gold><reload> <gray>[<gold><selective_fire_state><gray>]"
     Weapon_Get_Mechanics:
-      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75, listeners=Source{}}"
+      - "Sound{sound=item.armor.equip_chain, pitch=0.75, listeners=Source{}}"
     Weapon_Equip_Delay: 30
     Cancel:
       Drop_Item: true
@@ -47,7 +47,7 @@ FN_FAL:
         Main_Hand: "DOUBLE_SNEAK"
         Off_Hand: "DOUBLE_SNEAK"
       Mechanics:
-        - "Sound{sound=BLOCK_NOTE_BLOCK_HAT, pitch=2.0, listeners=Source{}}"
+        - "Sound{sound=block.note_block.hat, pitch=2.0, listeners=Source{}}"
     Delay_Between_Shots: 5
     Fully_Automatic_Shots_Per_Second: 9
     Spread:
@@ -107,12 +107,12 @@ FN_FAL:
     Open:
       Time: 8
       Mechanics:
-        - "Sound{sound=BLOCK_NOTE_BLOCK_HAT, volume=0.5, noise=0.1, listeners=Source{}}"
-        - "Sound{sound=BLOCK_PISTON_CONTRACT, volume=0.5, noise=0.1, listeners=Source{}, delayBeforePlay=2}"
+        - "Sound{sound=block.note_block.hat, volume=0.5, noise=0.1, listeners=Source{}}"
+        - "Sound{sound=block.piston.contract, volume=0.5, noise=0.1, listeners=Source{}, delayBeforePlay=2}"
     Close:
       Time: 8
       Mechanics:
-        - "Sound{sound=BLOCK_PISTON_EXTEND, volume=0.5, noise=0.1, listeners=Source{}}"
+        - "Sound{sound=block.piston.extend, volume=0.5, noise=0.1, listeners=Source{}}"
 
   # The following options are added by WeaponMechanicsCosmetics, and you will
   # not see the changes take effect until you purchase it.
@@ -120,7 +120,7 @@ FN_FAL:
   Cosmetics:
     Muzzle_Flash: true
     Splash_Mechanics:
-      - "Sound{sound=ENTITY_GENERIC_SPLASH, pitch=1.85, noise=0.15} @Target{}"
+      - "Sound{sound=entity.generic.splash, pitch=1.85, noise=0.15} @Target{}"
       - "Particle{particle=WATER_SPLASH, count=20, noise=0.2 0.2 0.2} @Target{}"
     Bullet_Zip:
       Maximum_Distance: 4.0

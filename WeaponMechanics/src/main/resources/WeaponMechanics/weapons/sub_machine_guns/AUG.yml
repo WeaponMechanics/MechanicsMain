@@ -16,13 +16,13 @@ AUG:
       Unbreakable: true
       Hide_Flags: true
       Attributes:
-        - "GENERIC_MOVEMENT_SPEED -0.0117"
+        - "movement_speed -0.0117"
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
         Message: "<gold>AUG<firearm_state> <gray>«<gold><ammo_left><gray>»<gold><reload>"
     Weapon_Get_Mechanics:
-      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75, listeners=Source{}}"
+      - "Sound{sound=item.armor.equip_chain, pitch=0.75, listeners=Source{}}"
     Weapon_Equip_Delay: 20
     Cancel:
       Drop_Item: true
@@ -95,12 +95,12 @@ AUG:
     Open:
       Time: 5
       Mechanics:
-        - "Sound{sound=BLOCK_NOTE_BLOCK_HAT, volume=0.5, noise=0.1, listeners=Source{}}"
-        - "Sound{sound=BLOCK_PISTON_CONTRACT, volume=0.5, noise=0.1, listeners=Source{}, delayBeforePlay=2}"
+        - "Sound{sound=block.note_block.hat, volume=0.5, noise=0.1, listeners=Source{}}"
+        - "Sound{sound=block.piston.contract, volume=0.5, noise=0.1, listeners=Source{}, delayBeforePlay=2}"
     Close:
       Time: 5
       Mechanics:
-        - "Sound{sound=BLOCK_PISTON_EXTEND, volume=0.5, noise=0.1, listeners=Source{}}"
+        - "Sound{sound=block.piston.extend, volume=0.5, noise=0.1, listeners=Source{}}"
 
   # The following options are added by WeaponMechanicsCosmetics, and you will
   # not see the changes take effect until you purchase it.
@@ -108,7 +108,7 @@ AUG:
   Cosmetics:
     Muzzle_Flash: true
     Splash_Mechanics:
-      - "Sound{sound=ENTITY_GENERIC_SPLASH, pitch=1.85, noise=0.15} @Target{}"
+      - "Sound{sound=entity.generic.splash, pitch=1.85, noise=0.15} @Target{}"
       - "Particle{particle=WATER_SPLASH, count=20, noise=0.2 0.2 0.2} @Target{}"
     Bullet_Zip:
       Maximum_Distance: 4.0
