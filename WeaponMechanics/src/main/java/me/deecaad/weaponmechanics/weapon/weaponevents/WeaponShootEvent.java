@@ -4,24 +4,22 @@ import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProje
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-
 /**
  * This class outlines the event of a weapon launching a projectile.
  */
 public class WeaponShootEvent extends WeaponEvent {
 
-    private static final HandlerList HANDLERS = new HandlerList();
+    private static final @NotNull HandlerList HANDLERS = new HandlerList();
 
-    private WeaponProjectile projectile;
+    private @NotNull WeaponProjectile projectile;
 
-    public WeaponShootEvent(WeaponProjectile projectile) {
+    public WeaponShootEvent(@NotNull WeaponProjectile projectile) {
         super(projectile.getWeaponTitle(), projectile.getWeaponStack(), projectile.getShooter(), projectile.getHand());
 
         this.projectile = projectile;
     }
 
-    public WeaponProjectile getProjectile() {
+    public @NotNull WeaponProjectile getProjectile() {
         return projectile;
     }
 
@@ -33,11 +31,11 @@ public class WeaponShootEvent extends WeaponEvent {
     }
 
     @Override
-    @NotNull public HandlerList getHandlers() {
+    public @NotNull HandlerList getHandlers() {
         return HANDLERS;
     }
 
-    public static HandlerList getHandlerList() {
+    public static @NotNull HandlerList getHandlerList() {
         return HANDLERS;
     }
 }

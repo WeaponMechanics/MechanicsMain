@@ -10,8 +10,6 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
-
 import static me.deecaad.core.utils.NumberUtil.square;
 
 /**
@@ -34,8 +32,6 @@ public abstract class FakeEntity {
     public static final int INVISIBLE_FLAG = 5;
     public static final int GLOWING_FLAG = 6;
     public static final int GLIDING_FLAG = 7;
-
-    private static Map<String, Integer> OBJECT_REGISTRY;
 
     protected final EntityType type;
     protected Location location;
@@ -100,8 +96,7 @@ public abstract class FakeEntity {
 
     /**
      * Returns the data that was used in the constructor (or in {@link #setData(Object)}). The data will
-     * either be an {@link ItemStack}, a {@link org.bukkit.material.MaterialData} (1.12-), or a
-     * {@link org.bukkit.block.data.BlockData}
+     * either be an {@link ItemStack}, or a {@link org.bukkit.block.data.BlockData}
      *
      * @return The nullable extra data (block or item).
      */
@@ -172,10 +167,6 @@ public abstract class FakeEntity {
         location.setYaw(yaw);
         location.setPitch(pitch);
     }
-
-    // * ------------------------- * //
-    // * Tick Methods * //
-    // * ------------------------- * //
 
     /**
      * Shorthand for {@link #setMotion(double, double, double)}.
@@ -340,10 +331,6 @@ public abstract class FakeEntity {
             }
         };
     }
-
-    // * ------------------------- * //
-    // * Packet Based Methods * //
-    // * ------------------------- * //
 
     /**
      * Shows this entity to all players within range of the entity. Effectively the same as calling

@@ -222,7 +222,7 @@ public class ShootHandler implements IValidator, TriggerListener {
             return false;
 
         if (isMelee) {
-            return singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
+            return singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, true);
         }
 
         if (usesSelectiveFire) {
@@ -230,14 +230,14 @@ public class ShootHandler implements IValidator, TriggerListener {
                 case BURST -> burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
                 case AUTO ->
                     fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield);
-                default -> singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
+                default -> singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, false);
             };
         }
 
         // First try full auto, then burst, then single fire
         return fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield)
             || burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield)
-            || singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
+            || singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, false);
     }
 
     private boolean singleShot(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot, boolean dualWield, boolean isMelee) {
@@ -488,7 +488,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         if (!dualWield) {
             handData.cancelTasks();
-            if (!reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, isReloadLoop)) {
+            if (!reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, false, isReloadLoop)) {
                 // Only update skin if reload was cancelled
                 weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
             }
@@ -557,31 +557,20 @@ public class ShootHandler implements IValidator, TriggerListener {
                 weaponInfoDisplay.send(playerWrapper, slot);
         }
 
-        if (projectile == null || isMelee) {
-            debug.debug("Missing projectile/isMelee for " + weaponTitle);
-            // No projectile defined or was melee trigger
 
-            // Update this AFTER shot (e.g. spread reset time won't work properly otherwise
-            if (!isMelee) {
-                WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot, false);
-                Bukkit.getPluginManager().callEvent(event);
+        // Only update recoil 1 time per shot
+        if (prepareEvent.getRecoil() != null && livingEntity instanceof Player) {
+            prepareEvent.getRecoil().start((Player) livingEntity, mainHand);
+        }
 
-                HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
-                handData.setLastShotTime(System.currentTimeMillis());
-                handData.setLastWeaponShot(weaponTitle, weaponStack);
-            }
-
+        // Everything below is "projectile specific", so melee weapons don't need to do this
+        if (isMelee) {
             return;
         }
 
         // Only happens in weird scenarios, like API calls and WMP attachments.
         if (prepareEvent.getProjectileAmount() < 1) {
             debug.error(weaponTitle + ".Shoot.Projectiles_Per_Shot should be at least 1, got " + prepareEvent.getProjectileAmount());
-        }
-
-        // Only update recoil 1 time per shot
-        if (prepareEvent.getRecoil() != null && livingEntity instanceof Player) {
-            prepareEvent.getRecoil().start((Player) livingEntity, mainHand);
         }
 
         for (int i = 0; i < prepareEvent.getProjectileAmount(); i++) {

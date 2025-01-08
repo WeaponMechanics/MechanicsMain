@@ -2,8 +2,6 @@ package me.deecaad.core.file;
 
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-
 public class Square implements Serializer<Square> {
 
     private Vec2 offset;

@@ -68,7 +68,7 @@ public class RepairItemListener implements Listener {
             FileUtil.PathReference pathReference = FileUtil.PathReference.of(repairKitFolder.toURI());
             Files.walkFileTree(pathReference.path(), new SimpleFileVisitor<>() {
                 @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                public @NotNull FileVisitResult visitFile(Path file, @NotNull BasicFileAttributes attrs) throws IOException {
 
                     InputStream stream = Files.newInputStream(file);
                     YamlConfiguration config;

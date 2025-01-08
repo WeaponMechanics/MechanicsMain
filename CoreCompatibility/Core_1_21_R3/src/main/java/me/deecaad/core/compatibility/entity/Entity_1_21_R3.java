@@ -86,7 +86,7 @@ public class Entity_1_21_R3 implements EntityCompatibility {
         ClientboundSetEntityDataPacket packet = (ClientboundSetEntityDataPacket) obj;
         List<SynchedEntityData.DataValue<?>> list = packet.packedItems();
 
-        if (list == null || list.isEmpty())
+        if (list.isEmpty())
             return;
 
         // The "shared byte data" is applied to every entity, and it is always

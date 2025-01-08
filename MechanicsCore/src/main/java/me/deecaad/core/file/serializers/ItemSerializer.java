@@ -117,18 +117,14 @@ public class ItemSerializer implements Serializer<ItemStack> {
             String plugin = split[0];
             String tag = split[1];
 
-            if (entry.getValue() instanceof String string)
-                nbt.setString(item, plugin, tag, string);
-            else if (entry.getValue() instanceof Double num)
-                nbt.setDouble(item, plugin, tag, num);
-            else if (entry.getValue() instanceof Integer num)
-                nbt.setInt(item, plugin, tag, num);
-            else if (entry.getValue() instanceof int[] arr)
-                nbt.setArray(item, plugin, tag, arr);
-            else if (entry.getValue() instanceof String[] arr)
-                nbt.setStringArray(item, plugin, tag, arr);
-            else
-                throw new IllegalArgumentException("Unrecognized type " + entry.getValue() + " when setting custom tags");
+            switch (entry.getValue()) {
+                case String string -> nbt.setString(item, plugin, tag, string);
+                case Double num -> nbt.setDouble(item, plugin, tag, num);
+                case Integer num -> nbt.setInt(item, plugin, tag, num);
+                case int[] arr -> nbt.setArray(item, plugin, tag, arr);
+                case String[] arr -> nbt.setStringArray(item, plugin, tag, arr);
+                case null, default -> throw new IllegalArgumentException("Unrecognized type " + entry.getValue() + " when setting custom tags");
+            }
         }
     }
 
@@ -455,7 +451,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         // - GHI
         List<Object> shape = data.of("Recipe.Shape").assertExists().get(List.class).get();
         String[] shapeArr = shape.stream().map(Object::toString).toArray(String[]::new);
-        if (shape.size() < 1 || shape.size() > 3) {
+        if (shape.isEmpty() || shape.size() > 3) {
             throw SerializerException.builder()
                 .locationRaw(data.of("Recipe.Shape").getLocation())
                 .addMessage("Expected a list of either 1, 2, or 3 strings to make the recipe")
@@ -470,7 +466,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             if (str.length() > 3)
                 shapeArr[i] = str = str.trim();
 
-            if (str.length() < 1 || str.length() > 3) {
+            if (str.isEmpty() || str.length() > 3) {
                 throw SerializerException.builder()
                     .locationRaw(data.of("Recipe.Shape").getLocation())
                     .addMessage("Each string in the shape must be between 1 and 3 characters long")

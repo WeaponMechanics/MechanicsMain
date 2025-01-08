@@ -1,23 +1,29 @@
 package me.deecaad.core.placeholder;
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.Locale;
 
 public abstract class AttributePlaceholderHandler extends NumericPlaceholderHandler {
 
     private final Attribute attribute;
 
-    public AttributePlaceholderHandler(Attribute attribute) {
-        super("item_" + attribute.name().toLowerCase(Locale.ROOT));
+    public AttributePlaceholderHandler(@NotNull Attribute attribute) {
+        super(buildKey(attribute.getKey()));
         this.attribute = attribute;
+    }
+
+    @Subst("item_minecraft_attack_damage")  // example for static analysis
+    private static @NotNull String buildKey(@NotNull NamespacedKey key) {
+        return "item_" + key.getNamespace() + "_" + key.getKey();
     }
 
     @Override

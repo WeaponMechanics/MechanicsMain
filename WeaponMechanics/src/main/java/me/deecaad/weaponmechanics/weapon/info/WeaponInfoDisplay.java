@@ -131,7 +131,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
         boolean hasInvertedMainHand = player.getMainHand() == MainHand.LEFT;
 
         boolean mainhand = slot == EquipmentSlot.HAND;
-        boolean isDualWielding = mainWeapon != null && offWeapon != null && mainStack != null && offStack != null;
+        boolean isDualWielding = mainWeapon != null && offWeapon != null;
 
         if (actionBar != null) {
             if (isDualWielding) {
@@ -231,14 +231,14 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
             ItemStack useStack = mainhand ? mainStack : offStack;
             String useWeapon = mainhand ? mainWeapon : offWeapon;
 
-            if (useStack == null || !useStack.hasItemMeta() || useWeapon == null)
+            if (useStack == null || !useStack.hasItemMeta())
                 return;
 
             if (magazineProgress == -1) {
                 magazineProgress = getMagazineProgress(useStack, useWeapon);
             }
 
-            TaskImplementation lastExpTask = messageHelper.getExpTask();
+            TaskImplementation<Void> lastExpTask = messageHelper.getExpTask();
             if (lastExpTask != null)
                 lastExpTask.cancel();
 

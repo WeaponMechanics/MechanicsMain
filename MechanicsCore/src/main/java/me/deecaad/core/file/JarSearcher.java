@@ -34,10 +34,6 @@ public class JarSearcher {
      * @param jar The <code>.jar</code> file to search.
      */
     public JarSearcher(@NotNull JarFile jar) {
-        if (jar == null) {
-            throw new IllegalArgumentException("Cannot search a null jar!");
-        }
-
         this.jar = jar;
     }
 
@@ -62,8 +58,6 @@ public class JarSearcher {
      */
     @SuppressWarnings("unchecked")
     public <T> List<Class<T>> findAllSubclasses(@NotNull Class<T> clazz, @NotNull ClassLoader clazzLoader, boolean isIgnoreAbstract, Class<?>... classes) {
-        if (clazz == null)
-            throw new IllegalArgumentException("clazz cannot be null");
 
         // Create the class blacklist. The class "clazz" and any classes listed
         // from "classes" are added to the blacklist. This prevents the class
@@ -89,7 +83,7 @@ public class JarSearcher {
                 continue;
             }
 
-            String name = entryName.replaceAll("/", "\\.").replace(".class", "");
+            String name = entryName.replaceAll("/", ".").replace(".class", "");
 
             Class<?> subclass;
             try {

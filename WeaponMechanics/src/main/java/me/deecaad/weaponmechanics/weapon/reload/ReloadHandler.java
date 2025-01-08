@@ -575,7 +575,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
             return;
 
         startReloadWithoutTrigger(entityWrapper, otherWeapon, otherStack,
-            mainhand ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND, dualWield, false);
+            mainhand ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND, true, false);
     }
 
     @Override

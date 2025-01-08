@@ -38,7 +38,7 @@ public class CubeExplosion implements ExplosionShape {
     /**
      * Constructs a <code>CuboidExplosion</code> object. The width and height are divided by 2 to get
      * the "radius" of the rectangle.
-     *
+     * <p>
      * This is used when finding points about the origin, the width input is the total width of the
      * explosion. The width instance variable is the distance from one point to the origin.
      *

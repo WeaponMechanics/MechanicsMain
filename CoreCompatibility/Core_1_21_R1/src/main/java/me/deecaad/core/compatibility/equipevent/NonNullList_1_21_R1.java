@@ -6,6 +6,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +25,7 @@ public class NonNullList_1_21_R1 extends NonNullList<ItemStack> {
     }
 
     @Override
-    public ItemStack set(int index, ItemStack newItem) {
+    public @NotNull ItemStack set(int index, ItemStack newItem) {
         ItemStack oldItem = get(index);
 
         if (newItem.getCount() == 0 && itemField.get(newItem) != null) {

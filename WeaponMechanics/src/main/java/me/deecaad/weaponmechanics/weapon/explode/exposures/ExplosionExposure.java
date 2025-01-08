@@ -25,12 +25,12 @@ public interface ExplosionExposure extends Keyed, Serializer<ExplosionExposure> 
     /**
      * This method should return a list of entities that are within this <code>Explosion</code>
      * triggered at the given <code>Location</code>.
-     *
-     * Conditions (Like player team, the cause of the explosion, etc) are not used to filter entities,
+     * <p>
+     * Conditions (Like player team, the cause of the explosion, etc.) are not used to filter entities,
      * that is handled separately
-     *
+     * <p>
      * The <code>Double</code> generic represents how much "impact" the player gets. This should be a
-     * number (0, 1] Higher numbers mean more damage and knockback
+     * number (0, 1] Higher numbers mean more damage and knock back.
      *
      * @param origin Where the explosion spawns
      * @param shape The shape of the explosion

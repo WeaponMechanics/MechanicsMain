@@ -7,8 +7,8 @@ import org.jetbrains.annotations.Nullable;
 public class MessageHelper {
 
     private BossBar bossBar;
-    private TaskImplementation bossBarTask;
-    private TaskImplementation expTask;
+    private TaskImplementation<Void> bossBarTask;
+    private TaskImplementation<Void> expTask;
 
     public @Nullable BossBar getBossBar() {
         return bossBar;
@@ -18,19 +18,19 @@ public class MessageHelper {
         this.bossBar = bossBar;
     }
 
-    public @Nullable TaskImplementation getBossBarTask() {
+    public @Nullable TaskImplementation<Void> getBossBarTask() {
         return bossBarTask;
     }
 
-    public void setBossBarTask(@Nullable TaskImplementation bossBarTask) {
+    public void setBossBarTask(@Nullable TaskImplementation<Void> bossBarTask) {
         this.bossBarTask = bossBarTask;
     }
 
-    public @Nullable TaskImplementation getExpTask() {
+    public @Nullable TaskImplementation<Void> getExpTask() {
         return expTask;
     }
 
-    public void setExpTask(@Nullable TaskImplementation expTask) {
+    public void setExpTask(@Nullable TaskImplementation<Void> expTask) {
         this.expTask = expTask;
     }
 }

@@ -9,6 +9,7 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +37,7 @@ public class AmmoRegistry {
             FileUtil.PathReference pathReference = FileUtil.PathReference.of(ammoFolder.toURI());
             Files.walkFileTree(pathReference.path(), new SimpleFileVisitor<>() {
                 @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                public @NotNull FileVisitResult visitFile(Path file, @NotNull BasicFileAttributes attrs) throws IOException {
                     InputStream stream = Files.newInputStream(file);
                     YamlConfiguration config = new YamlConfiguration();
 

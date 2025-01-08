@@ -147,13 +147,13 @@ public class BlockDamage implements Serializer<BlockDamage> {
      * @param material The non-null material to check.
      * @return The non-null break mode of the material.
      */
-    public BreakMode getBreakMode(BlockType material) {
+    public @NotNull BreakMode getBreakMode(@NotNull BlockType material) {
         DamageConfig config = blocks.get(material);
         return config == null ? defaultMode : config.mode;
     }
 
-    public int getDurability(Block block) {
-        return getDurability(block.getType());
+    public int getDurability(@NotNull Block block) {
+        return getDurability(block.getType().asBlockType());
     }
 
     /**
@@ -163,12 +163,12 @@ public class BlockDamage implements Serializer<BlockDamage> {
      * @param material The non-null material to check.
      * @return The number of hits before the block breaks.
      */
-    public int getDurability(Material material) {
+    public int getDurability(@NotNull BlockType material) {
         DamageConfig config = blocks.get(material);
         return config == null ? defaultBlockDurability : config.blockDurability;
     }
 
-    public Material getMask(Block block) {
+    public @NotNull Material getMask(@NotNull Block block) {
         return getMask(block.getType().asBlockType());
     }
 

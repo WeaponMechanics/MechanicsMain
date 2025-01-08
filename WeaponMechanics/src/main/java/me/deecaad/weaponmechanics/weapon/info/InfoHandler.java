@@ -242,7 +242,7 @@ public class InfoHandler implements IValidator {
         // inventory. For any other entity, though, they won't be given
         // a weapon if their mainhand is full.
         EntityEquipment equipment = entity.getEquipment();
-        if ((equipment.getItemInMainHand() == null || equipment.getItemInMainHand().getType() == Material.AIR) && (!isPlayer || !skipMainhand))
+        if ((equipment.getItemInMainHand().getType() == Material.AIR) && (!isPlayer || !skipMainhand))
             equipment.setItemInMainHand(weaponStack);
         else if (isPlayer && slot != -1)
             player.getInventory().setItem(slot, weaponStack);

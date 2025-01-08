@@ -32,10 +32,8 @@ public class OutSetSlotBobFix implements PacketListener, Listener {
 
     private final Map<Player, SimpleItemData> mainHand;
     private final Map<Player, SimpleItemData> offHand;
-    private final Plugin plugin;
 
     public OutSetSlotBobFix(Plugin plugin) {
-        this.plugin = plugin;
         this.mainHand = new HashMap<>();
         this.offHand = new HashMap<>();
 
@@ -170,17 +168,11 @@ public class OutSetSlotBobFix implements PacketListener, Listener {
                 this.customModelData = itemMeta.getCustomModelData();
             }
 
-            if (!MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
-                this.durability = itemStack.getDurability();
-            } else if (itemMeta instanceof Damageable damageableItemMeta) {
+            if (itemMeta instanceof Damageable damageableItemMeta) {
                 if (damageableItemMeta.hasDamage()) {
                     this.durability = damageableItemMeta.getDamage();
                 }
             }
-        }
-
-        public boolean sameSlot(int newSlot) {
-            return sentToSlot == newSlot;
         }
 
         public boolean isDifferent(SimpleItemData other) {

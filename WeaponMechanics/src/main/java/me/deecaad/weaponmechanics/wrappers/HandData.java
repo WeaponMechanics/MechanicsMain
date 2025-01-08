@@ -67,7 +67,7 @@ public class HandData {
 
     /**
      * Cancels following things - Full auto - Burst - Reload tasks - Shoot firearm action task - Zooming
-     *
+     * <p>
      * Does not cancel recoil task.
      */
     public void cancelTasks() {

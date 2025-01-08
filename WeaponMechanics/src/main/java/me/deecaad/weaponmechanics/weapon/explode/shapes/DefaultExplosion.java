@@ -92,7 +92,7 @@ public class DefaultExplosion implements ExplosionShape {
                             if (!block.isEmpty()) {
                                 float resistance = block.getType().getBlastResistance();
 
-                                intensity -= (resistance + 0.3F) * ABSORB_RATE;
+                                intensity -= (float) ((resistance + 0.3F) * ABSORB_RATE);
                             }
 
                             if (intensity > 0.0F && y < 256 && y >= 0) {
@@ -104,7 +104,7 @@ public class DefaultExplosion implements ExplosionShape {
                             z += vector.getZ() * DECAY_RATE;
 
                             // Ray decays over longer distance
-                            intensity -= DECAY_RATE * 0.75;
+                            intensity -= (float) (DECAY_RATE * 0.75);
                         }
                     }
                 }

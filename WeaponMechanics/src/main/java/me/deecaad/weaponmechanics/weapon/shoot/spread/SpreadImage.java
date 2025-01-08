@@ -74,7 +74,7 @@ public class SpreadImage implements Serializer<SpreadImage> {
     /**
      * Gets a given number of random points (x, y) from <code>this.points</code> using the value of that
      * point as the chance for that point to be selected.
-     *
+     * <p>
      * If not enough points are found in the allowed number of checks, then random points are selected,
      * not taking the point's value into account
      *

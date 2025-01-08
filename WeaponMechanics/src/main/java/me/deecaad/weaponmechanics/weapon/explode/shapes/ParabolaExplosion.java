@@ -146,18 +146,18 @@ public class ParabolaExplosion implements ExplosionShape {
     }
 
     public boolean test(double x, double y, double z) {
-        double temp1 = +angle * (x * x) + depth - y;
+        double temp1 = angle * (x * x) + depth - y;
         double temp2 = -angle * (x * x) - depth - y;
-        double temp3 = +angle * (z * z) + depth - y;
+        double temp3 = angle * (z * z) + depth - y;
         double temp4 = -angle * (z * z) - depth - y;
 
         return temp1 <= 0 && temp2 >= 0 && temp3 <= 0 && temp4 >= 0;
     }
 
     public boolean isNearEdge(double x, double y, double z, double distance) {
-        double temp1 = +angle * (x * x) + depth - y;
+        double temp1 = angle * (x * x) + depth - y;
         double temp2 = -angle * (x * x) - depth - y;
-        double temp3 = +angle * (z * z) + depth - y;
+        double temp3 = angle * (z * z) + depth - y;
         double temp4 = -angle * (z * z) - depth - y;
 
         return temp1 > -distance ||

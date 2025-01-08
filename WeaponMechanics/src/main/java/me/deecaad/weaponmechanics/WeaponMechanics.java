@@ -714,7 +714,7 @@ public class WeaponMechanics {
     public static void removeEntityWrapper(LivingEntity entity) {
         EntityWrapper oldWrapper = plugin.entityWrappers.remove(entity);
         if (oldWrapper != null) {
-            TaskImplementation oldMoveTask = oldWrapper.getMoveTask();
+            TaskImplementation<Void> oldMoveTask = oldWrapper.getMoveTask();
             if (oldMoveTask != null) {
                 oldMoveTask.cancel();
             }

@@ -1,6 +1,5 @@
 package me.deecaad.core.compatibility.entity;
 
-import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
@@ -94,7 +93,7 @@ public interface EntityCompatibility {
         // This is how Spigot handles resurrection. They always call the event,
         // and cancel the event if there is no totem.
         ItemStack totem = hand == null ? null : (hand == EquipmentSlot.HAND ? mainHand : offHand);
-        EntityResurrectEvent event = MinecraftVersions.WILD_UPDATE.isAtLeast() ? new EntityResurrectEvent(entity, hand) : new EntityResurrectEvent(entity);
+        EntityResurrectEvent event = new EntityResurrectEvent(entity, hand);
         event.setCancelled(hand == null);
         Bukkit.getPluginManager().callEvent(event);
 

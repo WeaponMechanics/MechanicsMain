@@ -127,7 +127,7 @@ public class Recoil implements Serializer<Recoil> {
             .map(split -> (float) (double) split.get(0).get())
             .toList();
 
-        if (recoilPattern == null && randomHorizontal == null && randomVertical == null) {
+        if (recoilPattern == null && randomHorizontal.isEmpty() && randomVertical.isEmpty()) {
             throw data.exception(null, "When using Recoil, you need to use at least one of: 'Recoil_Pattern', 'Horizontal', 'Vertical'");
         }
 

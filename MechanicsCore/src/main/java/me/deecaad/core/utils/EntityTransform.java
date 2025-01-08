@@ -14,7 +14,7 @@ import org.bukkit.util.Vector;
  * Wraps a bukkit {@link Entity} to use {@link Transform} methods easily. Entity transforms cannot
  * have parents, but they can have children. Not very performance friendly when having many
  * children, since the quaternions are not cached every tick.
- *
+ * <p>
  * TODO add cache to deal with potential performance problems
  */
 public class EntityTransform extends Transform {

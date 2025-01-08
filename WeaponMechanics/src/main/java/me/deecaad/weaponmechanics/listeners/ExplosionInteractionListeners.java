@@ -12,7 +12,7 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 /**
  * Listens and cancels events that could interfere with block regeneration, or cause damage because
  * of the missing blocks
- *
+ * <p>
  * It also regenerates blocks if chunks unload
  */
 public class ExplosionInteractionListeners implements Listener {

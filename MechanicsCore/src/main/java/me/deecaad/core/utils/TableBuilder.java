@@ -152,7 +152,7 @@ public class TableBuilder {
             // We must do this for text builder "children"
             boolean deleteCell = false;
             int originalLength = cell.length();
-            if (cell.length() == 0) {
+            if (cell.isEmpty()) {
                 deleteCell = true;
                 for (Component component : text.children())
                     cell.append(((TextComponent) component).content());

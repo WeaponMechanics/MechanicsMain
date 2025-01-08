@@ -38,7 +38,7 @@ public class FileReader {
      * @param serializers the new list serializers for this file reader
      */
     public void addSerializers(List<Serializer<?>> serializers) {
-        if (serializers != null && serializers.size() > 0) {
+        if (serializers != null && !serializers.isEmpty()) {
             for (Serializer<?> serializer : serializers) {
                 addSerializer(serializer);
             }
@@ -79,7 +79,7 @@ public class FileReader {
      * @param validators the new list validators for this file reader
      */
     public void addValidators(List<IValidator> validators) {
-        if (validators != null && validators.size() > 0) {
+        if (validators != null && !validators.isEmpty()) {
             for (IValidator validator : validators) {
                 addValidator(validator);
             }

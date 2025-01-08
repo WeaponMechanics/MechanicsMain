@@ -172,9 +172,7 @@ public final class BlockDamageData {
         if (blocks == null)
             return;
 
-        blocks.forEach((block, damage) -> {
-            damage.regenerate();
-        });
+        blocks.forEach((block, damage) -> damage.regenerate());
     }
 
     /**

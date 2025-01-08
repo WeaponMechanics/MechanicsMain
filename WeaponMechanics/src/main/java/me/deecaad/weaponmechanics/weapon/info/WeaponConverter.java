@@ -50,9 +50,6 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
             if (weaponStack.getType() != other.getType()) {
                 return false;
             }
-            if (!MinecraftVersions.UPDATE_AQUATIC.isAtLeast() && weaponStack.getData().getData() != other.getData().getData()) {
-                return false;
-            }
         }
         ItemMeta weaponMeta = weaponStack.getItemMeta();
         ItemMeta otherMeta = other.getItemMeta();
