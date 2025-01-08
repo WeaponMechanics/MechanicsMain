@@ -15,6 +15,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Registry;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockType;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -26,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,7 +60,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
     private Material defaultMask;
     private BreakMode defaultMode;
 
-    private Map<Material, DamageConfig> blocks;
+    private Map<BlockType, DamageConfig> blocks;
 
     /**
      * Default constructor for serializers
@@ -78,7 +79,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
      * @param blocks Per-block overrides.
      */
     public BlockDamage(double dropBlockChance, int damage, int defaultBlockDurability, Material defaultMask,
-        BreakMode defaultMode, Map<Material, DamageConfig> blocks) {
+        BreakMode defaultMode, Map<BlockType, DamageConfig> blocks) {
         this.dropBlockChance = dropBlockChance;
         this.damage = damage;
         this.defaultBlockDurability = defaultBlockDurability;
@@ -127,16 +128,16 @@ public class BlockDamage implements Serializer<BlockDamage> {
         this.defaultMode = defaultMode;
     }
 
-    public Map<Material, DamageConfig> getBlocks() {
+    public Map<BlockType, DamageConfig> getBlocks() {
         return blocks;
     }
 
-    public void setBlocks(Map<Material, DamageConfig> blocks) {
+    public void setBlocks(Map<BlockType, DamageConfig> blocks) {
         this.blocks = blocks;
     }
 
     public BreakMode getBreakMode(Block block) {
-        return getBreakMode(block.getType());
+        return getBreakMode(block.getType().asBlockType());
     }
 
     /**
@@ -146,7 +147,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
      * @param material The non-null material to check.
      * @return The non-null break mode of the material.
      */
-    public BreakMode getBreakMode(Material material) {
+    public BreakMode getBreakMode(BlockType material) {
         DamageConfig config = blocks.get(material);
         return config == null ? defaultMode : config.mode;
     }
@@ -168,7 +169,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
     }
 
     public Material getMask(Block block) {
-        return getMask(block.getType());
+        return getMask(block.getType().asBlockType());
     }
 
     /**
@@ -178,7 +179,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
      * @param material The non-null material to check.
      * @return The nullable material to use as a mask.
      */
-    public Material getMask(Material material) {
+    public Material getMask(BlockType material) {
         DamageConfig config = blocks.get(material);
         return config == null ? defaultMask : config.mask;
     }
@@ -324,7 +325,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
         BreakMode defaultMode = data.of("Default_Mode").getEnum(BreakMode.class).orElse(BreakMode.BREAK);
         Material defaultMask = data.of("Default_Mask").getEnum(Material.class).orElse(Material.AIR);
 
-        Map<Material, DamageConfig> blocks = new EnumMap<>(Material.class);
+        Map<BlockType, DamageConfig> blocks = new HashMap<>();
         List<List<Optional<Object>>> list = data.ofList("Blocks")
             .addArgument(new RegistryValueSerializer<>(Registry.BLOCK, true))
             .addArgument(new EnumValueSerializer<>(BreakMode.class, false))
@@ -336,7 +337,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
         for (int i = 0; i < list.size(); i++) {
             List<Optional<Object>> split = list.get(i);
 
-            List<Material> materials = (List<Material>) split.get(0).get();
+            List<BlockType> materials = (List<BlockType>) split.get(0).get();
             BreakMode mode = ((List<BreakMode>) split.get(1).get()).getFirst();
             Optional<Integer> blockDurability = (Optional<Integer>) (Optional<?>) split.get(2);
             Material mask = (Material) split.get(3).orElse(null);
@@ -369,7 +370,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
                 mask = Material.AIR;
 
             DamageConfig config = new DamageConfig(mode, blockDurability.orElse(-1), mask);
-            for (Material mat : materials)
+            for (BlockType mat : materials)
                 blocks.put(mat, config);
         }
 
