@@ -7,8 +7,9 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.ray.BlockTraceResult;
 import me.deecaad.core.utils.ray.EntityTraceResult;
 import me.deecaad.core.utils.ray.RayTraceResult;
-import org.bukkit.Material;
+import org.bukkit.Registry;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockType;
 import org.bukkit.entity.EntityType;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -18,11 +19,11 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
     // -1 = infinite
     private int maximumBounceAmount;
 
-    private ListHolder<Material> blocks;
+    private ListHolder<BlockType> blocks;
     private ListHolder<EntityType> entities;
 
     private double requiredMotionToStartRollingOrDie;
-    private ListHolder<Material> rollingBlocks;
+    private ListHolder<BlockType> rollingBlocks;
 
     /**
      * Default constructor for serializer
@@ -30,8 +31,8 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
     public Bouncy() {
     }
 
-    public Bouncy(int maximumBounceAmount, ListHolder<Material> blocks, ListHolder<EntityType> entities,
-        double requiredMotionToStartRollingOrDie, ListHolder<Material> rollingBlocks) {
+    public Bouncy(int maximumBounceAmount, ListHolder<BlockType> blocks, ListHolder<EntityType> entities,
+        double requiredMotionToStartRollingOrDie, ListHolder<BlockType> rollingBlocks) {
         this.maximumBounceAmount = maximumBounceAmount;
         this.blocks = blocks;
         this.entities = entities;
@@ -70,7 +71,7 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
     public boolean handleBounce(WeaponProjectile projectile, RayTraceResult hit) {
         Double speedModifier;
         if (hit instanceof BlockTraceResult blockHit) {
-            speedModifier = blocks != null ? blocks.isValid(blockHit.getBlock().getType()) : null;
+            speedModifier = blocks != null ? blocks.isValid(blockHit.getBlock().getType().asBlockType()) : null;
         } else if (hit instanceof EntityTraceResult entityHit) {
             speedModifier = entities != null ? entities.isValid(entityHit.getEntity().getType()) : null;
         } else {
@@ -110,7 +111,7 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
         if (rollingBlocks == null)
             return false;
 
-        Double speedModifier = rollingBlocks.isValid(block.getType());
+        Double speedModifier = rollingBlocks.isValid(block.getType().asBlockType());
 
         if (speedModifier == null) {
             // Projectile should die since block wasn't valid
@@ -162,8 +163,8 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
 
     @Override
     @NotNull public Bouncy serialize(@NotNull SerializeData data) throws SerializerException {
-        ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class)).orElse(null);
-        ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class)).orElse(null);
+        ListHolder<BlockType> blocks = data.of("Blocks").serialize(new ListHolder<>(Registry.BLOCK)).orElse(null);
+        ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(Registry.ENTITY_TYPE)).orElse(null);
 
         if (blocks == null && entities == null) {
             throw data.exception(null, "'Bouncy' requires at least one of 'Blocks' or 'Entities'");
@@ -172,7 +173,7 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
         // 0 or negative numbers will lead to infinite amounts of bouncing.
         int maximumBounceAmount = data.of("Maximum_Bounce_Amount").getInt().orElse(1);
 
-        ListHolder<Material> rollingBlocks = data.of("Rolling.Blocks").serialize(new ListHolder<>(Material.class)).orElse(null);
+        ListHolder<BlockType> rollingBlocks = data.of("Rolling.Blocks").serialize(new ListHolder<>(Registry.BLOCK)).orElse(null);
         double requiredMotionToStartRolling = data.of("Rolling.Required_Motion_To_Start_Rolling").assertRange(0.0, null).getDouble().orElse(6.0) / 20;
 
         return new Bouncy(maximumBounceAmount, blocks, entities, requiredMotionToStartRolling, rollingBlocks);

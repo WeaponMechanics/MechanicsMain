@@ -6,7 +6,8 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.ray.BlockTraceResult;
 import me.deecaad.core.utils.ray.EntityTraceResult;
 import me.deecaad.core.utils.ray.RayTraceResult;
-import org.bukkit.Material;
+import org.bukkit.Registry;
+import org.bukkit.block.BlockType;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,7 +16,7 @@ public class Through implements Serializer<Through>, Cloneable {
     // -1 = infinite
     private double maximumThroughAmount;
 
-    private ListHolder<Material> blocks;
+    private ListHolder<BlockType> blocks;
     private ListHolder<EntityType> entities;
 
     /**
@@ -24,7 +25,7 @@ public class Through implements Serializer<Through>, Cloneable {
     public Through() {
     }
 
-    public Through(double maximumThroughAmount, ListHolder<Material> blocks, ListHolder<EntityType> entities) {
+    public Through(double maximumThroughAmount, ListHolder<BlockType> blocks, ListHolder<EntityType> entities) {
         this.maximumThroughAmount = maximumThroughAmount;
         this.blocks = blocks;
         this.entities = entities;
@@ -47,7 +48,7 @@ public class Through implements Serializer<Through>, Cloneable {
 
         Double speedModifier;
         if (hit instanceof BlockTraceResult blockHit) {
-            speedModifier = blocks != null ? blocks.isValid(blockHit.getBlockState().getType()) : null;
+            speedModifier = blocks != null ? blocks.isValid(blockHit.getBlockState().getType().asBlockType()) : null;
         } else if (hit instanceof EntityTraceResult entityHit) {
             speedModifier = entities != null ? entities.isValid(entityHit.getEntity().getType()) : null;
         } else {
@@ -70,10 +71,6 @@ public class Through implements Serializer<Through>, Cloneable {
         return true;
     }
 
-    public boolean quickValidCheck(Material material) {
-        return blocks != null && blocks.isValid(material) != null;
-    }
-
     @Override
     public String getKeyword() {
         return "Through";
@@ -81,8 +78,8 @@ public class Through implements Serializer<Through>, Cloneable {
 
     @Override
     @NotNull public Through serialize(@NotNull SerializeData data) throws SerializerException {
-        ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class)).orElse(null);
-        ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class)).orElse(null);
+        ListHolder<BlockType> blocks = data.of("Blocks").serialize(new ListHolder<>(Registry.BLOCK)).orElse(null);
+        ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(Registry.ENTITY_TYPE)).orElse(null);
 
         if (blocks == null && entities == null) {
             throw data.exception(null, "'Through' requires at least one of 'Blocks' or 'Entities'");

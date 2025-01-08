@@ -392,7 +392,7 @@ public class Explosion implements Serializer<Explosion> {
                 data.remove();
             }
 
-            if (data.isBroken() && blockDamage.getBreakMode(state.getType()) == BlockDamage.BreakMode.BREAK) {
+            if (data.isBroken() && blockDamage.getBreakMode(state.getType().asBlockType()) == BlockDamage.BreakMode.BREAK) {
 
                 // For stat tracking
                 blocksBroken += 1;

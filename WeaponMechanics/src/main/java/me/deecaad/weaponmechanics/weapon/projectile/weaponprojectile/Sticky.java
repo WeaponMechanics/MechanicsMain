@@ -6,13 +6,14 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.ray.BlockTraceResult;
 import me.deecaad.core.utils.ray.EntityTraceResult;
 import me.deecaad.core.utils.ray.RayTraceResult;
-import org.bukkit.Material;
+import org.bukkit.Registry;
+import org.bukkit.block.BlockType;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
 public class Sticky implements Serializer<Sticky>, Cloneable {
 
-    private ListHolder<Material> blocks;
+    private ListHolder<BlockType> blocks;
     private ListHolder<EntityType> entities;
 
     /**
@@ -21,7 +22,7 @@ public class Sticky implements Serializer<Sticky>, Cloneable {
     public Sticky() {
     }
 
-    public Sticky(ListHolder<Material> blocks, ListHolder<EntityType> entities) {
+    public Sticky(ListHolder<BlockType> blocks, ListHolder<EntityType> entities) {
         this.blocks = blocks;
         this.entities = entities;
     }
@@ -29,7 +30,7 @@ public class Sticky implements Serializer<Sticky>, Cloneable {
     public boolean handleSticking(WeaponProjectile projectile, RayTraceResult hit) {
         Double isValid;
         if (hit instanceof BlockTraceResult blockHit) {
-            isValid = blocks != null ? blocks.isValid(blockHit.getBlock().getType()) : null;
+            isValid = blocks != null ? blocks.isValid(blockHit.getBlock().getType().asBlockType()) : null;
         } else if (hit instanceof EntityTraceResult entityHit) {
             isValid = entities != null ? entities.isValid(entityHit.getEntity().getType()) : null;
         } else {
@@ -54,8 +55,8 @@ public class Sticky implements Serializer<Sticky>, Cloneable {
 
     @Override
     @NotNull public Sticky serialize(@NotNull SerializeData data) throws SerializerException {
-        ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class)).orElse(null);
-        ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class)).orElse(null);
+        ListHolder<BlockType> blocks = data.of("Blocks").serialize(new ListHolder<>(Registry.BLOCK)).orElse(null);
+        ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(Registry.ENTITY_TYPE)).orElse(null);
 
         if (blocks == null && entities == null) {
             throw data.exception(null, "'Sticky' requires at least one of 'Blocks' or 'Entities'");

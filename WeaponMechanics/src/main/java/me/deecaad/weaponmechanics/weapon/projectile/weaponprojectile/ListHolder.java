@@ -4,7 +4,9 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.simple.DoubleSerializer;
-import me.deecaad.core.file.simple.EnumValueSerializer;
+import me.deecaad.core.file.simple.RegistryValueSerializer;
+import org.bukkit.Keyed;
+import org.bukkit.Registry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> {
+public class ListHolder<T extends Keyed> implements Serializer<ListHolder<T>> {
 
-    private Class<T> clazz;
+    private Registry<T> registry;
 
     private boolean allowAny;
     private boolean whitelist;
@@ -29,8 +31,8 @@ public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> 
         this.list = list;
     }
 
-    public ListHolder(Class<T> clazz) {
-        this.clazz = clazz;
+    public ListHolder(Registry<T> registry) {
+        this.registry = registry;
     }
 
     /**
@@ -39,7 +41,7 @@ public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> 
      * @param key the key
      * @return the speed modifier of key or null if it's not valid
      */
-    @Nullable public Double isValid(T key) {
+    public @Nullable Double isValid(T key) {
         if (allowAny) {
             // Since all values are valid, simply return speed modifier
             if (list == null)
@@ -71,12 +73,12 @@ public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> 
     }
 
     @Override
-    @NotNull public ListHolder<T> serialize(@NotNull SerializeData data) throws SerializerException {
+    public @NotNull ListHolder<T> serialize(@NotNull SerializeData data) throws SerializerException {
         boolean allowAny = data.of("Allow_Any").getBool().orElse(false);
 
         Map<T, Double> mapList = new HashMap<>();
         List<List<Optional<Object>>> list = data.ofList("List")
-            .addArgument(new EnumValueSerializer<>(clazz, true))
+            .addArgument(new RegistryValueSerializer<>(registry, true))
             .requireAllPreviousArgs()
             .addArgument(new DoubleSerializer())
             .assertList();
