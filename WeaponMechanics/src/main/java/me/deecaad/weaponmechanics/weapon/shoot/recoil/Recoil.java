@@ -114,12 +114,14 @@ public class Recoil implements Serializer<Recoil> {
         RecoilPattern recoilPattern = data.of("Recoil_Pattern").serialize(RecoilPattern.class).orElse(null);
         List<Float> randomHorizontal = data.ofList("Horizontal")
             .addArgument(new DoubleSerializer())
+            .requireAllPreviousArgs()
             .assertList()
             .stream()
             .map(split -> (float) (double) split.get(0).get())
             .toList();
         List<Float> randomVertical = data.ofList("Vertical")
             .addArgument(new DoubleSerializer())
+            .requireAllPreviousArgs()
             .assertList()
             .stream()
             .map(split -> (float) (double) split.get(0).get())
@@ -130,8 +132,8 @@ public class Recoil implements Serializer<Recoil> {
         }
 
         ModifyRecoilWhen modifyRecoilWhen = (ModifyRecoilWhen) data.of("Modify_Recoil_When").serialize(new ModifyRecoilWhen()).orElse(null);
-        long pushTime = data.of("Push_Time").assertRange(0, null).getInt().getAsInt();
-        long recoverTime = data.of("Recover_Time").assertRange(0, null).getInt().getAsInt();
+        long pushTime = data.of("Push_Time").assertRange(0, null).getInt().orElse(0);
+        long recoverTime = data.of("Recover_Time").assertRange(0, null).getInt().orElse(0);
 
         return new Recoil(pushTime, recoverTime, randomHorizontal, randomVertical, recoilPattern, modifyRecoilWhen);
     }

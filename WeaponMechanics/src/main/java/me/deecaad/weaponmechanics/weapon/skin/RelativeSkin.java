@@ -41,7 +41,7 @@ public class RelativeSkin implements Skin, Serializer<RelativeSkin> {
                 "When using the '+10' feature of skins, ALL of your skins on this weapon must use the + feature");
         }
 
-        String str = data.of().assertExists().get(Object.class).toString().trim().toLowerCase();
+        String str = data.of().assertExists().get(Object.class).get().toString().trim().toLowerCase();
 
         if (str.startsWith("+"))
             str = str.substring(1).trim();
