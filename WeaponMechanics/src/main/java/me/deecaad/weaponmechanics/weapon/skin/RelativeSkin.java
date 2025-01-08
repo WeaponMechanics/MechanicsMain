@@ -98,7 +98,7 @@ public class RelativeSkin implements Skin, Serializer<RelativeSkin> {
             }
 
             // Skins can be a multiple of 10,000 (up to 90,000)
-            if (isSkin) {
+            else if (isSkin) {
                 if (cmd < 10_000 || cmd > 90_000) {
                     throw data.exception(null, "Relative skins have to be a multiple of 10,000. This means that 90,000 is the max",
                         "For value: " + str);
@@ -106,7 +106,7 @@ public class RelativeSkin implements Skin, Serializer<RelativeSkin> {
             }
 
             // Scope should be +1000. Plain and simple, keep it organized. Rest is up to player
-            if ("Scope".equals(action)) {
+            else if ("Scope".equals(action)) {
                 if (cmd != 1000) {
                     throw data.exception(null, "When using relative skins, scoping should always be 'ADD 1000'",
                         "Using 1000 for scoping keeps your resource pack organized, which avoids errors in the future",

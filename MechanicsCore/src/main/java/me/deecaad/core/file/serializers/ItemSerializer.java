@@ -269,7 +269,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             List<Attribute> attributes = (List<Attribute>) split.get(0).get();
             double amount = (double) split.get(1).get();
             EquipmentSlotGroup slot = (EquipmentSlotGroup) split.get(2).orElse(EquipmentSlotGroup.ANY);
-            AttributeModifier.Operation operation = ((List<AttributeModifier.Operation>) split.get(3).orElse(AttributeModifier.Operation.ADD_NUMBER)).getFirst();
+            AttributeModifier.Operation operation = ((List<AttributeModifier.Operation>) split.get(3).orElse(List.of(AttributeModifier.Operation.ADD_NUMBER))).getFirst();
 
             for (Attribute attribute : attributes) {
 

@@ -4,7 +4,6 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
-import me.deecaad.core.file.simple.StringSerializer;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -54,15 +53,10 @@ public class WeaponItemSerializer extends ItemSerializer {
             config.set(weaponTitle + ".Info.Weapon_Item.Display", weaponDisplay);
         }
 
-        List<String> weaponLore = data.ofList("Lore")
-            .addArgument(new StringSerializer())
-            .assertList()
-            .stream()
-            .map(split -> (String) split.get(0).get())
-            .toList();
+        List<?> weaponLore = data.of("Lore").get(List.class).orElse(List.of());
         if (!weaponLore.isEmpty()) {
             config.set(weaponTitle + ".Info.Weapon_Item.Lore", weaponLore.stream()
-                .map(line -> "<!italic>" + StringUtil.colorAdventure(line))
+                .map(line -> "<!italic>" + StringUtil.colorAdventure(line.toString()))
                 .toList());
         }
 
