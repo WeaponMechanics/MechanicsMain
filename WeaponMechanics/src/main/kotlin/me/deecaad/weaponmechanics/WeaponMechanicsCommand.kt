@@ -337,7 +337,7 @@ object WeaponMechanicsCommand {
                 }
             }
 
-            commandAPICommand("test") {
+            subcommand("test") {
                 withPermission("weaponmechanics.commands.test")
                 withShortDescription("Testing dev commands")
 

@@ -53,7 +53,7 @@ public class Detonation implements Serializer<Detonation> {
         }
 
         // Time after the trigger the explosion occurs
-        int delay = data.of("Delay_After_Impact").assertRange(1, null).getInt().orElse(0);
+        int delay = data.of("Delay_After_Impact").assertRange(1, null).getInt().orElse(1);
         boolean removeProjectileOnDetonation = data.of("Remove_Projectile_On_Detonation").getBool().orElse(true);
 
         return new Detonation(triggers, delay, removeProjectileOnDetonation);
