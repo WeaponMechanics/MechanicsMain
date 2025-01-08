@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.compatibility;
 
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.entity.LivingEntity;
@@ -36,8 +35,7 @@ public class v1_21_R3 implements IWeaponCompatibility {
     @Override
     public void modifyCameraRotation(Player player, float yaw, float pitch, boolean absolute) {
         pitch *= -1;
-        ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
-        var movement = new PositionMoveRotation(serverPlayer.position(), Vec3.ZERO, yaw, pitch);
+        var movement = new PositionMoveRotation(Vec3.ZERO, Vec3.ZERO, yaw, pitch);
         var packet = ClientboundPlayerPositionPacket.of(0, movement, absolute ? ABSOLUTE_FLAGS : RELATIVE_FLAGS);
         ((CraftPlayer) player).getHandle().connection.send(packet);
     }
