@@ -3,8 +3,8 @@ package me.deecaad.weaponmechanics.weapon.scope;
 import com.cjcrafter.vivecraft.VSE;
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
-import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerAbilities;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityEffect;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerAbilities;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerRemoveEntityEffect;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.Configuration;
@@ -285,13 +285,13 @@ public class ScopeHandler implements IValidator, TriggerListener {
         zoomData.setZoomAmount(newZoomAmount);
 
         // Update abilities sets the FOV change
-        WrapperPlayClientPlayerAbilities abilities = new WrapperPlayClientPlayerAbilities(
+        WrapperPlayServerPlayerAbilities abilities = new WrapperPlayServerPlayerAbilities(
+            player.isInvulnerable(),
             player.isFlying(),
-            Optional.of(player.isInvulnerable()),
-            Optional.of(player.getAllowFlight()),
-            Optional.of(player.getGameMode() == GameMode.CREATIVE),
-            Optional.of(player.getFlySpeed()),
-            Optional.of(player.getWalkSpeed())
+            player.getAllowFlight(),
+            player.getGameMode() == GameMode.CREATIVE,
+            player.getFlySpeed(),
+            player.getWalkSpeed() / 2 // divide by 2, since spigot multiplies this by 2
         );
 
         PacketEvents.getAPI().getPlayerManager().sendPacket(player, abilities);
