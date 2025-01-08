@@ -82,11 +82,11 @@ open class SerializerException(
             options: Iterable<String>,
             count: Int,
         ): Builder {
-            val arr = options.toList()
+            var optionsList = options.toList()
             val actualTable = StringUtil.toCharTable(actual)
 
             val sortedArr =
-                arr.sortedWith { a, b ->
+                optionsList.sortedWith { a, b ->
                     val aTable = StringUtil.toCharTable(a)
                     val bTable = StringUtil.toCharTable(b)
 

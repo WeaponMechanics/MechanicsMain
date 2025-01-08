@@ -31,7 +31,7 @@ class EnumValueSerializer<T : Enum<T>>(
         }
 
         if (isWildcard) {
-            val values = EnumUtil.parseEnums(enumClass, data)
+            val values = EnumUtil.parseEnums(enumClass, "$$data")
             if (values.isEmpty()) {
                 throw SerializerException.builder()
                     .locationRaw(errorLocation)
@@ -41,11 +41,10 @@ class EnumValueSerializer<T : Enum<T>>(
             }
             return values
         } else {
-            val value =
-                EnumUtil.parseEnums(enumClass, data)
-                    ?: throw SerializerException.builder()
-                        .locationRaw(errorLocation)
-                        .buildInvalidEnumOption(data, enumClass)
+            val value = EnumUtil.parseEnums(enumClass, data)
+                ?: throw SerializerException.builder()
+                    .locationRaw(errorLocation)
+                    .buildInvalidEnumOption(data, enumClass)
 
             return value
         }

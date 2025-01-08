@@ -34,7 +34,7 @@ class RegistryValueSerializer<T : Keyed>(
             if (!isAllowWildcard) {
                 throw SerializerException.builder()
                     .locationRaw(errorLocation)
-                    .addMessage("Wildcards are now allowed here... Remove the wildcard symbol '$'")
+                    .addMessage("Wildcards are not allowed here... Remove the wildcard symbol '$'")
                     .addMessage("For value: $data")
                     .build()
             }
@@ -56,14 +56,33 @@ class RegistryValueSerializer<T : Keyed>(
                     .buildInvalidRegistryOption(data, registry)
             }
             return values
-        } else {
-            val value = registry[key]
-                ?: throw SerializerException.builder()
-                    .locationRaw(errorLocation)
-                    .buildInvalidRegistryOption(data, registry)
-
-            return listOf(value)
         }
+
+        val value = registry[key]
+        if (value == null) {
+            // before we throw an exception, lets try to match the key
+            // to any namespace key in the registry
+            val filteredMatches = registry.filter { it.key.key == key.key }
+            if (filteredMatches.size == 1) {
+                return listOf(filteredMatches.first())
+            } else if (filteredMatches.size >= 2) {
+                throw SerializerException.builder()
+                    .locationRaw(errorLocation)
+                    .addMessage("Ambiguous key '$key'.")
+                    .addMessage("Found two values with the same key... Please use the full namespaced key.")
+                    .example(filteredMatches.map { it.key.toString() }.first())
+                    .buildInvalidRegistryOption(data, registry)
+            }
+        }
+
+        // Nothing else we can do... user probably just made a typo, show normal error
+        if (value == null) {
+            throw SerializerException.builder()
+                .locationRaw(errorLocation)
+                .buildInvalidRegistryOption(data, registry)
+        }
+
+        return listOf(value)
     }
 
     override fun examples(): MutableList<String> {
