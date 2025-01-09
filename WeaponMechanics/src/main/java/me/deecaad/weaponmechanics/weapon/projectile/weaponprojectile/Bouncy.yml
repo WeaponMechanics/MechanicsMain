@@ -1,8 +1,0 @@
-# me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Bouncy
-Bouncy:
-  Maximum_Bounce_Amount: <amount>
-  Blocks: <ListHolderSerializer>
-  Entities: <ListHolderSerializer>
-  Rolling:
-    Required_Motion_To_Start_Rolling: <speed>
-    Blocks: <ListHolderSerializer>

@@ -1,6 +1,0 @@
-# me.deecaad.weaponmechanics.weapon.shoot.spread.Spread
-Spread:
-  Spread_Image: <spread image serializer>
-  Base_Spread: <base spread>
-  Modify_Spread_When: <modify spread when serializer>
-  Changing_Spread: <changing spread serializer>
