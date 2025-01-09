@@ -210,17 +210,17 @@ public class DamageUtil {
         // Statistics
         if (victim instanceof Player player) {
             if (absorbed >= 0.1)
-                player.incrementStatistic(Statistic.DAMAGE_ABSORBED, Math.round((float) absorbed * 10));
+                player.incrementStatistic(Statistic.DAMAGE_ABSORBED, Math.max(1, Math.round((float) absorbed * 10)));
             if (damage >= 0.1)
-                player.incrementStatistic(Statistic.DAMAGE_TAKEN, Math.round((float) damage * 10));
+                player.incrementStatistic(Statistic.DAMAGE_TAKEN, Math.max(1, Math.round((float) damage * 10)));
             if (killed && source.getShooter() != null)
                 player.incrementStatistic(Statistic.ENTITY_KILLED_BY, source.getShooter().getType());
         }
         if (source.getShooter() instanceof Player player) {
             if (absorbed >= 0.1)
-                player.incrementStatistic(Statistic.DAMAGE_DEALT_ABSORBED, Math.round((float) absorbed * 10));
+                player.incrementStatistic(Statistic.DAMAGE_DEALT_ABSORBED, Math.max(1, Math.round((float) absorbed * 10)));
             if (damage >= 0.1)
-                player.incrementStatistic(Statistic.DAMAGE_DEALT, Math.round((float) damage * 10));
+                player.incrementStatistic(Statistic.DAMAGE_DEALT, Math.max(1, Math.round((float) damage * 10)));
             if (killed)
                 player.incrementStatistic(Statistic.KILL_ENTITY, victim.getType());
         }
