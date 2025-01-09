@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.RandomUtil;
@@ -8,8 +7,10 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
 import org.bukkit.Bukkit;
+import org.bukkit.EntityEffect;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.damage.DamageSource;
@@ -22,12 +23,15 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.LazyMetadataValue;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
@@ -199,7 +203,7 @@ public class DamageUtil {
 
         // Try use totem of undying
         if (killed) {
-            resurrected = CompatibilityAPI.getEntityCompatibility().tryUseTotemOfUndying(victim);
+            resurrected = tryUseTotemOfUndying(victim);
             killed = !resurrected;
         }
 
@@ -336,6 +340,61 @@ public class DamageUtil {
             }
         }
 
+        return true;
+    }
+
+    /**
+     * Attempts to use a totem of undying on the entity. This will return false if the entity does not
+     * have a totem of undying, or if the {@link EntityResurrectEvent} is cancelled. This method will
+     * return true if the totem affect is used.
+     *
+     * @param entity The non-null entity to use the totem on.
+     * @return true if the totem was used.
+     */
+    public static boolean tryUseTotemOfUndying(@NotNull LivingEntity entity) {
+
+        // Check if the entity has a totem of undying.
+        EntityEquipment equipment = entity.getEquipment();
+        ItemStack mainHand = equipment == null ? null : equipment.getItemInMainHand();
+        ItemStack offHand = equipment == null ? null : equipment.getItemInOffHand();
+        EquipmentSlot hand = null;
+        if (mainHand != null && mainHand.getType() == Material.TOTEM_OF_UNDYING) {
+            hand = EquipmentSlot.HAND;
+        } else if (offHand != null && offHand.getType() == Material.TOTEM_OF_UNDYING) {
+            hand = EquipmentSlot.OFF_HAND;
+        }
+
+        // This is how Spigot handles resurrection. They always call the event,
+        // and cancel the event if there is no totem.
+        ItemStack totem = hand == null ? null : (hand == EquipmentSlot.HAND ? mainHand : offHand);
+        EntityResurrectEvent event = new EntityResurrectEvent(entity, hand);
+        event.setCancelled(hand == null);
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled())
+            return false;
+
+        // 'totem' can still be null here, since plugins may modify the cancellation state/inventory
+        if (totem != null && totem.getType() == Material.TOTEM_OF_UNDYING) {
+            totem.setAmount(totem.getAmount() - 1);
+        }
+
+        // Attempt to award stats
+        if (entity instanceof Player player) {
+            player.incrementStatistic(Statistic.USE_ITEM, Material.TOTEM_OF_UNDYING);
+            // TODO convert this to Bukkit Code
+            // CriteriaTriggers.USED_TOTEM.trigger(entityplayer, itemstack);
+        }
+
+        // Not quite ideal, as this fires 1 event PER potion effect, but otherwise 1to1 copy from vanilla
+        // code
+        entity.setHealth(1.0D);
+        for (PotionEffect potion : entity.getActivePotionEffects())
+            entity.removePotionEffect(potion.getType());
+        entity.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 900, 1));
+        entity.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 100, 1));
+        entity.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 800, 0));
+        entity.playEffect(EntityEffect.TOTEM_RESURRECT);
         return true;
     }
 }
