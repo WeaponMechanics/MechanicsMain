@@ -43,6 +43,9 @@ public class SerializerInstancer extends JarSearcher {
             }
 
             Serializer instance = new ConstructorInvoker<>(emptyConstructor).newInstance();
+            if (instance.getKeyword() == null || instance instanceof InlineSerializer<?>)
+                continue;
+
             instances.add(instance);
         }
 

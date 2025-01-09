@@ -52,10 +52,13 @@ public class FileReader {
      * @param serializer the new serializer for this file reader
      */
     public void addSerializer(Serializer<?> serializer) {
-        String serializerLowerCase = serializer.getKeyword().toLowerCase(Locale.ROOT);
-        if (this.serializers.containsKey(serializerLowerCase)) {
-            Serializer<?> alreadyAdded = this.serializers.get(serializerLowerCase);
+        String keyword = serializer.getKeyword();
+        if (keyword == null) {
+            throw new IllegalArgumentException("Could not add '" + serializer + "' since it has no keyword!");
+        }
 
+        Serializer<?> alreadyAdded = this.serializers.get(keyword.toLowerCase(Locale.ROOT));
+        if (alreadyAdded != null) {
             // Check if already added serializer isn't assignable with the new one
             if (!alreadyAdded.getClass().isAssignableFrom(serializer.getClass())) {
                 debug.log(LogLevel.ERROR,
@@ -69,7 +72,7 @@ public class FileReader {
             debug.log(LogLevel.DEBUG,
                 "New serializer " + serializer.getClass().getName() + " will now override already added serializer " + alreadyAdded.getClass().getName());
         }
-        this.serializers.put(serializerLowerCase, serializer);
+        this.serializers.put(keyword.toLowerCase(Locale.ROOT), serializer);
     }
 
     /**
