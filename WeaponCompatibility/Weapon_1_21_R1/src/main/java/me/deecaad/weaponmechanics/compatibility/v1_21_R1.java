@@ -62,9 +62,4 @@ public class v1_21_R1 implements IWeaponCompatibility {
     public void setKiller(org.bukkit.entity.LivingEntity victim, Player killer) {
         ((CraftLivingEntity) victim).getHandle().lastHurtByMob = ((CraftPlayer) killer).getHandle();
     }
-
-    @Override
-    public void playHurtAnimation(org.bukkit.entity.LivingEntity victim) {
-        victim.playHurtAnimation(0);
-    }
 }

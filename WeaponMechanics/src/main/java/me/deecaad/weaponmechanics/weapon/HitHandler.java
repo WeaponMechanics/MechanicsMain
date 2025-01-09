@@ -11,6 +11,9 @@ import me.deecaad.core.utils.ray.EntityTraceResult;
 import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
+import me.deecaad.weaponmechanics.weapon.damage.MeleeDamageSource;
+import me.deecaad.weaponmechanics.weapon.damage.ProjectileDamageSource;
+import me.deecaad.weaponmechanics.weapon.damage.WeaponDamageSource;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionTrigger;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
@@ -94,8 +97,10 @@ public class HitHandler {
             hand.setLastMeleeTime(System.currentTimeMillis());
         }
 
-        return !weaponHandler.getDamageHandler().tryUse(livingEntity, getConfigurations().getDouble(weaponTitle + ".Damage.Base_Damage"),
-            getDamagePoint(result, shooterDirection), backstab, shooter, weaponTitle, weaponStack, slot, result.getHitMinClamped());
+        DamagePoint point = getDamagePoint(result, shooterDirection);
+        WeaponDamageSource source = new MeleeDamageSource(shooter, weaponTitle, weaponStack, point, backstab);
+        double baseDamage = config.getDouble(weaponTitle + ".Damage.Base_Damage");
+        return !weaponHandler.getDamageHandler().tryUse(source, livingEntity, baseDamage, slot);
     }
 
     private boolean handleBlockHit(BlockTraceResult result, WeaponProjectile projectile) {
@@ -143,7 +148,9 @@ public class HitHandler {
         hitPoint = hitEntityEvent.getPoint();
         backstab = hitEntityEvent.isBackStab();
 
-        if (!weaponHandler.getDamageHandler().tryUse(livingEntity, projectile, getConfigurations().getDouble(projectile.getWeaponTitle() + ".Damage.Base_Damage"), hitPoint, backstab)) {
+        double baseDamage = getConfigurations().getDouble(projectile.getWeaponTitle() + ".Damage.Base_Damage");
+        WeaponDamageSource source = new ProjectileDamageSource(projectile, hitPoint);
+        if (!weaponHandler.getDamageHandler().tryUse(source, livingEntity, baseDamage, projectile.getHand())) {
             // Damage was cancelled
             return true;
         }

@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
-import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.NumberUtil;
@@ -10,8 +9,11 @@ import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Statistic;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Enderman;
@@ -19,6 +21,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -27,14 +30,15 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.LazyMetadataValue;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 
 public class DamageUtil {
+
+    private static final EquipmentSlot[] EQUIPMENT_SLOTS = EquipmentSlot.values();
 
     /**
      * Do not let anyone instantiate this class
@@ -43,17 +47,16 @@ public class DamageUtil {
     }
 
     /**
-     * @param cause The shooter that caused the damage.
+     * @param source What caused the damage.
      * @param victim The victim being damaged.
      * @param damage The amount of damage to apply
      * @return true if damage was cancelled
      */
-    public static boolean apply(LivingEntity cause, LivingEntity victim, double damage) {
+    public static boolean apply(@NotNull WeaponDamageSource source, @NotNull LivingEntity victim, double damage) {
         Configuration config = getBasicConfigurations();
 
         // Skip armor stands for better plugin compatibility
         if (victim instanceof ArmorStand armorStand) {
-
             if (config.getBoolean("Damage.Ignore_Armor_Stand.Always"))
                 return true;
             if (config.getBoolean("Damage.Ignore_Armor_Stand.Marker") && armorStand.isMarker())
@@ -74,20 +77,18 @@ public class DamageUtil {
         }
 
         // Use enderman teleport API added in 1.20.1
-        else if (victim instanceof Enderman enderman && MinecraftVersions.TRAILS_AND_TAILS.get(1).isAtLeast()) {
+        else if (victim instanceof Enderman enderman) {
 
             // 64 is the value minecraft uses
-            int teleportAttempts = WeaponMechanics.getBasicConfigurations().getInt("Damage.Enderman_Teleport_Attempts", 64);
+            int teleportAttempts = config.getInt("Damage.Enderman_Teleport_Attempts", 64);
 
             boolean isTeleported = false;
             for (int i = 0; i < teleportAttempts && !isTeleported; i++) {
-
-                // Teleport randomly if the enderman is calm, otherwise assume their
-                // target is the shooter, and teleport towards the shooter.
-                if (enderman.getTarget() == null)
+                if (source.getShooter() != null && enderman.getTarget() == source.getShooter()) {
+                    isTeleported = enderman.teleportTowards(source.getShooter());
+                } else {
                     isTeleported = enderman.teleport();
-                else
-                    isTeleported = enderman.teleportTowards(cause);
+                }
             }
 
             // When the enderman does not teleport away, this is probably because
@@ -110,7 +111,7 @@ public class DamageUtil {
             // is still applied to the entity.
             MetadataKey.VANILLA_DAMAGE.set(victim, null);
 
-            victim.damage(damage, cause);
+            victim.damage(damage, source.getShooter());
 
             // If the EntityDamageByEntityEvent was cancelled, then we should skip
             // everything else.
@@ -124,29 +125,41 @@ public class DamageUtil {
             return false;
         }
 
-        // For compatibility with plugins that only set the damage to 0.0...
+        // Used to check if a plugin changed the amount of damage
         double tempDamage = damage;
 
-        // try-catch New damage source API added in later 1.20.4 versions
-        EntityDamageByEntityEvent entityDamageByEntityEvent;
-        try {
+        if (source.getShooter() != null) {
+            var cause = switch (source.getDamageType()) {
+                case MELEE -> EntityDamageEvent.DamageCause.ENTITY_ATTACK;
+                case PROJECTILE -> EntityDamageEvent.DamageCause.PROJECTILE;
+                case EXPLOSION -> EntityDamageEvent.DamageCause.ENTITY_EXPLOSION;
+            };
+            var bukkitDamageType = switch (source.getDamageType()) {
+                case MELEE -> source.getShooter() instanceof Player ? DamageType.PLAYER_ATTACK : DamageType.MOB_ATTACK;
+                case PROJECTILE -> DamageType.MOB_PROJECTILE;
+                case EXPLOSION -> source.getShooter() instanceof Player ? DamageType.PLAYER_EXPLOSION : DamageType.EXPLOSION;
+            };
+            var bukkitSource = DamageSource.builder(bukkitDamageType);
+            if (source.getDamageLocation() != null) {
+                bukkitSource.withDamageLocation(source.getDamageLocation());
+            }
+            if (source.getShooter() != null) {
+                bukkitSource.withCausingEntity(source.getShooter()).withDirectEntity(source.getShooter());
+            }
+
+            var entityDamageByEntityEvent = new EntityDamageByEntityEvent(source.getShooter(), victim, cause, bukkitSource.build(), damage);
             victim.setMetadata("doing-weapon-damage", new LazyMetadataValue(WeaponMechanics.getPlugin(), () -> true));
-            entityDamageByEntityEvent = WeaponCompatibilityAPI.getWeaponCompatibility().newEntityDamageByEntityEvent(victim, cause, damage, true);
             Bukkit.getPluginManager().callEvent(entityDamageByEntityEvent);
             victim.removeMetadata("doing-weapon-damage", WeaponMechanics.getPlugin());
             if (entityDamageByEntityEvent.isCancelled())
                 return true;
-        } catch (LinkageError ex) {
-            debug.error("You are using an outdated version of Spigot 1.20.4. Please update to the latest version.",
-                "This is required for the new damage source API to work.",
-                "Detected version: " + MinecraftVersions.getCurrent(), "");
-            return true;
+
+            // Plugins may modify the event... So let's update our variables
+            damage = entityDamageByEntityEvent.getDamage();
         }
 
-        // Doing getDamage() is enough since only BASE modifier is used in event call above ^^
-        damage = entityDamageByEntityEvent.getDamage();
+        // If a plugin modified the damage, and set it to 0.0, just cancel
         if (tempDamage != damage && damage == 0.0) {
-            // If event changed damage, and it's now 0.0, consider this as cancelled damage event
             return true;
         }
 
@@ -160,17 +173,25 @@ public class DamageUtil {
         double oldHealth = victim.getHealth();
 
         // Apply any remaining damage to the victim, and handle internals
-        WeaponCompatibilityAPI.getWeaponCompatibility().logDamage(victim, cause, oldHealth, damage, false);
-        if (cause instanceof Player player) {
-            WeaponCompatibilityAPI.getWeaponCompatibility().setKiller(victim, player);
+        victim.setLastDamage(damage);
+        if (source.getShooter() != null) {
+            WeaponCompatibilityAPI.getWeaponCompatibility().logDamage(victim, source.getShooter(), oldHealth, damage, false);
+            if (source.getShooter() instanceof Player player) {
+                WeaponCompatibilityAPI.getWeaponCompatibility().setKiller(victim, player);
+            }
         }
 
-        // Visual red flash
-        WeaponCompatibilityAPI.getWeaponCompatibility().playHurtAnimation(victim);
-
-        // Spigot api things
-        victim.setLastDamage(damage);
-        // victim.setLastDamageCause(entityDamageByEntityEvent);
+        // Determine the correct angle that the damage
+        Location sourceLocation = source.getDamageLocation();
+        float angle = 0f;
+        if (sourceLocation != null) {
+            Location victimLocation = victim.getLocation();
+            double dx = sourceLocation.getX() - victimLocation.getX();
+            double dz = sourceLocation.getZ() - victimLocation.getZ();
+            angle = (float) Math.toDegrees(Math.atan2(dz, dx)) - victimLocation.getYaw();
+            angle = NumberUtil.normalizeDegrees(angle) + 180f;
+        }
+        victim.playHurtAnimation(angle);
 
         double newHealth = NumberUtil.clamp(oldHealth - damage, 0, victim.getAttribute(Attribute.MAX_HEALTH).getValue());
         boolean killed = newHealth <= 0.0;
@@ -188,40 +209,26 @@ public class DamageUtil {
 
         // Statistics
         if (victim instanceof Player player) {
-            if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast() && absorbed >= 0.1)
+            if (absorbed >= 0.1)
                 player.incrementStatistic(Statistic.DAMAGE_ABSORBED, Math.round((float) absorbed * 10));
             if (damage >= 0.1)
                 player.incrementStatistic(Statistic.DAMAGE_TAKEN, Math.round((float) damage * 10));
-            if (killed)
-                player.incrementStatistic(Statistic.ENTITY_KILLED_BY, cause.getType());
+            if (killed && source.getShooter() != null)
+                player.incrementStatistic(Statistic.ENTITY_KILLED_BY, source.getShooter().getType());
         }
-        if (cause instanceof Player player) {
-            if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast() && absorbed >= 0.1)
+        if (source.getShooter() instanceof Player player) {
+            if (absorbed >= 0.1)
                 player.incrementStatistic(Statistic.DAMAGE_DEALT_ABSORBED, Math.round((float) absorbed * 10));
             if (damage >= 0.1)
                 player.incrementStatistic(Statistic.DAMAGE_DEALT, Math.round((float) damage * 10));
-            if (killed) {
+            if (killed)
                 player.incrementStatistic(Statistic.KILL_ENTITY, victim.getType());
-
-                // In newer versions (probably 1.13, but only confirmed in 1.18.2+),
-                // these statistics are automatically tracked.
-                if (!MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
-                    if (victim.getType() == EntityType.PLAYER)
-                        player.incrementStatistic(Statistic.PLAYER_KILLS);
-                    else
-                        player.incrementStatistic(Statistic.MOB_KILLS);
-                }
-            }
         }
 
         return false;
     }
 
-    public static void damageArmor(LivingEntity victim, int amount) {
-        damageArmor(victim, amount, null);
-    }
-
-    public static void damageArmor(LivingEntity victim, int amount, @Nullable DamagePoint point) {
+    public static void damageArmor(@NotNull LivingEntity victim, @NotNull WeaponDamageSource source, int amount) {
 
         // If the damage amount is 0, we can skip the calculations
         if (amount <= 0)
@@ -232,18 +239,12 @@ public class DamageUtil {
         if (equipment == null)
             return;
 
-        if (point == null) {
-            damage(equipment, EquipmentSlot.HEAD, amount);
-            damage(equipment, EquipmentSlot.CHEST, amount);
-            damage(equipment, EquipmentSlot.LEGS, amount);
-            damage(equipment, EquipmentSlot.FEET, amount);
-        } else {
-            switch (point) {
-                case HEAD -> damage(equipment, EquipmentSlot.HEAD, amount);
-                case BODY, ARMS -> damage(equipment, EquipmentSlot.CHEST, amount);
-                case LEGS -> damage(equipment, EquipmentSlot.LEGS, amount);
-                case FEET -> damage(equipment, EquipmentSlot.FEET, amount);
-                default -> throw new IllegalArgumentException("Unknown point: " + point);
+        if (source.getEffectedEquipment() != null) {
+            for (EquipmentSlot slot : EQUIPMENT_SLOTS) {
+                if (!source.getEffectedEquipment().test(slot))
+                    continue;
+
+                damage(equipment, slot, amount);
             }
         }
     }
@@ -259,7 +260,7 @@ public class DamageUtil {
 
         // All items implement Damageable (since Spigot is stupid). We use this check
         // to see if an item is *actually* damageable.
-        if (armor == null || "AIR".equals(armor.getType().name()) || (MinecraftVersions.UPDATE_AQUATIC.isAtLeast() && armor.getType().getMaxDurability() == 0))
+        if (armor == null || "AIR".equals(armor.getType().name()) || armor.getType().getMaxDurability() == 0)
             return;
 
         ItemMeta meta = armor.getItemMeta();
@@ -299,7 +300,7 @@ public class DamageUtil {
      * @param victim the victim
      * @return true only if cause can harm victim
      */
-    public static boolean canHarmScoreboardTeams(LivingEntity cause, LivingEntity victim) {
+    public static boolean canHarmScoreboardTeams(@NotNull LivingEntity cause, @NotNull LivingEntity victim) {
 
         // Owner invulnerability is handled separately.
         if (cause.equals(victim))
@@ -310,11 +311,9 @@ public class DamageUtil {
             return true;
 
         Scoreboard shooterScoreboard = ((Player) cause).getScoreboard();
-        if (shooterScoreboard == null)
-            return true;
 
         Set<Team> teams = shooterScoreboard.getTeams();
-        if (teams == null || teams.isEmpty())
+        if (teams.isEmpty())
             return true;
 
         for (Team team : teams) {

@@ -290,7 +290,7 @@ public class Explosion implements Serializer<Explosion> {
         }
 
         if (projectile != null && projectile.getWeaponTitle() != null) {
-            WeaponMechanics.getWeaponHandler().getDamageHandler().tryUseExplosion(projectile, origin, entities);
+            WeaponMechanics.getWeaponHandler().getDamageHandler().tryUseExplosion(this, projectile, origin, entities);
 
             // isKnockback will cause vanilla-like explosion knockback. The
             // higher your exposure, the greater the knockback.
