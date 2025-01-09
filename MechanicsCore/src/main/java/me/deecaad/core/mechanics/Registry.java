@@ -89,8 +89,8 @@ public final class Registry<T extends Keyable> implements Keyable {
 
     /**
      * Returns the options available in the registry. This can be passed to a
-     * {@link SerializerException.Builder#buildInvalidOption(String, Iterable)}
-     * to tell the admin which options are registered and available for usage.
+     * {@link SerializerException.Builder#buildInvalidOption(String, Iterable)} to tell the admin which
+     * options are registered and available for usage.
      *
      * @return The non-null set of options.
      */

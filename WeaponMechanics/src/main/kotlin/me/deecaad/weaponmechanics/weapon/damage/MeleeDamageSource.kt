@@ -9,7 +9,7 @@ class MeleeDamageSource(
     override val weaponStack: ItemStack,
     override val damagePoint: DamagePoint?,
     val isBackStab: Boolean,
-): WeaponDamageSource() {
+) : WeaponDamageSource() {
     override val damageType: WeaponDamageType
         get() = WeaponDamageType.MELEE
 }

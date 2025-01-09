@@ -41,10 +41,11 @@ class EnumValueSerializer<T : Enum<T>>(
             }
             return values
         } else {
-            val value = EnumUtil.parseEnums(enumClass, data)
-                ?: throw SerializerException.builder()
-                    .locationRaw(errorLocation)
-                    .buildInvalidEnumOption(data, enumClass)
+            val value =
+                EnumUtil.parseEnums(enumClass, data)
+                    ?: throw SerializerException.builder()
+                        .locationRaw(errorLocation)
+                        .buildInvalidEnumOption(data, enumClass)
 
             return value
         }

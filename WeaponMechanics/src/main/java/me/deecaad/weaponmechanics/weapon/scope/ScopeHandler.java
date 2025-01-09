@@ -318,8 +318,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
                 PotionTypes.NIGHT_VISION,
                 2,
                 -1, // infinite duration
-                (byte) 0
-            );
+                (byte) 0);
 
             entityEffect.setVisible(false);
             entityEffect.setShowIcon(false);
@@ -336,8 +335,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
             // Remove the fake night vision effect from the player
             WrapperPlayServerRemoveEntityEffect removeEntityEffect = new WrapperPlayServerRemoveEntityEffect(
                 player.getEntityId(),
-                PotionTypes.NIGHT_VISION
-            );
+                PotionTypes.NIGHT_VISION);
             PacketEvents.getAPI().getPlayerManager().sendPacket(player, removeEntityEffect);
 
             // If the player has night vision effect from other source, show it to them again
@@ -348,8 +346,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
                     PotionTypes.NIGHT_VISION,
                     nightVision.getAmplifier(),
                     nightVision.getDuration(),
-                    (byte) 0
-                );
+                    (byte) 0);
                 entityEffect.setVisible(nightVision.hasParticles());
                 entityEffect.setShowIcon(nightVision.hasIcon());
                 entityEffect.setAmbient(nightVision.isAmbient());

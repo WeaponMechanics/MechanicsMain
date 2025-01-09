@@ -557,7 +557,6 @@ public class ShootHandler implements IValidator, TriggerListener {
                 weaponInfoDisplay.send(playerWrapper, slot);
         }
 
-
         // Only update recoil 1 time per shot
         if (prepareEvent.getRecoil() != null && livingEntity instanceof Player) {
             prepareEvent.getRecoil().start((Player) livingEntity, mainHand);

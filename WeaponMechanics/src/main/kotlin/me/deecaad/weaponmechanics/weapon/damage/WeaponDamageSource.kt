@@ -9,7 +9,6 @@ import org.bukkit.inventory.ItemStack
  * The source of damage that caused a living entity to take damage.
  */
 abstract class WeaponDamageSource {
-
     /**
      * The type of damage (e.g. melee, projectile, explosion).
      */
@@ -46,11 +45,12 @@ abstract class WeaponDamageSource {
      * The equipment slot group that was hit.
      */
     open val effectedEquipment: EquipmentSlotGroup?
-        get() = when (damagePoint) {
-            DamagePoint.HEAD -> EquipmentSlotGroup.HEAD
-            DamagePoint.BODY, DamagePoint.ARMS -> EquipmentSlotGroup.CHEST
-            DamagePoint.LEGS -> EquipmentSlotGroup.LEGS
-            DamagePoint.FEET -> EquipmentSlotGroup.FEET
-            null -> null
-        }
+        get() =
+            when (damagePoint) {
+                DamagePoint.HEAD -> EquipmentSlotGroup.HEAD
+                DamagePoint.BODY, DamagePoint.ARMS -> EquipmentSlotGroup.CHEST
+                DamagePoint.LEGS -> EquipmentSlotGroup.LEGS
+                DamagePoint.FEET -> EquipmentSlotGroup.FEET
+                null -> null
+            }
 }

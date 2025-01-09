@@ -54,11 +54,11 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     private boolean isCancelled;
 
     public WeaponDamageEntityEvent(WeaponDamageSource source, EquipmentSlot hand, LivingEntity victim,
-                                   double baseDamage, double critChance, int armorDamage, int fireTicks,
-                                   DamageModifier damageModifier, Mechanics damageMechanics,
-                                   Mechanics killMechanics, Mechanics backstabMechanics, Mechanics criticalHitMechanics,
-                                   Mechanics headMechanics, Mechanics bodyMechanics, Mechanics armsMechanics,
-                                   Mechanics legsMechanics, Mechanics feetMechanics) {
+        double baseDamage, double critChance, int armorDamage, int fireTicks,
+        DamageModifier damageModifier, Mechanics damageMechanics,
+        Mechanics killMechanics, Mechanics backstabMechanics, Mechanics criticalHitMechanics,
+        Mechanics headMechanics, Mechanics bodyMechanics, Mechanics armsMechanics,
+        Mechanics legsMechanics, Mechanics feetMechanics) {
 
         super(source.getWeaponTitle(), source.getWeaponStack(), source.getShooter(), hand);
 

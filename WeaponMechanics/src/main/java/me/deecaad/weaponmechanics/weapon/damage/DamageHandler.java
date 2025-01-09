@@ -259,8 +259,7 @@ public class DamageHandler {
             projectile.getShooter(),
             weaponTitle,
             projectile.getWeaponStack(),
-            origin
-        );
+            origin);
         double damage = config.getDouble(weaponTitle + ".Damage.Base_Explosion_Damage");
         if (damage == 0) {
             // If explosion damage isn't used, use Base_Damage

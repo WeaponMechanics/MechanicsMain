@@ -49,7 +49,8 @@ public class OutSetSlotBobFix implements PacketListener, Listener {
     @EventHandler
     public void click(InventoryClickEvent event) {
         HumanEntity humanEntity = event.getWhoClicked();
-        if (!(humanEntity instanceof Player player)) return;
+        if (!(humanEntity instanceof Player player))
+            return;
 
         mainHand.put(player, null);
         offHand.put(player, null);
@@ -58,7 +59,8 @@ public class OutSetSlotBobFix implements PacketListener, Listener {
     @EventHandler
     public void click(InventoryDragEvent event) {
         HumanEntity humanEntity = event.getWhoClicked();
-        if (!(humanEntity instanceof Player player)) return;
+        if (!(humanEntity instanceof Player player))
+            return;
 
         mainHand.put(player, null);
         offHand.put(player, null);
@@ -156,7 +158,8 @@ public class OutSetSlotBobFix implements PacketListener, Listener {
             this.amount = itemStack.getAmount();
 
             ItemMeta itemMeta = itemStack.getItemMeta();
-            if (itemMeta == null) return;
+            if (itemMeta == null)
+                return;
 
             if (itemMeta.hasDisplayName()) {
                 this.displayName = itemMeta.getDisplayName();

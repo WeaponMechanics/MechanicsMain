@@ -40,11 +40,12 @@ class RegistryValueSerializer<T : Keyed>(
             }
         }
 
-        val key = NamespacedKey.fromString(data)
-            ?: throw SerializerException.builder()
-                .locationRaw(errorLocation)
-                .addMessage("We expect a plain string, like 'dirt' or a namespaced key, like 'minecraft:dirt'.")
-                .buildInvalidType("registry key", data)
+        val key =
+            NamespacedKey.fromString(data)
+                ?: throw SerializerException.builder()
+                    .locationRaw(errorLocation)
+                    .addMessage("We expect a plain string, like 'dirt' or a namespaced key, like 'minecraft:dirt'.")
+                    .buildInvalidType("registry key", data)
 
         if (isWildcard) {
             val values = registry.filter { it.key.key.contains(key.key) }
