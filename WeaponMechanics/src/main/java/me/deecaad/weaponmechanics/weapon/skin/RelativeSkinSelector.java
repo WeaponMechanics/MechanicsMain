@@ -77,7 +77,8 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
 
         // Ideally this will never be true, but sometimes we try to apply skins
         // to AIR which causes errors.
-        if (!weapon.hasItemMeta())
+        ItemMeta meta = weapon.getItemMeta();
+        if (meta == null)
             return;
 
         // We set these to null because we must skip them. base is always
@@ -106,7 +107,12 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
         if (base.hasType() && weapon.getType() != base.getType())
             weapon.setType(base.getType());
 
-        ItemMeta meta = weapon.getItemMeta();
+        meta = weapon.getItemMeta();
+        if (meta == null) {
+            WeaponMechanics.debug.error("Item w/ skin suddenly lost metadata... Did you redefine item type to AIR?");
+            return;
+        }
+
         meta.setCustomModelData(customModelData);
         weapon.setItemMeta(meta);
     }
