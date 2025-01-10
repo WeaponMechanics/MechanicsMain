@@ -61,16 +61,15 @@
         In_Midair: 150%
         Dual_Wielding: 150%
     Recoil:
-      Push_Time: 200
-      Horizontal:
-        - 4
-        - 0
-      Vertical:
-        - 4
-      Modify_Recoil_When:
-        Zooming: 50%
-        Sneaking: 50%
-        In_Midair: 150%
+      Mean_X: 0.2
+      Mean_Y: 2.2
+      Variance_X: 0.1
+      Variance_Y: 0.3
+      Speed: 3.5
+      Damping: 0.1
+      Damping_Recovery: 0.2
+      Smoothing: 0.3
+      Max_Accumulation: 12.0
     Mechanics:
       - "CustomSound{sound=shoot.50gs.loud, volume=6, noise=0.1}"
   Reload:

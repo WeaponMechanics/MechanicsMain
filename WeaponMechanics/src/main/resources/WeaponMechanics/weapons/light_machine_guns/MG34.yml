@@ -50,16 +50,15 @@ MG34:
         Sneaking: 50%
         In_Midair: 150%
     Recoil:
-      Push_Time: 200
-      Horizontal:
-        - 2.8
-        - 0
-      Vertical:
-        - 2.8
-      Modify_Recoil_When:
-        Zooming: 50%
-        Sneaking: 50%
-        In_Midair: 150%
+      Mean_X: 0.4
+      Mean_Y: 2.0
+      Variance_X: 0.3
+      Variance_Y: 0.4
+      Speed: 3.5
+      Damping: 0.15
+      Damping_Recovery: 0.15
+      Smoothing: 0.35
+      Max_Accumulation: 18.0
     Mechanics:
       - "CustomSound{sound=shoot.mg34.loud, volume=6, noise=0.1}"
   Reload:

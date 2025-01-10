@@ -52,17 +52,15 @@ R9_0:
         Field_Of_View_Width: 16
         Field_Of_View_Height: 16
     Recoil:
-      Push_Time: 200
-      Horizontal:
-        - 2.5
-        - -2.5
-        - 0
-      Vertical:
-        - 2.5
-      Modify_Recoil_When:
-        Zooming: 50%
-        Sneaking: 50%
-        In_Midair: 150%
+      Mean_X: 0.0
+      Mean_Y: 3.2
+      Variance_X: 0.1
+      Variance_Y: 0.4
+      Speed: 4.2
+      Damping: 0.2
+      Damping_Recovery: 0.25
+      Smoothing: 0.2
+      Max_Accumulation: 10.0
     Mechanics:
       - "CustomSound{sound=shoot.r90.loud, volume=6, noise=0.1}"
   Reload:
