@@ -54,21 +54,27 @@ public class SerializerListTest {
     public void test_valid(String key) throws Exception {
         SerializeData data = new SerializeData(DUMMY, file, "a", new BukkitConfig(config));
 
-        List<List<Optional<Object>>> list = data.ofList()
-            .addArgument(new StringSerializer())
-            .addArgument(new IntSerializer(0, null))
-            .requireAllPreviousArgs()
-            .addArgument(new DoubleSerializer(0.0, 1.0))
-            .addArgument(new BooleanSerializer())
-            .addArgument(new IntSerializer())
-            .assertList();
+        try {
+            List<List<Optional<Object>>> list = data.ofList("Valid")
+                .addArgument(new StringSerializer())
+                .addArgument(new IntSerializer(0, null))
+                .requireAllPreviousArgs()
+                .addArgument(new DoubleSerializer(0.0, 1.0))
+                .addArgument(new BooleanSerializer())
+                .addArgument(new IntSerializer())
+                .assertList();
 
-        for (List<Optional<Object>> split : list) {
-            String str = (String) split.get(0).get();
-            int positive = (Integer) split.get(1).get();
-            double decimal = (Double) split.get(2).orElse(0.0);
-            boolean bool = (Boolean) split.get(3).orElse(false);
-            int i = (Integer) split.get(4).orElse(0);
+            for (List<Optional<Object>> split : list) {
+                String str = (String) split.get(0).get();
+                int positive = (Integer) split.get(1).get();
+                double decimal = (Double) split.get(2).orElse(0.0);
+                boolean bool = (Boolean) split.get(3).orElse(false);
+                int i = (Integer) split.get(4).orElse(0);
+            }
+        } catch (SerializerException e) {
+            e.getMessages().forEach(System.err::println);
+            System.err.println(e.getLocation());
+            throw e;
         }
     }
 

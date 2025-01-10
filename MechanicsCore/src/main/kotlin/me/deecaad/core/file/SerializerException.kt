@@ -20,8 +20,8 @@ import kotlin.math.abs
  * @param messages A list of messages that describe the mistake in more detail
  */
 open class SerializerException(
-    private val location: String,
-    private val messages: MutableList<String> = mutableListOf(),
+    val location: String,
+    val messages: MutableList<String> = mutableListOf(),
 ) : Exception() {
     @JvmOverloads
     fun log(
