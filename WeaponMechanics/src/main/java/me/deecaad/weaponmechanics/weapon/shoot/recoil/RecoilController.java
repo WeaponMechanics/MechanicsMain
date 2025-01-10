@@ -19,8 +19,8 @@ import static me.deecaad.core.utils.NumberUtil.lerp;
 import static me.deecaad.core.utils.NumberUtil.moveTowards;
 
 /**
- * Completely new AAA-like recoil controller that ensures
- * negative deltas are applied during recovery.
+ * Completely new AAA-like recoil controller that ensures negative deltas are applied during
+ * recovery.
  */
 public class RecoilController implements Consumer<TaskImplementation<Void>> {
 
@@ -40,7 +40,6 @@ public class RecoilController implements Consumer<TaskImplementation<Void>> {
     private float targetRecoilX = 0f;
     private float targetRecoilY = 0f;
 
-
     public RecoilController(@NotNull Player player) {
         this.player = player;
     }
@@ -50,8 +49,7 @@ public class RecoilController implements Consumer<TaskImplementation<Void>> {
         @Nullable String weaponTitle,
         @Nullable ItemStack weaponStack,
         @Nullable Player shooter,
-        @Nullable EquipmentSlot hand
-    ) {
+        @Nullable EquipmentSlot hand) {
         // random approach around (mean ± variance)
         float dx;
         float dy;

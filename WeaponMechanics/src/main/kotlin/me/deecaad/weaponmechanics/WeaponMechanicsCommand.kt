@@ -103,7 +103,6 @@ import java.util.function.Consumer
 import java.util.function.Predicate
 import kotlin.math.cos
 import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.sin
 
 @Suppress("UNCHECKED_CAST")
@@ -580,8 +579,10 @@ object WeaponMechanicsCommand {
                         val interval = args["interval"] as? Int ?: 4
                         val time = args["time"] as? Int ?: 80
 
-                        recoil(player, recoilMeanX, recoilMeanY, recoilVarianceX, recoilVarianceY, recoilSpeed,
-                            damping, dampingRecovery, smoothingFactor, maxRecoilAccum, interval, time)
+                        recoil(
+                            player, recoilMeanX, recoilMeanY, recoilVarianceX, recoilVarianceY, recoilSpeed,
+                            damping, dampingRecovery, smoothingFactor, maxRecoilAccum, interval, time,
+                        )
                     }
                 }
 
@@ -1510,11 +1511,17 @@ object WeaponMechanicsCommand {
         time: Int,
     ) {
         val playerWrapper = WeaponMechanics.getPlayerWrapper(player)
-        val recoil = RecoilProfile(recoilMeanX, recoilMeanY, recoilVarianceX, recoilVarianceY, recoilSpeed, damping, dampingRecovery, smoothingFactor, maxRecoilAccum)
+        val recoil =
+            RecoilProfile(
+                recoilMeanX, recoilMeanY, recoilVarianceX, recoilVarianceY, recoilSpeed,
+                damping, dampingRecovery, smoothingFactor, maxRecoilAccum,
+            )
         val controller = playerWrapper.recoilController
 
-        player.sendMessage(ChatColor.GREEN.toString() + "Starting recoil every " + rate
-                + " ticks for " + toTime(time / 20))
+        player.sendMessage(
+            ChatColor.GREEN.toString() + "Starting recoil every " + rate +
+                " ticks for " + toTime(time / 20),
+        )
 
         WeaponMechanics.getInstance().getFoliaScheduler().entity(player)
             .runAtFixedRate(

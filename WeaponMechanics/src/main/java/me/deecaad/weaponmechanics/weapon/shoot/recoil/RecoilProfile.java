@@ -38,8 +38,7 @@ public class RecoilProfile implements Serializer<RecoilProfile> {
         float damping,
         float dampingRecovery,
         float smoothingFactor,
-        float maxRecoilAccum
-    ) {
+        float maxRecoilAccum) {
         this.recoilMeanX = recoilMeanX;
         this.recoilMeanY = recoilMeanY;
         this.recoilVarianceX = recoilVarianceX;
@@ -124,7 +123,6 @@ public class RecoilProfile implements Serializer<RecoilProfile> {
             damping,
             dampingRecovery,
             smoothingFactor,
-            maxRecoilAccum
-        );
+            maxRecoilAccum);
     }
 }

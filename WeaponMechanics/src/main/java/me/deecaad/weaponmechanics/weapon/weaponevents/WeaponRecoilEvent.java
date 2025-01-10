@@ -30,8 +30,7 @@ public class WeaponRecoilEvent extends WeaponEvent implements Cancellable {
         @NotNull ItemStack weaponItem,
         @Nullable LivingEntity weaponUser,
         @NotNull EquipmentSlot hand,
-        @NotNull RecoilProfile recoilProfile
-    ) {
+        @NotNull RecoilProfile recoilProfile) {
         super(weaponTitle, weaponItem, weaponUser, hand);
 
         this.recoilMeanX = recoilProfile.getRecoilMeanX();
