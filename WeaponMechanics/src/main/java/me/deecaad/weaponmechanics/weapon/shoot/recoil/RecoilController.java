@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 
 import com.cjcrafter.foliascheduler.TaskImplementation;
-import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
@@ -15,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
+import static me.deecaad.core.utils.NumberUtil.approximately;
 import static me.deecaad.core.utils.NumberUtil.lerp;
 import static me.deecaad.core.utils.NumberUtil.moveTowards;
 
@@ -123,11 +123,11 @@ public class RecoilController implements Consumer<TaskImplementation<Void>> {
         currentRecoilFOV = lerp(currentRecoilFOV, targetRecoilFOV, smoothingFactor);
 
         // RECOVERY - pull the recoil back towards zero
-        currentRecoilX = moveTowards(currentRecoilX, 0f, dampingRecovery);
-        currentRecoilY = moveTowards(currentRecoilY, 0f, dampingRecovery);
-        currentRecoilFOV = moveTowards(currentRecoilFOV, 0f, dampingRecovery);
-
-        // Now we have updated recoil in currentRecoilX/Y/FOV
+        if (!approximately(dampingRecovery, 0f)) {
+            currentRecoilX = moveTowards(currentRecoilX, 0f, dampingRecovery);
+            currentRecoilY = moveTowards(currentRecoilY, 0f, dampingRecovery);
+            currentRecoilFOV = moveTowards(currentRecoilFOV, 0f, dampingRecovery);
+        }
 
         // Use the difference between old and new for the final camera delta
         float deltaYaw = (currentRecoilX - oldX) * recoilSpeed;
@@ -135,7 +135,7 @@ public class RecoilController implements Consumer<TaskImplementation<Void>> {
         float deltaFov = (currentRecoilFOV - oldFov) * recoilSpeed;
 
         // If we actually have a non-trivial delta, apply it
-        if (!NumberUtil.approximately(deltaYaw, 0f, 0.01f) || !NumberUtil.approximately(deltaPitch, 0f, 0.01f)) {
+        if (!approximately(deltaYaw, 0f, 0.01f) || !approximately(deltaPitch, 0f, 0.01f)) {
             IWeaponCompatibility compat = WeaponCompatibilityAPI.getWeaponCompatibility();
             compat.modifyCameraRotation(player, deltaYaw, deltaPitch, false);
         }

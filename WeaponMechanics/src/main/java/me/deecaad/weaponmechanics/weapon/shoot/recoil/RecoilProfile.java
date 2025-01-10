@@ -105,15 +105,15 @@ public class RecoilProfile implements Serializer<RecoilProfile> {
             }
         }
 
-        float recoilMeanX = (float) data.of("Recoil_Mean_X").getDouble().orElse(0.0);
-        float recoilMeanY = (float) data.of("Recoil_Mean_Y").getDouble().orElse(0.0);
-        float recoilVarianceX = (float) data.of("Recoil_Variance_X").assertRange(0.0, null).getDouble().orElse(0.0);
-        float recoilVarianceY = (float) data.of("Recoil_Variance_Y").assertRange(0.0, null).getDouble().orElse(0.0);
-        float recoilSpeed = (float) data.of("Recoil_Speed").getDouble().orElse(1.0);
-        float damping = (float) data.of("Recoil_Damping").getDouble().orElse(0.0);
-        float dampingRecovery = (float) data.of("Recoil_Damping_Recovery").assertRange(0.0, 1.0).getDouble().orElse(0.0);
-        float smoothingFactor = (float) data.of("Recoil_Smoothing").assertRange(0.0, 1.0).getDouble().orElse(0.5);
-        float maxRecoilAccum = (float) data.of("Recoil_Max_Accumulation").getDouble().orElse(360);
+        float recoilMeanX = (float) data.of("Mean_X").getDouble().orElse(0.0);
+        float recoilMeanY = (float) data.of("Mean_Y").getDouble().orElse(0.0);
+        float recoilVarianceX = (float) data.of("Variance_X").assertRange(0.0, null).getDouble().orElse(0.0);
+        float recoilVarianceY = (float) data.of("Variance_Y").assertRange(0.0, null).getDouble().orElse(0.0);
+        float recoilSpeed = (float) data.of("Speed").getDouble().orElse(1.0);
+        float damping = (float) data.of("Damping").getDouble().orElse(0.0);
+        float dampingRecovery = (float) data.of("Damping_Recovery").assertRange(0.0, 1.0).getDouble().orElse(0.0);
+        float smoothingFactor = (float) data.of("Smoothing").assertRange(0.0, 1.0).getDouble().orElse(0.5);
+        float maxRecoilAccum = (float) data.of("Max_Accumulation").getDouble().orElse(360);
 
         return new RecoilProfile(
             recoilMeanX,
