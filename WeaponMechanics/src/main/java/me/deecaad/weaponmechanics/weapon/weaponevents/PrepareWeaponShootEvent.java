@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
-import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
+import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilProfile;
 import me.deecaad.weaponmechanics.weapon.shoot.spread.Spread;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
@@ -20,14 +20,14 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
 
     private static final HandlerList HANDLERS = new HandlerList();
 
-    private Mechanics shootMechanics;
+    private @Nullable Mechanics shootMechanics;
     private boolean resetFallDistance;
-    private Projectile projectile;
+    private @NotNull Projectile projectile;
     private double projectileSpeed;
     private int projectileAmount;
-    private Spread spread;
+    private @Nullable Spread spread;
     private double baseSpread;
-    private Recoil recoil;
+    private @Nullable RecoilProfile recoil;
     private double recoilYaw;
     private double recoilPitch;
 
@@ -44,8 +44,9 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
         double projectileSpeed,
         int projectileAmount,
         @Nullable Spread spread,
-        @Nullable Recoil recoil) {
+        @Nullable RecoilProfile recoil) {
         super(weaponTitle, weaponStack, shooter, hand);
+
         this.shootMechanics = shootMechanics;
         this.resetFallDistance = resetFallDistance;
         this.projectile = projectile;
@@ -58,11 +59,11 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
         this.recoilPitch = 0;
     }
 
-    public Mechanics getShootMechanics() {
+    public @Nullable Mechanics getShootMechanics() {
         return shootMechanics;
     }
 
-    public void setShootMechanics(Mechanics shootMechanics) {
+    public void setShootMechanics(@Nullable Mechanics shootMechanics) {
         if (this.shootMechanics != null)
             this.shootMechanics.clearDirty(); // clear any modifications
         this.shootMechanics = shootMechanics;
@@ -76,11 +77,11 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
         this.resetFallDistance = resetFallDistance;
     }
 
-    public Projectile getProjectile() {
+    public @NotNull Projectile getProjectile() {
         return projectile;
     }
 
-    public void setProjectile(Projectile projectile) {
+    public void setProjectile(@NotNull Projectile projectile) {
         this.projectile = projectile;
     }
 
@@ -100,11 +101,11 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
         this.projectileAmount = projectileAmount;
     }
 
-    public Spread getSpread() {
+    public @Nullable Spread getSpread() {
         return spread;
     }
 
-    public void setSpread(Spread spread) {
+    public void setSpread(@Nullable Spread spread) {
         this.spread = spread;
     }
 
@@ -116,11 +117,11 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
         this.baseSpread = baseSpread;
     }
 
-    public Recoil getRecoil() {
+    public @Nullable RecoilProfile getRecoil() {
         return recoil;
     }
 
-    public void setRecoil(Recoil recoil) {
+    public void setRecoil(@Nullable RecoilProfile recoil) {
         this.recoil = recoil;
     }
 
@@ -150,12 +151,12 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
         this.isCancelled = cancel;
     }
 
-    @NotNull @Override
-    public HandlerList getHandlers() {
+    @Override
+    public @NotNull HandlerList getHandlers() {
         return HANDLERS;
     }
 
-    public static HandlerList getHandlerList() {
+    public static @NotNull HandlerList getHandlerList() {
         return HANDLERS;
     }
 }

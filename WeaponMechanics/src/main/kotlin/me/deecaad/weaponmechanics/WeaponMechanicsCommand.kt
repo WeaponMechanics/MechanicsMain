@@ -17,7 +17,7 @@ import dev.jorel.commandapi.kotlindsl.entityExecutor
 import dev.jorel.commandapi.kotlindsl.entitySelectorArgumentManyEntities
 import dev.jorel.commandapi.kotlindsl.entitySelectorArgumentManyPlayers
 import dev.jorel.commandapi.kotlindsl.entityTypeArgument
-import dev.jorel.commandapi.kotlindsl.floatRangeArgument
+import dev.jorel.commandapi.kotlindsl.floatArgument
 import dev.jorel.commandapi.kotlindsl.greedyStringArgument
 import dev.jorel.commandapi.kotlindsl.integerArgument
 import dev.jorel.commandapi.kotlindsl.locationArgument
@@ -27,7 +27,6 @@ import dev.jorel.commandapi.kotlindsl.playerExecutor
 import dev.jorel.commandapi.kotlindsl.stringArgument
 import dev.jorel.commandapi.kotlindsl.subcommand
 import dev.jorel.commandapi.kotlindsl.timeArgument
-import dev.jorel.commandapi.wrappers.FloatRange
 import me.deecaad.core.MechanicsCore
 import me.deecaad.core.commands.CommandHelpBuilder
 import me.deecaad.core.commands.CustomMapArgument
@@ -70,7 +69,7 @@ import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ProjectileS
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoConfig
 import me.deecaad.weaponmechanics.weapon.shoot.CustomDurability
 import me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState
-import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil
+import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilProfile
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.event.ClickEvent
@@ -104,6 +103,7 @@ import java.util.function.Consumer
 import java.util.function.Predicate
 import kotlin.math.cos
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sin
 
 @Suppress("UNCHECKED_CAST")
@@ -555,22 +555,33 @@ object WeaponMechanicsCommand {
                     withPermission("weaponmechanics.commands.test.recoil")
                     withShortDescription("Applies recoil to the player")
 
-                    timeArgument("push", optional = true)
-                    timeArgument("recover", optional = true)
-                    floatRangeArgument("yaws", optional = true)
-                    floatRangeArgument("pitches", optional = true)
-                    timeArgument("interval", optional = true)
-                    timeArgument("time", optional = true)
+                    floatArgument("recoilMeanX", optional = true)
+                    floatArgument("recoilMeanY", optional = true)
+                    floatArgument("recoilVarianceX", optional = true)
+                    floatArgument("recoilVarianceY", optional = true)
+                    floatArgument("recoilSpeed", optional = true)
+                    floatArgument("damping", optional = true)
+                    floatArgument("dampingRecovery", optional = true)
+                    floatArgument("smoothingFactor", optional = true)
+                    floatArgument("maxRecoilAccum", optional = true)
+                    integerArgument("interval", 1, optional = true)
+                    integerArgument("time", 1, optional = true)
 
                     playerExecutor { player, args ->
-                        val push = args["push"] as? Int ?: 10
-                        val recover = args["recover"] as? Int ?: 10
-                        val yaws = args["yaws"] as? FloatRange ?: FloatRange(0.5f, 1.5f)
-                        val pitches = args["pitches"] as? FloatRange ?: FloatRange(0.5f, 1.5f)
-                        val interval = args["interval"] as? Int ?: 50
-                        val time = args["time"] as? Int ?: 200
+                        val recoilMeanX = args["recoilMeanX"] as? Float ?: 0.1f
+                        val recoilMeanY = args["recoilMeanY"] as? Float ?: 0.8f
+                        val recoilVarianceX = args["recoilVarianceX"] as? Float ?: 0.2f
+                        val recoilVarianceY = args["recoilVarianceY"] as? Float ?: 0.2f
+                        val recoilSpeed = args["recoilSpeed"] as? Float ?: 1f
+                        val damping = args["damping"] as? Float ?: 0.1f
+                        val dampingRecovery = args["dampingRecovery"] as? Float ?: 0.1f
+                        val smoothingFactor = args["smoothingFactor"] as? Float ?: 0.9f
+                        val maxRecoilAccum = args["maxRecoilAccum"] as? Float ?: 360f
+                        val interval = args["interval"] as? Int ?: 4
+                        val time = args["time"] as? Int ?: 80
 
-                        recoil(player, push, recover, yaws, pitches, interval, time)
+                        recoil(player, recoilMeanX, recoilMeanY, recoilVarianceX, recoilVarianceY, recoilSpeed,
+                            damping, dampingRecovery, smoothingFactor, maxRecoilAccum, interval, time)
                     }
                 }
 
@@ -1485,28 +1496,34 @@ object WeaponMechanicsCommand {
     }
 
     fun recoil(
-        player: Player?,
-        push: Int,
-        recover: Int,
-        yaws: FloatRange,
-        pitches: FloatRange,
+        player: Player,
+        recoilMeanX: Float,
+        recoilMeanY: Float,
+        recoilVarianceX: Float,
+        recoilVarianceY: Float,
+        recoilSpeed: Float,
+        damping: Float,
+        dampingRecovery: Float,
+        smoothingFactor: Float,
+        maxRecoilAccum: Float,
         rate: Int,
         time: Int,
     ) {
         val playerWrapper = WeaponMechanics.getPlayerWrapper(player)
-        val yawsList = listOf(yaws.lowerBound, yaws.upperBound)
-        val pitchesList = listOf(pitches.lowerBound, pitches.upperBound)
-        val recoil = Recoil(push.toLong(), recover.toLong(), yawsList, pitchesList, null, null)
+        val recoil = RecoilProfile(recoilMeanX, recoilMeanY, recoilVarianceX, recoilVarianceY, recoilSpeed, damping, dampingRecovery, smoothingFactor, maxRecoilAccum)
+        val controller = playerWrapper.recoilController
 
-        WeaponMechanics.getInstance().getFoliaScheduler().entity(player!!)
+        player.sendMessage(ChatColor.GREEN.toString() + "Starting recoil every " + rate
+                + " ticks for " + toTime(time / 20))
+
+        WeaponMechanics.getInstance().getFoliaScheduler().entity(player)
             .runAtFixedRate(
                 object : Consumer<TaskImplementation<Void>> {
                     var ticks: Int = 0
 
                     override fun accept(task: TaskImplementation<Void>) {
-                        if (playerWrapper.isRightClicking) {
-                            recoil.start(player, true)
-                        }
+                        MechanicsCore.getPlugin().adventure.player(player).sendActionBar(text("Recoil: $ticks"))
+                        controller.onShotFired(recoil, null, null, null, null)
 
                         ticks += rate
                         if (ticks > time) {

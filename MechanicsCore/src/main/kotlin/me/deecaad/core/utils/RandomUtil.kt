@@ -80,6 +80,51 @@ object RandomUtil {
     }
 
     /**
+     * Returns a random number between the mean and the mean plus or minus the variance.
+     *
+     * @param mean The mean value
+     * @param variance The variance
+     * @return The random number
+     */
+    @JvmStatic
+    fun variance(
+        mean: Int,
+        variance: Int,
+    ): Int {
+        return mean + ThreadLocalRandom.current().nextInt(-variance, variance + 1)
+    }
+
+    /**
+     * Returns a random number between the mean and the mean plus or minus the variance.
+     *
+     * @param mean The mean value
+     * @param variance The variance
+     * @return The random number
+     */
+    @JvmStatic
+    fun variance(
+        mean: Float,
+        variance: Float,
+    ): Float {
+        return mean + ThreadLocalRandom.current().nextFloat(-variance, variance)
+    }
+
+    /**
+     * Returns a random number between the mean and the mean plus or minus the variance.
+     *
+     * @param mean The mean value
+     * @param variance The variance
+     * @return The random number
+     */
+    @JvmStatic
+    fun variance(
+        mean: Double,
+        variance: Double,
+    ): Double {
+        return mean + ThreadLocalRandom.current().nextDouble(-variance, variance)
+    }
+
+    /**
      * Returns a random element from the given array, where the probabilities of
      * each element being selected are equal.
      *
