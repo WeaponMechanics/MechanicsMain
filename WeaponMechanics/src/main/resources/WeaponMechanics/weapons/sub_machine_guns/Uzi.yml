@@ -49,16 +49,15 @@ Uzi:
         Sneaking: 50%
         In_Midair: 150%
     Recoil:
-      Push_Time: 200
-      Horizontal:
-        - 2.2
-        - 0
-      Vertical:
-        - 2.2
-      Modify_Recoil_When:
-        Zooming: 50%
-        Sneaking: 50%
-        In_Midair: 150%
+      Mean_X: 0.0
+      Mean_Y: 0.6
+      Variance_X: 0.4
+      Variance_Y: 0.2
+      Speed: 1.8
+      Damping: 0.05
+      Damping_Recovery: 0.1
+      Smoothing: 0.25
+      Max_Accumulation: 6.0
     Mechanics:
       - "CustomSound{sound=shoot.uzi.loud, volume=6, noise=0.1}"
   Reload:

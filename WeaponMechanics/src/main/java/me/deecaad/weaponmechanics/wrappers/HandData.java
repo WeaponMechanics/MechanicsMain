@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.wrappers;
 import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.shoot.FullAutoTask;
-import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadCancelEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadCompleteEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponStopShootingEvent;
@@ -32,7 +31,6 @@ public class HandData {
     private long lastScopeTime;
     private long lastEquipTime;
     private double spreadChange;
-    private RecoilTask recoilTask;
     private long lastMeleeTime;
     private long lastMeleeMissTime;
 
@@ -95,6 +93,7 @@ public class HandData {
         // event
         if (!firedWeaponStopShootEvent && lastWeaponShot != null && lastWeaponShotTitle != null) {
             firedWeaponStopShootEvent = true;
+
             Bukkit.getPluginManager().callEvent(new WeaponStopShootingEvent(lastWeaponShotTitle, lastWeaponShot, entityWrapper.getEntity(), mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND,
                 lastShotTime));
         }
@@ -194,14 +193,6 @@ public class HandData {
 
     public void setSpreadChange(double spreadChange) {
         this.spreadChange = spreadChange;
-    }
-
-    public RecoilTask getRecoilTask() {
-        return recoilTask;
-    }
-
-    public void setRecoilTask(RecoilTask recoilTask) {
-        this.recoilTask = recoilTask;
     }
 
     public long getLastMeleeTime() {

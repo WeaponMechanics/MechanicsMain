@@ -24,7 +24,7 @@ import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
-import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
+import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilProfile;
 import me.deecaad.weaponmechanics.weapon.shoot.spread.Spread;
 import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
@@ -525,7 +525,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed");
         int projectileAmount = config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot");
         Spread spread = config.getObject(weaponTitle + ".Shoot.Spread", Spread.class);
-        Recoil recoil = config.getObject(weaponTitle + ".Shoot.Recoil", Recoil.class);
+        RecoilProfile recoil = config.getObject(weaponTitle + ".Shoot.Recoil", RecoilProfile.class);
 
         PrepareWeaponShootEvent prepareEvent = new PrepareWeaponShootEvent(
             weaponTitle, weaponStack, entityWrapper.getEntity(), slot,
@@ -558,8 +558,8 @@ public class ShootHandler implements IValidator, TriggerListener {
         }
 
         // Only update recoil 1 time per shot
-        if (prepareEvent.getRecoil() != null && livingEntity instanceof Player) {
-            prepareEvent.getRecoil().start((Player) livingEntity, mainHand);
+        if (prepareEvent.getRecoil() != null && entityWrapper instanceof PlayerWrapper playerWrapper) {
+            playerWrapper.getRecoilController().onShotFired(prepareEvent.getRecoil(), weaponTitle, weaponStack, playerWrapper.getPlayer(), slot);
         }
 
         // Everything below is "projectile specific", so melee weapons don't need to do this

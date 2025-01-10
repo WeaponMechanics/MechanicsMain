@@ -3,8 +3,11 @@ package me.deecaad.weaponmechanics.wrappers;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilController;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Wraps a {@link Player} object to simplify per-player data/methods that are used by
@@ -19,6 +22,7 @@ public class PlayerWrapper extends EntityWrapper {
     private long lastWeaponDrop;
     private long lastInventoryDrop;
     private MessageHelper messageHelper;
+    private RecoilController recoilController;
     private long lastAmmoConvert;
     private StatsData statsData;
 
@@ -29,6 +33,10 @@ public class PlayerWrapper extends EntityWrapper {
         if (config.getBoolean("Database.Enable", true)) {
             statsData = new StatsData(player.getUniqueId());
         }
+
+        long millisecondsBetweenRecoil = WeaponMechanics.getBasicConfigurations().getInt("Recoil_Millis_Between_Rotations", 20);
+        this.recoilController = new RecoilController(player);
+        WeaponMechanics.getInstance().getFoliaScheduler().async().runAtFixedRate(recoilController, 0, millisecondsBetweenRecoil, TimeUnit.MILLISECONDS);
     }
 
     public Player getPlayer() {
@@ -75,6 +83,10 @@ public class PlayerWrapper extends EntityWrapper {
 
     public MessageHelper getMessageHelper() {
         return messageHelper == null ? messageHelper = new MessageHelper() : messageHelper;
+    }
+
+    public RecoilController getRecoilController() {
+        return recoilController;
     }
 
     public void convertedAmmo() {

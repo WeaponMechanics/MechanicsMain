@@ -58,7 +58,6 @@ import me.deecaad.weaponmechanics.weapon.projectile.HitBoxValidator;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectileSpawner;
 import me.deecaad.weaponmechanics.weapon.projectile.SpigotProjectileSpawner;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoRegistry;
-import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.weapon.stats.PlayerStat;
 import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -194,9 +193,6 @@ public class WeaponMechanics {
         } else {
             projectileSpawner = new SpigotProjectileSpawner(getPlugin());
         }
-
-        // Set millis between recoil rotations
-        Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 20);
 
         setupDatabase();
         registerPlaceholders();

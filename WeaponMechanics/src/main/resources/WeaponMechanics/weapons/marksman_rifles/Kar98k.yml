@@ -50,16 +50,15 @@ Kar98k:
         Sneaking: 50%
         In_Midair: 150%
     Recoil:
-      Push_Time: 200
-      Recover_Time: 200
-      Horizontal:
-        - 8.2
-      Vertical:
-        - 8.2
-      Modify_Recoil_When:
-        Zooming: 50%
-        Sneaking: 50%
-        In_Midair: 150%
+      Mean_X: 0.1
+      Mean_Y: 2.5
+      Variance_X: 0.2
+      Variance_Y: 0.3
+      Speed: 3.8
+      Damping: 0.15
+      Damping_Recovery: 0.25
+      Smoothing: 0.3
+      Max_Accumulation: 15.0
     Mechanics:
       - "CustomSound{sound=shoot.kar98k.loud, volume=6, noise=0.1}"
   Reload:

@@ -53,16 +53,15 @@ AK_47:
         Sneaking: 50%
         In_Midair: 150%
     Recoil:
-      Push_Time: 200
-      Horizontal:
-        - 3.2
-        - 0
-      Vertical:
-        - 3.2
-      Modify_Recoil_When:
-        Zooming: 50%
-        Sneaking: 50%
-        In_Midair: 150%
+      Mean_X: 0.3            # Slight horizontal pull
+      Mean_Y: 1.6            # Stronger vertical recoil
+      Variance_X: 0.3        # Some randomness left/right
+      Variance_Y: 0.3        # Some randomness up/down
+      Speed: 3.0             # Fairly snappy kick
+      Damping: 0.1           # Prevents infinite climb
+      Damping_Recovery: 0.15 # Steady recover toward center
+      Smoothing: 0.4         # Smooth out big jolts
+      Max_Accumulation: 15.0 # Caps max climb
     Mechanics:
       - "CustomSound{sound=shoot.ak47.loud, volume=6, noise=0.1}"
   Reload:

@@ -21,13 +21,19 @@ public class v1_21_R3 implements IWeaponCompatibility {
         Relative.X,
         Relative.Y,
         Relative.Z,
+        Relative.DELTA_X,
+        Relative.DELTA_Y,
+        Relative.DELTA_Z,
         Relative.X_ROT,
         Relative.Y_ROT));
 
     private final Set<Relative> ABSOLUTE_FLAGS = new HashSet<>(Arrays.asList(
         Relative.X,
         Relative.Y,
-        Relative.Z));
+        Relative.Z,
+        Relative.DELTA_X,
+        Relative.DELTA_Y,
+        Relative.DELTA_Z));
 
     public v1_21_R3() {
     }
