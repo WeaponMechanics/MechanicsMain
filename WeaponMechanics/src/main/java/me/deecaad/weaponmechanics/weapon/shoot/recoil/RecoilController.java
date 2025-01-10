@@ -35,12 +35,10 @@ public class RecoilController implements Consumer<TaskImplementation<Void>> {
     // Current "accumulated" recoil (the internal model)
     private float currentRecoilX = 0f;
     private float currentRecoilY = 0f;
-    private float currentRecoilFOV = 0f;
 
     // The "goal" recoil
     private float targetRecoilX = 0f;
     private float targetRecoilY = 0f;
-    private float targetRecoilFOV = 0f;
 
 
     public RecoilController(@NotNull Player player) {
@@ -57,7 +55,6 @@ public class RecoilController implements Consumer<TaskImplementation<Void>> {
         // random approach around (mean ± variance)
         float dx;
         float dy;
-        float dfov;
         float maxAccum;
 
         if (weaponTitle != null && weaponStack != null && shooter != null) {
@@ -74,7 +71,6 @@ public class RecoilController implements Consumer<TaskImplementation<Void>> {
 
             dx = RandomUtil.variance(event.getRecoilMeanX(), event.getRecoilVarianceX());
             dy = RandomUtil.variance(event.getRecoilMeanY(), event.getRecoilVarianceY());
-            dfov = 0.0f;
             maxAccum = event.getMaxRecoilAccum();
         } else {
             damping = recoil.getDamping();
@@ -84,13 +80,11 @@ public class RecoilController implements Consumer<TaskImplementation<Void>> {
 
             dx = RandomUtil.variance(recoil.getRecoilMeanX(), recoil.getRecoilVarianceX());
             dy = RandomUtil.variance(recoil.getRecoilMeanY(), recoil.getRecoilVarianceY());
-            dfov = 0.0f;
             maxAccum = recoil.getMaxRecoilAccum();
         }
 
         targetRecoilX += dx;
         targetRecoilY += dy;
-        targetRecoilFOV += dfov;
 
         float lengthXY = (float) Math.sqrt(targetRecoilX * targetRecoilX + targetRecoilY * targetRecoilY);
         if (lengthXY > maxAccum) {
@@ -110,29 +104,24 @@ public class RecoilController implements Consumer<TaskImplementation<Void>> {
         // Store the old recoil values
         float oldX = currentRecoilX;
         float oldY = currentRecoilY;
-        float oldFov = currentRecoilFOV;
 
         // DAMPING - reduce target recoil each tick
         targetRecoilX *= (1.0f - damping);
         targetRecoilY *= (1.0f - damping);
-        targetRecoilFOV *= (1.0f - damping);
 
         // SMOOTHING - interpolate current recoil to target recoil
         currentRecoilX = lerp(currentRecoilX, targetRecoilX, smoothingFactor);
         currentRecoilY = lerp(currentRecoilY, targetRecoilY, smoothingFactor);
-        currentRecoilFOV = lerp(currentRecoilFOV, targetRecoilFOV, smoothingFactor);
 
         // RECOVERY - pull the recoil back towards zero
         if (!approximately(dampingRecovery, 0f)) {
             currentRecoilX = moveTowards(currentRecoilX, 0f, dampingRecovery);
             currentRecoilY = moveTowards(currentRecoilY, 0f, dampingRecovery);
-            currentRecoilFOV = moveTowards(currentRecoilFOV, 0f, dampingRecovery);
         }
 
         // Use the difference between old and new for the final camera delta
         float deltaYaw = (currentRecoilX - oldX) * recoilSpeed;
         float deltaPitch = (currentRecoilY - oldY) * recoilSpeed;
-        float deltaFov = (currentRecoilFOV - oldFov) * recoilSpeed;
 
         // If we actually have a non-trivial delta, apply it
         if (!approximately(deltaYaw, 0f, 0.01f) || !approximately(deltaPitch, 0f, 0.01f)) {
