@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 public class PMaxDurability extends NumericPlaceholderHandler {
 
     public PMaxDurability() {
-        super("durability");
+        super("max_durability");
     }
 
     @Override
