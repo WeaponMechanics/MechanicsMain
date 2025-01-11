@@ -15,6 +15,7 @@ import me.deecaad.core.utils.StringUtil.split
 import org.bukkit.Bukkit
 import org.bukkit.Keyed
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.Particle
 import org.bukkit.Registry
 import org.bukkit.entity.EntityType
@@ -876,6 +877,30 @@ class SerializeData {
                 ).first()
 
             return Optional.of(firstItemFound)
+        }
+
+        /**
+         * Parses a namespaced key from the config. The format should be `namespace:key`.
+         */
+        fun getNamespacedKey(): Optional<NamespacedKey> {
+            val input =
+                if (usingStep) pathToConfig!!.getString(getPath(relative)!!) else config.getString(getPath(relative))
+
+            // Use assertExists for required keys
+            if (input.isNullOrBlank()) {
+                return Optional.empty()
+            }
+
+            val split = input.split(":".toRegex()).toTypedArray()
+            if (split.size != 2) {
+                throw builder()
+                    .locationRaw(location)
+                    .addMessage("Expected a namespaced key in the format 'namespace:key'")
+                    .example("minecraft:stone")
+                    .buildInvalidType("namespaced key", input)
+            }
+
+            return Optional.of(NamespacedKey(split[0], split[1]))
         }
 
         /**

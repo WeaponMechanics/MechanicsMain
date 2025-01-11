@@ -26,6 +26,7 @@ import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
 import org.bukkit.Tag;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -34,6 +35,8 @@ import org.bukkit.block.data.Levelled;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -46,6 +49,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.components.EquippableComponent;
+import org.bukkit.inventory.meta.components.FoodComponent;
 import org.bukkit.inventory.meta.components.ToolComponent;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
@@ -212,6 +217,16 @@ public class ItemSerializer implements Serializer<ItemStack> {
             }
         }
 
+        if (data.has("Durability")) {
+            if (!(itemMeta instanceof org.bukkit.inventory.meta.Damageable damageable)) {
+                throw data.exception("Durability", "Tried to set durability on a non-damageable item!",
+                    "Your item: " + itemStack);
+            }
+
+            damageable.setMaxDamage(data.of("Durability.Max_Damage").assertExists().assertRange(0, null).getInt().getAsInt());
+            damageable.setDamage(data.of("Durability.Damage").assertRange(0, null).getInt().orElse(0));
+        }
+
         if (data.has("Tool")) {
             ToolComponent tool = itemMeta.getTool();
             tool.setDefaultMiningSpeed((float) data.of("Tool.Default_Mining_Speed").getDouble().orElse(1.0));
@@ -233,7 +248,40 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 tool.addRule(mappedBlocks, (float) speed, isDrop);
             }
 
+            itemMeta.setTool(tool);
+        }
 
+        if (data.has("Food")) {
+            FoodComponent food = itemMeta.getFood();
+            food.setNutrition(data.of("Food.Nutrition").assertExists().assertRange(0, null).getInt().getAsInt());
+            food.setSaturation((float) data.of("Food.Saturation").assertRange(0, null).getDouble().orElse(0.0));
+            food.setCanAlwaysEat(data.of("Food.Can_Always_Eat").getBool().orElse(false));
+
+            itemMeta.setFood(food);
+        }
+
+        if (data.has("Equippable")) {
+            EquippableComponent armor = itemMeta.getEquippable();
+            armor.setSlot(data.of("Equippable.Slot").assertExists().getEnum(EquipmentSlot.class).get());
+            armor.setEquipSound(data.of("Equippable.Equip_Sound").getBukkitRegistry(Sound.class).orElse(null));
+            armor.setModel(data.of("Equippable.Model").getNamespacedKey().orElse(null));
+            armor.setCameraOverlay(data.of("Equippable.Camera_Overlay").getNamespacedKey().orElse(null));
+            armor.setDispensable(data.of("Equippable.Dispensable").getBool().orElse(true));
+            armor.setSwappable(data.of("Equippable.Swappable").getBool().orElse(true));
+            armor.setDamageOnHurt(data.of("Equippable.Damage_On_Hurt").getBool().orElse(true));
+
+            List<EntityType> entityData = data.ofList("Equippable.Entities")
+                .addArgument(new RegistryValueSerializer<>(EntityType.class, true))
+                .requireAllPreviousArgs()
+                .assertList()
+                .stream()
+                .map(split -> (List<EntityType>) split.get(0).get())
+                .flatMap(List::stream)
+                .toList();
+
+            armor.setAllowedEntities(entityData.isEmpty() ? null : entityData);
+
+            itemMeta.setEquippable(armor);
         }
 
         itemStack.setItemMeta(itemMeta);
