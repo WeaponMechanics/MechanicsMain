@@ -19,6 +19,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -217,6 +218,21 @@ public class InfoHandler implements IValidator {
             CustomTag.AMMO_LEFT.setInteger(weaponStack, ammo);
         if (firemode != -1)
             CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, firemode);
+
+        if (durability != -1 || maxDurability != -1) {
+            Damageable damageable = (Damageable) weaponStack.getItemMeta();
+            if (maxDurability == -1) {
+                maxDurability = damageable.getMaxDamage();
+            } else {
+                damageable.setMaxDamage(maxDurability);
+            }
+
+            if (durability != -1) {
+                damageable.setDamage(maxDurability - durability);
+            }
+
+            weaponStack.setItemMeta((damageable));
+        }
 
         // Let other plugins modify generated weapons (for example, to add attachments)
         Bukkit.getPluginManager().callEvent(new WeaponGenerateEvent(weaponTitle, weaponStack, entity, data));
