@@ -3,18 +3,18 @@ package me.deecaad.weaponmechanics.weapon.skin;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import org.bukkit.Material;
-import org.bukkit.Registry;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.OptionalInt;
 
 public class BaseSkin implements Skin, Serializer<BaseSkin> {
 
-    private Optional<Material> type;
+    private Optional<ItemType> type;
     private OptionalInt customModelData;
 
     /**
@@ -29,7 +29,7 @@ public class BaseSkin implements Skin, Serializer<BaseSkin> {
     }
 
     public BaseSkin(
-        @NotNull Optional<Material> type,
+        @NotNull Optional<ItemType> type,
         @NotNull OptionalInt customModelData) {
         this.type = type;
         this.customModelData = customModelData;
@@ -39,7 +39,7 @@ public class BaseSkin implements Skin, Serializer<BaseSkin> {
         return type.isPresent();
     }
 
-    public Material getType() {
+    public @Nullable ItemType getType() {
         return type.orElse(null);
     }
 
@@ -57,8 +57,8 @@ public class BaseSkin implements Skin, Serializer<BaseSkin> {
      * @param weapon the item stack for which to apply skin
      */
     public void apply(@NotNull ItemStack weapon) {
-        if (type.isPresent() && weapon.getType() != type.get())
-            weapon.setType(type.get());
+        if (type.isPresent() && weapon.getType().asItemType() != type.get())
+            weapon.setType(type.get().asMaterial());
 
         boolean hasMetaChanges = false;
         ItemMeta meta = weapon.getItemMeta();
@@ -79,7 +79,7 @@ public class BaseSkin implements Skin, Serializer<BaseSkin> {
 
     @Override
     public @NotNull BaseSkin serialize(@NotNull SerializeData data) throws SerializerException {
-        Optional<Material> type = data.of("Type").getBukkitRegistry(Registry.MATERIAL);
+        Optional<ItemType> type = data.of("Type").getBukkitRegistry(ItemType.class);
         OptionalInt customModelData = data.of("Custom_Model_Data").getInt();
 
         // Should use at least 1

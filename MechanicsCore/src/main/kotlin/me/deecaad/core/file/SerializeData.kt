@@ -12,6 +12,7 @@ import me.deecaad.core.file.simple.RegistryValueSerializer
 import me.deecaad.core.utils.SerializerUtil.foundAt
 import me.deecaad.core.utils.StringUtil.colorAdventure
 import me.deecaad.core.utils.StringUtil.split
+import org.bukkit.Bukkit
 import org.bukkit.Keyed
 import org.bukkit.Material
 import org.bukkit.Particle
@@ -854,7 +855,12 @@ class SerializeData {
          * for more information.
          */
         @Throws(SerializerException::class)
-        fun <T : Keyed> getBukkitRegistry(registry: Registry<T>): Optional<T> {
+        @JvmOverloads
+        fun <T : Keyed> getBukkitRegistry(
+            clazz: Class<T>,
+            registry: Registry<T> = Bukkit.getRegistry(clazz)
+                ?: throw IllegalArgumentException("Registry for ${clazz.simpleName} does not exist."),
+        ): Optional<T> {
             val input =
                 if (usingStep) pathToConfig!!.getString(getPath(relative)!!) else config.getString(getPath(relative))
 
@@ -864,7 +870,7 @@ class SerializeData {
             }
 
             val firstItemFound =
-                RegistryValueSerializer(registry, false).deserialize(
+                RegistryValueSerializer(clazz, false, registry).deserialize(
                     input.trim().lowercase(),
                     location,
                 ).first()

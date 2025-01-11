@@ -48,6 +48,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
@@ -600,12 +602,10 @@ public class ShootHandler implements IValidator, TriggerListener {
         }
 
         // Apply custom durability
-        CustomDurability durability = config.getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
-        if (durability != null) {
-            boolean broke = durability.use(livingEntity, weaponStack, weaponTitle);
-
-            if (broke)
-                entityWrapper.getHandData(mainHand).cancelTasks();
+        ItemMeta meta = weaponStack.getItemMeta();
+        if (meta instanceof Damageable damageable && damageable.hasMaxDamage()) {
+            damageable.setDamage(damageable.getDamage() + 1);
+            weaponStack.setItemMeta(meta);
         }
 
         boolean unscopeAfterShot = config.getBoolean(weaponTitle + ".Scope.Unscope_After_Shot");
@@ -782,9 +782,12 @@ public class ShootHandler implements IValidator, TriggerListener {
             }
         }
 
-        CustomDurability durability = data.of("Custom_Durability").serialize(CustomDurability.class).orElse(null);
-        if (durability != null)
-            configuration.set(data.getKey() + ".Custom_Durability", durability);
+        if (data.has("Custom_Durability")) {
+            throw SerializerException.builder()
+                .addMessage("since 4.0.0, Custom_Durability is no longer supported. Check the ItemSerializer wiki for new information.")
+                .addMessage("New system: https://cjcrafter.gitbook.io/core/item-serializer")
+                .build();
+        }
 
         configuration.set(data.getKey() + ".Reset_Fall_Distance", data.of("Reset_Fall_Distance").getBool().orElse(false));
     }

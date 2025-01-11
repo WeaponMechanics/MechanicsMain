@@ -6,7 +6,6 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.simple.DoubleSerializer;
 import me.deecaad.core.file.simple.RegistryValueSerializer;
 import org.bukkit.Keyed;
-import org.bukkit.Registry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +16,7 @@ import java.util.Optional;
 
 public class ListHolder<T extends Keyed> implements Serializer<ListHolder<T>> {
 
-    private Registry<T> registry;
+    private Class<T> clazz;
 
     private boolean allowAny;
     private boolean whitelist;
@@ -31,8 +30,8 @@ public class ListHolder<T extends Keyed> implements Serializer<ListHolder<T>> {
         this.list = list;
     }
 
-    public ListHolder(Registry<T> registry) {
-        this.registry = registry;
+    public ListHolder(Class<T> clazz) {
+        this.clazz = clazz;
     }
 
     /**
@@ -78,7 +77,7 @@ public class ListHolder<T extends Keyed> implements Serializer<ListHolder<T>> {
 
         Map<T, Double> mapList = new HashMap<>();
         List<List<Optional<Object>>> list = data.ofList("List")
-            .addArgument(new RegistryValueSerializer<>(registry, true))
+            .addArgument(new RegistryValueSerializer<>(clazz, true))
             .requireAllPreviousArgs()
             .addArgument(new DoubleSerializer())
             .assertList();

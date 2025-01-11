@@ -13,7 +13,6 @@ import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Registry;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockType;
 import org.bukkit.block.Chest;
@@ -327,11 +326,11 @@ public class BlockDamage implements Serializer<BlockDamage> {
 
         Map<BlockType, DamageConfig> blocks = new HashMap<>();
         List<List<Optional<Object>>> list = data.ofList("Blocks")
-            .addArgument(new RegistryValueSerializer<>(Registry.BLOCK, true))
+            .addArgument(new RegistryValueSerializer<>(BlockType.class, true))
             .addArgument(new EnumValueSerializer<>(BreakMode.class, false))
             .requireAllPreviousArgs()
             .addArgument(new IntSerializer(1))
-            .addArgument(new RegistryValueSerializer<>(Registry.BLOCK, false))
+            .addArgument(new RegistryValueSerializer<>(BlockType.class, false))
             .assertExists().assertList();
 
         for (int i = 0; i < list.size(); i++) {

@@ -4,7 +4,6 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.simple.RegistryValueSerializer;
 import me.deecaad.core.mechanics.CastData;
-import org.bukkit.Registry;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
@@ -48,7 +47,7 @@ public class PotionMechanic extends Mechanic {
 
     @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
-        RegistryValueSerializer<PotionEffectType> potionSerializer = new RegistryValueSerializer<>(Registry.EFFECT, true);
+        RegistryValueSerializer<PotionEffectType> potionSerializer = new RegistryValueSerializer<>(PotionEffectType.class, true);
         PotionEffectType potion = data.of("Potion").assertExists().serialize(potionSerializer).get().getFirst();
         int time = data.of("Time").assertRange(0, null).getInt().orElse(100);
         int amplifier = data.of("Level").assertRange(0, null).getInt().orElse(1) - 1;

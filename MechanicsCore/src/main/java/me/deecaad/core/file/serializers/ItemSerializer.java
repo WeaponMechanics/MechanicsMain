@@ -26,10 +26,10 @@ import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
 import org.bukkit.Tag;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.block.BlockType;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.damage.DamageType;
@@ -46,6 +46,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.components.ToolComponent;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
@@ -53,6 +54,7 @@ import org.bukkit.tag.DamageTypeTags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -174,31 +176,13 @@ public class ItemSerializer implements Serializer<ItemStack> {
         itemMeta.setUnbreakable(unbreakable);
 
         OptionalInt customModelData = data.of("Custom_Model_Data").getInt();
-        if (customModelData.isPresent()) {
-            itemMeta.setCustomModelData(customModelData.getAsInt());
-        }
+        customModelData.ifPresent(itemMeta::setCustomModelData);
 
         OptionalInt maxStackSize = data.of("Max_Stack_Size").assertRange(1, 99).getInt();
-        if (maxStackSize.isPresent()) {
-            if (!MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
-                throw data.exception("Max_Stack_Size", "Tried to use max stack size before MC 1.20.5!",
-                    "The max stack size was added in Minecraft version 1.20.5!",
-                    "Your version: " + MinecraftVersions.getCurrent());
-            }
-
-            itemMeta.setMaxStackSize(maxStackSize.getAsInt());
-        }
+        maxStackSize.ifPresent(itemMeta::setMaxStackSize);
 
         Optional<Boolean> enchantmentGlintOverride = data.of("Enchantment_Glint_Override").getBool();
-        if (enchantmentGlintOverride.isPresent()) {
-            if (!MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
-                throw data.exception("Enchantment_Glint_Override", "Tried to use enchantment glint override before MC 1.20.5!",
-                    "The enchantment glint override component was added in Minecraft version 1.20.5!",
-                    "Your version: " + MinecraftVersions.getCurrent());
-            }
-
-            itemMeta.setEnchantmentGlintOverride(enchantmentGlintOverride.get());
-        }
+        enchantmentGlintOverride.ifPresent(itemMeta::setEnchantmentGlintOverride);
 
         Optional<String> damageResistantInput = data.of("Damage_Resistant").get(String.class);
         if (damageResistantInput.isPresent()) {
@@ -214,7 +198,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         }
 
         List<List<Optional<Object>>> enchantments = data.ofList("Enchantments")
-            .addArgument(new RegistryValueSerializer<>(Registry.ENCHANTMENT, true))
+            .addArgument(new RegistryValueSerializer<>(Enchantment.class, true))
             .requireAllPreviousArgs()
             .addArgument(new IntSerializer(1))
             .assertList();
@@ -226,6 +210,30 @@ public class ItemSerializer implements Serializer<ItemStack> {
             for (Enchantment enchantment : enchants) {
                 itemMeta.addEnchant(enchantment, enchantmentLevel - 1, true);
             }
+        }
+
+        if (data.has("Tool")) {
+            ToolComponent tool = itemMeta.getTool();
+            tool.setDefaultMiningSpeed((float) data.of("Tool.Default_Mining_Speed").getDouble().orElse(1.0));
+            tool.setDamagePerBlock(data.of("Tool.Damage_Per_Block").getInt().orElse(1));
+
+            List<List<Optional<Object>>> rulesData = data.ofList("Tool.Rules")
+                .addArgument(new RegistryValueSerializer<>(BlockType.class, true))
+                .addArgument(new DoubleSerializer())
+                .requireAllPreviousArgs()
+                .addArgument(new BooleanSerializer())
+                .assertList();
+
+            for (List<Optional<Object>> split : rulesData) {
+                List<BlockType> blocks = (List<BlockType>) split.get(0).get();
+                double speed = (double) split.get(1).get();
+                boolean isDrop = (boolean) split.get(2).orElse(true);
+
+                Collection<Material> mappedBlocks = blocks.stream().map(BlockType::asMaterial).toList();
+                tool.addRule(mappedBlocks, (float) speed, isDrop);
+            }
+
+
         }
 
         itemStack.setItemMeta(itemMeta);
@@ -254,7 +262,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         slotGroupsByName.put("armor", EquipmentSlotGroup.ARMOR);
 
         List<List<Optional<Object>>> attributesData = data.ofList("Attributes")
-            .addArgument(new RegistryValueSerializer<>(Registry.ATTRIBUTE, true))
+            .addArgument(new RegistryValueSerializer<>(Attribute.class, true))
             .addArgument(new DoubleSerializer())
             .requireAllPreviousArgs()
             .addArgument(new ByNameSerializer<>(EquipmentSlotGroup.class, slotGroupsByName))
@@ -355,8 +363,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
                     "The trim pattern was added in Minecraft version 1.20!");
             }
 
-            TrimPattern pattern = data.of("Trim_Pattern").assertExists().getBukkitRegistry(Registry.TRIM_PATTERN).get();
-            TrimMaterial material = data.of("Trim_Material").assertExists().getBukkitRegistry(Registry.TRIM_MATERIAL).get();
+            TrimPattern pattern = data.of("Trim_Pattern").assertExists().getBukkitRegistry(TrimPattern.class).get();
+            TrimMaterial material = data.of("Trim_Material").assertExists().getBukkitRegistry(TrimMaterial.class).get();
             armor.setTrim(new ArmorTrim(material, pattern));
             itemStack.setItemMeta(armor);
         }

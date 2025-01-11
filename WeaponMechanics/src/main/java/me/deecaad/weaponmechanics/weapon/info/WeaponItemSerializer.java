@@ -9,9 +9,12 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.ToolComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -87,6 +90,16 @@ public class WeaponItemSerializer extends ItemSerializer {
                     .location(data.getFile(), weaponTitle + ".Shoot.Selective_Fire.Default", null)
                     .buildInvalidEnumOption(defaultSelectiveFire, SelectiveFireState.class);
             }
+        }
+
+        // Weapons should, unless already customized, have a tool component to
+        // not break any blocks. This let's durability bars work as well.
+        ItemMeta meta = Objects.requireNonNull(weaponStack.getItemMeta());
+        if (!meta.hasTool()) {
+            ToolComponent tool = meta.getTool();
+            tool.setDamagePerBlock(0);
+            tool.setDefaultMiningSpeed(0f);
+            meta.setTool(tool);
         }
 
         CustomTag.WEAPON_TITLE.setString(weaponStack, weaponTitle);

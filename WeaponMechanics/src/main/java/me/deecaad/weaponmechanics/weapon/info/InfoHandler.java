@@ -8,10 +8,8 @@ import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.AdventureUtil;
 import me.deecaad.core.utils.StringUtil;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
-import me.deecaad.weaponmechanics.weapon.shoot.CustomDurability;
 import me.deecaad.weaponmechanics.weapon.skin.SkinSelector;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponGenerateEvent;
@@ -22,9 +20,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-
 import org.jetbrains.annotations.Nullable;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
@@ -213,13 +217,6 @@ public class InfoHandler implements IValidator {
             CustomTag.AMMO_LEFT.setInteger(weaponStack, ammo);
         if (firemode != -1)
             CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, firemode);
-
-        // Custom Durability Arguments
-        CustomDurability customDurability = WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
-        if (customDurability != null) {
-            CustomTag.DURABILITY.setInteger(weaponStack, durability == -1 ? customDurability.getMaxDurability() : durability);
-            CustomTag.MAX_DURABILITY.setInteger(weaponStack, maxDurability == -1 ? customDurability.getMaxDurability() : maxDurability);
-        }
 
         // Let other plugins modify generated weapons (for example, to add attachments)
         Bukkit.getPluginManager().callEvent(new WeaponGenerateEvent(weaponTitle, weaponStack, entity, data));

@@ -48,12 +48,9 @@ import me.deecaad.core.utils.NumberUtil.toTime
 import me.deecaad.core.utils.Quaternion
 import me.deecaad.core.utils.RandomUtil.element
 import me.deecaad.core.utils.StringUtil.colorBukkit
-import me.deecaad.core.utils.StringUtil.didYouMean
 import me.deecaad.core.utils.TableBuilder
 import me.deecaad.core.utils.Transform
 import me.deecaad.core.utils.ray.RayTrace
-import me.deecaad.weaponmechanics.listeners.RepairItemListener
-import me.deecaad.weaponmechanics.utils.CustomTag
 import me.deecaad.weaponmechanics.weapon.explode.BlockDamage
 import me.deecaad.weaponmechanics.weapon.explode.Explosion
 import me.deecaad.weaponmechanics.weapon.explode.Flashbang
@@ -67,7 +64,6 @@ import me.deecaad.weaponmechanics.weapon.explode.shapes.SphereExplosion
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ProjectileSettings
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoConfig
-import me.deecaad.weaponmechanics.weapon.shoot.CustomDurability
 import me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilProfile
 import net.kyori.adventure.text.Component
@@ -93,9 +89,7 @@ import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
-import org.bukkit.inventory.InventoryHolder
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.PlayerInventory
 import org.bukkit.inventory.meta.FireworkMeta
 import org.bukkit.util.Vector
 import java.util.Random
@@ -111,40 +105,6 @@ object WeaponMechanicsCommand {
 
     @JvmStatic
     fun registerCommands() {
-        commandAPICommand("gundurability") {
-            withAliases("weapondurability")
-            withPermission("weaponmechanics.commands.gundurability")
-            withShortDescription("Check the durability of your held weapon")
-
-            playerExecutor { player, args ->
-                val item = player.inventory.itemInMainHand
-                val weaponTitle =
-                    item.takeIf { it.hasItemMeta() }
-                        ?.let { CustomTag.WEAPON_TITLE.getString(it) }
-
-                if (weaponTitle == null) {
-                    player.sendMessage(org.bukkit.ChatColor.RED.toString() + "Held item is not a weapon!")
-                    return@playerExecutor
-                }
-
-                val durability =
-                    WeaponMechanics.getConfigurations()
-                        .getObject(
-                            "$weaponTitle.Shoot.Custom_Durability",
-                            me.deecaad.weaponmechanics.weapon.shoot.CustomDurability::class.java,
-                        )
-
-                if (durability == null) {
-                    player.sendMessage(org.bukkit.ChatColor.RED.toString() + "$weaponTitle does not use durability")
-                    return@playerExecutor
-                }
-
-                val current = CustomTag.DURABILITY.getInteger(item)
-                val max = durability.getMaxDurability(item)
-                player.sendMessage(org.bukkit.ChatColor.GREEN.toString() + "$weaponTitle has $current/$max durability remaining.")
-            }
-        }
-
         val weaponDataMapArgument =
             CustomMapArgument(
                 "data",
@@ -297,42 +257,6 @@ object WeaponMechanicsCommand {
                     WeaponMechanicsAPI.getInstance().onReload().thenAccept {
                         sender.sendMessage("${org.bukkit.ChatColor.GREEN}Reloaded configuration")
                     }
-                }
-            }
-
-            subcommand("repair") {
-                withPermission("weaponmechanics.commands.repair")
-                withShortDescription("Repairs weapons in a target's inventory")
-
-                entitySelectorArgumentManyPlayers("target", optional = true)
-                val enumArray = EnumUtil.getOptions(RepairMode::class.java).toTypedArray()
-                multiLiteralArgument(nodeName = "mode", literals = enumArray, optional = true)
-                booleanArgument("repair-max", optional = true)
-
-                anyExecutor { sender, args ->
-                    val t = args["target"] as? List<Entity>?
-                    val mode = args["mode"] as? RepairMode ?: RepairMode.HAND
-                    val fully = args["repair-max"] as? Boolean ?: false
-
-                    repair(sender, t, mode, fully)
-                }
-            }
-
-            subcommand("repairkit") {
-                withPermission("weaponmechanics.commands.repairkit")
-                withShortDescription("Gets the specified repair kit")
-
-                stringArgument("repair-kit") {
-                    replaceSuggestions(
-                        ArgumentSuggestions.strings {
-                            RepairItemListener.getInstance().repairKits.keys.toTypedArray()
-                        },
-                    )
-                }
-
-                playerExecutor { player, args ->
-                    val kit = args["repair-kit"] as String
-                    giveRepairKit(player, player, kit)
                 }
             }
 
@@ -850,88 +774,6 @@ object WeaponMechanicsCommand {
     enum class RepairMode {
         HAND,
         INVENTORY,
-    }
-
-    fun repair(
-        sender: CommandSender,
-        targets: List<Entity>?,
-        mode: RepairMode,
-        repairFully: Boolean,
-    ) {
-        val config = WeaponMechanics.getConfigurations()
-        var targets = targets
-        if (targets == null) {
-            if (sender is Entity) {
-                targets = listOf(sender)
-            } else {
-                sender.sendMessage(ChatColor.RED.toString() + "You must specify a target")
-                return
-            }
-        }
-
-        var repairedWeapons = 0
-        var repairedEntities = 0
-
-        for (entity in targets) {
-            // Repair anything with an inventory (usually players)
-
-            if (entity is InventoryHolder) {
-                val inventory = entity.inventory
-                var repairedOne = false
-
-                val mainHand = if (inventory is PlayerInventory) inventory.itemInMainHand else null
-                val items = if (mode == RepairMode.INVENTORY) inventory.contents else arrayOf(mainHand)
-                for (item in items) {
-                    if (item == null || !item.hasItemMeta()) continue
-
-                    val title = WeaponMechanicsAPI.getWeaponTitle(item)
-                    val customDurability =
-                        config.getObject("$title.Shoot.Custom_Durability", CustomDurability::class.java)
-                            ?: continue
-
-                    if (!customDurability.repair(item, repairFully)) continue
-
-                    repairedWeapons++
-                    if (!repairedOne) {
-                        repairedEntities++
-                        repairedOne = true
-                    }
-                }
-            } else if (entity is LivingEntity) {
-                val equipment = entity.equipment
-                val item = equipment?.itemInMainHand ?: continue
-                val meta = item.itemMeta ?: continue
-                val weaponTitle = WeaponMechanicsAPI.getWeaponTitle(item) ?: continue
-
-                val customDurability =
-                    config.getObject("$weaponTitle.Shoot.Custom_Durability", CustomDurability::class.java)
-                        ?: continue
-
-                if (!customDurability.repair(item, repairFully)) continue
-
-                repairedWeapons++
-                repairedEntities++
-            }
-        }
-
-        sender.sendMessage(
-            ChatColor.GREEN.toString() + "Repaired " + repairedWeapons + " weapons in " + repairedEntities + " different inventories.",
-        )
-    }
-
-    fun giveRepairKit(
-        sender: CommandSender,
-        receiver: Player,
-        repairKit: String,
-    ) {
-        var repairKit = repairKit
-        val options = RepairItemListener.getInstance().repairKits
-        repairKit = didYouMean(repairKit, options.keys)
-
-        val item = options[repairKit]!!.item.clone()
-        receiver.inventory.addItem(item)
-
-        sender.sendMessage(ChatColor.GREEN.toString() + "Gave 1 " + repairKit)
     }
 
     fun info(sender: CommandSender) {

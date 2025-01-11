@@ -5,7 +5,6 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.simple.RegistryValueSerializer;
 import me.deecaad.core.mechanics.CastData;
-import org.bukkit.Registry;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockType;
 import org.jetbrains.annotations.NotNull;
@@ -55,7 +54,7 @@ public class OnGroundCondition extends Condition {
 
         for (MapConfigLike.Holder holder : materials) {
             String block = holder.value().toString();
-            RegistryValueSerializer<BlockType> serializer = new RegistryValueSerializer<>(Registry.BLOCK, true);
+            RegistryValueSerializer<BlockType> serializer = new RegistryValueSerializer<>(BlockType.class, true);
             List<BlockType> localBlocks = serializer.deserialize(block, data.of().getLocation());
 
             blocks.addAll(localBlocks);

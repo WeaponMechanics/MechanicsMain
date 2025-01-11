@@ -38,7 +38,6 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.lib.MythicMobsLoader;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
-import me.deecaad.weaponmechanics.listeners.RepairItemListener;
 import me.deecaad.weaponmechanics.listeners.ResourcePackListener;
 import me.deecaad.weaponmechanics.listeners.WeaponListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListeners;
@@ -395,7 +394,6 @@ public class WeaponMechanics {
 
         // Other
         Bukkit.getPluginManager().registerEvents(resourcePackListener, getPlugin());
-        Bukkit.getPluginManager().registerEvents(RepairItemListener.getInstance(), getPlugin());
         if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
 
             // We need to make sure we are running MM v5

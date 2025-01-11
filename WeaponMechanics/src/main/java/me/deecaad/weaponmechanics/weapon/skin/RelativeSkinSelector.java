@@ -104,8 +104,8 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
             }
         }
 
-        if (base.hasType() && weapon.getType() != base.getType())
-            weapon.setType(base.getType());
+        if (base.hasType() && weapon.getType().asItemType() != base.getType())
+            weapon.setType(base.getType().asMaterial());
 
         meta = weapon.getItemMeta();
         if (meta == null) {

@@ -6,7 +6,6 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.ray.BlockTraceResult;
 import me.deecaad.core.utils.ray.EntityTraceResult;
 import me.deecaad.core.utils.ray.RayTraceResult;
-import org.bukkit.Registry;
 import org.bukkit.block.BlockType;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
@@ -78,8 +77,8 @@ public class Through implements Serializer<Through>, Cloneable {
 
     @Override
     @NotNull public Through serialize(@NotNull SerializeData data) throws SerializerException {
-        ListHolder<BlockType> blocks = data.of("Blocks").serialize(new ListHolder<>(Registry.BLOCK)).orElse(null);
-        ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(Registry.ENTITY_TYPE)).orElse(null);
+        ListHolder<BlockType> blocks = data.of("Blocks").serialize(new ListHolder<>(BlockType.class)).orElse(null);
+        ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class)).orElse(null);
 
         if (blocks == null && entities == null) {
             throw data.exception(null, "'Through' requires at least one of 'Blocks' or 'Entities'");
