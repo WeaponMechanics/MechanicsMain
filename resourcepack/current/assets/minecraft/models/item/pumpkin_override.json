@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/orientable",
-  "textures": {
-    "front": "minecraft:misc/pumpkin_override_scope",
-    "side": "minecraft:misc/pumpkin_override_empty",
-    "top": "minecraft:misc/pumpkin_override_empty"
-  }
-}
