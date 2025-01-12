@@ -216,7 +216,12 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 throw data.exception("Max_Stack_Size", "Tried to use 'Durability' feature when the 'Max_Stack_Size' was > 1!",
                     "The 'Durability' feature only works on items with a 'Max_Stack_Size' of 1!");
             }
+            if (data.has("Unbreakable")) {
+                throw data.exception("Unbreakable", "Tried to use 'Durability' feature when the item was unbreakable!",
+                    "The 'Durability' feature only works on breakable items!");
+            }
 
+            damageable.setMaxStackSize(1);
             damageable.setMaxDamage(data.of("Durability.Max_Damage").assertExists().assertRange(0, null).getInt().getAsInt());
             damageable.setDamage(data.of("Durability.Damage").assertRange(0, null).getInt().orElse(0));
         }
