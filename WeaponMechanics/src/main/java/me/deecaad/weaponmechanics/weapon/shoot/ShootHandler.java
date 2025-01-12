@@ -601,13 +601,6 @@ public class ShootHandler implements IValidator, TriggerListener {
             prepareEvent.getProjectile().shoot(bullet, perProjectileShootLocation);
         }
 
-        // Apply custom durability
-        ItemMeta meta = weaponStack.getItemMeta();
-        if (meta instanceof Damageable damageable && damageable.hasMaxDamage()) {
-            damageable.setDamage(damageable.getDamage() + 1);
-            weaponStack.setItemMeta(meta);
-        }
-
         boolean unscopeAfterShot = config.getBoolean(weaponTitle + ".Scope.Unscope_After_Shot");
         WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot, unscopeAfterShot);
         Bukkit.getPluginManager().callEvent(event);
@@ -623,6 +616,23 @@ public class ShootHandler implements IValidator, TriggerListener {
         HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
         handData.setLastShotTime(System.currentTimeMillis());
         handData.setLastWeaponShot(weaponTitle, weaponStack);
+
+        // Apply custom durability
+        ItemMeta meta = weaponStack.getItemMeta();
+        if (meta instanceof Damageable damageable && damageable.hasMaxDamage()) {
+            damageable.setDamage(damageable.getDamage() + 1);
+
+            // When the weapon is broken... break it
+            if (damageable.getDamage() >= damageable.getMaxDamage()) {
+                Mechanics breakMechanics = config.getObject(weaponTitle + ".Info.Weapon_Break_Mechanics", Mechanics.class);
+                if (breakMechanics != null)
+                    breakMechanics.use(new CastData(livingEntity, weaponTitle, weaponStack));
+
+                weaponStack.setAmount(weaponStack.getAmount() - 1);
+            }
+
+            weaponStack.setItemMeta(meta);
+        }
     }
 
     /**

@@ -317,18 +317,6 @@ public class InfoHandler implements IValidator {
         return false;
     }
 
-    private static int[] mapToCharTable(String str) {
-        int[] table = new int["abcdefghijklmnopqrstuvwxyz".length()];
-        for (int i = 0; i < str.length(); i++) {
-            try {
-                table[Character.toLowerCase(str.charAt(i)) - 97]++;
-            } catch (ArrayIndexOutOfBoundsException ignore) {
-                // Sometimes a string will contain something like an underscore.
-            }
-        }
-        return table;
-    }
-
     @Override
     public String getKeyword() {
         return "Info";
@@ -344,6 +332,12 @@ public class InfoHandler implements IValidator {
         if (weaponEquipDelay != 0) {
             // Convert to millis
             configuration.set(data.getKey() + ".Weapon_Equip_Delay", weaponEquipDelay * 50);
+        }
+
+        // Break mechanics
+        Mechanics mechanics = data.of("Weapon_Break_Mechanics").serialize(Mechanics.class).orElse(null);
+        if (mechanics != null) {
+            configuration.set(data.getKey() + ".Weapon_Break_Mechanics", mechanics);
         }
     }
 }

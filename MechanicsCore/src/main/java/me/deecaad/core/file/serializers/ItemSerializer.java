@@ -167,16 +167,6 @@ public class ItemSerializer implements Serializer<ItemStack> {
             AdventureUtil.setLoreUnparsed(itemMeta, lore);
         }
 
-        OptionalInt durability = data.of("Durability").assertRange(0, null).getInt();
-        if (durability.isPresent()) {
-            if (!(itemMeta instanceof org.bukkit.inventory.meta.Damageable damageable)) {
-                throw data.exception("Durability", "Tried to set durability on a non-damageable item!",
-                    "Your item: " + itemStack);
-            }
-
-            damageable.setDamage(durability.getAsInt());
-        }
-
         boolean unbreakable = data.of("Unbreakable").getBool().orElse(false);
         itemMeta.setUnbreakable(unbreakable);
 
@@ -221,6 +211,10 @@ public class ItemSerializer implements Serializer<ItemStack> {
             if (!(itemMeta instanceof org.bukkit.inventory.meta.Damageable damageable)) {
                 throw data.exception("Durability", "Tried to set durability on a non-damageable item!",
                     "Your item: " + itemStack);
+            }
+            if (data.of("Max_Stack_Size").getInt().orElse(1) != 1) {
+                throw data.exception("Max_Stack_Size", "Tried to use 'Durability' feature when the 'Max_Stack_Size' was > 1!",
+                    "The 'Durability' feature only works on items with a 'Max_Stack_Size' of 1!");
             }
 
             damageable.setMaxDamage(data.of("Durability.Max_Damage").assertExists().assertRange(0, null).getInt().getAsInt());
