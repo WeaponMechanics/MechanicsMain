@@ -180,7 +180,7 @@ public class CustomMapArgument extends CustomArgument<Map<String, Object>, Strin
      * @return a future of possible suggestions
      */
     private String[] suggestValues(SuggestionInfo<?> info) {
-        String soFar = info.currentInput().trim();
+        String soFar = info.currentArg().trim();
 
         // If user typed nothing, suggest open brace and any possible key
         if (soFar.isEmpty()) {

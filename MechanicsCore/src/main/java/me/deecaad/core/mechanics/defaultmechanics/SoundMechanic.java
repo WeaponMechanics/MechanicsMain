@@ -10,7 +10,6 @@ import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.mechanics.targeters.WorldTargeter;
 import me.deecaad.core.utils.RandomUtil;
 import org.bukkit.Location;
-import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
@@ -126,7 +125,7 @@ public class SoundMechanic extends PlayerEffectMechanic {
 
     @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
-        Sound sound = data.of("Sound").assertExists().getBukkitRegistry(Registry.SOUNDS).get();
+        Sound sound = data.of("Sound").assertExists().getBukkitRegistry(Sound.class).get();
         float volume = (float) data.of("Volume").assertRange(0, null).getDouble().orElse(1.0);
         float pitch = (float) data.of("Pitch").assertRange(0.5, 2.0).getDouble().orElse(1.0);
         float noise = (float) data.of("Noise").assertRange(0.0, 1.5).getDouble().orElse(0.0);

@@ -38,7 +38,6 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.lib.MythicMobsLoader;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
-import me.deecaad.weaponmechanics.listeners.RepairItemListener;
 import me.deecaad.weaponmechanics.listeners.ResourcePackListener;
 import me.deecaad.weaponmechanics.listeners.WeaponListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListeners;
@@ -46,7 +45,6 @@ import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListeners;
 import me.deecaad.weaponmechanics.packetlisteners.OutAbilitiesListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutEntityEffectListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutRemoveEntityEffectListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotBobFix;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.AssistData;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
@@ -395,7 +393,6 @@ public class WeaponMechanics {
 
         // Other
         Bukkit.getPluginManager().registerEvents(resourcePackListener, getPlugin());
-        Bukkit.getPluginManager().registerEvents(RepairItemListener.getInstance(), getPlugin());
         if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
 
             // We need to make sure we are running MM v5
@@ -416,7 +413,6 @@ public class WeaponMechanics {
         em.registerListener(new OutAbilitiesListener(), PacketListenerPriority.NORMAL);
         em.registerListener(new OutEntityEffectListener(), PacketListenerPriority.NORMAL);
         em.registerListener(new OutRemoveEntityEffectListener(), PacketListenerPriority.NORMAL);
-        em.registerListener(new OutSetSlotBobFix(javaPlugin), PacketListenerPriority.NORMAL);
     }
 
     void registerCommands() {

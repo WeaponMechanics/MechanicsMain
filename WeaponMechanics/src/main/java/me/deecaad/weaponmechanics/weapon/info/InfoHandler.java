@@ -8,10 +8,8 @@ import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.AdventureUtil;
 import me.deecaad.core.utils.StringUtil;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
-import me.deecaad.weaponmechanics.weapon.shoot.CustomDurability;
 import me.deecaad.weaponmechanics.weapon.skin.SkinSelector;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponGenerateEvent;
@@ -21,10 +19,17 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.jetbrains.annotations.NotNull;
-
 import org.jetbrains.annotations.Nullable;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
@@ -214,11 +219,19 @@ public class InfoHandler implements IValidator {
         if (firemode != -1)
             CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, firemode);
 
-        // Custom Durability Arguments
-        CustomDurability customDurability = WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
-        if (customDurability != null) {
-            CustomTag.DURABILITY.setInteger(weaponStack, durability == -1 ? customDurability.getMaxDurability() : durability);
-            CustomTag.MAX_DURABILITY.setInteger(weaponStack, maxDurability == -1 ? customDurability.getMaxDurability() : maxDurability);
+        if (durability != -1 || maxDurability != -1) {
+            Damageable damageable = (Damageable) weaponStack.getItemMeta();
+            if (maxDurability == -1) {
+                maxDurability = damageable.getMaxDamage();
+            } else {
+                damageable.setMaxDamage(maxDurability);
+            }
+
+            if (durability != -1) {
+                damageable.setDamage(maxDurability - durability);
+            }
+
+            weaponStack.setItemMeta((damageable));
         }
 
         // Let other plugins modify generated weapons (for example, to add attachments)
@@ -304,18 +317,6 @@ public class InfoHandler implements IValidator {
         return false;
     }
 
-    private static int[] mapToCharTable(String str) {
-        int[] table = new int["abcdefghijklmnopqrstuvwxyz".length()];
-        for (int i = 0; i < str.length(); i++) {
-            try {
-                table[Character.toLowerCase(str.charAt(i)) - 97]++;
-            } catch (ArrayIndexOutOfBoundsException ignore) {
-                // Sometimes a string will contain something like an underscore.
-            }
-        }
-        return table;
-    }
-
     @Override
     public String getKeyword() {
         return "Info";
@@ -331,6 +332,12 @@ public class InfoHandler implements IValidator {
         if (weaponEquipDelay != 0) {
             // Convert to millis
             configuration.set(data.getKey() + ".Weapon_Equip_Delay", weaponEquipDelay * 50);
+        }
+
+        // Break mechanics
+        Mechanics mechanics = data.of("Weapon_Break_Mechanics").serialize(Mechanics.class).orElse(null);
+        if (mechanics != null) {
+            configuration.set(data.getKey() + ".Weapon_Break_Mechanics", mechanics);
         }
     }
 }

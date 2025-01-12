@@ -9,7 +9,6 @@ import me.deecaad.core.file.simple.DoubleSerializer;
 import me.deecaad.core.file.simple.RegistryValueSerializer;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
-import org.bukkit.Registry;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.enchantments.Enchantment;
@@ -368,7 +367,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
         // Per material armor modifiers
         Object2DoubleMap<ItemType> armorModifiers = new Object2DoubleOpenHashMap<>();
         List<List<Optional<Object>>> armorSplitList = data.ofList("Armor")
-            .addArgument(new RegistryValueSerializer<>(Registry.ITEM, true))
+            .addArgument(new RegistryValueSerializer<>(ItemType.class, true))
             .addArgument(new DoubleSerializer())
             .requireAllPreviousArgs()
             .assertList();
@@ -385,7 +384,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
         // Per enchantment armor modifiers
         Object2DoubleMap<Enchantment> enchantmentModifiers = new Object2DoubleOpenHashMap<>();
         List<List<Optional<Object>>> enchantmentSplitList = data.ofList("Enchantments")
-            .addArgument(new RegistryValueSerializer<>(Registry.ENCHANTMENT, true))
+            .addArgument(new RegistryValueSerializer<>(Enchantment.class, true))
             .addArgument(new DoubleSerializer())
             .requireAllPreviousArgs()
             .assertList();
@@ -416,7 +415,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
         Object2DoubleMap<EntityType> entityTypeModifiers = new Object2DoubleOpenHashMap<>();
         List<List<Optional<Object>>> entitySplitList = data.ofList("Entities")
-            .addArgument(new RegistryValueSerializer<>(Registry.ENTITY_TYPE, true))
+            .addArgument(new RegistryValueSerializer<>(EntityType.class, true))
             .addArgument(new DoubleSerializer())
             .requireAllPreviousArgs()
             .assertList();
@@ -432,7 +431,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
         Object2DoubleMap<PotionEffectType> potionEffectModifiers = new Object2DoubleOpenHashMap<>();
         List<List<Optional<Object>>> potionSplitList = data.ofList("Potions")
-            .addArgument(new RegistryValueSerializer<>(Registry.EFFECT, true))
+            .addArgument(new RegistryValueSerializer<>(PotionEffectType.class, true))
             .addArgument(new DoubleSerializer())
             .requireAllPreviousArgs()
             .assertList();

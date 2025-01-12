@@ -7,7 +7,6 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.ray.BlockTraceResult;
 import me.deecaad.core.utils.ray.EntityTraceResult;
 import me.deecaad.core.utils.ray.RayTraceResult;
-import org.bukkit.Registry;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockType;
 import org.bukkit.entity.EntityType;
@@ -163,8 +162,8 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
 
     @Override
     @NotNull public Bouncy serialize(@NotNull SerializeData data) throws SerializerException {
-        ListHolder<BlockType> blocks = data.of("Blocks").serialize(new ListHolder<>(Registry.BLOCK)).orElse(null);
-        ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(Registry.ENTITY_TYPE)).orElse(null);
+        ListHolder<BlockType> blocks = data.of("Blocks").serialize(new ListHolder<>(BlockType.class)).orElse(null);
+        ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class)).orElse(null);
 
         if (blocks == null && entities == null) {
             throw data.exception(null, "'Bouncy' requires at least one of 'Blocks' or 'Entities'");
@@ -173,7 +172,7 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
         // 0 or negative numbers will lead to infinite amounts of bouncing.
         int maximumBounceAmount = data.of("Maximum_Bounce_Amount").getInt().orElse(1);
 
-        ListHolder<BlockType> rollingBlocks = data.of("Rolling.Blocks").serialize(new ListHolder<>(Registry.BLOCK)).orElse(null);
+        ListHolder<BlockType> rollingBlocks = data.of("Rolling.Blocks").serialize(new ListHolder<>(BlockType.class)).orElse(null);
         double requiredMotionToStartRolling = data.of("Rolling.Required_Motion_To_Start_Rolling").assertRange(0.0, null).getDouble().orElse(6.0) / 20;
 
         return new Bouncy(maximumBounceAmount, blocks, entities, requiredMotionToStartRolling, rollingBlocks);

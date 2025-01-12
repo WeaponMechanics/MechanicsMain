@@ -26,14 +26,17 @@ import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
+import org.bukkit.Sound;
 import org.bukkit.Tag;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.block.BlockType;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -46,6 +49,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.components.EquippableComponent;
+import org.bukkit.inventory.meta.components.FoodComponent;
+import org.bukkit.inventory.meta.components.ToolComponent;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
@@ -53,6 +59,7 @@ import org.bukkit.tag.DamageTypeTags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -160,45 +167,17 @@ public class ItemSerializer implements Serializer<ItemStack> {
             AdventureUtil.setLoreUnparsed(itemMeta, lore);
         }
 
-        OptionalInt durability = data.of("Durability").assertRange(0, null).getInt();
-        if (durability.isPresent()) {
-            if (!(itemMeta instanceof org.bukkit.inventory.meta.Damageable damageable)) {
-                throw data.exception("Durability", "Tried to set durability on a non-damageable item!",
-                    "Your item: " + itemStack);
-            }
-
-            damageable.setDamage(durability.getAsInt());
-        }
-
         boolean unbreakable = data.of("Unbreakable").getBool().orElse(false);
         itemMeta.setUnbreakable(unbreakable);
 
         OptionalInt customModelData = data.of("Custom_Model_Data").getInt();
-        if (customModelData.isPresent()) {
-            itemMeta.setCustomModelData(customModelData.getAsInt());
-        }
+        customModelData.ifPresent(itemMeta::setCustomModelData);
 
         OptionalInt maxStackSize = data.of("Max_Stack_Size").assertRange(1, 99).getInt();
-        if (maxStackSize.isPresent()) {
-            if (!MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
-                throw data.exception("Max_Stack_Size", "Tried to use max stack size before MC 1.20.5!",
-                    "The max stack size was added in Minecraft version 1.20.5!",
-                    "Your version: " + MinecraftVersions.getCurrent());
-            }
-
-            itemMeta.setMaxStackSize(maxStackSize.getAsInt());
-        }
+        maxStackSize.ifPresent(itemMeta::setMaxStackSize);
 
         Optional<Boolean> enchantmentGlintOverride = data.of("Enchantment_Glint_Override").getBool();
-        if (enchantmentGlintOverride.isPresent()) {
-            if (!MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
-                throw data.exception("Enchantment_Glint_Override", "Tried to use enchantment glint override before MC 1.20.5!",
-                    "The enchantment glint override component was added in Minecraft version 1.20.5!",
-                    "Your version: " + MinecraftVersions.getCurrent());
-            }
-
-            itemMeta.setEnchantmentGlintOverride(enchantmentGlintOverride.get());
-        }
+        enchantmentGlintOverride.ifPresent(itemMeta::setEnchantmentGlintOverride);
 
         Optional<String> damageResistantInput = data.of("Damage_Resistant").get(String.class);
         if (damageResistantInput.isPresent()) {
@@ -214,7 +193,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         }
 
         List<List<Optional<Object>>> enchantments = data.ofList("Enchantments")
-            .addArgument(new RegistryValueSerializer<>(Registry.ENCHANTMENT, true))
+            .addArgument(new RegistryValueSerializer<>(Enchantment.class, true))
             .requireAllPreviousArgs()
             .addArgument(new IntSerializer(1))
             .assertList();
@@ -226,6 +205,82 @@ public class ItemSerializer implements Serializer<ItemStack> {
             for (Enchantment enchantment : enchants) {
                 itemMeta.addEnchant(enchantment, enchantmentLevel - 1, true);
             }
+        }
+
+        if (data.has("Durability")) {
+            if (!(itemMeta instanceof org.bukkit.inventory.meta.Damageable damageable)) {
+                throw data.exception("Durability", "Tried to set durability on a non-damageable item!",
+                    "Your item: " + itemStack);
+            }
+            if (data.of("Max_Stack_Size").getInt().orElse(1) != 1) {
+                throw data.exception("Max_Stack_Size", "Tried to use 'Durability' feature when the 'Max_Stack_Size' was > 1!",
+                    "The 'Durability' feature only works on items with a 'Max_Stack_Size' of 1!");
+            }
+            if (data.has("Unbreakable")) {
+                throw data.exception("Unbreakable", "Tried to use 'Durability' feature when the item was unbreakable!",
+                    "The 'Durability' feature only works on breakable items!");
+            }
+
+            damageable.setMaxStackSize(1);
+            damageable.setMaxDamage(data.of("Durability.Max_Damage").assertExists().assertRange(0, null).getInt().getAsInt());
+            damageable.setDamage(data.of("Durability.Damage").assertRange(0, null).getInt().orElse(0));
+        }
+
+        if (data.has("Tool")) {
+            ToolComponent tool = itemMeta.getTool();
+            tool.setDefaultMiningSpeed((float) data.of("Tool.Default_Mining_Speed").getDouble().orElse(1.0));
+            tool.setDamagePerBlock(data.of("Tool.Damage_Per_Block").getInt().orElse(1));
+
+            List<List<Optional<Object>>> rulesData = data.ofList("Tool.Rules")
+                .addArgument(new RegistryValueSerializer<>(BlockType.class, true))
+                .addArgument(new DoubleSerializer())
+                .requireAllPreviousArgs()
+                .addArgument(new BooleanSerializer())
+                .assertList();
+
+            for (List<Optional<Object>> split : rulesData) {
+                List<BlockType> blocks = (List<BlockType>) split.get(0).get();
+                double speed = (double) split.get(1).get();
+                boolean isDrop = (boolean) split.get(2).orElse(true);
+
+                Collection<Material> mappedBlocks = blocks.stream().map(BlockType::asMaterial).toList();
+                tool.addRule(mappedBlocks, (float) speed, isDrop);
+            }
+
+            itemMeta.setTool(tool);
+        }
+
+        if (data.has("Food")) {
+            FoodComponent food = itemMeta.getFood();
+            food.setNutrition(data.of("Food.Nutrition").assertExists().assertRange(0, null).getInt().getAsInt());
+            food.setSaturation((float) data.of("Food.Saturation").assertRange(0, null).getDouble().orElse(0.0));
+            food.setCanAlwaysEat(data.of("Food.Can_Always_Eat").getBool().orElse(false));
+
+            itemMeta.setFood(food);
+        }
+
+        if (data.has("Equippable")) {
+            EquippableComponent armor = itemMeta.getEquippable();
+            armor.setSlot(data.of("Equippable.Slot").assertExists().getEnum(EquipmentSlot.class).get());
+            armor.setEquipSound(data.of("Equippable.Equip_Sound").getBukkitRegistry(Sound.class).orElse(null));
+            armor.setModel(data.of("Equippable.Model").getNamespacedKey().orElse(null));
+            armor.setCameraOverlay(data.of("Equippable.Camera_Overlay").getNamespacedKey().orElse(null));
+            armor.setDispensable(data.of("Equippable.Dispensable").getBool().orElse(true));
+            armor.setSwappable(data.of("Equippable.Swappable").getBool().orElse(true));
+            armor.setDamageOnHurt(data.of("Equippable.Damage_On_Hurt").getBool().orElse(true));
+
+            List<EntityType> entityData = data.ofList("Equippable.Entities")
+                .addArgument(new RegistryValueSerializer<>(EntityType.class, true))
+                .requireAllPreviousArgs()
+                .assertList()
+                .stream()
+                .map(split -> (List<EntityType>) split.get(0).get())
+                .flatMap(List::stream)
+                .toList();
+
+            armor.setAllowedEntities(entityData.isEmpty() ? null : entityData);
+
+            itemMeta.setEquippable(armor);
         }
 
         itemStack.setItemMeta(itemMeta);
@@ -254,7 +309,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         slotGroupsByName.put("armor", EquipmentSlotGroup.ARMOR);
 
         List<List<Optional<Object>>> attributesData = data.ofList("Attributes")
-            .addArgument(new RegistryValueSerializer<>(Registry.ATTRIBUTE, true))
+            .addArgument(new RegistryValueSerializer<>(Attribute.class, true))
             .addArgument(new DoubleSerializer())
             .requireAllPreviousArgs()
             .addArgument(new ByNameSerializer<>(EquipmentSlotGroup.class, slotGroupsByName))
@@ -355,8 +410,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
                     "The trim pattern was added in Minecraft version 1.20!");
             }
 
-            TrimPattern pattern = data.of("Trim_Pattern").assertExists().getBukkitRegistry(Registry.TRIM_PATTERN).get();
-            TrimMaterial material = data.of("Trim_Material").assertExists().getBukkitRegistry(Registry.TRIM_MATERIAL).get();
+            TrimPattern pattern = data.of("Trim_Pattern").assertExists().getBukkitRegistry(TrimPattern.class).get();
+            TrimMaterial material = data.of("Trim_Material").assertExists().getBukkitRegistry(TrimMaterial.class).get();
             armor.setTrim(new ArmorTrim(material, pattern));
             itemStack.setItemMeta(armor);
         }
