@@ -7,7 +7,6 @@ import org.bukkit.inventory.meta.Damageable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-
 public class PMaxDurability extends NumericPlaceholderHandler {
 
     public PMaxDurability() {

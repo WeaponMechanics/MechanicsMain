@@ -859,8 +859,9 @@ class SerializeData {
         @JvmOverloads
         fun <T : Keyed> getBukkitRegistry(
             clazz: Class<T>,
-            registry: Registry<T> = Bukkit.getRegistry(clazz)
-                ?: throw IllegalArgumentException("Registry for ${clazz.simpleName} does not exist."),
+            registry: Registry<T> =
+                Bukkit.getRegistry(clazz)
+                    ?: throw IllegalArgumentException("Registry for ${clazz.simpleName} does not exist."),
         ): Optional<T> {
             val input =
                 if (usingStep) pathToConfig!!.getString(getPath(relative)!!) else config.getString(getPath(relative))

@@ -438,7 +438,8 @@ public class Explosion implements Serializer<Explosion> {
 
     @Override
     @NotNull public Explosion serialize(@NotNull SerializeData data) throws SerializerException {
-        Serializer<ExplosionExposure> exposureSerializer = data.of("Explosion_Exposure").getBukkitRegistry(ExplosionExposure.class, WeaponMechanicsRegistry.EXPLOSION_EXPOSURES).orElse(new DefaultExposure());
+        Serializer<ExplosionExposure> exposureSerializer = data.of("Explosion_Exposure").getBukkitRegistry(ExplosionExposure.class, WeaponMechanicsRegistry.EXPLOSION_EXPOSURES).orElse(
+            new DefaultExposure());
         Serializer<ExplosionShape> shapeSerializer = data.of("Explosion_Shape").getBukkitRegistry(ExplosionShape.class, WeaponMechanicsRegistry.EXPLOSION_SHAPES).orElse(new DefaultExplosion());
 
         ExplosionExposure exposure = data.of("Explosion_Type_Data").serialize(exposureSerializer).get();
