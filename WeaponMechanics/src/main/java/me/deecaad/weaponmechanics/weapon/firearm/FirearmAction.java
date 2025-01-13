@@ -5,6 +5,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -83,6 +84,17 @@ public class FirearmAction implements Serializer<FirearmAction> {
     @Override
     public String getKeyword() {
         return "Firearm_Action";
+    }
+
+    @Override
+    public boolean shouldSerialize(@NotNull SerializeData data) {
+        // only serialize if 1 under root
+        String key = data.getKey();
+        if (key == null)
+            return false;
+
+        int depth = StringUtil.countOccurrences(data.getKey(), '.');
+        return depth == 1;
     }
 
     @Override

@@ -124,8 +124,11 @@ RPG_7:
     Splash_Mechanics:
       - "Sound{sound=entity.generic.splash, pitch=1.85, noise=0.15} @Target{}"
       - "Particle{particle=WATER_SPLASH, count=20, noise=0.2 0.2 0.2} @Target{}"
-    Crossbow:
-      Only_When_Scoping: false
+    Third_Person_Pose:
+      Default: NONE
+      Scope: BOW
+      Reload: BLOCK
+      Firearm_Action: CROSSBOW
 
   Trail:
     Distance_Between_Particles: 0.25

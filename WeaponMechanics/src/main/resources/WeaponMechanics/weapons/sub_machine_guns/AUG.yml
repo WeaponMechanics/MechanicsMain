@@ -113,8 +113,11 @@ AUG:
       Maximum_Distance: 4.0
       Sounds:
         - "CustomSound{sound=fx.whiz, noise=0.02, listeners=Target{}} @Target{}"
-    Crossbow:
-      Only_When_Scoping: false
+    Third_Person_Pose:
+      Default: NONE
+      Scope: BOW
+      Reload: BLOCK
+      Firearm_Action: CROSSBOW
 
   Trail:
     Distance_Between_Particles: 0.3

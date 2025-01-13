@@ -1023,7 +1023,7 @@ class SerializeData {
                     list[i]!!.value as? Map<*, *> ?: throw listException(
                         relative,
                         i,
-                        "Expected an inline serializer like 'sound(sound=ENTITY_GENERIC_EXPLOSION)', but instead got '${list[i]!!.value}'",
+                        "Expected an inline serializer like 'sound(sound=entity.generic.explosion)', but instead got '${list[i]!!.value}'",
                     )
 
                 val id =
@@ -1067,7 +1067,7 @@ class SerializeData {
                     list[i]!!.value as? Map<*, *> ?: throw listException(
                         relative,
                         i,
-                        "Expected an inline serializer like 'sound(sound=ENTITY_GENERIC_EXPLOSION)', but instead got '${list[i]!!.value}'",
+                        "Expected an inline serializer like 'sound(sound=entity.generic.explosion)', but instead got '${list[i]!!.value}'",
                     )
 
                 val identifier = map[InlineSerializer.UNIQUE_IDENTIFIER]
