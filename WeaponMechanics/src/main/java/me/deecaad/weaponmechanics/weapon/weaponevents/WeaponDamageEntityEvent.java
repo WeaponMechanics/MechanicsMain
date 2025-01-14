@@ -16,6 +16,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -86,12 +87,16 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
         this.damageModifiers.add(damageModifier);
     }
 
+    public @NotNull WeaponDamageSource getSource() {
+        return source;
+    }
+
     /**
      * Who is being damaged by the weapon.
      *
      * @return The non-null entity being damaged.
      */
-    public LivingEntity getVictim() {
+    public @NotNull LivingEntity getVictim() {
         return victim;
     }
 
@@ -222,7 +227,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
      *
      * @return The nullable damage point.
      */
-    public DamagePoint getPoint() {
+    public @Nullable DamagePoint getPoint() {
         return source.getDamagePoint();
     }
 
@@ -265,27 +270,27 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
         this.fireTicks = fireTicks;
     }
 
-    public DamageDropoff getDropoff() {
+    public @Nullable DamageDropoff getDropoff() {
         return dropoff;
     }
 
-    public void setDropoff(DamageDropoff dropoff) {
+    public void setDropoff(@Nullable DamageDropoff dropoff) {
         this.dropoff = dropoff;
     }
 
-    public void addDamageModifier(DamageModifier modifier) {
+    public void addDamageModifier(@Nullable DamageModifier modifier) {
         damageModifiers.add(modifier);
     }
 
-    public List<DamageModifier> getDamageModifiers() {
+    public @NotNull List<DamageModifier> getDamageModifiers() {
         return damageModifiers;
     }
 
-    public Mechanics getDamageMechanics() {
+    public @Nullable Mechanics getDamageMechanics() {
         return damageMechanics;
     }
 
-    public void setDamageMechanics(Mechanics damageMechanics) {
+    public void setDamageMechanics(@Nullable Mechanics damageMechanics) {
         if (this.damageMechanics != null)
             this.damageMechanics.clearDirty(); // clear any modifications
         this.damageMechanics = damageMechanics;
@@ -295,77 +300,77 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
         return killMechanics;
     }
 
-    public void setKillMechanics(Mechanics killMechanics) {
+    public void setKillMechanics(@Nullable Mechanics killMechanics) {
         if (this.killMechanics != null)
             this.killMechanics.clearDirty(); // clear any modifications
         this.killMechanics = killMechanics;
     }
 
-    public Mechanics getBackstabMechanics() {
+    public @Nullable Mechanics getBackstabMechanics() {
         return backstabMechanics;
     }
 
-    public void setBackstabMechanics(Mechanics backstabMechanics) {
+    public void setBackstabMechanics(@Nullable Mechanics backstabMechanics) {
         if (this.backstabMechanics != null)
             this.backstabMechanics.clearDirty(); // clear any modifications
         this.backstabMechanics = backstabMechanics;
     }
 
-    public Mechanics getCriticalHitMechanics() {
+    public @Nullable Mechanics getCriticalHitMechanics() {
         return criticalHitMechanics;
     }
 
-    public void setCriticalHitMechanics(Mechanics criticalHitMechanics) {
+    public void setCriticalHitMechanics(@Nullable Mechanics criticalHitMechanics) {
         if (this.criticalHitMechanics != null)
             this.criticalHitMechanics.clearDirty(); // clear any modifications
         this.criticalHitMechanics = criticalHitMechanics;
     }
 
-    public Mechanics getHeadMechanics() {
+    public @Nullable Mechanics getHeadMechanics() {
         return headMechanics;
     }
 
-    public void setHeadMechanics(Mechanics headMechanics) {
+    public void setHeadMechanics(@Nullable Mechanics headMechanics) {
         if (this.headMechanics != null)
             this.headMechanics.clearDirty(); // clear any modifications
         this.headMechanics = headMechanics;
     }
 
-    public Mechanics getBodyMechanics() {
+    public @Nullable Mechanics getBodyMechanics() {
         return bodyMechanics;
     }
 
-    public void setBodyMechanics(Mechanics bodyMechanics) {
+    public void setBodyMechanics(@Nullable Mechanics bodyMechanics) {
         if (this.bodyMechanics != null)
             this.bodyMechanics.clearDirty(); // clear any modifications
         this.bodyMechanics = bodyMechanics;
     }
 
-    public Mechanics getArmsMechanics() {
+    public @Nullable Mechanics getArmsMechanics() {
         return armsMechanics;
     }
 
-    public void setArmsMechanics(Mechanics armsMechanics) {
+    public void setArmsMechanics(@Nullable Mechanics armsMechanics) {
         if (this.armsMechanics != null)
             this.armsMechanics.clearDirty(); // clear any modifications
         this.armsMechanics = armsMechanics;
     }
 
-    public Mechanics getLegsMechanics() {
+    public @Nullable Mechanics getLegsMechanics() {
         return legsMechanics;
     }
 
-    public void setLegsMechanics(Mechanics legsMechanics) {
+    public void setLegsMechanics(@Nullable Mechanics legsMechanics) {
         if (this.legsMechanics != null)
             this.legsMechanics.clearDirty(); // clear any modifications
         this.legsMechanics = legsMechanics;
     }
 
-    public Mechanics getFeetMechanics() {
+    public @Nullable Mechanics getFeetMechanics() {
         return feetMechanics;
     }
 
-    public void setFeetMechanics(Mechanics feetMechanics) {
+    public void setFeetMechanics(@Nullable Mechanics feetMechanics) {
         if (this.feetMechanics != null)
             this.feetMechanics.clearDirty(); // clear any modifications
         this.feetMechanics = feetMechanics;
