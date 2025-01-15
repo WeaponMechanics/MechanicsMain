@@ -21,9 +21,9 @@ public abstract class AttributePlaceholderHandler extends NumericPlaceholderHand
         this.attribute = attribute;
     }
 
-    @Subst("item_minecraft_attack_damage") // example for static analysis
+    @Subst("attribute_minecraft_attack_damage") // example for static analysis
     private static @NotNull String buildKey(@NotNull NamespacedKey key) {
-        return "item_" + key.getNamespace() + "_" + key.getKey();
+        return "attribute_" + key.getNamespace() + "_" + key.getKey();
     }
 
     @Override
