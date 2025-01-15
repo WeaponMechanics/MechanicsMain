@@ -3,11 +3,11 @@ package me.deecaad.core.file.serializers;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.core.utils.*;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Function;
@@ -57,7 +57,7 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
      * @param entity The nullable entity.
      * @return The non-null vector.
      */
-    public Vector getVector(LivingEntity entity) {
+    public @NotNull Vector getVector(@Nullable LivingEntity entity) {
         if (randomLength >= 0)
             return RandomUtil.onUnitSphere().multiply(randomLength);
 
@@ -81,7 +81,7 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
      * @param view The nullable relative direction.
      * @return The non-null vector.
      */
-    public Vector getVector(Vector view) {
+    public @NotNull Vector getVector(@Nullable Vector view) {
         if (randomLength >= 0)
             return RandomUtil.onUnitSphere().multiply(randomLength);
 
@@ -102,7 +102,7 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
 
     @NotNull @Override
     public VectorSerializer serialize(@NotNull SerializeData data) throws SerializerException {
-        String input = data.of().assertExists().get().toString().trim();
+        String input = data.of().assertExists().get(Object.class).get().toString().trim();
 
         // Allow for easy 0 option
         if ("0".equals(input))
@@ -120,7 +120,11 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
                 try {
                     randomLength = Double.parseDouble(input.substring(1));
                 } catch (NumberFormatException ex) {
-                    throw new SerializerTypeException(this, Number.class, String.class, input, data.of().getLocation());
+                    throw SerializerException.builder()
+                        .locationRaw(data.of().getLocation())
+                        .addMessage("Expected a number after 'r' for random length")
+                        .addMessage("Found value: " + input)
+                        .build();
                 }
             }
 
@@ -133,7 +137,7 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
             List<String> split = StringUtil.split(input);
             if (split.size() != 3) {
                 throw data.exception(null, "Expected 3 numbers in left~up~forward format, instead got '" + split.size() + "'",
-                    SerializerException.forValue(input));
+                    "Found value: " + input);
             }
 
             try {
@@ -143,7 +147,11 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
 
                 raw = new Vector(x, y, z);
             } catch (NumberFormatException ex) {
-                throw new SerializerTypeException(this, Number.class, String.class, input, data.of().getLocation());
+                throw SerializerException.builder()
+                    .locationRaw(data.of().getLocation())
+                    .addMessage("Expected 3 numbers in left~up~forward format")
+                    .addMessage("Found value: " + input)
+                    .build();
             }
         }
 
@@ -157,15 +165,15 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
      * @param vector The non-null vector.
      * @return The wrapped vector.
      */
-    public static VectorSerializer from(Vector vector) {
+    public static @NotNull VectorSerializer from(@NotNull Vector vector) {
         return new VectorSerializer() {
             @Override
-            public Vector getVector(LivingEntity entity) {
+            public @NotNull Vector getVector(@Nullable LivingEntity entity) {
                 return vector;
             }
 
             @Override
-            public Vector getVector(Vector relative) {
+            public @NotNull Vector getVector(@Nullable Vector relative) {
                 return vector;
             }
         };
@@ -191,7 +199,7 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
             this.raw = new Vector(x, y, z);
         }
 
-        public Vector getRelative(LivingEntity livingEntity) {
+        public @NotNull Vector getRelative(@Nullable LivingEntity livingEntity) {
             if (livingEntity == null)
                 return raw.clone();
 
@@ -199,7 +207,7 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
             return function.apply(transform);
         }
 
-        public Vector getRelative(Vector relative) {
+        public @NotNull Vector getRelative(@Nullable Vector relative) {
             if (relative == null)
                 return raw.clone();
 

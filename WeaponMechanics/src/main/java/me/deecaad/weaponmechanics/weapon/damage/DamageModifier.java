@@ -5,14 +5,10 @@ import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerOptionsException;
-import me.deecaad.core.file.SerializerTypeException;
-import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.MinecraftVersions;
+import me.deecaad.core.file.simple.DoubleSerializer;
+import me.deecaad.core.file.simple.RegistryValueSerializer;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.enchantments.Enchantment;
@@ -21,14 +17,14 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * A class that holds all the damage modifiers that can be applied to a victim. This includes armor
@@ -44,7 +40,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
     // Armor modifiers
     private double perArmorPoint;
-    private Object2DoubleMap<Material> armorModifiers;
+    private Object2DoubleMap<ItemType> armorModifiers;
     private Object2DoubleMap<Enchantment> enchantmentModifiers;
 
     // DamagePoint modifiers
@@ -73,7 +69,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
     public DamageModifier() {
     }
 
-    public DamageModifier(double min, double max, double perArmorPoint, Object2DoubleMap<Material> armorModifiers, Object2DoubleMap<Enchantment> enchantmentModifiers,
+    public DamageModifier(double min, double max, double perArmorPoint, Object2DoubleMap<ItemType> armorModifiers, Object2DoubleMap<Enchantment> enchantmentModifiers,
         double headModifier, double bodyModifier, double armsModifier, double legsModifier, double feetModifier, double backModifier,
         double sneakingModifier, double walkingModifier, double swimmingModifier, double sprintingModifier, double inMidairModifier,
         double shieldModifier, Object2DoubleMap<EntityType> entityTypeModifiers, Object2DoubleMap<PotionEffectType> potionEffectModifiers) {
@@ -122,11 +118,11 @@ public class DamageModifier implements Serializer<DamageModifier> {
         this.perArmorPoint = perArmorPoint;
     }
 
-    public Object2DoubleMap<Material> getArmorModifiers() {
+    public Object2DoubleMap<ItemType> getArmorModifiers() {
         return armorModifiers;
     }
 
-    public void setArmorModifiers(Object2DoubleMap<Material> armorModifiers) {
+    public void setArmorModifiers(Object2DoubleMap<ItemType> armorModifiers) {
         this.armorModifiers = armorModifiers;
     }
 
@@ -257,7 +253,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
         // 95% of weapons should use this, since it is an "all encompassing" value.
         // Since armor may have custom amounts of protection, this attribute covers that.
-        AttributeInstance armorAttribute = victim.getAttribute(Attribute.GENERIC_ARMOR);
+        AttributeInstance armorAttribute = victim.getAttribute(Attribute.ARMOR);
         if (armorAttribute != null) {
             rate += perArmorPoint * armorAttribute.getValue();
         }
@@ -272,7 +268,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
                 // Armor type (DIAMOND, CHAIN, GOLD, etc.)
                 if (armorModifiers != null)
-                    rate += armorModifiers.getDouble(armor.getType());
+                    rate += armorModifiers.getDouble(armor.getType().asItemType());
 
                 // Enchantments (PROTECTION 4, PROJECTILE PROJECTION, etc)
                 if (enchantmentModifiers != null) {
@@ -363,131 +359,92 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
     @NotNull @Override
     public DamageModifier serialize(@NotNull SerializeData data) throws SerializerException {
-        double min = serializePercentage(data.of("Min"), "20%");
-        double max = serializePercentage(data.of("Max"), "1000%");
+        double min = data.of("Min").assertRange(0.0, null).getDouble().orElse(0.20);
+        double max = data.of("Max").assertRange(min, null).getDouble().orElse(10.00);
 
-        double perArmorPoint = serializePercentage(data.of("Per_Armor_Point"));
+        double perArmorPoint = data.of("Per_Armor_Point").getDouble().orElse(0.0);
 
         // Per material armor modifiers
-        Object2DoubleMap<Material> armorModifiers = new Object2DoubleOpenHashMap<>();
-        List<String[]> armorSplitList = data.ofList("Armor")
-            .addArgument(Material.class, true)
-            .addArgument(String.class, true).assertList().get();
-        for (int i = 0; i < armorSplitList.size(); i++) {
-            String[] split = armorSplitList.get(i);
+        Object2DoubleMap<ItemType> armorModifiers = new Object2DoubleOpenHashMap<>();
+        List<List<Optional<Object>>> armorSplitList = data.ofList("Armor")
+            .addArgument(new RegistryValueSerializer<>(ItemType.class, true))
+            .addArgument(new DoubleSerializer())
+            .requireAllPreviousArgs()
+            .assertList();
 
-            List<Material> armorMaterial = EnumUtil.parseEnums(Material.class, split[0]);
-            double percentage = stringToDouble(split[1], data.ofList("Armor").getLocation(i));
-            for (Material material : armorMaterial) {
-                armorModifiers.put(material, percentage);
+        for (List<Optional<Object>> split : armorSplitList) {
+            List<ItemType> armorMaterial = (List<ItemType>) split.get(0).get();
+            double percentage = (double) split.get(1).get();
+
+            for (ItemType armor : armorMaterial) {
+                armorModifiers.put(armor, percentage);
             }
         }
 
         // Per enchantment armor modifiers
         Object2DoubleMap<Enchantment> enchantmentModifiers = new Object2DoubleOpenHashMap<>();
-        List<String[]> enchantmentSplitList = data.ofList("Enchantments")
-            .addArgument(Enchantment.class, true, true)
-            .addArgument(String.class, true).assertList().get();
-        for (int i = 0; i < enchantmentSplitList.size(); i++) {
-            String[] split = enchantmentSplitList.get(i);
+        List<List<Optional<Object>>> enchantmentSplitList = data.ofList("Enchantments")
+            .addArgument(new RegistryValueSerializer<>(Enchantment.class, true))
+            .addArgument(new DoubleSerializer())
+            .requireAllPreviousArgs()
+            .assertList();
 
-            // First try to get by key. If that fails, get by name. If that fails, send error
-            Enchantment enchantment = null;
-            if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast())
-                enchantment = Enchantment.getByKey(NamespacedKey.minecraft(split[0].toLowerCase(Locale.ROOT)));
-            if (enchantment == null)
-                enchantment = Enchantment.getByName(split[0].toUpperCase(Locale.ROOT));
-            if (enchantment == null) {
-                Iterable<String> options = Arrays.stream(Enchantment.values()).map(ench -> MinecraftVersions.UPDATE_AQUATIC.isAtLeast() ? ench.getKey().getKey() : ench.getName()).toList();
-                throw new SerializerOptionsException(this, "Enchantment", options, split[0], data.ofList("Enchantments").getLocation(i));
+        for (List<Optional<Object>> split : enchantmentSplitList) {
+            List<Enchantment> enchantments = (List<Enchantment>) split.get(0).get();
+            double percentage = (double) split.get(1).get();
+
+            for (Enchantment enchantment : enchantments) {
+                enchantmentModifiers.put(enchantment, percentage);
             }
-
-            double percentage = stringToDouble(split[1], data.ofList("Enchantments").getLocation(i));
-            enchantmentModifiers.put(enchantment, percentage);
         }
 
-        double headModifier = serializePercentage(data.of("Head"));
-        double bodyModifier = serializePercentage(data.of("Body"));
-        double armsModifier = serializePercentage(data.of("Arms"));
-        double legsModifier = serializePercentage(data.of("Legs"));
-        double feetModifier = serializePercentage(data.of("Feet"));
-        double backModifier = serializePercentage(data.of("Back"));
+        double headModifier = data.of("Head").getDouble().orElse(0.0);
+        double bodyModifier = data.of("Body").getDouble().orElse(0.0);
+        double armsModifier = data.of("Arms").getDouble().orElse(0.0);
+        double legsModifier = data.of("Legs").getDouble().orElse(0.0);
+        double feetModifier = data.of("Feet").getDouble().orElse(0.0);
+        double backModifier = data.of("Back").getDouble().orElse(0.0);
 
-        double sneakingModifier = serializePercentage(data.of("Sneaking"));
-        double walkingModifier = serializePercentage(data.of("Walking"));
-        double swimmingModifier = serializePercentage(data.of("Swimming"));
-        double sprintingModifier = serializePercentage(data.of("Sprinting"));
-        double inMidairModifier = serializePercentage(data.of("In_Midair"));
+        double sneakingModifier = data.of("Sneaking").getDouble().orElse(0.0);
+        double walkingModifier = data.of("Walking").getDouble().orElse(0.0);
+        double swimmingModifier = data.of("Swimming").getDouble().orElse(0.0);
+        double sprintingModifier = data.of("Sprinting").getDouble().orElse(0.0);
+        double inMidairModifier = data.of("In_Midair").getDouble().orElse(0.0);
 
-        double shieldModifier = serializePercentage(data.of("Shielding"));
+        double shieldModifier = data.of("Shielding").getDouble().orElse(0.0);
 
         Object2DoubleMap<EntityType> entityTypeModifiers = new Object2DoubleOpenHashMap<>();
-        List<String[]> entitySplitList = data.ofList("Entities")
-            .addArgument(EntityType.class, true)
-            .addArgument(String.class, true).assertList().get();
-        for (int i = 0; i < entitySplitList.size(); i++) {
-            String[] split = entitySplitList.get(i);
+        List<List<Optional<Object>>> entitySplitList = data.ofList("Entities")
+            .addArgument(new RegistryValueSerializer<>(EntityType.class, true))
+            .addArgument(new DoubleSerializer())
+            .requireAllPreviousArgs()
+            .assertList();
 
-            List<EntityType> entityTypes = EnumUtil.parseEnums(EntityType.class, split[0]);
-            double percentage = stringToDouble(split[1], data.ofList("Armor").getLocation(i));
+        for (List<Optional<Object>> split : entitySplitList) {
+            List<EntityType> entityTypes = (List<EntityType>) split.get(0).get();
+            double percentage = (double) split.get(1).get();
+
             for (EntityType entity : entityTypes) {
                 entityTypeModifiers.put(entity, percentage);
             }
         }
 
         Object2DoubleMap<PotionEffectType> potionEffectModifiers = new Object2DoubleOpenHashMap<>();
-        List<String[]> potionSplitList = data.ofList("Potions")
-            .addArgument(PotionEffectType.class, true, true)
-            .addArgument(String.class, true).assertList().get();
-        for (int i = 0; i < potionSplitList.size(); i++) {
-            String[] split = potionSplitList.get(i);
+        List<List<Optional<Object>>> potionSplitList = data.ofList("Potions")
+            .addArgument(new RegistryValueSerializer<>(PotionEffectType.class, true))
+            .addArgument(new DoubleSerializer())
+            .requireAllPreviousArgs()
+            .assertList();
+        for (List<Optional<Object>> split : potionSplitList) {
+            List<PotionEffectType> potions = (List<PotionEffectType>) split.get(0).get();
+            double percentage = (double) split.get(1).get();
 
-            // First try to get by key. If that fails, get by name. If that fails, send error
-            PotionEffectType potion = null;
-            if (MinecraftVersions.WILD_UPDATE.isAtLeast())
-                potion = PotionEffectType.getByKey(NamespacedKey.minecraft(split[0].toLowerCase(Locale.ROOT)));
-            if (potion == null)
-                potion = PotionEffectType.getByName(split[0].toUpperCase(Locale.ROOT));
-            if (potion == null) {
-                Iterable<String> options = Arrays.stream(Enchantment.values()).map(ench -> MinecraftVersions.WILD_UPDATE.isAtLeast() ? ench.getKey().getKey() : ench.getName()).toList();
-                throw new SerializerOptionsException(this, "Potion", options, split[0], data.ofList("Potions").getLocation(i));
+            for (PotionEffectType potion : potions) {
+                potionEffectModifiers.put(potion, percentage);
             }
-
-            double percentage = stringToDouble(split[1], data.ofList("Potions").getLocation(i));
-            potionEffectModifiers.put(potion, percentage);
         }
 
         return new DamageModifier(min, max, perArmorPoint, armorModifiers, enchantmentModifiers, headModifier, bodyModifier, armsModifier, legsModifier, feetModifier, backModifier,
             sneakingModifier, walkingModifier, swimmingModifier, sprintingModifier, inMidairModifier, shieldModifier, entityTypeModifiers, potionEffectModifiers);
-    }
-
-    /**
-     * Lets people use +-20% instead of 0.2
-     */
-    private static double serializePercentage(SerializeData.ConfigAccessor accessor) throws SerializerException {
-        return serializePercentage(accessor, "+0%");
-    }
-
-    /**
-     * Lets people use +-20% instead of 0.2
-     */
-    private static double serializePercentage(SerializeData.ConfigAccessor accessor, String defaultVal) throws SerializerException {
-        return stringToDouble(accessor.assertType(String.class).get(defaultVal), accessor.getLocation());
-    }
-
-    private static double stringToDouble(String str, String location) throws SerializerException {
-        str = str.trim(); // Trim any leading or trailing whitespace
-        boolean isNegative = str.startsWith("-"); // Check if the percentage is negative
-        str = str.replace("%", ""); // Remove the percentage sign
-        str = str.replace("+", ""); // Remove the plus sign if present
-        str = str.replace("-", ""); // Remove the minus sign if present
-
-        try {
-            double value = Double.parseDouble(str); // Parse the string as a double
-            value = value / 100; // Convert to a fraction
-            return isNegative ? -value : value; // Apply the sign if it was negative
-        } catch (NumberFormatException e) {
-            throw new SerializerTypeException("DamageModifier", Double.class, String.class, str, location);
-        }
     }
 }

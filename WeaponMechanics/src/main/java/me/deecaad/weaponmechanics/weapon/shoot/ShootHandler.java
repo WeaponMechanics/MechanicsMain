@@ -9,8 +9,6 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerMissingKeyException;
-import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderData;
@@ -26,7 +24,7 @@ import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
-import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
+import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilProfile;
 import me.deecaad.weaponmechanics.weapon.shoot.spread.Spread;
 import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
@@ -50,6 +48,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
@@ -224,7 +224,7 @@ public class ShootHandler implements IValidator, TriggerListener {
             return false;
 
         if (isMelee) {
-            return singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
+            return singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, true);
         }
 
         if (usesSelectiveFire) {
@@ -232,14 +232,14 @@ public class ShootHandler implements IValidator, TriggerListener {
                 case BURST -> burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
                 case AUTO ->
                     fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield);
-                default -> singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
+                default -> singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, false);
             };
         }
 
         // First try full auto, then burst, then single fire
         return fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield)
             || burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield)
-            || singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
+            || singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, false);
     }
 
     private boolean singleShot(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot, boolean dualWield, boolean isMelee) {
@@ -490,7 +490,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         if (!dualWield) {
             handData.cancelTasks();
-            if (!reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, isReloadLoop)) {
+            if (!reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, false, isReloadLoop)) {
                 // Only update skin if reload was cancelled
                 weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
             }
@@ -527,7 +527,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed");
         int projectileAmount = config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot");
         Spread spread = config.getObject(weaponTitle + ".Shoot.Spread", Spread.class);
-        Recoil recoil = config.getObject(weaponTitle + ".Shoot.Recoil", Recoil.class);
+        RecoilProfile recoil = config.getObject(weaponTitle + ".Shoot.Recoil", RecoilProfile.class);
 
         PrepareWeaponShootEvent prepareEvent = new PrepareWeaponShootEvent(
             weaponTitle, weaponStack, entityWrapper.getEntity(), slot,
@@ -559,31 +559,19 @@ public class ShootHandler implements IValidator, TriggerListener {
                 weaponInfoDisplay.send(playerWrapper, slot);
         }
 
-        if (projectile == null || isMelee) {
-            debug.debug("Missing projectile/isMelee for " + weaponTitle);
-            // No projectile defined or was melee trigger
+        // Only update recoil 1 time per shot
+        if (prepareEvent.getRecoil() != null && entityWrapper instanceof PlayerWrapper playerWrapper) {
+            playerWrapper.getRecoilController().onShotFired(prepareEvent.getRecoil(), weaponTitle, weaponStack, playerWrapper.getPlayer(), slot);
+        }
 
-            // Update this AFTER shot (e.g. spread reset time won't work properly otherwise
-            if (!isMelee) {
-                WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot, false);
-                Bukkit.getPluginManager().callEvent(event);
-
-                HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
-                handData.setLastShotTime(System.currentTimeMillis());
-                handData.setLastWeaponShot(weaponTitle, weaponStack);
-            }
-
+        // Everything below is "projectile specific", so melee weapons don't need to do this
+        if (isMelee) {
             return;
         }
 
         // Only happens in weird scenarios, like API calls and WMP attachments.
         if (prepareEvent.getProjectileAmount() < 1) {
             debug.error(weaponTitle + ".Shoot.Projectiles_Per_Shot should be at least 1, got " + prepareEvent.getProjectileAmount());
-        }
-
-        // Only update recoil 1 time per shot
-        if (prepareEvent.getRecoil() != null && livingEntity instanceof Player) {
-            prepareEvent.getRecoil().start((Player) livingEntity, mainHand);
         }
 
         for (int i = 0; i < prepareEvent.getProjectileAmount(); i++) {
@@ -613,15 +601,6 @@ public class ShootHandler implements IValidator, TriggerListener {
             prepareEvent.getProjectile().shoot(bullet, perProjectileShootLocation);
         }
 
-        // Apply custom durability
-        CustomDurability durability = config.getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
-        if (durability != null) {
-            boolean broke = durability.use(livingEntity, weaponStack, weaponTitle);
-
-            if (broke)
-                entityWrapper.getHandData(mainHand).cancelTasks();
-        }
-
         boolean unscopeAfterShot = config.getBoolean(weaponTitle + ".Scope.Unscope_After_Shot");
         WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot, unscopeAfterShot);
         Bukkit.getPluginManager().callEvent(event);
@@ -637,6 +616,23 @@ public class ShootHandler implements IValidator, TriggerListener {
         HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
         handData.setLastShotTime(System.currentTimeMillis());
         handData.setLastWeaponShot(weaponTitle, weaponStack);
+
+        // Apply custom durability
+        ItemMeta meta = weaponStack.getItemMeta();
+        if (meta instanceof Damageable damageable && damageable.hasMaxDamage()) {
+            damageable.setDamage(damageable.getDamage() + 1);
+
+            // When the weapon is broken... break it
+            if (damageable.getDamage() >= damageable.getMaxDamage()) {
+                Mechanics breakMechanics = config.getObject(weaponTitle + ".Info.Weapon_Break_Mechanics", Mechanics.class);
+                if (breakMechanics != null)
+                    breakMechanics.use(new CastData(livingEntity, weaponTitle, weaponStack));
+
+                weaponStack.setAmount(weaponStack.getAmount() - 1);
+            }
+
+            weaponStack.setItemMeta(meta);
+        }
     }
 
     /**
@@ -729,45 +725,43 @@ public class ShootHandler implements IValidator, TriggerListener {
 
     @Override
     public void validate(Configuration configuration, SerializeData data) throws SerializerException {
-        Trigger trigger = configuration.getObject(data.key + ".Trigger", Trigger.class);
-        if (trigger == null)
-            throw new SerializerMissingKeyException(data.serializer, data.key + ".Trigger", data.of("Trigger").getLocation());
-
-        double projectileSpeed = data.of("Projectile_Speed").assertPositive().getDouble(80);
+        data.of("Trigger").assertExists();
+        double projectileSpeed = data.of("Projectile_Speed").assertRange(0.0001, null).getDouble().orElse(80.0);
 
         // Convert from more config friendly speed to normal
         // E.g. 80 -> 4.0
-        configuration.set(data.key + ".Projectile_Speed", projectileSpeed / 20);
+        configuration.set(data.getKey() + ".Projectile_Speed", projectileSpeed / 20);
 
-        int delayBetweenShots = data.of("Delay_Between_Shots").assertPositive().getInt(0);
+        int delayBetweenShots = data.of("Delay_Between_Shots").assertRange(0, null).getInt().orElse(0);
         if (delayBetweenShots != 0) {
             // Convert to millis
-            configuration.set(data.key + ".Delay_Between_Shots", delayBetweenShots * 50);
+            configuration.set(data.getKey() + ".Delay_Between_Shots", delayBetweenShots * 50);
         }
 
-        int projectilesPerShot = data.of("Projectiles_Per_Shot").assertRange(1, 100).getInt(1);
-        configuration.set(data.key + ".Projectiles_Per_Shot", projectilesPerShot);
+        int projectilesPerShot = data.of("Projectiles_Per_Shot").assertRange(1, 100).getInt().orElse(1);
+        configuration.set(data.getKey() + ".Projectiles_Per_Shot", projectilesPerShot);
 
         boolean hasBurst = false;
         boolean hasAuto = false;
 
-        int shotsPerBurst = data.of("Burst.Shots_Per_Burst").assertRange(1, 100).getInt(0);
-        int ticksBetweenEachShot = data.of("Burst.Ticks_Between_Each_Shot").assertPositive().getInt(0);
+        int shotsPerBurst = data.of("Burst.Shots_Per_Burst").assertRange(1, 100).getInt().orElse(0);
+        int ticksBetweenEachShot = data.of("Burst.Ticks_Between_Each_Shot").assertRange(0, null).getInt().orElse(0);
         if (shotsPerBurst != 0 || ticksBetweenEachShot != 0) {
             hasBurst = true;
         }
 
-        int fullyAutomaticShotsPerSecond = data.of("Fully_Automatic_Shots_Per_Second").assertRange(0, 120).getInt(0);
+        int fullyAutomaticShotsPerSecond = data.of("Fully_Automatic_Shots_Per_Second").assertRange(0, 120).getInt().orElse(0);
         if (fullyAutomaticShotsPerSecond != 0) {
             hasAuto = true;
         }
 
-        boolean usesSelectiveFire = configuration.getObject(data.key + ".Selective_Fire.Trigger", Trigger.class) != null;
+        boolean usesSelectiveFire = configuration.getObject(data.getKey() + ".Selective_Fire.Trigger", Trigger.class) != null;
         if (usesSelectiveFire && !hasBurst && !hasAuto) {
             throw data.exception("Selective_Fire", "When using selective fire, make sure to set up 2 of: 'Burst' and/or 'Fully_Automatic_Shots_Per_Second' and/or 'Delay_Between_Shots'");
         }
 
         String invalidTrigger = "";
+        Trigger trigger = configuration.getObject(data.getKey() + ".Trigger", Trigger.class);
         if (hasAuto) {
             if (isInvalidFullAuto(trigger.getMainhand()))
                 invalidTrigger += invalidTrigger.isEmpty() ? "Mainhand (" + trigger.getMainhand() + ")" : ", Mainhand (" + trigger.getMainhand() + ")";
@@ -785,22 +779,27 @@ public class ShootHandler implements IValidator, TriggerListener {
             }
         }
 
-        String defaultSelectiveFire = configuration.getString(data.key + ".Selective_Fire.Default");
+        String defaultSelectiveFire = configuration.getString(data.getKey() + ".Selective_Fire.Default");
         if (defaultSelectiveFire != null) {
             if (!defaultSelectiveFire.equalsIgnoreCase("SINGLE")
                 && !defaultSelectiveFire.equalsIgnoreCase("BURST")
                 && !defaultSelectiveFire.equalsIgnoreCase("AUTO")) {
 
-                throw new SerializerOptionsException(data.serializer, "Selective Fire Default", Arrays.asList("SINGLE", "BURST", "AUTO"), defaultSelectiveFire, data.of("Selective_Fire.Default")
-                    .getLocation());
+                throw SerializerException.builder()
+                    .locationRaw(data.of("Selective_Fire.Default").getLocation())
+                    .buildInvalidOption(defaultSelectiveFire, Arrays.asList("SINGLE", "BURST", "AUTO"));
+
             }
         }
 
-        CustomDurability durability = data.of("Custom_Durability").serialize(CustomDurability.class);
-        if (durability != null)
-            configuration.set(data.key + ".Custom_Durability", durability);
+        if (data.has("Custom_Durability")) {
+            throw SerializerException.builder()
+                .addMessage("since 4.0.0, Custom_Durability is no longer supported. Check the ItemSerializer wiki for new information.")
+                .addMessage("New system: https://cjcrafter.gitbook.io/core/item-serializer")
+                .build();
+        }
 
-        configuration.set(data.key + ".Reset_Fall_Distance", data.of("Reset_Fall_Distance").getBool(false));
+        configuration.set(data.getKey() + ".Reset_Fall_Distance", data.of("Reset_Fall_Distance").getBool().orElse(false));
     }
 
     private boolean isInvalidFullAuto(TriggerType triggerType) {

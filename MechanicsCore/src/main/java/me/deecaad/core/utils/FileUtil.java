@@ -1,7 +1,9 @@
 package me.deecaad.core.utils;
 
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.lang.reflect.Method;
@@ -51,7 +53,7 @@ public final class FileUtil {
 
                 // "Visit" directories first so we can create the directory.
                 @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                public @NotNull FileVisitResult preVisitDirectory(Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
                     Path currentTarget = target.resolve(pathReference.path.relativize(dir).toString());
                     Files.createDirectories(currentTarget);
                     return FileVisitResult.CONTINUE;
@@ -59,7 +61,7 @@ public final class FileUtil {
 
                 // "Visit" each file and copy the relative path
                 @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                public @NotNull FileVisitResult visitFile(Path file, @NotNull BasicFileAttributes attrs) throws IOException {
                     Files.copy(file, target.resolve(pathReference.path.relativize(file).toString()), StandardCopyOption.REPLACE_EXISTING);
                     return FileVisitResult.CONTINUE;
                 }
@@ -169,7 +171,9 @@ public final class FileUtil {
 
     public static void downloadFile(File target, String link, int connectionTime, int readTime) {
         try {
-            HttpURLConnection connection = (HttpURLConnection) new URL(link).openConnection();
+            URI uri = URI.create(link);
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+
             connection.setInstanceFollowRedirects(true);
             connection.setConnectTimeout(connectionTime * 1000);
             connection.setReadTimeout(readTime * 1000);
@@ -179,7 +183,7 @@ public final class FileUtil {
             in.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            debug.log(LogLevel.ERROR, "Some error occurred when downloading: " + link, e);
         }
     }
 

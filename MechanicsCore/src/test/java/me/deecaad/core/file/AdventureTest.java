@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import javax.annotation.Nonnull;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -45,8 +44,8 @@ public class AdventureTest {
     public void test_parse(int i) throws SerializerException {
         SerializeData data = new SerializeData(DUMMY, file, "Key", new BukkitConfig(config));
 
-        String actual = data.of("Input_" + i).assertExists().getAdventure();
-        String expected = data.of("Output_" + i).assertExists().get();
+        String actual = data.of("Input_" + i).assertExists().getAdventure().get();
+        String expected = data.of("Output_" + i).assertExists().get(String.class).get();
 
         assertEquals(expected, actual);
     }

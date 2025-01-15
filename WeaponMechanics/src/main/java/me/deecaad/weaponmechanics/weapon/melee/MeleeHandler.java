@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.melee;
 
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
@@ -171,7 +170,7 @@ public class MeleeHandler implements IValidator {
         }
 
         // Simply check where known victim was hit and whether it was in range
-        HitBox entityBox = CompatibilityAPI.getEntityCompatibility().getHitBox(knownVictim);
+        HitBox entityBox = HitBox.getHitbox(knownVictim);
         if (entityBox == null)
             return null;
 
@@ -193,23 +192,23 @@ public class MeleeHandler implements IValidator {
 
     @Override
     public void validate(Configuration configuration, SerializeData data) throws SerializerException {
-        boolean enableMelee = data.of("Enable_Melee").getBool(false);
-        String meleeAttachment = data.of("Melee_Attachment").get(null);
+        boolean enableMelee = data.of("Enable_Melee").getBool().orElse(false);
+        String meleeAttachment = data.of("Melee_Attachment").get(String.class).orElse(null);
         if (!enableMelee && meleeAttachment == null) {
             throw data.exception(null, "You must use either 'Enable_Melee: true' or 'Melee_Attachment: <weapon>'",
                 "You cannot use the 'Melee' key without 1 of those 2 options");
         }
 
-        int meleeHitDelay = data.of("Melee_Hit_Delay").assertPositive().getInt(0);
+        int meleeHitDelay = data.of("Melee_Hit_Delay").assertRange(0, null).getInt().orElse(0);
         if (meleeHitDelay != 0) {
             // Convert to millis
-            configuration.set(data.key + ".Melee_Hit_Delay", meleeHitDelay * 50);
+            configuration.set(data.getKey() + ".Melee_Hit_Delay", meleeHitDelay * 50);
         }
 
-        int meleeMissDelay = data.of("Melee_Miss.Melee_Miss_Delay").assertPositive().getInt(0);
+        int meleeMissDelay = data.of("Melee_Miss.Melee_Miss_Delay").assertRange(0, null).getInt().orElse(0);
         if (meleeMissDelay != 0) {
             // Convert to millis
-            configuration.set(data.key + ".Melee_Miss.Melee_Miss_Delay", meleeMissDelay * 50);
+            configuration.set(data.getKey() + ".Melee_Miss.Melee_Miss_Delay", meleeMissDelay * 50);
         }
     }
 }

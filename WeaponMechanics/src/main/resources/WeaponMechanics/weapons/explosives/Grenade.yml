@@ -12,7 +12,7 @@ Grenade:
       Hide_Flags: true
       Deny_Use_In_Crafting: true
     Weapon_Get_Mechanics:
-      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75}"
+      - "Sound{sound=item.armor.equip_chain, pitch=0.75}"
     Cancel:
       Block_Interactions: true
       Item_Interactions: true
@@ -31,8 +31,8 @@ Grenade:
           Allow_Any: true
           Default_Speed_Multiplier: 0.9
           List:
-            - "$_ICE-0.99"
-            - "ICE-0.99"
+            - "$_ICE 0.99"
+            - "ICE 0.99"
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
@@ -43,19 +43,19 @@ Grenade:
     Delay_Between_Shots: 20
     Consume_Item_On_Shoot: true
     Mechanics:
-      - "Sound{sound=ENTITY_EGG_THROW, volume=0.5, noise=0.1}"
+      - "Sound{sound=entity.egg.throw, volume=0.5, noise=0.1}"
   Damage:
     Base_Explosion_Damage: 19
     Fire_Ticks: 60
     Enable_Owner_Immunity: true
     Armor_Damage: 7
     Mechanics:
-      - "Potion{potion=CONFUSION, time=200, level=3, particles=HIDE} @Target{}"
+      - "Potion{potion=nausea, time=200, level=3, particles=HIDE} @Target{}"
   Explosion:
     Explosion_Exposure: "DEFAULT"
     Explosion_Shape: "PARABOLA"
     Explosion_Type_Data:
-      Depth: -5
+      Depth: 5
       Angle: 0.15
     Detonation:
       Delay_After_Impact: 60
@@ -82,7 +82,7 @@ Grenade:
 
   Cosmetics:
     Splash_Mechanics:
-      - "Sound{sound=ENTITY_GENERIC_SPLASH, pitch=1.85, noise=0.15} @Target{}"
+      - "Sound{sound=entity.generic.splash, pitch=1.85, noise=0.15} @Target{}"
       - "Particle{particle=WATER_SPLASH, count=20, noise=0.2 0.2 0.2} @Target{}"
 
   Trail:

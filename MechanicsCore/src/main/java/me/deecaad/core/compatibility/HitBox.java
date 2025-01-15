@@ -1,7 +1,7 @@
 package me.deecaad.core.compatibility;
 
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.file.serializers.ColorSerializer;
-import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.ray.BlockTraceResult;
 import me.deecaad.core.utils.ray.EntityTraceResult;
 import me.deecaad.core.utils.ray.RayTraceResult;
@@ -11,7 +11,10 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -429,5 +432,52 @@ public class HitBox {
 
     public HitBox cloneDimensions() {
         return new HitBox(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
+    public static @Nullable HitBox getHitbox(@NotNull Entity entity) {
+        if (entity.isInvulnerable() || !entity.getType().isAlive() || entity.isDead())
+            return null;
+
+        // TODO: remove the hitbox class in favor of the stable BoundingBox class
+        HitBox hitBox = getHitbox(entity.getBoundingBox());
+        if (entity instanceof LivingEntity livingEntity)
+            hitBox.setLivingEntity(livingEntity);
+
+        return hitBox;
+    }
+
+    public static @Nullable HitBox getHitbox(@NotNull Block block, boolean allowLiquid) {
+        if (!block.getChunk().isLoaded() || block.isEmpty())
+            return null;
+
+        boolean isLiquid = block.isLiquid();
+        if (!allowLiquid) {
+            if (block.isPassable() || block.isLiquid())
+                return null;
+        } else if (!isLiquid && block.isPassable()) {
+            // Check like this because liquid is also passable...
+            return null;
+        }
+
+        // TODO: remove the hitbox class in favor of the stable BoundingBox class
+        HitBox hitBox = getHitbox(block.getBoundingBox());
+        hitBox.setBlockHitBox(block);
+
+        Collection<BoundingBox> voxelShape = block.getCollisionShape().getBoundingBoxes();
+        if (voxelShape.size() > 1) {
+            int x = block.getX();
+            int y = block.getY();
+            int z = block.getZ();
+            for (BoundingBox boxPart : voxelShape) {
+                hitBox.addVoxelShapePart(new HitBox(x + boxPart.getMinX(), y + boxPart.getMinY(), z + boxPart.getMinZ(),
+                    x + boxPart.getMaxX(), y + boxPart.getMaxY(), z + boxPart.getMaxZ()));
+            }
+        }
+
+        return hitBox;
+    }
+
+    public static @NotNull HitBox getHitbox(@NotNull BoundingBox aabb) {
+        return new HitBox(aabb.getMinX(), aabb.getMinY(), aabb.getMinZ(), aabb.getMaxX(), aabb.getMaxY(), aabb.getMaxZ());
     }
 }

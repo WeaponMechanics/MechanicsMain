@@ -1,5 +1,6 @@
 package me.deecaad.core.utils;
 
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import org.bukkit.Bukkit;

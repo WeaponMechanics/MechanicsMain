@@ -1,32 +1,29 @@
 package me.deecaad.weaponmechanics.packetlisteners;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
+import com.github.retrooper.packetevents.event.PacketListener;
+import com.github.retrooper.packetevents.event.PacketSendEvent;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerAbilities;
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.scope.ScopeLevel;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.ZoomData;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.entity.Player;
 
-public class OutAbilitiesListener extends PacketAdapter {
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
-    public OutAbilitiesListener(Plugin plugin) {
-        super(plugin, ListenerPriority.NORMAL, PacketType.Play.Server.ABILITIES);
-    }
+public class OutAbilitiesListener implements PacketListener {
 
     @Override
-    public void onPacketReceiving(PacketEvent event) {
-    }
-
-    @Override
-    public void onPacketSending(PacketEvent event) {
-        if (event.isPlayerTemporary())
+    public void onPacketSend(PacketSendEvent event) {
+        if (event.getPacketType() != PacketType.Play.Server.PLAYER_ABILITIES)
             return;
 
-        EntityWrapper entity = WeaponMechanics.getEntityWrapper(event.getPlayer());
+        Player player = event.getPlayer();
+        if (player == null)
+            return;
 
+        EntityWrapper entity = WeaponMechanics.getEntityWrapper(player);
         ZoomData mainZoomData = entity.getMainHandData().getZoomData();
         ZoomData offZoomData = entity.getOffHandData().getZoomData();
 
@@ -40,6 +37,26 @@ public class OutAbilitiesListener extends PacketAdapter {
         if (zoomAmount == 0)
             return;
 
-        event.getPacket().getFloat().write(1, ScopeLevel.getScope(zoomAmount));
+        WrapperPlayServerPlayerAbilities wrapper = new WrapperPlayServerPlayerAbilities(event);
+        wrapper.setFOVModifier(getScope(zoomAmount));
+        wrapper.write();
+    }
+
+    /**
+     * From this one you can fetch the scope level values. It can be either be for attributes or
+     * abilities
+     *
+     * @param level the scope level
+     * @return the amount of zoom (when using abilities or attributes depending on level)
+     */
+    public static float getScope(double level) {
+        if (level < 1.0 || level > 10.0) {
+            debug.log(LogLevel.ERROR,
+                "Tried to get scope level of " + level + ", but only levels between 1 and 10 are allowed.",
+                new IllegalArgumentException("Tried to get scope level of " + level + ", but only levels between 1 and 10 are allowed."));
+            return 0;
+        }
+        return (float) (1.0 / (20.0 / level - 10.0)); // checking for division by zero is not needed here, Java gives Infinity when dividing by zero.
+        // ABILITIES packet correctly understands the meaning of Infinity
     }
 }

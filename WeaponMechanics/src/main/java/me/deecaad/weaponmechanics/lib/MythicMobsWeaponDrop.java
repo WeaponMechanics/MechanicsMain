@@ -5,7 +5,6 @@ import io.lumine.mythic.api.config.MythicLineConfig;
 import io.lumine.mythic.api.drops.DropMetadata;
 import io.lumine.mythic.api.drops.IItemDrop;
 import io.lumine.mythic.bukkit.adapters.item.ItemComponentBukkitItemStack;
-import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import org.bukkit.inventory.ItemStack;
@@ -29,7 +28,7 @@ public class MythicMobsWeaponDrop implements IItemDrop {
         if (this.amount < 1) {
             WeaponMechanics.debug.error("MythicMobs expected positive integer, found: " + amount,
                 "Located in file '" + config.getFileName() + "' at '" + config.getKey() + "'",
-                SerializerException.forValue(argument));
+                "Found argument: " + argument);
         }
     }
 

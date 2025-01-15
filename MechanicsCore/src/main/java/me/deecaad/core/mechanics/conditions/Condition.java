@@ -33,7 +33,7 @@ public abstract class Condition implements InlineSerializer<Condition> {
     protected abstract boolean isAllowed0(CastData cast);
 
     protected Condition applyParentArgs(SerializeData data, Condition condition) throws SerializerException {
-        condition.isInverted = data.of("Inverted").getBool(false);
+        condition.isInverted = data.of("Inverted").getBool().orElse(false);
         return condition;
     }
 }

@@ -69,11 +69,11 @@ public class TitleMechanic extends Mechanic {
 
     @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
-        String title = data.of("Title").getAdventure(null);
-        String subtitle = data.of("Subtitle").getAdventure(null);
-        int fadeIn = data.of("Fade_In").assertPositive().getInt(10);
-        int stay = data.of("Stay").assertPositive().getInt(70);
-        int fadeOut = data.of("Fade_Out").assertPositive().getInt(20);
+        String title = data.of("Title").getAdventure().orElse(null);
+        String subtitle = data.of("Subtitle").getAdventure().orElse(null);
+        int fadeIn = data.of("Fade_In").assertRange(0, null).getInt().orElse(10);
+        int stay = data.of("Stay").assertRange(0, null).getInt().orElse(70);
+        int fadeOut = data.of("Fade_Out").assertRange(0, null).getInt().orElse(20);
 
         // User should define at least one of these...
         if (title == null && subtitle == null)

@@ -92,7 +92,7 @@ public class Mechanics implements Serializer<Mechanics> {
 
     @NotNull @Override
     public Mechanics serialize(@NotNull SerializeData data) throws SerializerException {
-        List<?> list = data.config.getList(data.key);
+        List<?> list = data.getConfig().getList(data.getKey());
         List<Mechanic> mechanics = new ArrayList<>();
 
         // The old mechanic format used nested memory sections, so the list will be null.
@@ -162,19 +162,24 @@ public class Mechanics implements Serializer<Mechanics> {
                         // Try to figure out the name of the target. For example:
                         // '@EntitiesInRadius(radius=10)' => '@EntitiesInRadius'
                         Matcher nameMatcher = NAME_FINDER.matcher(group);
-                        if (!nameMatcher.find())
+                        if (!nameMatcher.find()) {
                             throw data.exception(null, "Could not determine the name of the targeter",
-                                "Make sure you included the {} after your targeter", SerializerException.forValue(group));
+                                "Make sure you included the {} after your targeter",
+                                "Found value: " + group);
+                        }
 
                         String temp = nameMatcher.group().substring(1);
                         targeter = TARGETERS.get(temp);
-                        if (targeter == null)
-                            throw new SerializerOptionsException("Mechanics", "@Targeter", TARGETERS.getOptions(), temp, data.of().getLocation());
+                        if (targeter == null) {
+                            throw SerializerException.builder()
+                                .locationRaw(data.of().getLocation())
+                                .buildInvalidOption(temp, TARGETERS.getOptions());
+                        }
 
                         // We need to call the 'inlineFormat' method since the
                         // current targeter object is just an empty serializer.
                         Map<String, MapConfigLike.Holder> args = InlineSerializer.inlineFormat(group.substring(1));
-                        SerializeData nested = new SerializeData(targeter, data.file, null, new MapConfigLike(args).setDebugInfo(data.file, data.key, line));
+                        SerializeData nested = new SerializeData(targeter, data.getFile(), null, new MapConfigLike(args).setDebugInfo(data.getFile(), data.getKey(), line));
                         targeter = targeter.serialize(nested);
                     }
 
@@ -187,13 +192,16 @@ public class Mechanics implements Serializer<Mechanics> {
 
                         String temp = nameMatcher.group().substring(1);
                         Condition condition = Mechanics.CONDITIONS.get(temp);
-                        if (condition == null)
-                            throw new SerializerOptionsException("Mechanics", "?Condition", CONDITIONS.getOptions(), temp, data.of().getLocation());
+                        if (condition == null) {
+                            throw SerializerException.builder()
+                                .locationRaw(data.of().getLocation())
+                                .buildInvalidOption(temp, CONDITIONS.getOptions());
+                        }
 
                         // We need to call the 'inlineFormat' method since the
                         // current condition object is just an empty serializer.
                         Map<String, MapConfigLike.Holder> args = InlineSerializer.inlineFormat(group.substring(1));
-                        SerializeData nested = new SerializeData(condition, data.file, null, new MapConfigLike(args).setDebugInfo(data.file, data.key, line));
+                        SerializeData nested = new SerializeData(condition, data.getFile(), null, new MapConfigLike(args).setDebugInfo(data.getFile(), data.getKey(), line));
                         conditions.add(condition.serialize(nested));
                     }
 
@@ -207,19 +215,24 @@ public class Mechanics implements Serializer<Mechanics> {
                         // Try to figure out the name of the target. For example:
                         // '@EntitiesInRadius(radius=10)' => '@EntitiesInRadius'
                         Matcher nameMatcher = NAME_FINDER.matcher(group);
-                        if (!nameMatcher.find())
+                        if (!nameMatcher.find()) {
                             throw data.exception(null, "Could not determine the name of the mechanic",
-                                "Make sure you included the {} after your mechanic!", SerializerException.forValue(group));
+                                "Make sure you included the {} after your mechanic!",
+                                "For value: " + group);
+                        }
 
                         String temp = nameMatcher.group();
                         mechanic = MECHANICS.get(temp);
-                        if (mechanic == null)
-                            throw new SerializerOptionsException("Mechanics", "Mechanic", MECHANICS.getOptions(), temp, data.of().getLocation());
+                        if (mechanic == null) {
+                            throw SerializerException.builder()
+                                .locationRaw(data.of().getLocation())
+                                .buildInvalidOption(temp, MECHANICS.getOptions());
+                        }
 
                         // We need to call the 'inlineFormat' method since the
                         // current mechanic object is just an empty serializer.
                         Map<String, MapConfigLike.Holder> args = InlineSerializer.inlineFormat(group.substring(1));
-                        SerializeData nested = new SerializeData(mechanic, data.file, null, new MapConfigLike(args).setDebugInfo(data.file, data.key, line));
+                        SerializeData nested = new SerializeData(mechanic, data.getFile(), null, new MapConfigLike(args).setDebugInfo(data.getFile(), data.getKey(), line));
                         mechanic = mechanic.serialize(nested);
                     }
                 }

@@ -16,13 +16,13 @@ AX_50:
       Unbreakable: true
       Hide_Flags: true
       Attributes:
-        - "GENERIC_MOVEMENT_SPEED -0.033"
+        - "movement_speed -0.033"
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
         Message: "<gold>AX-50<firearm_state> <gray>«<gold><ammo_left><gray>»<gold><reload>"
     Weapon_Get_Mechanics:
-      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.5, listeners=Source{}}"
+      - "Sound{sound=item.armor.equip_chain, pitch=0.5, listeners=Source{}}"
     Weapon_Equip_Delay: 50
     Cancel:
       Drop_Item: true
@@ -50,18 +50,15 @@ AX_50:
         Sneaking: 50%
         In_Midair: 150%
     Recoil:
-      Push_Time: 200
-      Recover_Time: 200
-      Horizontal:
-        - -8
-        - 0
-        - 8
-      Vertical:
-        - 13
-      Modify_Recoil_When:
-        Zooming: 50%
-        Sneaking: 50%
-        In_Midair: 150%
+      Mean_X: 0.0
+      Mean_Y: 4.0
+      Variance_X: 0.1
+      Variance_Y: 0.2
+      Speed: 6.0
+      Damping: 0.2
+      Damping_Recovery: 0.3
+      Smoothing: 0.3
+      Max_Accumulation: 25.0
     Mechanics:
       - "CustomSound{sound=shoot.ax50.loud, volume=6, noise=0.1}"
   Reload:
@@ -100,12 +97,12 @@ AX_50:
     Open:
       Time: 10
       Mechanics:
-        - "Sound{sound=BLOCK_NOTE_BLOCK_HAT, volume=0.5, noise=0.1, listeners=Source{}}"
-        - "Sound{sound=BLOCK_PISTON_CONTRACT, volume=0.5, noise=0.1, listeners=Source{}, delayBeforePlay=4}"
+        - "Sound{sound=block.note_block.hat, volume=0.5, noise=0.1, listeners=Source{}}"
+        - "Sound{sound=block.piston.contract, volume=0.5, noise=0.1, listeners=Source{}, delayBeforePlay=4}"
     Close:
       Time: 10
       Mechanics:
-        - "Sound{sound=BLOCK_PISTON_EXTEND, volume=0.5, noise=0.1, listeners=Source{}}"
+        - "Sound{sound=block.piston.extend, volume=0.5, noise=0.1, listeners=Source{}}"
 
   # The following options are added by WeaponMechanicsCosmetics, and you will
   # not see the changes take effect until you purchase it.
@@ -113,14 +110,17 @@ AX_50:
   Cosmetics:
     Muzzle_Flash: true
     Splash_Mechanics:
-      - "Sound{sound=ENTITY_GENERIC_SPLASH, pitch=1.85, noise=0.15} @Target{}"
+      - "Sound{sound=entity.generic.splash, pitch=1.85, noise=0.15} @Target{}"
       - "Particle{particle=WATER_SPLASH, count=20, noise=0.2 0.2 0.2} @Target{}"
     Bullet_Zip:
       Maximum_Distance: 4.0
       Sounds:
         - "CustomSound{sound=fx.whiz, noise=0.02} @Target{}"
-    Crossbow:
-      Only_When_Scoping: false
+    Third_Person_Pose:
+      Default: NONE
+      Scope: BOW
+      Reload: BLOCK
+      Firearm_Action: CROSSBOW
 
   Trail:
     Distance_Between_Particles: 0.3

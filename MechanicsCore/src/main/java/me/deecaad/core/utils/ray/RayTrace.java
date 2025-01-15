@@ -1,6 +1,5 @@
 package me.deecaad.core.utils.ray;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.utils.NumberUtil;
 import org.bukkit.Chunk;
@@ -100,9 +99,9 @@ public class RayTrace {
             if (this.outlineHitBox) {
                 RayTraceResult firstHit = hits.get(0);
                 if (firstHit instanceof BlockTraceResult blockHit) {
-                    CompatibilityAPI.getBlockCompatibility().getHitBox(blockHit.getBlock()).outlineAllBoxes(entity);
+                    HitBox.getHitbox(blockHit.getBlock(), true).outlineAllBoxes(entity);
                 } else if (firstHit instanceof EntityTraceResult entityHit) {
-                    HitBox entityBox = CompatibilityAPI.getEntityCompatibility().getHitBox(entityHit.getEntity());
+                    HitBox entityBox = HitBox.getHitbox(entityHit.getEntity());
                     entityBox.grow(raySize);
                     entityBox.outlineAllBoxes(entity);
                 }
@@ -196,7 +195,7 @@ public class RayTrace {
         if (blockFilter != null && blockFilter.test(block))
             return null;
 
-        HitBox blockBox = CompatibilityAPI.getBlockCompatibility().getHitBox(block, allowLiquid);
+        HitBox blockBox = HitBox.getHitbox(block, allowLiquid);
         if (blockBox == null)
             return null;
 
@@ -232,7 +231,7 @@ public class RayTrace {
         if (entityFilter != null && entityFilter.test((LivingEntity) entity))
             return null;
 
-        HitBox entityBox = CompatibilityAPI.getEntityCompatibility().getHitBox(entity);
+        HitBox entityBox = HitBox.getHitbox(entity);
         if (entityBox == null)
             return null;
 

@@ -38,7 +38,7 @@ public class FileReader {
      * @param serializers the new list serializers for this file reader
      */
     public void addSerializers(List<Serializer<?>> serializers) {
-        if (serializers != null && serializers.size() > 0) {
+        if (serializers != null && !serializers.isEmpty()) {
             for (Serializer<?> serializer : serializers) {
                 addSerializer(serializer);
             }
@@ -52,10 +52,13 @@ public class FileReader {
      * @param serializer the new serializer for this file reader
      */
     public void addSerializer(Serializer<?> serializer) {
-        String serializerLowerCase = serializer.getKeyword().toLowerCase(Locale.ROOT);
-        if (this.serializers.containsKey(serializerLowerCase)) {
-            Serializer<?> alreadyAdded = this.serializers.get(serializerLowerCase);
+        String keyword = serializer.getKeyword();
+        if (keyword == null) {
+            throw new IllegalArgumentException("Could not add '" + serializer + "' since it has no keyword!");
+        }
 
+        Serializer<?> alreadyAdded = this.serializers.get(keyword.toLowerCase(Locale.ROOT));
+        if (alreadyAdded != null) {
             // Check if already added serializer isn't assignable with the new one
             if (!alreadyAdded.getClass().isAssignableFrom(serializer.getClass())) {
                 debug.log(LogLevel.ERROR,
@@ -69,7 +72,7 @@ public class FileReader {
             debug.log(LogLevel.DEBUG,
                 "New serializer " + serializer.getClass().getName() + " will now override already added serializer " + alreadyAdded.getClass().getName());
         }
-        this.serializers.put(serializerLowerCase, serializer);
+        this.serializers.put(keyword.toLowerCase(Locale.ROOT), serializer);
     }
 
     /**
@@ -79,7 +82,7 @@ public class FileReader {
      * @param validators the new list validators for this file reader
      */
     public void addValidators(List<IValidator> validators) {
-        if (validators != null && validators.size() > 0) {
+        if (validators != null && !validators.isEmpty()) {
             for (IValidator validator : validators) {
                 addValidator(validator);
             }
@@ -260,7 +263,7 @@ public class FileReader {
                                 savedSerializer = serializer;
                             }
 
-                        } catch (SerializerPathToException ex) {
+                        } catch (PathToSerializerException ex) {
                             nestedPathToSerializers.add(new NestedPathToSerializer(serializer, key, ex));
                             if (startsWithDeny == null) {
                                 startsWithDeny = key;
@@ -312,8 +315,8 @@ public class FileReader {
         // Handle nested-path-to serializers
         for (NestedPathToSerializer nestedPathTo : nestedPathToSerializers) {
             try {
-                SerializeData data = new SerializeData(nestedPathTo.serializer, nestedPathTo.ex.data.file, nestedPathTo.path, nestedPathTo.ex.data.config);
-                data.pathToConfig = filledMap;
+                SerializeData data = new SerializeData(nestedPathTo.serializer, nestedPathTo.ex.getSerializeData().getFile(), nestedPathTo.path, nestedPathTo.ex.getSerializeData().getConfig());
+                data.setPathToConfig(filledMap);
                 Object serialized = data.of().serialize(nestedPathTo.serializer);
                 filledMap.set(nestedPathTo.path, serialized);
             } catch (SerializerException ex) {
@@ -330,7 +333,7 @@ public class FileReader {
         for (ValidatorData validatorData : validatorDatas) {
 
             SerializeData data = new SerializeData(validatorData.validator.getKeyword(), validatorData.file, validatorData.path, new BukkitConfig(validatorData.configurationSection));
-            data.pathToConfig = filledMap;
+            data.setPathToConfig(filledMap);
 
             if (!validatorData.validator.shouldValidate(data)) {
                 debug.debug("Skipping " + validatorData.path + " due to skip");
@@ -356,7 +359,7 @@ public class FileReader {
      * @param path The "base-key" location of the outer serialized object.
      * @param ex The failure which contains copy-from and paste-to locations.
      */
-    public record NestedPathToSerializer(Serializer<?> serializer, String path, SerializerPathToException ex) {
+    public record NestedPathToSerializer(Serializer<?> serializer, String path, PathToSerializerException ex) {
     }
 
     /**

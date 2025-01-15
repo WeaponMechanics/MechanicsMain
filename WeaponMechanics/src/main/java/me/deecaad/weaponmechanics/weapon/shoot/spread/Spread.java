@@ -127,13 +127,13 @@ public class Spread implements Serializer<Spread> {
 
     @Override
     @NotNull public Spread serialize(@NotNull SerializeData data) throws SerializerException {
-        SpreadImage spreadImage = data.of("Spread_Image").serialize(SpreadImage.class);
+        SpreadImage spreadImage = data.of("Spread_Image").serialize(SpreadImage.class).orElse(null);
 
-        double baseSpread = data.of("Base_Spread").assertExists(spreadImage == null).assertPositive().getDouble(0.0);
+        double baseSpread = data.of("Base_Spread").assertRange(0.0, null).getDouble().orElse(0.0);
         baseSpread /= 100.0;
 
-        ModifySpreadWhen modifySpreadWhen = (ModifySpreadWhen) data.of("Modify_Spread_When").serialize(new ModifySpreadWhen());
-        ChangingSpread changingSpread = data.of("Changing_Spread").serialize(ChangingSpread.class);
+        ModifySpreadWhen modifySpreadWhen = (ModifySpreadWhen) data.of("Modify_Spread_When").serialize(new ModifySpreadWhen()).orElse(null);
+        ChangingSpread changingSpread = data.of("Changing_Spread").serialize(ChangingSpread.class).orElse(null);
         return new Spread(spreadImage, baseSpread, modifySpreadWhen, changingSpread);
     }
 }

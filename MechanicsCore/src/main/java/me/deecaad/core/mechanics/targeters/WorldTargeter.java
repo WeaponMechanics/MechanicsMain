@@ -84,7 +84,8 @@ public class WorldTargeter extends Targeter {
 
     @NotNull @Override
     public Targeter serialize(@NotNull SerializeData data) throws SerializerException {
-        String worldName = data.of("World").assertType(String.class).get(null);
+        // When the world is not specified, it will default to the source's world
+        String worldName = data.of("World").get(String.class).orElse(null);
         return applyParentArgs(data, new WorldTargeter(worldName));
     }
 

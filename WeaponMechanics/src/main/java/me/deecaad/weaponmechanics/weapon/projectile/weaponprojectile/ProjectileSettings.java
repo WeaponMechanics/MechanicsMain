@@ -1,19 +1,17 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.MinecraftVersions;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Locale;
 
 public class ProjectileSettings implements Serializer<ProjectileSettings>, Cloneable {
 
@@ -231,8 +229,8 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
     @Override
     @NotNull public ProjectileSettings serialize(@NotNull SerializeData data) throws SerializerException {
 
-        String type = data.of("Type").assertExists().get().toString().trim().toUpperCase(Locale.ROOT);
-        boolean isInvisible = type.equals("INVISIBLE");
+        String type = data.of("Type").assertExists().get(String.class).get().trim();
+        boolean isInvisible = type.equalsIgnoreCase("INVISIBLE");
 
         Object disguiseData = null;
         EntityType projectileType = null;
@@ -240,7 +238,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
         if (!isInvisible) {
 
             try {
-                projectileType = data.of("Type").assertExists().getEntityType(null);
+                projectileType = data.of("Type").assertExists().getEntityType().get();
             } catch (SerializerException ex) {
                 // People often define a material instead of an entity type, like "iron_nugget".
                 // So this checks if the type is a material
@@ -253,11 +251,8 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
                 throw ex;
             }
 
-            ItemStack projectileItem = data.of("Projectile_Item_Or_Block").serialize(new ItemSerializer());
-            if ((projectileType == ITEM_ENTITY
-                || projectileType == EntityType.FALLING_BLOCK)
-                && projectileItem == null) {
-
+            ItemStack projectileItem = data.of("Projectile_Item_Or_Block").serialize(ItemSerializer.class).orElse(null);
+            if ((projectileType == ITEM_ENTITY || projectileType == EntityType.FALLING_BLOCK) && projectileItem == null) {
                 throw data.exception(null, "When using " + projectileType + ", you MUST use Projectile_Item_Or_Block");
             }
 
@@ -265,7 +260,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
                 if (projectileType == FIREWORK_ENTITY && !(projectileItem.getItemMeta() instanceof FireworkMeta)) {
 
                     throw data.exception(null, "When using " + projectileType + ", the item must be a firework",
-                        SerializerException.forValue(projectileItem));
+                        "Found item: " + projectileItem);
                 }
 
                 if (projectileType == EntityType.FALLING_BLOCK) {
@@ -281,27 +276,27 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
                     && (MinecraftVersions.WILD_UPDATE.isAtLeast() && projectileType != EntityType.ITEM_DISPLAY && projectileType != EntityType.BLOCK_DISPLAY)) {
 
                     throw data.exception(null, "When using " + projectileType + ", you CAN'T use Projectile_Item_Or_Block",
-                        SerializerException.forValue(projectileItem));
+                        "Found item: " + projectileItem);
                 }
             }
         }
 
-        double gravity = data.of("Gravity").getDouble(10) / 200.0;
+        double gravity = data.of("Gravity").getDouble().orElse(10.0) / 200.0;
 
         // -1 so that CustomProjectile#tick() can understand that minimum or maximum speed isn't used
-        double minimumSpeed = data.of("Minimum.Speed").assertPositive().getDouble(-20.0) / 20.0;
-        boolean removeAtMinimumSpeed = data.of("Minimum.Remove_Projectile_On_Speed_Reached").getBool(false);
-        double maximumSpeed = data.of("Maximum.Speed").assertPositive().getDouble(-20.0) / 20.0;
-        boolean removeAtMaximumSpeed = data.of("Maximum.Remove_Projectile_On_Speed_Reached").getBool(false);
+        double minimumSpeed = data.of("Minimum.Speed").assertRange(0.0, null).getDouble().orElse(-20.0) / 20.0;
+        boolean removeAtMinimumSpeed = data.of("Minimum.Remove_Projectile_On_Speed_Reached").getBool().orElse(false);
+        double maximumSpeed = data.of("Maximum.Speed").assertRange(0.0, null).getDouble().orElse(-20.0) / 20.0;
+        boolean removeAtMaximumSpeed = data.of("Maximum.Remove_Projectile_On_Speed_Reached").getBool().orElse(false);
 
-        double decrease = data.of("Drag.Base").assertRange(0.0, 3.0).getDouble(0.99);
-        double decreaseInWater = data.of("Drag.In_Water").assertRange(0.0, 3.0).getDouble(0.96);
-        double decreaseWhenRainingOrSnowing = data.of("Drag.When_Raining_Or_Snowing").assertRange(0.0, 3.0).getDouble(0.98);
+        double decrease = data.of("Drag.Base").assertRange(0.0, 3.0).getDouble().orElse(0.99);
+        double decreaseInWater = data.of("Drag.In_Water").assertRange(0.0, 3.0).getDouble().orElse(0.96);
+        double decreaseWhenRainingOrSnowing = data.of("Drag.When_Raining_Or_Snowing").assertRange(0.0, 3.0).getDouble().orElse(0.98);
 
-        boolean disableEntityCollisions = data.of("Disable_Entity_Collisions").getBool(false);
-        int maximumAliveTicks = data.of("Maximum_Alive_Ticks").assertPositive().getInt(600);
-        double maximumTravelDistance = data.of("Maximum_Travel_Distance").assertPositive().getDouble(-1);
-        double size = data.of("Size").assertPositive().getDouble(0.1);
+        boolean disableEntityCollisions = data.of("Disable_Entity_Collisions").getBool().orElse(false);
+        int maximumAliveTicks = data.of("Maximum_Alive_Ticks").assertRange(0, null).getInt().orElse(600);
+        double maximumTravelDistance = data.of("Maximum_Travel_Distance").assertRange(0.0, null).getDouble().orElse(-1.0);
+        double size = data.of("Size").assertRange(0.0, null).getDouble().orElse(0.1);
 
         return new ProjectileSettings(projectileType, disguiseData, gravity, removeAtMinimumSpeed, minimumSpeed,
             removeAtMaximumSpeed, maximumSpeed, decrease, decreaseInWater, decreaseWhenRainingOrSnowing,

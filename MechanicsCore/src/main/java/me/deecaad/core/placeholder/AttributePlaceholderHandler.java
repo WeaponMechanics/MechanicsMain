@@ -1,41 +1,68 @@
 package me.deecaad.core.placeholder;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.compatibility.nbt.NBTCompatibility;
-import me.deecaad.core.utils.AttributeType;
+import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Locale;
+import java.util.Collection;
 
 public abstract class AttributePlaceholderHandler extends NumericPlaceholderHandler {
 
-    private final AttributeType attribute;
+    private final Attribute attribute;
 
-    public AttributePlaceholderHandler(AttributeType attribute) {
-        super("item_" + attribute.name().toLowerCase(Locale.ROOT));
+    public AttributePlaceholderHandler(@NotNull Attribute attribute) {
+        super(buildKey(attribute.getKey()));
         this.attribute = attribute;
     }
 
-    @Nullable @Override
-    public Number requestValue(@NotNull PlaceholderData data) {
+    @Subst("attribute_minecraft_attack_damage") // example for static analysis
+    private static @NotNull String buildKey(@NotNull NamespacedKey key) {
+        return "attribute_" + key.getNamespace() + "_" + key.getKey();
+    }
+
+    @Override
+    public @Nullable Number requestValue(@NotNull PlaceholderData data) {
         ItemStack item = data.item();
         if (item == null || !item.hasItemMeta())
             return null;
 
         EquipmentSlot equipmentSlot = data.slot();
-        NBTCompatibility.AttributeSlot slot = equipmentSlot == null ? null : switch (equipmentSlot) {
-            case HAND -> NBTCompatibility.AttributeSlot.MAIN_HAND;
-            case OFF_HAND -> NBTCompatibility.AttributeSlot.OFF_HAND;
-            case FEET -> NBTCompatibility.AttributeSlot.FEET;
-            case LEGS -> NBTCompatibility.AttributeSlot.LEGS;
-            case CHEST -> NBTCompatibility.AttributeSlot.CHEST;
-            case HEAD -> NBTCompatibility.AttributeSlot.HEAD;
-            case BODY -> NBTCompatibility.AttributeSlot.BODY;
-        };
+        return getAttributeValue(item, attribute, equipmentSlot);
+    }
 
-        return CompatibilityAPI.getNBTCompatibility().getAttributeValue(item, attribute, slot);
+    public static double getAttributeValue(@NotNull ItemStack item, @NotNull Attribute attribute, @NotNull EquipmentSlot slot) {
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null)
+            return 0.0;
+
+        Collection<AttributeModifier> modifiers = meta.getAttributeModifiers(attribute);
+        if (modifiers == null)
+            return 0.0;
+
+        double value = 0.0;
+        for (AttributeModifier modifier : modifiers) {
+            if (!modifier.getSlotGroup().test(slot))
+                continue;
+
+            switch (modifier.getOperation()) {
+                case ADD_NUMBER:
+                    value += modifier.getAmount();
+                    break;
+                case ADD_SCALAR:
+                    value += modifier.getAmount() * item.getAmount();
+                    break;
+                case MULTIPLY_SCALAR_1:
+                    value *= modifier.getAmount();
+                    break;
+            }
+        }
+
+        return value;
     }
 }

@@ -1,23 +1,10 @@
 package me.deecaad.core.compatibility.nbt;
 
-import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.utils.AttributeType;
-import me.deecaad.core.utils.MinecraftVersions;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.NamespacedKey;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.block.Block;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
 import java.util.Locale;
-import java.util.UUID;
 
 /**
  * This interface outlines a version dependant api that return values based on different
@@ -310,116 +297,9 @@ public interface NBTCompatibility {
      */
     void remove(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key);
 
-    default double getAttributeValue(@NotNull ItemStack bukkitItem, @NotNull AttributeType attribute, @Nullable AttributeSlot slot) {
-        ItemMeta meta = bukkitItem.getItemMeta();
-
-        if (meta == null) {
-            return 0.0; // Return a default value if the item doesn't have any meta information
-        }
-
-        Attribute bukkitAttribute = Attribute.valueOf(attribute.name());
-        Collection<AttributeModifier> modifiers = meta.getAttributeModifiers(bukkitAttribute);
-
-        if (modifiers == null) {
-            return 0.0; // Return 0.0 if there are no attribute modifiers for the given attribute
-        }
-
-        double value = 0.0;
-        for (AttributeModifier modifier : modifiers) {
-            // If the slot is specified and matches the modifier's slot, or if the slot isn't specified at all
-            if (slot == null || modifier.getSlot() == null || modifier.getSlot() == slot.getEquipmentSlot()) {
-                switch (modifier.getOperation()) {
-                    case ADD_NUMBER:
-                        value += modifier.getAmount();
-                        break;
-                    case ADD_SCALAR:
-                        value += value * modifier.getAmount();
-                        break;
-                    case MULTIPLY_SCALAR_1:
-                        value *= modifier.getAmount();
-                        break;
-                }
-            }
-        }
-
-        return value;
-    }
-
-    @Nullable default AttributeModifier getAttribute(@NotNull ItemStack bukkitItem, @NotNull AttributeType attribute, @Nullable AttributeSlot slot) {
-        ItemMeta meta = bukkitItem.getItemMeta();
-        Attribute bukkitAttribute = Attribute.valueOf(attribute.name());
-
-        UUID uuid = (slot == null) ? attribute.getUUID() : slot.modify(attribute.getUUID());
-
-        // API doesn't allow modifying AttributeModifiers so I have to delete old ones based on their UUIDs
-        // and add these new AttributeModifiers which contain new amount for the Attribute
-        for (AttributeModifier existingModifier : meta.getAttributeModifiers(bukkitAttribute)) {
-            if (uuid.equals(existingModifier.getUniqueId()))
-                return existingModifier;
-        }
-
-        return null;
-    }
-
-    /**
-     * Sets the value of an {@link Attribute} for a given item <code>bukkitItem</code>. The attribute
-     * will apply to living entities which hold the item in the given <code>slot</code>. Using this
-     * method overrides the value previously set, if applicable.
-     *
-     * <p>
-     * This method always adds the attribute value (No multiplication).
-     *
-     * @param bukkitItem The non-null item to apply the attribute to.
-     * @param attribute The non-null attribute to set.
-     * @param slot In which slot will the attribute be active, or <code>null</code> for all slots.
-     * @param value The new value of the attribute.
-     */
-    default void setAttribute(@NotNull ItemStack bukkitItem, @NotNull AttributeType attribute, @Nullable AttributeSlot slot, double value) {
-        ItemMeta meta = bukkitItem.getItemMeta();
-        Attribute bukkitAttribute = Attribute.valueOf(attribute.name());
-
-        AttributeModifier hand = new AttributeModifier(slot == null ? attribute.getUUID() : slot.modify(attribute.getUUID()), "MechanicsCoreAttribute", value, AttributeModifier.Operation.ADD_NUMBER,
-            slot == null ? null : slot.getEquipmentSlot());
-
-        // API doesn't allow modifying AttributeModifiers so I have to delete old ones based on their UUIDs
-        // and add these new AttributeModifiers which contain new amount for the Attribute
-        meta.removeAttributeModifier(bukkitAttribute, hand);
-        meta.addAttributeModifier(bukkitAttribute, hand);
-
-        bukkitItem.setItemMeta(meta);
-    }
-
     default NamespacedKey getKey(String plugin, String key) {
         return new NamespacedKey(plugin.toLowerCase(Locale.ROOT), key.toLowerCase(Locale.ROOT));
     }
-
-    /**
-     * Copies the NBT tags from item to the other. This method will replace the previous NBT tags of the
-     * item. A <i>COPY</i> of the tags are used, so any modifications to one of the item's tags will not
-     * be reflected in the other after this method is used.
-     *
-     * @param fromItem The non-null item to copy the tags from.
-     * @param toItem The non-null item to override the tags.
-     * @param path The path to the compound to copy, or null to copy every tag. Example:
-     *        <code>"PublicBukkitValues"</code>
-     */
-    void copyTagsFromTo(@NotNull ItemStack fromItem, @NotNull ItemStack toItem, String path);
-
-    /**
-     * Returns a NMS item stack based on the given <code>bukkitStack</code>.
-     *
-     * @param bukkitStack The non-null bukkit item to convert.
-     * @return The non-null nms item.
-     */
-    @NotNull Object getNMSStack(@NotNull ItemStack bukkitStack);
-
-    /**
-     * Returns a bukkit item stack based on the given <code>nmsStack</code>.
-     *
-     * @param nmsStack The non-null nms item to convert.
-     * @return The non-null bukkit item.
-     */
-    @NotNull ItemStack getBukkitStack(@NotNull Object nmsStack);
 
     /**
      * Returns the {@link Object#toString()} value of an item's NBT compound, useful for debugging.
@@ -428,72 +308,4 @@ public interface NBTCompatibility {
      * @return The non-null string value of the nbt compound.
      */
     @NotNull String getNBTDebug(@NotNull ItemStack bukkitStack);
-
-    @NotNull default Component getDisplayName(@NotNull ItemStack item) {
-        String legacyText = item.getItemMeta().getDisplayName();
-        return LegacyComponentSerializer.legacySection().deserialize(legacyText);
-    }
-
-    /**
-     * Returns the material of the item used to place the block.
-     *
-     * @param block The non-null block data to get the item material from.
-     * @return The non-null material of the item.
-     */
-    default @NotNull ItemStack getPlacementItem(@NotNull Block block) {
-        return new ItemStack(block.getBlockData().getPlacementMaterial());
-    }
-
-    /**
-     * This enum outlines the different slots an attribute can be applied to.
-     */
-    enum AttributeSlot {
-
-        MAIN_HAND(1),
-        OFF_HAND(6),
-        FEET(5),
-        LEGS(4),
-        CHEST(3),
-        HEAD(2),
-        BODY(7);
-
-        private final EquipmentSlot slot;
-        private final String slotName;
-        private final long uuidModifier;
-
-        AttributeSlot(long uuidModifier) {
-            // BODY was added in 1.20.5, default to CHEST if the version is lower
-            if (this.name().equals("BODY") && !MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast()) {
-                MechanicsCore.debug.debug("BODY slot is not supported in this version of Minecraft. Using CHEST instead.");
-                this.slot = EquipmentSlot.CHEST;
-                this.slotName = "chest";
-                this.uuidModifier = uuidModifier;
-                return;
-            }
-
-            this.slot = name().equals("MAIN_HAND") ? EquipmentSlot.HAND : EquipmentSlot.valueOf(name());
-            this.slotName = name().replaceAll("_", "").toLowerCase(Locale.ROOT);
-            this.uuidModifier = uuidModifier;
-        }
-
-        public EquipmentSlot getEquipmentSlot() {
-            return slot;
-        }
-
-        public String getSlotName() {
-            return slotName;
-        }
-
-        public UUID modify(UUID uuid) {
-            return new UUID(uuid.getMostSignificantBits() + uuidModifier, uuid.getLeastSignificantBits());
-        }
-
-        @Override
-        public String toString() {
-            return "AttributeSlot{" +
-                "slot=" + slot +
-                ", slotName='" + slotName + '\'' +
-                '}';
-        }
-    }
 }

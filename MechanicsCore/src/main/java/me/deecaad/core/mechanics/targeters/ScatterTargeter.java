@@ -103,10 +103,10 @@ public class ScatterTargeter extends ShapeTargeter {
 
     @NotNull @Override
     public Targeter serialize(@NotNull SerializeData data) throws SerializerException {
-        int points = data.of("Points").assertExists().getInt();
-        double horizontalRange = data.of("Horizontal_Range").assertPositive().getDouble(5.0);
-        double verticalRange = data.of("Vertical_Range").assertPositive().getDouble(horizontalRange);
-        boolean isTraceDown = data.of("Trace_Down").getBool(false);
+        int points = data.of("Points").assertExists().getInt().getAsInt();
+        double horizontalRange = data.of("Horizontal_Range").assertRange(0.0, null).getDouble().orElse(5.0);
+        double verticalRange = data.of("Vertical_Range").assertRange(0.0, null).getDouble().orElse(horizontalRange);
+        boolean isTraceDown = data.of("Trace_Down").getBool().orElse(false);
         return applyParentArgs(data, new ScatterTargeter(points, horizontalRange / 2.0, verticalRange / 2.0, isTraceDown));
     }
 }

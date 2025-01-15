@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.weaponmechanics.weapon.info.WeaponConverter;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,20 +27,16 @@ public class AmmoConverter extends WeaponConverter {
 
     @Override
     public @NotNull AmmoConverter serialize(@NotNull SerializeData data) throws SerializerException {
-        boolean type = data.of("Type").getBool(false);
-        boolean name = data.of("Name").getBool(false);
-        boolean lore = data.of("Lore").getBool(false);
-        boolean enchantments = data.of("Enchantments").getBool(false);
-        boolean cmd = data.of("Custom_Model_Data").getBool(false);
+        boolean type = data.of("Type").getBool().orElse(false);
+        boolean name = data.of("Name").getBool().orElse(false);
+        boolean lore = data.of("Lore").getBool().orElse(false);
+        boolean enchantments = data.of("Enchantments").getBool().orElse(false);
+        boolean cmd = data.of("Custom_Model_Data").getBool().orElse(false);
 
         if (!type && !name && !lore && !enchantments && !cmd) {
             throw data.exception(null, "'Type', 'Name', 'Lore', 'Enchantments', 'Custom_Model_Data' are all 'false'",
                 "One of them should be 'true' to allow ammo conversion",
                 "If you want to remove the ammo conversion feature, remove the 'Ammo_Converter_Check' option from config");
-        }
-
-        if (cmd && !MinecraftVersions.VILLAGE_AND_PILLAGE.isAtLeast()) {
-            throw data.exception("Custom_Model_Data", "Custom_Model_Data is only available for 1.14+");
         }
 
         return new AmmoConverter(type, name, lore, enchantments, cmd);

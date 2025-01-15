@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.weapon.reload.ammo;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.NumberUtil;
@@ -134,10 +133,10 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
 
     @NotNull @Override
     public AmmoConfig serialize(@NotNull SerializeData data) throws SerializerException {
-        Mechanics mechanics = data.of("Out_Of_Ammo_Mechanics").serialize(Mechanics.class);
-        Trigger switchTrigger = data.of("Ammo_Switch_Trigger").serialize(Trigger.class);
-        Mechanics switchMechanics = data.of("Ammo_Switch_Mechanics").serialize(Mechanics.class);
-        List<String> ammunitionStrings = data.of("Ammos").assertType(List.class).assertExists().get();
+        Mechanics mechanics = data.of("Out_Of_Ammo_Mechanics").serialize(Mechanics.class).orElse(null);
+        Trigger switchTrigger = data.of("Ammo_Switch_Trigger").serialize(Trigger.class).orElse(null);
+        Mechanics switchMechanics = data.of("Ammo_Switch_Mechanics").serialize(Mechanics.class).orElse(null);
+        List<String> ammunitionStrings = data.of("Ammos").assertExists().get(List.class).get();
 
         List<Ammo> ammunitions = new ArrayList<>(ammunitionStrings.size());
         for (int i = 0; i < ammunitionStrings.size(); i++) {
@@ -146,7 +145,10 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
 
             // Make sure the ammo exists
             if (ammo == null) {
-                throw new SerializerOptionsException(this, "Ammo", AmmoRegistry.AMMO_REGISTRY.getOptions(), ammoTitle, data.ofList("Ammos").getLocation(i));
+                throw SerializerException.builder()
+                    .locationRaw(data.ofList("Ammos").getLocation(i))
+                    .addMessage("Ammo '" + ammoTitle + "' does not exist in the ammo registry.")
+                    .buildInvalidOption(ammoTitle, AmmoRegistry.AMMO_REGISTRY.getOptions());
             }
 
             ammunitions.add(ammo);

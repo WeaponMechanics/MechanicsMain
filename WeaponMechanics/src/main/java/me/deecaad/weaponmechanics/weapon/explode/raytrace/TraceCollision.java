@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode.raytrace;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.HitBox;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 
@@ -42,7 +42,7 @@ public class TraceCollision {
     }
 
     public boolean canHit(Block block) {
-        return CompatibilityAPI.getBlockCompatibility().getHitBox(block) != null;
+        return HitBox.getHitbox(block, false) != null;
     }
 
     public boolean canHit(Entity entity) {

@@ -13,22 +13,26 @@ repositories {
 }
 
 dependencies {
-    implementation(Dependencies.BSTATS)
-    implementation("com.jeff_media:SpigotUpdateChecker:3.0.3")
-    implementation(Dependencies.GSON)
-    adventureChatAPI()
-    implementation(Dependencies.FAST_UTIL)
 
+    // Core Bukkit/Minecraft libs
     compileOnly(Dependencies.LATEST_SPIGOT_API)
+
+    // External plugins that we hook into
     compileOnly(project(":MechanicsCore"))
-    compileOnly(Dependencies.PROTOCOL_LIB)
+    compileOnly(Dependencies.PACKET_EVENTS)
     compileOnly(Dependencies.PLACEHOLDER_API)
     compileOnly(Dependencies.MYTHIC_MOBS)
     compileOnly(Dependencies.VIVECRAFT)
-    compileOnly(Dependencies.FOLIA_SCHEDULER)
-    compileOnly(files(file("../lib/crackshot/CrackShotPlus.jar")))
-    compileOnly(files(file("../lib/crackshot/CrackShot.jar")))
 
+    // Misc libs
+    compileOnly(Dependencies.BSTATS)
+    compileOnly("com.jeff_media:SpigotUpdateChecker:3.0.3")
+    compileOnly(Dependencies.GSON)
+    adventureChatAPI()
+    compileOnly(Dependencies.FAST_UTIL)
+    compileOnly(Dependencies.FOLIA_SCHEDULER)
+    compileOnly(Dependencies.COMMAND_API)
+    compileOnly(Dependencies.COMMAND_API_KOTLIN)
 }
 
 // Create javadocJar and sourcesJar tasks
@@ -44,7 +48,7 @@ val sourcesJar by tasks.registering(Jar::class) {
 
 tasks.compileKotlin {
     kotlinOptions {
-        jvmTarget = "16"
+        jvmTarget = "21"
     }
 }
 
@@ -131,5 +135,3 @@ publishing {
 tasks.named("publish") {
     finalizedBy("closeAndReleaseRepository")
 }
-
-

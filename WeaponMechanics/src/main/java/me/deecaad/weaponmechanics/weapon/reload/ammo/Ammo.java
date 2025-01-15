@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.OptionalInt;
 
 public class Ammo implements Keyable, Serializer<Ammo> {
 
@@ -54,9 +55,9 @@ public class Ammo implements Keyable, Serializer<Ammo> {
 
     @NotNull @Override
     public Ammo serialize(@NotNull SerializeData data) throws SerializerException {
-        String[] split = data.key.split("\\.");
+        String[] split = data.getKey().split("\\.");
         String ammoTitle = split[split.length - 1];
-        String symbol = data.of("Symbol").assertType(String.class).get(null);
+        String symbol = data.of("Symbol").get(String.class).orElse(null);
 
         if (data.has("Ammo_Types")) {
             throw data.exception("Ammo_Types", "Ammo_Types is outdated since WeaponMechanics 3.0.0",
@@ -82,14 +83,14 @@ public class Ammo implements Keyable, Serializer<Ammo> {
 
         IAmmoType ammoType = null;
 
-        int experienceCost = data.of("Experience_As_Ammo_Cost").assertPositive().getInt(-1);
-        if (experienceCost != -1) {
-            ammoType = new ExperienceAmmo(experienceCost);
+        OptionalInt experienceCost = data.of("Experience_As_Ammo_Cost").assertRange(1, null).getInt();
+        if (experienceCost.isPresent()) {
+            ammoType = new ExperienceAmmo(experienceCost.getAsInt());
         }
 
-        int moneyCost = data.of("Money_As_Ammo_Cost").assertPositive().getInt(-1);
-        if (moneyCost != -1) {
-            ammoType = new MoneyAmmo(moneyCost);
+        OptionalInt moneyCost = data.of("Money_As_Ammo_Cost").assertRange(1, null).getInt();
+        if (moneyCost.isPresent()) {
+            ammoType = new MoneyAmmo(moneyCost.getAsInt());
         }
 
         if (data.has("Item_Ammo")) {
@@ -114,7 +115,7 @@ public class Ammo implements Keyable, Serializer<Ammo> {
                 throw data.exception(null, "Missing both 'Bullet_Item' and 'Magazine_Item' for your ammo... Use at least 1 of them!");
             }
 
-            AmmoConverter ammoConverter = (AmmoConverter) data.of("Item_Ammo.Ammo_Converter_Check").serialize(new AmmoConverter());
+            AmmoConverter ammoConverter = (AmmoConverter) data.of("Item_Ammo.Ammo_Converter_Check").serialize(AmmoConverter.class).orElse(null);
             ammoType = new ItemAmmo(ammoTitle, bulletItem, magazineItem, ammoConverter);
         }
 

@@ -1,62 +1,43 @@
 package me.deecaad.core.file.serializers;
 
-import me.deecaad.core.file.*;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SimpleSerializer;
 import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.SerializerUtil;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Color;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static me.deecaad.core.MechanicsCore.debug;
-
-public class ColorSerializer implements InlineSerializer<ColorSerializer> {
+public class ColorSerializer implements SimpleSerializer<Color> {
 
     private static final Pattern HEX_PATTERN = Pattern.compile("[0-9a-fA-F]{6}");
-    private Color color;
 
-    /**
-     * Default constructor for serializer
-     */
-    public ColorSerializer() {
-    }
-
-    public ColorSerializer(Color color) {
-        this.color = color;
-    }
-
-    public Color getColor() {
-        return color;
+    @Override
+    public @NotNull String getTypeName() {
+        return "#RRGGBB";
     }
 
     @Override
-    @NotNull public ColorSerializer serialize(@NotNull SerializeData data) throws SerializerException {
-
-        String input = data.config.getString(data.key);
-        if (input == null || input.isEmpty())
-            throw new SerializerMissingKeyException(this, "Color", SerializerUtil.foundAt(data.file, data.key));
-
-        Color color = fromString(data, input.trim());
-        return new ColorSerializer(color);
-    }
-
-    public static Color fromString(SerializeData data, String input) throws SerializerException {
+    public @NotNull Color deserialize(@NotNull String data, @NotNull String errorLocation) throws SerializerException {
 
         // Follows the format, '0xRRGGBB' and translates each character as a
         // hex character. While '0xRR' is technically a valid hex code for red,
         // this is actually treated as an error (To help avoid confusion).
-        if (input.startsWith("0x")) {
-            String substring = input.substring(2);
+        if (data.startsWith("0x")) {
+            String substring = data.substring(2);
             if (substring.length() != 6) {
-                throw data.exception(null, "Hex strings should have 6 digits",
-                    SerializerException.forValue(input),
-                    SerializerException.examples("0xFF00BB", "0x123456", "0x111111"));
+                throw SerializerException.builder()
+                    .locationRaw(errorLocation)
+                    .example("0xFF00BB")
+                    .addMessage("Hex strings should have 6 digits")
+                    .addMessage("Found value: " + data)
+                    .build();
             }
             int rgb = Integer.parseInt(substring, 16);
             return Color.fromRGB(rgb);
@@ -65,12 +46,15 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
         // Follows the format, '#RRGGBB' and translates each character as a
         // hex character. While '#RR' is technically a valid hex code for red,
         // this is actually treated as an error (To help avoid confusion).
-        else if (input.startsWith("#")) {
-            String substring = input.substring(1);
+        else if (data.startsWith("#")) {
+            String substring = data.substring(1);
             if (substring.length() != 6) {
-                throw data.exception(null, "Hex strings should have 6 digits",
-                    SerializerException.forValue(input),
-                    SerializerException.examples("#FF00BB", "#123456", "#111111"));
+                throw SerializerException.builder()
+                    .locationRaw(errorLocation)
+                    .example("#FF00BB")
+                    .addMessage("Hex strings should have 6 digits")
+                    .addMessage("Found value: " + data)
+                    .build();
             }
             int rgb = Integer.parseInt(substring, 16);
             return Color.fromRGB(rgb);
@@ -80,8 +64,8 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
         // here to be a bit more adaptable. While it isn't so good at catching
         // errors like the above examples, it should help eliminate the need
         // for people to ask questions.
-        else if (HEX_PATTERN.matcher(input).find()) {
-            Matcher matcher = HEX_PATTERN.matcher(input);
+        else if (HEX_PATTERN.matcher(data).find()) {
+            Matcher matcher = HEX_PATTERN.matcher(data);
             matcher.find(); // always true
             String substring = matcher.group();
             int rgb = Integer.parseInt(substring, 16);
@@ -89,39 +73,61 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
         }
 
         // Follows the format, 'R-G-B' and translates each character as a byte.
-        else if (StringUtil.split(input).size() == 3) {
-            String[] split = input.split("-");
+        else if (StringUtil.split(data).size() == 3) {
+            String[] split = data.split("-");
             int r = Integer.parseInt(split[0]);
             int g = Integer.parseInt(split[1]);
             int b = Integer.parseInt(split[2]);
 
-            if (r < 0 || r > 255)
-                throw new SerializerRangeException("Color", 0, r, 255, SerializerUtil.foundAt(data.file, data.key));
-            else if (g < 0 || g > 255)
-                throw new SerializerRangeException("Color", 0, g, 255, SerializerUtil.foundAt(data.file, data.key));
-            else if (b < 0 || b > 255)
-                throw new SerializerRangeException("Color", 0, b, 255, SerializerUtil.foundAt(data.file, data.key));
+            if (r < 0 || r > 255) {
+                throw SerializerException.builder()
+                    .locationRaw(errorLocation)
+                    .buildInvalidRange(r, 0, 255);
+            } else if (g < 0 || g > 255) {
+                throw SerializerException.builder()
+                    .locationRaw(errorLocation)
+                    .buildInvalidRange(g, 0, 255);
+            } else if (b < 0 || b > 255) {
+                throw SerializerException.builder()
+                    .locationRaw(errorLocation)
+                    .buildInvalidRange(b, 0, 255);
+            }
 
             return Color.fromRGB(r, g, b);
         }
 
         // Allows for primitive color usage, like 'RED', 'BLUE', or 'GREEN'.
         else {
-            Optional<ColorType> optional = EnumUtil.getIfPresent(ColorType.class, input.toUpperCase(Locale.ROOT));
+            Optional<ColorType> optional = EnumUtil.getIfPresent(ColorType.class, data.trim().toUpperCase(Locale.ROOT));
 
             if (optional.isPresent()) {
-                return optional.get().color;
+                return optional.get().getBukkitColor();
             }
 
             // This occurs when EVERY color format fails, so we should try to
             // provide a lot of information to help the user.
             else {
-                throw data.exception(null, SerializerException.forValue(input),
-                    SerializerException.didYouMean(input, ColorType.class),
-                    "Choose one of these formats: #RRGGBB, r g b, RED, RRGGBB, 0xRRGGBB, r~g~b",
-                    SerializerException.examples("#AA0022", "255 100 0", "RED", "444411", "BLUE", "0 0 255"));
+                throw SerializerException.builder()
+                    .locationRaw(errorLocation)
+                    .addMessage("Choose one of these formats: #RRGGBB, r g b, RED, RRGGBB, 0xRRGGBB, r~g~b")
+                    .buildInvalidEnumOption(data, ColorType.class);
             }
         }
+    }
+
+    @Override
+    public @NotNull List<String> examples() {
+        List<String> examples = new ArrayList<>(100);
+        for (ColorType colorType : ColorType.values()) {
+            examples.add(colorType.name());
+            Color color = colorType.getBukkitColor();
+
+            examples.add(String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue()));
+            examples.add(String.format("%d-%d-%d", color.getRed(), color.getGreen(), color.getBlue()));
+            examples.add(String.format("0x%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue()));
+        }
+
+        return examples;
     }
 
     public enum ColorType {
@@ -131,20 +137,17 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
         DARK_BLUE(Color.fromRGB(0, 0, 170)),
         DARK_GREEN(Color.fromRGB(0, 170, 0)),
         DARK_AQUA(Color.fromRGB(0, 170, 170)),
-        DARK_RED(Color.fromRGB(170, 0,
-            0)),
+        DARK_RED(Color.fromRGB(170, 0, 0)),
         DARK_PURPLE(Color.fromRGB(170, 0, 170)),
         GOLD(Color.fromRGB(255, 170, 0)),
         GRAY(Color.fromRGB(170, 170, 170)),
         DARK_GRAY(Color.fromRGB(85, 85, 85)),
-        BLUE(Color.fromRGB(85, 85,
-            255)),
+        BLUE(Color.fromRGB(85, 85, 255)),
         GREEN(Color.fromRGB(85, 255, 85)),
         AQUA(Color.fromRGB(85, 255, 255)),
         RED(Color.fromRGB(255, 85, 85)),
         LIGHT_PURPLE(Color.fromRGB(255, 85, 255)),
-        YELLOW(Color.fromRGB(255, 255,
-            85)),
+        YELLOW(Color.fromRGB(255, 255, 85)),
         WHITE(Color.fromRGB(255, 255, 255));
 
         private final Color color;
@@ -158,56 +161,6 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
          */
         public Color getBukkitColor() {
             return color;
-        }
-
-        /**
-         * @param colorString the color as ColorType string or red-green-blue string
-         * @return the color parsed from string or null if not valid or found
-         */
-        public static Color fromString(String colorString) {
-            List<String> splittedColor = StringUtil.split(colorString);
-            if (splittedColor.size() == 1) {
-                try {
-                    return ColorType.valueOf(colorString).getBukkitColor();
-                } catch (IllegalArgumentException e) {
-                    return null;
-                }
-            }
-
-            return fromRGBString(splittedColor);
-        }
-
-        /**
-         * @param splittedColor the string color in red-green-blue format
-         * @return the RGB bukkit color or null if not valid
-         */
-        public static Color fromRGBString(List<String> splittedColor) {
-            if (splittedColor.size() < 3) {
-                debug.log(LogLevel.ERROR, "Tried to get RGB color out of " + splittedColor + ", but it wasn't in correct format.",
-                    "Correct format is red-green-blue");
-                return null;
-            }
-            try {
-                int red = Integer.parseInt(splittedColor.get(0));
-                int green = Integer.parseInt(splittedColor.get(1));
-                int blue = Integer.parseInt(splittedColor.get(2));
-                return Color.fromRGB(red, green, blue);
-            } catch (NumberFormatException e) {
-                debug.log(LogLevel.ERROR, "Tried to get RGB color out of " + splittedColor + ", but it didn't contain integers.");
-                return null;
-            }
-        }
-
-        /**
-         * In versions before 1.13 this had to be done for particle offsets
-         *
-         * @return the value divided by 255
-         */
-        public static float getAsParticleColor(float value) {
-            if (value < (float) 1.0) {
-                value = (float) 1.0;
-            }
-            return value / (float) 255.0;
         }
     }
 }

@@ -2,11 +2,11 @@ package me.deecaad.weaponmechanics.weapon.firearm;
 
 /**
  * This class highlights the different types a Firearm can have.
- *
+ * <p>
  * So there are 2 different firearm actions, OPEN and CLOSE. These actions are triggered based on
  * weapon shooting and reloading. Comments on each type describe when the firearm opens and closes
  * based on those 2 triggers.
- *
+ * <p>
  * Some types also have aliases, <code>REVOLVER</code> and <code>BREAK</code>, for example. This is
  * because these types are called different things by different people.
  */

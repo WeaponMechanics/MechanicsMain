@@ -10,19 +10,16 @@ plugins {
 dependencies {
     implementation(project(":WeaponMechanics"))
 
+    // Implementation for all the libraries we shade:
+    implementation(Dependencies.BSTATS)
+    implementation("com.jeff_media:SpigotUpdateChecker:3.0.3")
+    implementation(Dependencies.GSON)
+
     // Add all compatibility modules
-    val devMode = findProperty("devMode") == "true"
     var addedOne = false
     file("../WeaponCompatibility").listFiles()?.forEach {
         if (it.isDirectory && it.name.matches(Regex("Weapon_\\d+_\\d+_R\\d+"))) {
-            // Use the reobf variant for all modules 1.17+
-            val major = it.name.split("_")[2].toInt()
-
-            if (major >= 17) {
-                implementation(project(":${it.name}", "reobf"))
-            } else if (!devMode) {
-                implementation(project(":${it.name}"))
-            }
+            implementation(project(":${it.name}", "reobf"))
             addedOne = true
         }
     }
@@ -41,7 +38,7 @@ bukkit {
     foliaSupported = true
 
     authors = listOf("DeeCaaD", "CJCrafter")
-    depend = listOf("ProtocolLib")
+    depend = listOf("packetevents")
     softDepend = listOf("MechanicsCore", "MythicMobs", "CrackShot", "CrackShotPlus", "VivecraftSpigot")
 
     permissions {
@@ -61,15 +58,9 @@ tasks.shadowJar {
     dependencies {
         include(project(":WeaponMechanics"))
 
-        val devMode = findProperty("devMode") == "true"
         var addedOne = false
         file("../WeaponCompatibility").listFiles()?.forEach {
             if (it.isDirectory && it.name.matches(Regex("Weapon_\\d+_\\d+_R\\d+"))) {
-                // Filter out projects when in devMode
-                val major = it.name.split("_")[2].toInt()
-                if (devMode && major < 17)
-                    return@forEach
-
                 include(project(":${it.name}"))
                 addedOne = true
             }
@@ -91,7 +82,9 @@ tasks.shadowJar {
 
     // This doesn't actually include any dependencies, this relocates all references
     // to the mechanics core lib.
+    relocate("kotlin.", "me.deecaad.core.lib.kotlin.")
     relocate("net.kyori", "me.deecaad.core.lib")
-    relocate("kotlin.", "me.deecaad.weaponmechanics.lib.kotlin.")
+    relocate("com.cryptomorin.xseries", "me.deecaad.core.lib.xseries")
     relocate("com.cjcrafter.foliascheduler", "me.deecaad.core.lib.scheduler")
+    relocate("dev.jorel.commandapi", "me.deecaad.core.lib.commandapi")
 }

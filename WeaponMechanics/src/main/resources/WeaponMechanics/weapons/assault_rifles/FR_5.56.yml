@@ -17,13 +17,13 @@ FR_5_56:
       Unbreakable: true
       Hide_Flags: true
       Attributes:
-        - "GENERIC_MOVEMENT_SPEED -0.0191"
+        - "movement_speed -0.0191"
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
         Message: "<gold>FR 5.56<firearm_state> <gray>«<gold><ammo_left><gray>»<gold><reload> <gray>[<gold><selective_fire_state><gray>]"
     Weapon_Get_Mechanics:
-      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75}"
+      - "Sound{sound=item.armor.equip_chain, pitch=0.75}"
     Weapon_Equip_Delay: 30
     Cancel:
       Drop_Item: true
@@ -50,7 +50,7 @@ FR_5_56:
         Off_Hand: "DOUBLE_SNEAK"
       Default: "BURST"
       Mechanics:
-        - "Sound{sound=BLOCK_NOTE_BLOCK_HAT, pitch=2.0}"
+        - "Sound{sound=block.note_block.hat, pitch=2.0}"
     Delay_Between_Shots: 2
     Fully_Automatic_Shots_Per_Second: 13
     Burst:
@@ -63,17 +63,15 @@ FR_5_56:
         Sneaking: 50%
         In_Midair: 150%
     Recoil:
-      Push_Time: 200
-      Recover_Time: 200
-      Horizontal:
-        - 2.8
-        - 0
-      Vertical:
-        - 2.8
-      Modify_Recoil_When:
-        Zooming: 50%
-        Sneaking: 50%
-        In_Midair: 150%
+      Mean_X: 0.1
+      Mean_Y: 1.0
+      Variance_X: 0.3
+      Variance_Y: 0.2
+      Speed: 2.2
+      Damping: 0.08
+      Damping_Recovery: 0.15
+      Smoothing: 0.35
+      Max_Accumulation: 10.0
     Mechanics:
       - "CustomSound{sound=shoot.fr556.loud, volume=6, noise=0.1}"
   Reload:
@@ -113,12 +111,12 @@ FR_5_56:
     Open:
       Time: 8
       Mechanics:
-        - "Sound{sound=BLOCK_NOTE_BLOCK_HAT, volume=0.5, noise=0.1, listeners=Source{}}"
-        - "Sound{sound=BLOCK_PISTON_CONTRACT, volume=0.5, noise=0.1, listeners=Source{}, delayBeforePlay=2}"
+        - "Sound{sound=block.note_block.hat, volume=0.5, noise=0.1, listeners=Source{}}"
+        - "Sound{sound=block.piston.contract, volume=0.5, noise=0.1, listeners=Source{}, delayBeforePlay=2}"
     Close:
       Time: 8
       Mechanics:
-        - "Sound{sound=BLOCK_PISTON_EXTEND, volume=0.5, noise=0.1, listeners=Source{}}"
+        - "Sound{sound=block.piston.extend, volume=0.5, noise=0.1, listeners=Source{}}"
 
   # The following options are added by WeaponMechanicsCosmetics, and you will
   # not see the changes take effect until you purchase it.
@@ -126,14 +124,17 @@ FR_5_56:
   Cosmetics:
     Muzzle_Flash: true
     Splash_Mechanics:
-      - "Sound{sound=ENTITY_GENERIC_SPLASH, pitch=1.85, noise=0.15} @Target{}"
+      - "Sound{sound=entity.generic.splash, pitch=1.85, noise=0.15} @Target{}"
       - "Particle{particle=WATER_SPLASH, count=20, noise=0.2 0.2 0.2} @Target{}"
     Bullet_Zip:
       Maximum_Distance: 4.0
       Sounds:
         - "CustomSound{sound=fx.whiz, noise=0.02, listeners=Target{}} @Target{}"
-    Crossbow:
-      Only_When_Scoping: false
+    Third_Person_Pose:
+      Default: NONE
+      Scope: BOW
+      Reload: BLOCK
+      Firearm_Action: CROSSBOW
 
   Trail:
     Distance_Between_Particles: 0.3

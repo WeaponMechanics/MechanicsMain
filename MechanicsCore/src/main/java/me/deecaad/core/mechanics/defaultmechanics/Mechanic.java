@@ -131,11 +131,10 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
     protected abstract void use0(CastData cast);
 
     public Mechanic applyParentArgs(SerializeData data, Mechanic mechanic) throws SerializerException {
-        mechanic.repeatAmount = data.of("Repeat_Amount").assertPositive().getInt(1);
-        mechanic.repeatInterval = data.of("Repeat_Interval").assertPositive().getInt(1);
-        mechanic.delayBeforePlay = data.of("Delay_Before_Play").assertPositive().getInt(1);
-        Double chance = data.of("Chance").serialize(new ChanceSerializer());
-        mechanic.chance = chance == null ? 1.0 : chance;
+        mechanic.repeatAmount = data.of("Repeat_Amount").assertRange(1, null).getInt().orElse(1);
+        mechanic.repeatInterval = data.of("Repeat_Interval").assertRange(1, null).getInt().orElse(1);
+        mechanic.delayBeforePlay = data.of("Delay_Before_Play").assertRange(0, null).getInt().orElse(0);
+        mechanic.chance = data.of("Chance").serialize(ChanceSerializer.class).orElse(1.0);
         return mechanic;
     }
 }

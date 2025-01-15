@@ -1,7 +1,5 @@
 package me.deecaad.weaponmechanics.compatibility;
 
-import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
-import me.deecaad.weaponmechanics.compatibility.scope.Scope_1_21_R1;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageSources;
@@ -10,7 +8,6 @@ import net.minecraft.world.entity.RelativeMovement;
 import org.bukkit.craftbukkit.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -30,15 +27,7 @@ public class v1_21_R1 implements IWeaponCompatibility {
         RelativeMovement.Y,
         RelativeMovement.Z));
 
-    private final IScopeCompatibility scopeCompatibility;
-
     public v1_21_R1() {
-        this.scopeCompatibility = new Scope_1_21_R1();
-    }
-
-    @NotNull @Override
-    public IScopeCompatibility getScopeCompatibility() {
-        return scopeCompatibility;
     }
 
     @Override
@@ -72,10 +61,5 @@ public class v1_21_R1 implements IWeaponCompatibility {
     @Override
     public void setKiller(org.bukkit.entity.LivingEntity victim, Player killer) {
         ((CraftLivingEntity) victim).getHandle().lastHurtByMob = ((CraftPlayer) killer).getHandle();
-    }
-
-    @Override
-    public void playHurtAnimation(org.bukkit.entity.LivingEntity victim) {
-        victim.playHurtAnimation(0);
     }
 }

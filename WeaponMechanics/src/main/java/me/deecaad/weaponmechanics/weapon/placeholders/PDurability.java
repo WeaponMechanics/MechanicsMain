@@ -1,23 +1,30 @@
 package me.deecaad.weaponmechanics.weapon.placeholders;
 
+import me.deecaad.core.placeholder.NumericPlaceholderHandler;
 import me.deecaad.core.placeholder.PlaceholderData;
-import me.deecaad.core.placeholder.PlaceholderHandler;
-import me.deecaad.weaponmechanics.utils.CustomTag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.jetbrains.annotations.NotNull;
-
 import org.jetbrains.annotations.Nullable;
 
-public class PDurability extends PlaceholderHandler {
+public class PDurability extends NumericPlaceholderHandler {
 
     public PDurability() {
-        super("custom_durability");
+        super("durability");
     }
 
-    @Nullable @Override
-    public String onRequest(@NotNull PlaceholderData data) {
-        if (data.item() == null)
+    @Override
+    public @Nullable Number requestValue(@NotNull PlaceholderData data) {
+        ItemStack item = data.item();
+        if (item == null)
             return null;
 
-        return String.valueOf(CustomTag.DURABILITY.getInteger(data.item()));
+        if (item.getItemMeta() instanceof Damageable damageable && damageable.hasMaxDamage()) {
+            int maxDurability = damageable.getMaxDamage();
+            int durability = maxDurability - damageable.getDamage();
+            return durability;
+        }
+
+        return null;
     }
 }

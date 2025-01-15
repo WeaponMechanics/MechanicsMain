@@ -7,12 +7,10 @@ import me.deecaad.core.utils.ProbabilityMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 public class SpreadImage implements Serializer<SpreadImage> {
@@ -76,7 +74,7 @@ public class SpreadImage implements Serializer<SpreadImage> {
     /**
      * Gets a given number of random points (x, y) from <code>this.points</code> using the value of that
      * point as the chance for that point to be selected.
-     *
+     * <p>
      * If not enough points are found in the allowed number of checks, then random points are selected,
      * not taking the point's value into account
      *
@@ -104,15 +102,15 @@ public class SpreadImage implements Serializer<SpreadImage> {
 
     @Override
     @NotNull public SpreadImage serialize(@NotNull SerializeData data) throws SerializerException {
-        String imageName = data.of("Name").assertExists().assertType(String.class).get();
+        String imageName = data.of("Name").assertExists().get(String.class).get();
 
         // 9/10, people will be using a png. If no file extension is provided,
         // we will default to png.
         if (!imageName.contains("\\."))
             imageName += ".png";
 
-        double FOVWidth = data.of("Field_Of_View_Width").assertExists().assertRange(0.0, 360.0).getDouble();
-        double FOVHeight = data.of("Field_Of_View_Height").assertExists().assertRange(0.0, 360.0).getDouble();
+        double FOVWidth = data.of("Field_Of_View_Width").assertExists().assertRange(0.0, 360.0).getDouble().getAsDouble();
+        double FOVHeight = data.of("Field_Of_View_Height").assertExists().assertRange(0.0, 360.0).getDouble().getAsDouble();
 
         File dataFolder = WeaponMechanics.getPlugin().getDataFolder();
         File spritesFolder = new File(dataFolder, "spread_patterns");
@@ -128,9 +126,9 @@ public class SpreadImage implements Serializer<SpreadImage> {
         }
 
         if (!spriteFile.exists()) {
-            throw data.exception("Name", "No spread image '" + spriteFile + "' exists",
-                "Make sure you spelled the name correctly",
-                SerializerException.didYouMean(imageName, Arrays.asList(Objects.requireNonNull(spritesFolder.list()))));
+            throw SerializerException.builder()
+                .locationRaw(data.of("Name").getLocation())
+                .buildInvalidOption(imageName, Arrays.asList(spritesFolder.list()));
         }
 
         Sprite sprite;

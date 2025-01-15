@@ -2,8 +2,6 @@ package me.deecaad.core.file;
 
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-
 public class Square implements Serializer<Square> {
 
     private Vec2 offset;
@@ -29,13 +27,13 @@ public class Square implements Serializer<Square> {
         return "Square";
     }
 
-    @NotNull @Override
-    public Square serialize(@NotNull SerializeData data) throws SerializerException {
-        Vec2 offset = data.of("Offset").serialize(Vec2.class);
-        int length = data.of("Length").assertExists().assertPositive().get();
-        double r = data.of("R").assertRange(0.0, 1.0).getDouble(0.0);
-        double g = data.of("G").assertRange(0.0, 1.0).getDouble(0.0);
-        double b = data.of("B").assertRange(0.0, 1.0).getDouble(0.0);
+    @Override
+    public @NotNull Square serialize(@NotNull SerializeData data) throws SerializerException {
+        Vec2 offset = data.of("Offset").serialize(Vec2.class).orElse(null);
+        int length = data.of("Length").assertExists().assertRange(0, null).getInt().getAsInt();
+        double r = data.of("R").assertRange(0.0, 1.0).getDouble().orElse(0.0);
+        double g = data.of("G").assertRange(0.0, 1.0).getDouble().orElse(0.0);
+        double b = data.of("B").assertRange(0.0, 1.0).getDouble().orElse(0.0);
 
         if (length == 0)
             throw data.exception("Length", "'Length' may not be '0'");
@@ -72,9 +70,9 @@ public class Square implements Serializer<Square> {
 
         @NotNull @Override
         public Vec2 serialize(@NotNull SerializeData data) throws SerializerException {
-            int x = data.of("X").assertExists().assertType(int.class).getInt();
-            int y = data.of("Y").assertExists().assertType(Integer.class).getInt();
-            boolean absolute = data.of("Absolute").assertType(boolean.class).getBool(true);
+            int x = data.of("X").assertExists().getInt().getAsInt();
+            int y = data.of("Y").assertExists().getInt().getAsInt();
+            boolean absolute = data.of("Absolute").getBool().orElse(true);
 
             return new Vec2(x, y, absolute);
         }

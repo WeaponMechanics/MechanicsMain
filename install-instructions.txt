@@ -1,12 +1,12 @@
 To install WeaponMechanics:
 
 1. Stop your server
-2. Install ProtocolLib: https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/
+2. Install PacketEvents:
 3. Drag and drop all 3 jar files into the plugins folder
   * Includes these 3 files:
   * WeaponMechanics-x.x.x.jar
   * MechanicsCore-x.x.x.jar
-  * ProtocolLib.jar
+  * packetevents-spigot-x.x.x.jar
 4. Start your server
 
 Tips:

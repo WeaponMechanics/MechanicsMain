@@ -56,12 +56,12 @@ public interface Serializer<T> {
      * Basically if this is not null then all other serializers will be used except these which have
      * useLater() returning not null. useLater() should only return something else than null if path to
      * configuration option is used.
-     *
+     * <p>
      * Path to should not be never used multiple times inside one serializer!
      *
      * @param configurationSection the configuration section
      * @param path the path to this serializer's path (path to keyword like path.keyword)
-     * @return true if this serializer should be used later
+     * @return nonnull if this serializer should be used later
      */
     default @Nullable String useLater(ConfigurationSection configurationSection, String path) {
 

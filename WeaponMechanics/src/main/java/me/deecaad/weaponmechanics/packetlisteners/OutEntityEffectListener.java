@@ -1,44 +1,41 @@
 package me.deecaad.weaponmechanics.packetlisteners;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
+import com.github.retrooper.packetevents.event.PacketListener;
+import com.github.retrooper.packetevents.event.PacketSendEvent;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityEffect;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.potion.PotionEffectType;
+import org.bukkit.entity.Player;
 
-public class OutEntityEffectListener extends PacketAdapter {
-
-    public OutEntityEffectListener(Plugin plugin) {
-        super(plugin, ListenerPriority.NORMAL, PacketType.Play.Server.ENTITY_EFFECT);
-    }
+public class OutEntityEffectListener implements PacketListener {
 
     @Override
-    public void onPacketReceiving(PacketEvent event) {
-    }
+    public void onPacketSend(PacketSendEvent event) {
+        if (event.getPacketType() != PacketType.Play.Server.ENTITY_EFFECT)
+            return;
 
-    @Override
-    public void onPacketSending(PacketEvent event) {
-        int id = event.getPacket().getIntegers().read(0);
+        WrapperPlayServerEntityEffect wrapper = new WrapperPlayServerEntityEffect(event);
+        int id = wrapper.getEntityId();
 
         // A negative ID doesn't happen in Vanilla Minecraft. When this is
         // negative, it means that ScopeCompatibility sent this packet.
         if (id < 0) {
-            event.getPacket().getIntegers().write(0, -id);
+            wrapper.setEntityId(-id);
+            wrapper.write();
             return;
         }
 
         // Only modify this packet if it is for the player it is sent to
-        if (id != event.getPlayer().getEntityId())
+        if (id != ((Player) event.getPlayer()).getEntityId())
             return;
 
         EntityWrapper entity = WeaponMechanics.getEntityWrapper(event.getPlayer());
 
         if (!entity.getMainHandData().getZoomData().hasZoomNightVision() && !entity.getOffHandData().getZoomData().hasZoomNightVision())
             return;
-        if (event.getPacket().getBytes().read(0) != (byte) (PotionEffectType.NIGHT_VISION.getId() & 255))
+        if (wrapper.getPotionType() != PotionTypes.NIGHT_VISION)
             return;
 
         event.setCancelled(true);

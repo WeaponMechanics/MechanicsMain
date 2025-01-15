@@ -8,8 +8,14 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 public class BaseSkinSelector implements SkinSelector, Serializer<SkinSelector> {
 
@@ -86,7 +92,7 @@ public class BaseSkinSelector implements SkinSelector, Serializer<SkinSelector> 
         // Extra check to make sure the user has a default skin
         data.of(SkinAction.DEFAULT.getKey()).assertExists();
 
-        ConfigurationSection section = data.of().assertExists().assertType(ConfigurationSection.class).get();
+        ConfigurationSection section = data.of().assertExists().get(ConfigurationSection.class).get();
         Set<String> keys = section.getKeys(false);
         for (String key : keys) {
             SkinAction action = SkinAction.fromString(key);
@@ -124,7 +130,7 @@ public class BaseSkinSelector implements SkinSelector, Serializer<SkinSelector> 
             if (action == SkinAction.SCOPE_STACK)
                 action = new SkinAction(key);
 
-            defaultSkinData.put(action, data.of(key).assertExists().serialize(BaseSkin.class));
+            defaultSkinData.put(action, data.of(key).assertExists().serialize(BaseSkin.class).get());
         }
 
         map.put("default", defaultSkinData);
@@ -137,16 +143,16 @@ public class BaseSkinSelector implements SkinSelector, Serializer<SkinSelector> 
         // Extra check to make sure the user has a default skin
         data.of(SkinAction.DEFAULT.getKey()).assertExists();
 
-        ConfigurationSection section = data.of().assertExists().assertType(ConfigurationSection.class).get();
+        ConfigurationSection section = data.of().assertExists().get(ConfigurationSection.class).get();
         Set<String> keys = section.getKeys(false);
         for (String key : keys) {
             SkinAction action = SkinAction.fromString(key);
 
             if (action == null) {
-                throw data.exception(key, "Found an unknown skin identifier",
-                    SerializerException.forValue(key),
-                    SerializerException.didYouMean(key, Arrays.stream(SkinAction.getValues()).map(SkinAction::getKey).collect(Collectors.toList())),
-                    "Wiki: https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/skin");
+                List<String> possibleActions = Arrays.stream(SkinAction.getValues()).map(SkinAction::getKey).toList();
+                throw SerializerException.builder()
+                    .addMessage("Wiki: https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/skin")
+                    .buildInvalidOption(key, possibleActions);
             }
 
             // Since SCOPE_STACK matches to different keys, we need to handle
@@ -154,7 +160,7 @@ public class BaseSkinSelector implements SkinSelector, Serializer<SkinSelector> 
             if (action == SkinAction.SCOPE_STACK)
                 action = new SkinAction(key);
 
-            map.put(action, data.of(key).assertExists().serialize(BaseSkin.class));
+            map.put(action, data.of(key).assertExists().serialize(BaseSkin.class).get());
         }
 
         return map;

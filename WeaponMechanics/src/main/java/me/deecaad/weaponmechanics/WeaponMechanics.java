@@ -3,14 +3,16 @@ package me.deecaad.weaponmechanics;
 import com.cjcrafter.foliascheduler.FoliaCompatibility;
 import com.cjcrafter.foliascheduler.ServerImplementation;
 import com.cjcrafter.foliascheduler.TaskImplementation;
+import com.cjcrafter.foliascheduler.util.ConstructorInvoker;
+import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import com.cjcrafter.foliascheduler.util.ServerVersions;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.event.EventManager;
+import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.jeff_media.updatechecker.UpdateCheckSource;
 import com.jeff_media.updatechecker.UpdateChecker;
 import com.jeff_media.updatechecker.UserAgentBuilder;
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.database.Database;
@@ -33,14 +35,9 @@ import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
-import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
 import me.deecaad.weaponmechanics.lib.MythicMobsLoader;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
-import me.deecaad.weaponmechanics.listeners.RepairItemListener;
 import me.deecaad.weaponmechanics.listeners.ResourcePackListener;
 import me.deecaad.weaponmechanics.listeners.WeaponListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListeners;
@@ -48,7 +45,6 @@ import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListeners;
 import me.deecaad.weaponmechanics.packetlisteners.OutAbilitiesListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutEntityEffectListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutRemoveEntityEffectListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotBobFix;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.AssistData;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
@@ -60,7 +56,6 @@ import me.deecaad.weaponmechanics.weapon.projectile.HitBoxValidator;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectileSpawner;
 import me.deecaad.weaponmechanics.weapon.projectile.SpigotProjectileSpawner;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoRegistry;
-import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.weapon.stats.PlayerStat;
 import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -68,8 +63,6 @@ import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -83,7 +76,6 @@ import org.yaml.snakeyaml.error.YAMLException;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -103,11 +95,9 @@ public class WeaponMechanics {
     Map<LivingEntity, EntityWrapper> entityWrappers;
     Configuration configurations;
     Configuration basicConfiguration;
-    MainCommand mainCommand;
     WeaponHandler weaponHandler;
     ResourcePackListener resourcePackListener;
     ProjectileSpawner projectileSpawner;
-    ProtocolManager protocolManager;
     Metrics metrics;
     Database database;
     ServerImplementation foliaScheduler;
@@ -132,11 +122,11 @@ public class WeaponMechanics {
     }
 
     public ClassLoader getClassLoader() {
-        return (ClassLoader) ReflectionUtil.invokeMethod(ReflectionUtil.getMethod(JavaPlugin.class, "getClassLoader"), javaPlugin);
+        return (ClassLoader) ReflectionUtil.getMethod(JavaPlugin.class, "getClassLoader").invoke(javaPlugin);
     }
 
     public File getFile() {
-        return (File) ReflectionUtil.invokeMethod(ReflectionUtil.getMethod(JavaPlugin.class, "getFile"), javaPlugin);
+        return (File) ReflectionUtil.getMethod(JavaPlugin.class, "getFile").invoke(javaPlugin);
     }
 
     public void onLoad() {
@@ -160,11 +150,20 @@ public class WeaponMechanics {
         try {
             JarSearcher searcher = new JarSearcher(new JarFile(getFile()));
             searcher.findAllSubclasses(Mechanic.class, getClassLoader(), true)
-                .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.MECHANICS::add);
+                .stream()
+                .map(ReflectionUtil::getConstructor)
+                .map(ConstructorInvoker::newInstance)
+                .forEach(Mechanics.MECHANICS::add);
             searcher.findAllSubclasses(Targeter.class, getClassLoader(), true)
-                .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.TARGETERS::add);
+                .stream()
+                .map(ReflectionUtil::getConstructor)
+                .map(ConstructorInvoker::newInstance)
+                .forEach(Mechanics.TARGETERS::add);
             searcher.findAllSubclasses(Condition.class, getClassLoader(), true)
-                .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
+                .stream()
+                .map(ReflectionUtil::getConstructor)
+                .map(ConstructorInvoker::newInstance)
+                .forEach(Mechanics.CONDITIONS::add);
         } catch (Throwable ex) {
             debug.log(LogLevel.ERROR, "Failed to load mechanics/targeters/conditions", ex);
         }
@@ -192,9 +191,6 @@ public class WeaponMechanics {
         } else {
             projectileSpawner = new SpigotProjectileSpawner(getPlugin());
         }
-
-        // Set millis between recoil rotations
-        Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 20);
 
         setupDatabase();
         registerPlaceholders();
@@ -397,7 +393,6 @@ public class WeaponMechanics {
 
         // Other
         Bukkit.getPluginManager().registerEvents(resourcePackListener, getPlugin());
-        Bukkit.getPluginManager().registerEvents(RepairItemListener.getInstance(), getPlugin());
         if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
 
             // We need to make sure we are running MM v5
@@ -413,42 +408,17 @@ public class WeaponMechanics {
 
     void registerPacketListeners() {
         debug.debug("Creating packet listeners");
-        protocolManager = ProtocolLibrary.getProtocolManager();
 
-        protocolManager.addPacketListener(new OutAbilitiesListener(javaPlugin));
-        protocolManager.addPacketListener(new OutEntityEffectListener(javaPlugin));
-        protocolManager.addPacketListener(new OutRemoveEntityEffectListener(javaPlugin));
-        protocolManager.addPacketListener(new OutSetSlotBobFix(javaPlugin));
+        EventManager em = PacketEvents.getAPI().getEventManager();
+        em.registerListener(new OutAbilitiesListener(), PacketListenerPriority.NORMAL);
+        em.registerListener(new OutEntityEffectListener(), PacketListenerPriority.NORMAL);
+        em.registerListener(new OutRemoveEntityEffectListener(), PacketListenerPriority.NORMAL);
     }
 
     void registerCommands() {
         debug.debug("Registering commands");
 
-        // In 1.13+, we should use the built-in 'brigadier' system which
-        // has really nice tab-completions/validation
-        if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
-            WeaponMechanicsCommand.build();
-            return;
-        }
-
-        Method getCommandMap = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftServer"), "getCommandMap");
-        SimpleCommandMap commands = (SimpleCommandMap) ReflectionUtil.invokeMethod(getCommandMap, Bukkit.getServer());
-
-        // This can occur onReload, or if another plugin registered the
-        // command. We use the try-catch to determine if the command was
-        // registered by another plugin.
-        Command registered = commands.getCommand("weaponmechanics");
-        if (registered != null) {
-            try {
-                mainCommand = (MainCommand) registered;
-            } catch (ClassCastException ex) {
-                debug.error("/weaponmechanics command was already registered... does another plugin use /wm?",
-                    "The registered command: " + registered,
-                    "Do not ignore this error! The weapon mechanics commands will not work at all!");
-            }
-        } else {
-            commands.register("weaponmechanics", mainCommand = new WeaponMechanicsMainCommand());
-        }
+        WeaponMechanicsCommand.registerCommands();
     }
 
     void registerPermissions() {
@@ -593,7 +563,6 @@ public class WeaponMechanics {
 
         return getFoliaScheduler().async().runNow(this::writeFiles).asFuture().thenCompose((ignore) -> getFoliaScheduler().global().run((task) -> {
             loadConfig();
-            registerPacketListeners();
             registerListeners();
             registerCommands();
             registerPermissions();
@@ -638,15 +607,11 @@ public class WeaponMechanics {
             }
         }
 
-        // Unregister packet listeners
-        protocolManager.removePacketListeners(javaPlugin);
-
         database = null;
         weaponHandler = null;
         // updateChecker = null; do not reset update checker
         entityWrappers.clear(); // hint to JVM to free memory
         entityWrappers = null;
-        mainCommand = null;
         configurations = null;
         basicConfiguration = null;
         projectileSpawner = null;
@@ -741,7 +706,7 @@ public class WeaponMechanics {
     public static void removeEntityWrapper(LivingEntity entity) {
         EntityWrapper oldWrapper = plugin.entityWrappers.remove(entity);
         if (oldWrapper != null) {
-            TaskImplementation oldMoveTask = oldWrapper.getMoveTask();
+            TaskImplementation<Void> oldMoveTask = oldWrapper.getMoveTask();
             if (oldMoveTask != null) {
                 oldMoveTask.cancel();
             }
@@ -766,13 +731,6 @@ public class WeaponMechanics {
      */
     public static Configuration getBasicConfigurations() {
         return plugin.basicConfiguration;
-    }
-
-    /**
-     * @return the main command instance of WeaponMechanics
-     */
-    public static MainCommand getMainCommand() {
-        return plugin.mainCommand;
     }
 
     /**

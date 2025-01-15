@@ -2,6 +2,11 @@ package me.deecaad.core;
 
 import com.cjcrafter.foliascheduler.FoliaCompatibility;
 import com.cjcrafter.foliascheduler.ServerImplementation;
+import com.cjcrafter.foliascheduler.util.ConstructorInvoker;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.ReflectionUtil;
+import dev.jorel.commandapi.CommandAPI;
+import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.events.triggers.EquipListener;
 import me.deecaad.core.file.JarSearcher;
@@ -23,8 +28,6 @@ import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.MinecraftVersions;
-import me.deecaad.core.utils.ReflectionUtil;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -65,11 +68,20 @@ public class MechanicsCore extends JavaPlugin {
                 JarSearcher searcher = new JarSearcher(new JarFile(getFile()));
 
                 searcher.findAllSubclasses(Mechanic.class, getClassLoader(), true)
-                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.MECHANICS::add);
+                    .stream()
+                    .map(ReflectionUtil::getConstructor)
+                    .map(ConstructorInvoker::newInstance)
+                    .forEach(Mechanics.MECHANICS::add);
                 searcher.findAllSubclasses(Targeter.class, getClassLoader(), true)
-                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.TARGETERS::add);
+                    .stream()
+                    .map(ReflectionUtil::getConstructor)
+                    .map(ConstructorInvoker::newInstance)
+                    .forEach(Mechanics.TARGETERS::add);
                 searcher.findAllSubclasses(Condition.class, getClassLoader(), true)
-                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
+                    .stream()
+                    .map(ReflectionUtil::getConstructor)
+                    .map(ConstructorInvoker::newInstance)
+                    .forEach(Mechanics.CONDITIONS::add);
 
                 // Sculk methods were added in 1.20.2
                 if (MinecraftVersions.TRAILS_AND_TAILS.get(2).isAtLeast()) {
@@ -98,12 +110,17 @@ public class MechanicsCore extends JavaPlugin {
 
                 // Placeholders
                 searcher.findAllSubclasses(PlaceholderHandler.class, getClassLoader(), true)
-                    .stream().map(ReflectionUtil::newInstance).forEach(PlaceholderHandler.REGISTRY::add);
+                    .stream()
+                    .map(ReflectionUtil::getConstructor)
+                    .map(ConstructorInvoker::newInstance)
+                    .forEach(PlaceholderHandler.REGISTRY::add);
 
             } catch (IOException ex) {
                 debug.log(LogLevel.ERROR, "Error while searching Jar", ex);
             }
         }
+
+        CommandAPI.onLoad(new CommandAPIBukkitConfig(this));
     }
 
     public void onEnable() {
@@ -128,9 +145,8 @@ public class MechanicsCore extends JavaPlugin {
             debug.error("Found Items folder... This feature is no longer supported. Please remove the Items folder.");
         }
 
-        if (MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
-            MechanicsCoreCommand.build();
-        }
+        CommandAPI.onEnable();
+        MechanicsCoreCommand.build();
 
         Bukkit.getPluginManager().registerEvents(new Listener() {
             @EventHandler
@@ -142,6 +158,7 @@ public class MechanicsCore extends JavaPlugin {
     }
 
     public void onDisable() {
+        CommandAPI.onDisable();
         HandlerList.unregisterAll(this);
         debug = null;
         adventure.close();

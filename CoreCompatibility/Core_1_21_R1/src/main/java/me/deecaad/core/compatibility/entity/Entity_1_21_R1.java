@@ -1,42 +1,31 @@
 package me.deecaad.core.compatibility.entity;
 
+import com.cjcrafter.foliascheduler.util.FieldAccessor;
+import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import com.mojang.datafixers.util.Pair;
 import me.deecaad.core.compatibility.equipevent.NonNullList_1_21_R1;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
-import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
-import org.bukkit.ExplosionResult;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 // https://nms.screamingsandals.org/1.18.1/
 public class Entity_1_21_R1 implements EntityCompatibility {
 
-    public static final Field itemsById = ReflectionUtil.getField(SynchedEntityData.class, SynchedEntityData.DataItem[].class);
-
-    @Override
-    public Vector getLastLocation(Entity entity) {
-        net.minecraft.world.entity.Entity nms = ((CraftEntity) entity).getHandle();
-        return new Vector(nms.xOld, nms.yOld, nms.zOld);
-    }
+    public static final FieldAccessor itemsById = ReflectionUtil.getField(SynchedEntityData.class, SynchedEntityData.DataItem[].class);
 
     @Override
     public List generateNonNullList(int size, TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer) {
@@ -49,14 +38,9 @@ public class Entity_1_21_R1 implements EntityCompatibility {
     }
 
     @Override
-    public int getId(Object obj) {
-        return ((ClientboundSetEntityDataPacket) obj).id();
-    }
-
-    @Override
     public void setSlot(Player bukkit, EquipmentSlot slot, @Nullable ItemStack item) {
         if (item == null) {
-            item = bukkit.getEquipment().getItem(slot); // added in 1.15
+            item = bukkit.getEquipment().getItem(slot);
         }
 
         int id = bukkit.getEntityId();
@@ -76,12 +60,6 @@ public class Entity_1_21_R1 implements EntityCompatibility {
         ((CraftPlayer) bukkit).getHandle().connection.send(packet);
     }
 
-    @Override
-    public @NotNull EntityExplodeEvent createEntityExplodeEvent(@NotNull Entity entity, @NotNull Location location, @NotNull List<Block> blocks, float yield, boolean breakBlocks) {
-        ExplosionResult guess = breakBlocks ? ExplosionResult.DESTROY : ExplosionResult.KEEP;
-        return new EntityExplodeEvent(entity, location, blocks, yield, guess);
-    }
-
     public static List<SynchedEntityData.DataValue<?>> getEntityData(SynchedEntityData data, boolean forceUpdateAll) {
         if (!forceUpdateAll) {
             List<SynchedEntityData.DataValue<?>> dirty = data.packDirty();
@@ -90,7 +68,7 @@ public class Entity_1_21_R1 implements EntityCompatibility {
 
         // 1.19.3 changed the packet arguments, so in order to unpack ALL data
         // (not just the dirty data) we need to manually get it and unpack it.
-        SynchedEntityData.DataItem<?>[] metaData = (SynchedEntityData.DataItem<?>[]) ReflectionUtil.invokeField(itemsById, data);
+        SynchedEntityData.DataItem<?>[] metaData = (SynchedEntityData.DataItem<?>[]) itemsById.get(data);
         List<SynchedEntityData.DataValue<?>> packed = new ArrayList<>(metaData.length);
         for (SynchedEntityData.DataItem<?> element : metaData)
             packed.add(element.value());
@@ -108,7 +86,7 @@ public class Entity_1_21_R1 implements EntityCompatibility {
         ClientboundSetEntityDataPacket packet = (ClientboundSetEntityDataPacket) obj;
         List<SynchedEntityData.DataValue<?>> list = packet.packedItems();
 
-        if (list == null || list.isEmpty())
+        if (list.isEmpty())
             return;
 
         // The "shared byte data" is applied to every entity, and it is always

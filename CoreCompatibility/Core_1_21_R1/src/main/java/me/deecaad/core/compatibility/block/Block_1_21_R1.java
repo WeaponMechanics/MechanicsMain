@@ -5,7 +5,6 @@ import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
 
-// https://nms.screamingsandals.org/1.19.1/
 public class Block_1_21_R1 implements BlockCompatibility {
 
     @Override

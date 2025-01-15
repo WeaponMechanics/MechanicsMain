@@ -3,7 +3,7 @@ package me.deecaad.weaponmechanics.weapon.damage;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.block.BlockCompatibility;
 import me.deecaad.core.utils.DistanceUtil;
-import me.deecaad.core.utils.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Chunk;
@@ -172,9 +172,7 @@ public final class BlockDamageData {
         if (blocks == null)
             return;
 
-        blocks.forEach((block, damage) -> {
-            damage.regenerate();
-        });
+        blocks.forEach((block, damage) -> damage.regenerate());
     }
 
     /**

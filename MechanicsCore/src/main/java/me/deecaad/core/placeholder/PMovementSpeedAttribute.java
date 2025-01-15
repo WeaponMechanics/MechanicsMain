@@ -1,13 +1,13 @@
 package me.deecaad.core.placeholder;
 
-import me.deecaad.core.utils.AttributeType;
+import org.bukkit.attribute.Attribute;
 
 /**
- * Returns the value of {@link AttributeType#GENERIC_MOVEMENT_SPEED} on the item.
+ * Returns the value of {@link Attribute#MOVEMENT_SPEED} on the item.
  */
 public class PMovementSpeedAttribute extends AttributePlaceholderHandler {
 
     public PMovementSpeedAttribute() {
-        super(AttributeType.GENERIC_MOVEMENT_SPEED);
+        super(Attribute.MOVEMENT_SPEED);
     }
 }

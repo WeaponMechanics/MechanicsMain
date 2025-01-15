@@ -2,8 +2,9 @@ package me.deecaad.weaponmechanics.weapon.explode.exposures;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
@@ -11,6 +12,7 @@ import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -22,6 +24,17 @@ import java.util.List;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class OptimizedExposure implements ExplosionExposure {
+
+    /**
+     * Default constructor for serializer.
+     */
+    public OptimizedExposure() {
+    }
+
+    @Override
+    public @NotNull NamespacedKey getKey() {
+        return new NamespacedKey("weaponmechanics", "optimized");
+    }
 
     @NotNull @Override
     public Object2DoubleMap<LivingEntity> mapExposures(@NotNull Location origin, @NotNull ExplosionShape shape) {
@@ -89,7 +102,7 @@ public class OptimizedExposure implements ExplosionExposure {
      * @return The level of exposure of the entity to the explosion
      */
     private static double getExposure(Vector vec3d, Entity entity) {
-        HitBox box = CompatibilityAPI.getEntityCompatibility().getHitBox(entity);
+        HitBox box = HitBox.getHitbox(entity);
 
         if (box == null) {
             return 0.0;
@@ -141,5 +154,10 @@ public class OptimizedExposure implements ExplosionExposure {
         reuse.setX(NumberUtil.lerp(min.getX(), max.getX(), x));
         reuse.setY(NumberUtil.lerp(min.getY(), max.getY(), y));
         reuse.setZ(NumberUtil.lerp(min.getZ(), max.getZ(), z));
+    }
+
+    @Override
+    public @NotNull ExplosionExposure serialize(@NotNull SerializeData data) throws SerializerException {
+        return new OptimizedExposure();
     }
 }

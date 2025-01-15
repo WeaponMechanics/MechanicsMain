@@ -38,7 +38,7 @@ public class BiomeCondition extends Condition {
 
     @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
-        Biome biome = data.of("Biome").assertExists().getEnum(Biome.class);
+        Biome biome = data.of("Biome").assertExists().getBukkitRegistry(Biome.class).get();
         return applyParentArgs(data, new BiomeCondition(biome));
     }
 }

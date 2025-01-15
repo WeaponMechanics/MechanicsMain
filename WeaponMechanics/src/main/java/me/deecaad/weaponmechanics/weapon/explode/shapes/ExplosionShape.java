@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
-import me.deecaad.weaponmechanics.utils.Factory;
+import me.deecaad.core.file.Serializer;
+import me.deecaad.weaponmechanics.WeaponMechanicsRegistry;
+import org.bukkit.Keyed;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
@@ -10,20 +12,13 @@ import javax.annotation.Nonnegative;
 import java.util.List;
 
 /**
- * This interface outlines the shape an explosion may take. Any subclasses should be registered
- * using {@link ShapeFactory#set(String, Factory.Arguments)}. Shapes usually take a few parameters
- * to determine the approximate size of the explosion.
+ * This interface outlines the shape an explosion may take.
  *
  * <p>
- * Explosion shapes are registered into the {@link ShapeFactory} instance.
- *
- * @see DefaultExplosion
- * @see CuboidExplosion
- * @see ParabolicExplosion
- * @see SphericalExplosion
- * @see ShapeFactory
+ * All subclasses of this interface should be registered in
+ * {@link WeaponMechanicsRegistry#EXPLOSION_SHAPES}.
  */
-public interface ExplosionShape {
+public interface ExplosionShape extends Keyed, Serializer<ExplosionShape> {
 
     /**
      * Returns a list of all effected blocks effected by this shape if an explosion were to trigger at

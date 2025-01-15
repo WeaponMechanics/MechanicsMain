@@ -10,9 +10,6 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static me.deecaad.core.utils.NumberUtil.square;
 
 /**
@@ -36,8 +33,6 @@ public abstract class FakeEntity {
     public static final int GLOWING_FLAG = 6;
     public static final int GLIDING_FLAG = 7;
 
-    private static Map<String, Integer> OBJECT_REGISTRY;
-
     protected final EntityType type;
     protected Location location;
     protected Location offset;
@@ -53,10 +48,6 @@ public abstract class FakeEntity {
     public EntityType getType() {
         return type;
     }
-
-    // * ------------------------- * //
-    // * Meta Methods * //
-    // * ------------------------- * //
 
     public final boolean isOnFire() {
         return getMeta(FIRE_FLAG);
@@ -105,8 +96,7 @@ public abstract class FakeEntity {
 
     /**
      * Returns the data that was used in the constructor (or in {@link #setData(Object)}). The data will
-     * either be an {@link ItemStack}, a {@link org.bukkit.material.MaterialData} (1.12-), or a
-     * {@link org.bukkit.block.data.BlockData}
+     * either be an {@link ItemStack}, or a {@link org.bukkit.block.data.BlockData}
      *
      * @return The nullable extra data (block or item).
      */
@@ -139,10 +129,6 @@ public abstract class FakeEntity {
      * @param gravity true -> gravity, false -> no gravity.
      */
     public abstract void setGravity(boolean gravity);
-
-    // * ------------------------- * //
-    // * Current Location Methods * //
-    // * ------------------------- * //
 
     public double getX() {
         return location.getX();
@@ -181,10 +167,6 @@ public abstract class FakeEntity {
         location.setYaw(yaw);
         location.setPitch(pitch);
     }
-
-    // * ------------------------- * //
-    // * Tick Methods * //
-    // * ------------------------- * //
 
     /**
      * Shorthand for {@link #setMotion(double, double, double)}.
@@ -350,10 +332,6 @@ public abstract class FakeEntity {
         };
     }
 
-    // * ------------------------- * //
-    // * Packet Based Methods * //
-    // * ------------------------- * //
-
     /**
      * Shows this entity to all players within range of the entity. Effectively the same as calling
      * {@link #show(Player)} for each player. Sends an Add Entity packet and an Entity Meta packet.
@@ -410,40 +388,4 @@ public abstract class FakeEntity {
      * modifications to {@link #setEquipment(EquipmentSlot, ItemStack)}.
      */
     public abstract void updateEquipment();
-
-    /**
-     * Used only in 1.13 and below
-     *
-     * @return the entity id used to spawn
-     */
-    protected int getSpawnId() {
-        if (OBJECT_REGISTRY == null) {
-            OBJECT_REGISTRY = new HashMap<>();
-            OBJECT_REGISTRY.put("BOAT", 1);
-            OBJECT_REGISTRY.put("DROPPED_ITEM", 2);
-            OBJECT_REGISTRY.put("AREA_EFFECT_CLOUD", 3);
-            OBJECT_REGISTRY.put("PRIMED_TNT", 50);
-            OBJECT_REGISTRY.put("ENDER_CRYSTAL", 51);
-            OBJECT_REGISTRY.put("ARROW", 60);
-            OBJECT_REGISTRY.put("SNOWBALL", 61);
-            OBJECT_REGISTRY.put("EGG", 62);
-            OBJECT_REGISTRY.put("FIREBALL", 63);
-            OBJECT_REGISTRY.put("SMALL_FIREBALL", 64);
-            OBJECT_REGISTRY.put("ENDER_PEARL", 65);
-            OBJECT_REGISTRY.put("WITHER_SKULL", 66);
-            OBJECT_REGISTRY.put("SHULKER_BULLET", 67);
-            OBJECT_REGISTRY.put("LLAMA_SPIT", 68);
-            OBJECT_REGISTRY.put("FALLING_BLOCK", 70);
-            OBJECT_REGISTRY.put("ENDER_SIGNAL", 72);
-            OBJECT_REGISTRY.put("SPLASH_POTION", 73);
-            OBJECT_REGISTRY.put("THROWN_EXP_BOTTLE", 75);
-            OBJECT_REGISTRY.put("FIREWORK", 76);
-            OBJECT_REGISTRY.put("ARMOR_STAND", 78);
-            OBJECT_REGISTRY.put("EVOKER_FANGS", 79);
-            OBJECT_REGISTRY.put("SPECTRAL_ARROW", 91);
-            OBJECT_REGISTRY.put("DRAGON_FIREBALL", 93);
-            OBJECT_REGISTRY.put("TRIDENT", 94);
-        }
-        return OBJECT_REGISTRY.get(type.name());
-    }
 }

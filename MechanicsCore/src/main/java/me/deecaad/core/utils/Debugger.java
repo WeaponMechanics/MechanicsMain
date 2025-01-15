@@ -7,6 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -121,6 +122,10 @@ public class Debugger {
     public void error(String... msg) {
         if (canLog(LogLevel.ERROR))
             log(LogLevel.ERROR, msg);
+    }
+
+    public void log(LogLevel level, List<String> messages) {
+        log(level, messages.toArray(new String[0]));
     }
 
     /**

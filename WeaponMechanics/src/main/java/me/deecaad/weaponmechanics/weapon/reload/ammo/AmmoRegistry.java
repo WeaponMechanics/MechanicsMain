@@ -9,6 +9,7 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +37,7 @@ public class AmmoRegistry {
             FileUtil.PathReference pathReference = FileUtil.PathReference.of(ammoFolder.toURI());
             Files.walkFileTree(pathReference.path(), new SimpleFileVisitor<>() {
                 @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                public @NotNull FileVisitResult visitFile(Path file, @NotNull BasicFileAttributes attrs) throws IOException {
                     InputStream stream = Files.newInputStream(file);
                     YamlConfiguration config = new YamlConfiguration();
 
@@ -51,7 +52,7 @@ public class AmmoRegistry {
                     for (String key : config.getKeys(false)) {
                         try {
                             SerializeData data = new SerializeData(new Ammo(), file.toFile(), key, new BukkitConfig(config));
-                            Ammo ammo = data.of().serialize(new Ammo());
+                            Ammo ammo = data.of().assertExists().serialize(new Ammo()).get();
                             AmmoRegistry.AMMO_REGISTRY.add(ammo);
                         } catch (SerializerException ex) {
                             ex.log(WeaponMechanics.debug);

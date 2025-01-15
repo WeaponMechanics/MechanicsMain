@@ -87,8 +87,8 @@ public class ActionBarMechanic extends Mechanic {
 
     @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
-        String message = data.of("Message").assertExists().getAdventure();
-        int time = data.of("Time").assertRange(40, Integer.MAX_VALUE).getInt(40);
+        String message = data.of("Message").assertExists().getAdventure().get();
+        int time = data.of("Time").assertRange(40, null).getInt().orElse(40);
         return applyParentArgs(data, new ActionBarMechanic(message, time));
     }
 }

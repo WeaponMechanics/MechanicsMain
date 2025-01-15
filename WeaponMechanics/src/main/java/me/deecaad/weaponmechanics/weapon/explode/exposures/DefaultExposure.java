@@ -2,8 +2,9 @@ package me.deecaad.weaponmechanics.weapon.explode.exposures;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
@@ -11,6 +12,7 @@ import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -22,6 +24,22 @@ import java.util.List;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class DefaultExposure implements ExplosionExposure {
+
+    /**
+     * Default constructor for serializer.
+     */
+    public DefaultExposure() {
+    }
+
+    /**
+     * Return the namespaced identifier for this object.
+     *
+     * @return this object's key
+     */
+    @Override
+    public @NotNull NamespacedKey getKey() {
+        return new NamespacedKey("weaponmechanics", "default");
+    }
 
     @NotNull @Override
     public Object2DoubleMap<LivingEntity> mapExposures(@NotNull Location origin, @NotNull ExplosionShape shape) {
@@ -87,7 +105,7 @@ public class DefaultExposure implements ExplosionExposure {
      * @return The level of exposure of the entity to the epxlosion
      */
     private static double getExposure(Vector vec3d, Entity entity) {
-        HitBox box = CompatibilityAPI.getEntityCompatibility().getHitBox(entity);
+        HitBox box = HitBox.getHitbox(entity);
 
         if (box == null) {
             return 0.0;
@@ -146,5 +164,10 @@ public class DefaultExposure implements ExplosionExposure {
 
         // The percentage of successful traces
         return ((double) successfulTraces) / totalTraces;
+    }
+
+    @Override
+    public @NotNull ExplosionExposure serialize(@NotNull SerializeData data) throws SerializerException {
+        return new DefaultExposure();
     }
 }

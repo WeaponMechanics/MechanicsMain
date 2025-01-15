@@ -1,10 +1,8 @@
 package me.deecaad.weaponmechanics.wrappers;
 
 import com.cjcrafter.foliascheduler.TaskImplementation;
-import me.deecaad.core.compatibility.CompatibilityAPI;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.compatibility.HitBox;
-import me.deecaad.core.compatibility.block.BlockCompatibility;
-import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponStopShootingEvent;
@@ -166,10 +164,8 @@ public class MoveTask implements Consumer<TaskImplementation<Void>> {
         if (current.isLiquid() || below.isLiquid())
             return false;
 
-        BlockCompatibility blockCompatibility = CompatibilityAPI.getBlockCompatibility();
-
-        HitBox belowHitBox = blockCompatibility.getHitBox(below);
-        HitBox currentHitBox = blockCompatibility.getHitBox(current);
+        HitBox belowHitBox = HitBox.getHitbox(below, false);
+        HitBox currentHitBox = HitBox.getHitbox(current, false);
         return belowHitBox == null && currentHitBox == null;
     }
 

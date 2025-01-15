@@ -1,7 +1,6 @@
 package me.deecaad.core.compatibility;
 
-import me.deecaad.core.utils.MinecraftVersions;
-import me.deecaad.core.utils.ReflectionUtil;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import org.jetbrains.annotations.Nullable;
 
 public class CompatibilitySetup {
@@ -18,7 +17,7 @@ public class CompatibilitySetup {
      * @return the server version as string
      */
     public String getVersionAsString() {
-        return MinecraftVersions.getCURRENT().toProtocolString();
+        return MinecraftVersions.getCurrent().toProtocolString();
     }
 
     /**
@@ -30,9 +29,8 @@ public class CompatibilitySetup {
         String version = getVersionAsString();
         try {
             Class<?> compatibilityClass = Class.forName(directory + "." + version, false, interfaceClazz.getClassLoader());
-            Object compatibility = ReflectionUtil.newInstance(ReflectionUtil.getConstructor(compatibilityClass));
-            return compatibility != null ? interfaceClazz.cast(compatibility) : null;
-        } catch (ClassNotFoundException | ClassCastException e) {
+            return interfaceClazz.cast(compatibilityClass.getConstructor().newInstance());
+        } catch (ReflectiveOperationException e) {
             // Do nothing
         }
         return null;

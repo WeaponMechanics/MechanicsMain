@@ -1,10 +1,9 @@
 package me.deecaad.core.utils.ray;
 
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.compatibility.HitBox;
-import me.deecaad.core.utils.MinecraftVersions;
 import org.bukkit.Color;
 import org.bukkit.Particle;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
@@ -172,22 +171,6 @@ public class RayTraceResult {
         } else {
             player.getWorld().spawnParticle(DUST_PARTICLE, x, y, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.BLACK, 1.5f), true);
         }
-    }
-
-    // DEPRECATED METHODS FROM BEFORE WE SWITCHED TO BlockTraceResult and EntityTraceResult
-    @Deprecated
-    public boolean isBlock() {
-        return this instanceof BlockTraceResult;
-    }
-
-    @Deprecated
-    public Block getBlock() {
-        return ((BlockTraceResult) this).getBlock();
-    }
-
-    @Deprecated
-    public boolean isEntity() {
-        return this instanceof EntityTraceResult;
     }
 
     @Deprecated

@@ -1,14 +1,12 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
 import com.cjcrafter.foliascheduler.EntitySchedulerImplementation;
-import com.cjcrafter.foliascheduler.ServerImplementation;
 import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerMissingKeyException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderData;
@@ -44,7 +42,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
@@ -578,7 +575,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
             return;
 
         startReloadWithoutTrigger(entityWrapper, otherWeapon, otherStack,
-            mainhand ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND, dualWield, false);
+            mainhand ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND, true, false);
     }
 
     @Override
@@ -593,25 +590,22 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
     @Override
     public void validate(Configuration configuration, SerializeData data) throws SerializerException {
-        Trigger trigger = configuration.getObject(data.key + ".Trigger", Trigger.class);
-        if (trigger == null) {
-            throw new SerializerMissingKeyException(data.serializer, data.key + ".Trigger", data.of("Trigger").getLocation());
-        }
+        data.of("Trigger").assertExists();
 
-        int magazineSize = data.of("Magazine_Size").assertExists().assertPositive().getInt();
-        int reloadDuration = data.of("Reload_Duration").assertExists().assertPositive().getInt();
-        int ammoPerReload = data.of("Ammo_Per_Reload").assertPositive().getInt(-1);
+        int magazineSize = data.of("Magazine_Size").assertExists().assertRange(1, null).getInt().getAsInt();
+        int reloadDuration = data.of("Reload_Duration").assertExists().assertRange(1, null).getInt().getAsInt();
+        int ammoPerReload = data.of("Ammo_Per_Reload").assertRange(1, null).getInt().orElse(-1);
 
-        boolean unloadAmmoOnReload = data.of("Unload_Ammo_On_Reload").getBool(false);
+        boolean unloadAmmoOnReload = data.of("Unload_Ammo_On_Reload").getBool().orElse(false);
         if (unloadAmmoOnReload && ammoPerReload != -1) {
             // Using ammo per reload and unload ammo on reload at same time is considered as error
             throw data.exception(null, "Cannot use 'Ammo_Per_Reload' and 'Unload_Ammo_On_Reload' at the same time");
         }
 
-        int shootDelayAfterReload = configuration.getInt(data.key + ".Shoot_Delay_After_Reload");
+        int shootDelayAfterReload = configuration.getInt(data.getKey() + ".Shoot_Delay_After_Reload");
         if (shootDelayAfterReload != 0) {
             // Convert to millis
-            configuration.set(data.key + ".Shoot_Delay_After_Reload", shootDelayAfterReload * 50);
+            configuration.set(data.getKey() + ".Shoot_Delay_After_Reload", shootDelayAfterReload * 50);
         }
 
         // Warning that the user is using the old system

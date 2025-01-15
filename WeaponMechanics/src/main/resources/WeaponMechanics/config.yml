@@ -851,3 +851,10 @@ Entity_Hitboxes:
     ARMS: true
     LEGS: 0.25
     FEET: 0.125
+  CREAKING:
+    Horizontal_Entity: false
+    HEAD: 0.30
+    BODY: 0.35
+    ARMS: true
+    LEGS: 0.25
+    FEET: 0.10

@@ -1,10 +1,10 @@
 package me.deecaad.core.file;
 
+import com.cjcrafter.foliascheduler.util.ConstructorInvoker;
 import me.deecaad.core.utils.LogLevel;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarFile;
@@ -22,7 +22,7 @@ public class JarInstancer extends JarSearcher {
 
         List<T> instances = new ArrayList<>();
         for (Class<T> validClass : validClasses) {
-            Constructor<?> emptyConstructor;
+            Constructor<T> emptyConstructor;
             try {
                 emptyConstructor = validClass.getConstructor();
             } catch (NoSuchMethodException e) {
@@ -31,14 +31,9 @@ public class JarInstancer extends JarSearcher {
                     "Please add empty constructor for class " + validClass.getSimpleName());
                 continue;
             }
-            try {
-                // noinspection unchecked
-                T instance = (T) emptyConstructor.newInstance();
-                instances.add(instance);
 
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
+            T instance = new ConstructorInvoker<>(emptyConstructor).newInstance();
+            instances.add(instance);
         }
 
         if (instances.isEmpty())

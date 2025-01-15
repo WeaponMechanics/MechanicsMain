@@ -12,7 +12,7 @@ Semtex:
       Hide_Flags: true
       Deny_Use_In_Crafting: true
     Weapon_Get_Mechanics:
-      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75}"
+      - "Sound{sound=item.armor.equip_chain, pitch=0.75}"
     Cancel:
       Block_Interactions: true
       Item_Interactions: true
@@ -25,12 +25,12 @@ Semtex:
       Entities:
         Allow_Any: true
     Mechanics:
-      - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=20} @Target{}"
-      - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=40} @Target{}"
-      - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=55} @Target{}"
-      - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=65} @Target{}"
-      - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=70} @Target{}"
-      - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=75} @Target{}"
+      - "Sound{sound=block.note_block.pling, volume=1.5, pitch=2, delayBeforePlay=20} @Target{}"
+      - "Sound{sound=block.note_block.pling, volume=1.5, pitch=2, delayBeforePlay=40} @Target{}"
+      - "Sound{sound=block.note_block.pling, volume=1.5, pitch=2, delayBeforePlay=55} @Target{}"
+      - "Sound{sound=block.note_block.pling, volume=1.5, pitch=2, delayBeforePlay=65} @Target{}"
+      - "Sound{sound=block.note_block.pling, volume=1.5, pitch=2, delayBeforePlay=70} @Target{}"
+      - "Sound{sound=block.note_block.pling, volume=1.5, pitch=2, delayBeforePlay=75} @Target{}"
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
@@ -41,13 +41,13 @@ Semtex:
     Delay_Between_Shots: 20
     Consume_Item_On_Shoot: true
     Mechanics:
-      - "Sound{sound=ENTITY_EGG_THROW, volume=0.5, noise=0.1}"
+      - "Sound{sound=entity.egg.throw, volume=0.5, noise=0.1}"
   Damage:
     Base_Explosion_Damage: 19
     Fire_Ticks: 60
     Armor_Damage: 7
     Mechanics:
-      - "Potion{potion=CONFUSION, time=200, level=3, particles=HIDE} @Target{}"
+      - "Potion{potion=NAUSEA, time=200, level=3, particles=HIDE} @Target{}"
   Explosion:
     Explosion_Exposure: "DEFAULT"
     Explosion_Shape: "DEFAULT"
@@ -79,7 +79,7 @@ Semtex:
 
   Cosmetics:
     Splash_Mechanics:
-      - "Sound{sound=ENTITY_GENERIC_SPLASH, pitch=1.85, noise=0.15} @Target{}"
+      - "Sound{sound=entity.generic.splash, pitch=1.85, noise=0.15} @Target{}"
       - "Particle{particle=WATER_SPLASH, count=20, noise=0.2 0.2 0.2} @Target{}"
 
   Trail:

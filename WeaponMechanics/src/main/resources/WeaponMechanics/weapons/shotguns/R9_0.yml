@@ -18,13 +18,13 @@ R9_0:
       Unbreakable: true
       Hide_Flags: true
       Attributes:
-        - "GENERIC_MOVEMENT_SPEED -0.0005"
+        - "movement_speed -0.0005"
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
         Message: "<gold>R9-0 <gray>«<gold><ammo_left><gray>»<gold><reload>"
     Weapon_Get_Mechanics:
-      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75}"
+      - "Sound{sound=item.armor.equip_chain, pitch=0.75}"
     Weapon_Equip_Delay: 20
     Cancel:
       Drop_Item: true
@@ -52,17 +52,15 @@ R9_0:
         Field_Of_View_Width: 16
         Field_Of_View_Height: 16
     Recoil:
-      Push_Time: 200
-      Horizontal:
-        - 2.5
-        - -2.5
-        - 0
-      Vertical:
-        - 2.5
-      Modify_Recoil_When:
-        Zooming: 50%
-        Sneaking: 50%
-        In_Midair: 150%
+      Mean_X: 0.0
+      Mean_Y: 3.2
+      Variance_X: 0.1
+      Variance_Y: 0.4
+      Speed: 4.2
+      Damping: 0.2
+      Damping_Recovery: 0.25
+      Smoothing: 0.2
+      Max_Accumulation: 10.0
     Mechanics:
       - "CustomSound{sound=shoot.r90.loud, volume=6, noise=0.1}"
   Reload:
@@ -98,12 +96,12 @@ R9_0:
     Open:
       Time: 7
       Mechanics:
-        - "Sound{sound=BLOCK_NOTE_BLOCK_HAT, volume=0.5, noise=0.1, listeners=Source{}}"
-        - "Sound{sound=BLOCK_PISTON_CONTRACT, volume=0.5, noise=0.1, listeners=Source{}, delayBeforePlay=3}"
+        - "Sound{sound=block.note_block.hat, volume=0.5, noise=0.1, listeners=Source{}}"
+        - "Sound{sound=block.piston.contract, volume=0.5, noise=0.1, listeners=Source{}, delayBeforePlay=3}"
     Close:
       Time: 7
       Mechanics:
-        - "Sound{sound=BLOCK_PISTON_EXTEND, volume=0.5, noise=0.1, listeners=Source{}}"
+        - "Sound{sound=block.piston.extend, volume=0.5, noise=0.1, listeners=Source{}}"
 
   # The following options are added by WeaponMechanicsCosmetics, and you will
   # not see the changes take effect until you purchase it.
@@ -111,14 +109,17 @@ R9_0:
   Cosmetics:
     Muzzle_Flash: true
     Splash_Mechanics:
-      - "Sound{sound=ENTITY_GENERIC_SPLASH, pitch=1.85, noise=0.15} @Target{}"
+      - "Sound{sound=entity.generic.splash, pitch=1.85, noise=0.15} @Target{}"
       - "Particle{particle=WATER_SPLASH, count=20, noise=0.2 0.2 0.2} @Target{}"
     Bullet_Zip:
       Maximum_Distance: 4.0
       Sounds:
         - "CustomSound{sound=fx.whiz, noise=0.02} @Target{}"
-    Crossbow:
-      Only_When_Scoping: false
+    Third_Person_Pose:
+      Default: NONE
+      Scope: BOW
+      Reload: BLOCK
+      Firearm_Action: CROSSBOW
 
   Trail:
     Distance_Between_Particles: 0.3

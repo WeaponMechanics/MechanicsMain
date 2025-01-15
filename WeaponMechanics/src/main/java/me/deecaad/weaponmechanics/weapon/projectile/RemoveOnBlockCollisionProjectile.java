@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Really lightweight remove on block collision projectile. This considers all blocks as 1x1x1 and
  * is removed on any collision including passable blocks.
- *
+ * <p>
  * This doesn't check entity collisions.
  */
 public class RemoveOnBlockCollisionProjectile extends AProjectile {

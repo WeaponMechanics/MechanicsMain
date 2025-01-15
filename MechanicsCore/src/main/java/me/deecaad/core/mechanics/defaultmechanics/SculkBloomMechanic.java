@@ -1,10 +1,10 @@
 package me.deecaad.core.mechanics.defaultmechanics;
 
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.file.JarSearcherExempt;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.utils.MinecraftVersions;
 import org.bukkit.Location;
 import org.bukkit.block.SculkCatalyst;
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +52,7 @@ public class SculkBloomMechanic extends ActivateBlockMechanic<SculkCatalyst> imp
             throw data.exception(null, "The SculkBloom{} Mechanic is only available in 1.20.2+");
         }
 
-        int charge = data.of("Charge").assertRange(1, 32000).getInt(5);
+        int charge = data.of("Charge").assertRange(1, null).getInt().orElse(5);
         return applyParentArgs(data, new SculkBloomMechanic(charge));
     }
 }

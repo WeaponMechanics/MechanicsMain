@@ -62,8 +62,8 @@ public class InConeCondition extends Condition {
 
     @Override
     public @NotNull Condition serialize(@NotNull SerializeData data) throws SerializerException {
-        double angle = data.of("Angle").assertPositive().assertRange(0.0, 180.0).getDouble(30.0);
-        VectorSerializer direction = data.of("Direction").serialize(VectorSerializer.class);
+        double angle = data.of("Angle").assertRange(0.0, 180.0).getDouble().orElse(30.0);
+        VectorSerializer direction = data.of("Direction").serialize(VectorSerializer.class).orElse(null);
         return applyParentArgs(data, new InConeCondition(direction, angle));
     }
 }

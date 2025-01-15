@@ -59,30 +59,6 @@ public enum CustomTag {
     FIREARM_ACTION_STATE,
 
     /**
-     * Durability is stored as an int, and is used by WeaponMechanics for
-     * {@link me.deecaad.weaponmechanics.weapon.shoot.CustomDurability}.
-     */
-    DURABILITY,
-
-    /**
-     * Max durability is stored as an int, and is used by WeaponMechanics to prevent abusing repairs
-     * over and over.
-     */
-    MAX_DURABILITY,
-
-    /**
-     * Broken weapon is stored as a String, and is used by WeaponMechanics to determine which weapon
-     * this item was before breaking. The stored value is a weapon title.
-     */
-    BROKEN_WEAPON,
-
-    /**
-     * Repair kit title is stored as a String, and is used by WeaponMechanics to determine if an item is
-     * a repair kit. This title can be used to get repair kit information from config.
-     */
-    REPAIR_KIT_TITLE,
-
-    /**
      * Attachment title is stored as a string, and is used by WeaponMechanicsPlus to determine if an
      * item is an attachment. This title can be used to get attachment information from config (or the
      * attachment registry, stored in WeaponMechanicsPlus).

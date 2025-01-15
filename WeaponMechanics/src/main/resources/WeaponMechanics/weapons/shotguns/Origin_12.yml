@@ -17,13 +17,13 @@ Origin_12:
       Unbreakable: true
       Hide_Flags: true
       Attributes:
-        - "GENERIC_MOVEMENT_SPEED -0.0002"
+        - "movement_speed -0.0002"
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
         Message: "<gold>Origin 12 <gray>«<gold><ammo_left><gray>»<gold><reload>"
     Weapon_Get_Mechanics:
-      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75}"
+      - "Sound{sound=item.armor.equip_chain, pitch=0.75}"
     Weapon_Equip_Delay: 20
     Cancel:
       Drop_Item: true
@@ -51,16 +51,15 @@ Origin_12:
         Field_Of_View_Width: 19
         Field_Of_View_Height: 19
     Recoil:
-      Push_Time: 200
-      Horizontal:
-        - 3
-        - 0
-      Vertical:
-        - 3
-      Modify_Recoil_When:
-        Zooming: 50%
-        Sneaking: 50%
-        In_Midair: 150%
+      Mean_X: 0.1
+      Mean_Y: 3.0
+      Variance_X: 0.2
+      Variance_Y: 0.3
+      Speed: 4.0
+      Damping: 0.2
+      Damping_Recovery: 0.2
+      Smoothing: 0.2
+      Max_Accumulation: 10.0
     Mechanics:
       - "CustomSound{sound=shoot.origin12.loud, volume=6, noise=0.1}"
   Reload:
@@ -98,14 +97,17 @@ Origin_12:
   Cosmetics:
     Muzzle_Flash: true
     Splash_Mechanics:
-      - "Sound{sound=ENTITY_GENERIC_SPLASH, pitch=1.85, noise=0.15} @Target{}"
+      - "Sound{sound=entity.generic.splash, pitch=1.85, noise=0.15} @Target{}"
       - "Particle{particle=WATER_SPLASH, count=20, noise=0.2 0.2 0.2} @Target{}"
     Bullet_Zip:
       Maximum_Distance: 4.0
       Sounds:
         - "CustomSound{sound=fx.whiz, noise=0.02, listeners=Target{}} @Target{}"
-    Crossbow:
-      Only_When_Scoping: false
+    Third_Person_Pose:
+      Default: NONE
+      Scope: BOW
+      Reload: BLOCK
+      Firearm_Action: CROSSBOW
 
   Trail:
     Distance_Between_Particles: 0.3

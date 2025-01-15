@@ -15,14 +15,15 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.WeaponMechanicsRegistry;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
+import me.deecaad.weaponmechanics.weapon.explode.exposures.DefaultExposure;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
-import me.deecaad.weaponmechanics.weapon.explode.exposures.ExposureFactory;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.BlockRegenSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.LayerDistanceSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.DefaultExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
-import me.deecaad.weaponmechanics.weapon.explode.shapes.ShapeFactory;
 import me.deecaad.weaponmechanics.weapon.projectile.RemoveOnBlockCollisionProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
@@ -34,10 +35,10 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.ExplosionResult;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -47,7 +48,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
@@ -244,8 +244,7 @@ public class Explosion implements Serializer<Explosion> {
             // (Towny, for example) to cancel the explosion or filter blocks w/o
             // explicitly depending on WeaponMechanics.
             if (blockDamage != null && !blocks.isEmpty() && !getBasicConfigurations().getBoolean("Disable_Entity_Explode_Event")) {
-                EntityExplodeEvent entityExplodeEvent = CompatibilityAPI.getEntityCompatibility().createEntityExplodeEvent(
-                    projectile.getShooter(), origin, blocks, 5, !blocks.isEmpty());
+                EntityExplodeEvent entityExplodeEvent = new EntityExplodeEvent(cause, origin, blocks, 5, ExplosionResult.DESTROY);
                 Bukkit.getPluginManager().callEvent(entityExplodeEvent);
                 if (entityExplodeEvent.isCancelled())
                     return;
@@ -291,7 +290,7 @@ public class Explosion implements Serializer<Explosion> {
         }
 
         if (projectile != null && projectile.getWeaponTitle() != null) {
-            WeaponMechanics.getWeaponHandler().getDamageHandler().tryUseExplosion(projectile, origin, entities);
+            WeaponMechanics.getWeaponHandler().getDamageHandler().tryUseExplosion(this, projectile, origin, entities);
 
             // isKnockback will cause vanilla-like explosion knockback. The
             // higher your exposure, the greater the knockback.
@@ -393,7 +392,7 @@ public class Explosion implements Serializer<Explosion> {
                 data.remove();
             }
 
-            if (data.isBroken() && blockDamage.getBreakMode(state.getType()) == BlockDamage.BreakMode.BREAK) {
+            if (data.isBroken() && blockDamage.getBreakMode(state.getType().asBlockType()) == BlockDamage.BreakMode.BREAK) {
 
                 // For stat tracking
                 blocksBroken += 1;
@@ -439,39 +438,15 @@ public class Explosion implements Serializer<Explosion> {
 
     @Override
     @NotNull public Explosion serialize(@NotNull SerializeData data) throws SerializerException {
+        Serializer<ExplosionExposure> exposureSerializer = data.of("Explosion_Exposure").getBukkitRegistry(ExplosionExposure.class, WeaponMechanicsRegistry.EXPLOSION_EXPOSURES).orElse(
+            new DefaultExposure());
+        Serializer<ExplosionShape> shapeSerializer = data.of("Explosion_Shape").getBukkitRegistry(ExplosionShape.class, WeaponMechanicsRegistry.EXPLOSION_SHAPES).orElse(new DefaultExplosion());
 
-        // We don't need to get the values here since we add them to the map
-        // later. We should still make sure these are positive numbers, though.
-        data.of("Explosion_Type_Data.Yield").assertPositive();
-        data.of("Explosion_Type_Data.Angle").assertPositive();
-        data.of("Explosion_Type_Data.Height").assertPositive();
-        data.of("Explosion_Type_Data.Width").assertPositive();
-        data.of("Explosion_Type_Data.Radius").assertPositive();
-        data.of("Explosion_Type_Data.Rays").assertPositive();
+        ExplosionExposure exposure = data.of("Explosion_Type_Data").serialize(exposureSerializer).get();
+        ExplosionShape shape = data.of("Explosion_Type_Data").serialize(shapeSerializer).get();
 
-        Map<String, Object> typeData = ((ConfigurationSection) data.of("Explosion_Type_Data").assertExists().assertType(ConfigurationSection.class).get()).getValues(false);
-
-        // We don't want to require users to define the "Rays" option, since
-        // most people will not understand that it means. Vanilla MC uses 16.
-        if (!typeData.containsKey("Rays"))
-            typeData.put("Rays", 16);
-
-        ExplosionExposure exposure;
-        ExplosionShape shape;
-
-        try {
-            exposure = ExposureFactory.getInstance().get(data.of("Explosion_Exposure").get("DEFAULT"), typeData);
-            shape = ShapeFactory.getInstance().get(data.of("Explosion_Shape").get("DEFAULT"), typeData);
-        } catch (SerializerException ex) {
-
-            // We need to manually set the file and path, since the Factory
-            // class does not get enough information to fill it.
-            ex.setLocation(data.of("Explosion_Type_Data").getLocation());
-            throw ex;
-        }
-
-        BlockDamage blockDamage = data.of("Block_Damage").serialize(BlockDamage.class);
-        RegenerationData regeneration = data.of("Regeneration").serialize(RegenerationData.class);
+        BlockDamage blockDamage = data.of("Block_Damage").serialize(BlockDamage.class).orElse(null);
+        RegenerationData regeneration = data.of("Regeneration").serialize(RegenerationData.class).orElse(null);
 
         // Mistake that happens when copy-pasting. Explosions use the
         // 'Regeneration' config, not this option from WMC.
@@ -490,20 +465,17 @@ public class Explosion implements Serializer<Explosion> {
 
         // This is a required argument to determine when a projectile using this
         // explosion should explode (onEntityHit, onBlockHit, after delay, etc.)
-        Detonation detonation = data.of("Detonation").assertExists().serialize(Detonation.class);
+        Detonation detonation = data.of("Detonation").assertExists().serialize(Detonation.class).get();
 
-        Double blockChance = data.step(BlockDamage.class).of("Spawn_Falling_Block_Chance").serialize(new ChanceSerializer());
-        if (blockChance == null)
-            blockChance = 0.0;
-
-        double knockbackRate = data.of("Knockback_Multiplier").getDouble(1.0);
+        double blockChance = data.step(new BlockDamage()).of("Spawn_Falling_Block_Chance").serialize(new ChanceSerializer()).orElse(0.0);
+        double knockbackRate = data.of("Knockback_Multiplier").getDouble().orElse(1.0);
 
         // These 4 options are all nullable and not required for an explosion
         // to occur. It is very interesting when they are all used together :p
-        ClusterBomb clusterBomb = data.of("Cluster_Bomb").serialize(ClusterBomb.class);
-        AirStrike airStrike = data.of("Airstrike").serialize(AirStrike.class);
-        Flashbang flashbang = data.of("Flashbang").serialize(Flashbang.class);
-        Mechanics mechanics = data.of("Mechanics").serialize(Mechanics.class);
+        ClusterBomb clusterBomb = data.of("Cluster_Bomb").serialize(ClusterBomb.class).orElse(null);
+        AirStrike airStrike = data.of("Airstrike").serialize(AirStrike.class).orElse(null);
+        Flashbang flashbang = data.of("Flashbang").serialize(Flashbang.class).orElse(null);
+        Mechanics mechanics = data.of("Mechanics").serialize(Mechanics.class).orElse(null);
 
         return new Explosion(shape, exposure, blockDamage, regeneration, detonation, blockChance,
             knockbackRate, clusterBomb, airStrike, flashbang, mechanics);

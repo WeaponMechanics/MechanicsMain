@@ -99,8 +99,8 @@ public class Flashbang implements Serializer<Flashbang> {
 
     @Override
     @NotNull public Flashbang serialize(@NotNull SerializeData data) throws SerializerException {
-        double distance = data.of("Effect_Distance").assertExists().assertPositive().getDouble();
-        Mechanics mechanics = data.of("Mechanics").assertExists().serialize(Mechanics.class);
+        double distance = data.of("Effect_Distance").assertExists().assertRange(0.0, null).getDouble().getAsDouble();
+        Mechanics mechanics = data.of("Mechanics").assertExists().serialize(Mechanics.class).orElse(null);
 
         return new Flashbang(distance, mechanics);
     }

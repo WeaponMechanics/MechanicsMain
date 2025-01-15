@@ -17,7 +17,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
+import java.net.URI;
 import java.net.URLConnection;
 
 public class ResourcePackListener implements Listener {
@@ -28,8 +28,8 @@ public class ResourcePackListener implements Listener {
     public ResourcePackListener() {
         try {
             String link = "https://api.github.com/repos/WeaponMechanics/MechanicsMain/releases/latest";
-            URL url = new URL(link);
-            URLConnection connection = url.openConnection();
+            URI uri = URI.create(link);
+            URLConnection connection = uri.toURL().openConnection();
             connection.setRequestProperty("User-Agent", "Mozilla/5.0");
             connection.setConnectTimeout(10000);
             connection.setReadTimeout(30000);

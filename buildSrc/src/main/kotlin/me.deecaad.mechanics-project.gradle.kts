@@ -14,7 +14,8 @@ repositories {
     maven(url = "https://mvn.lumine.io/repository/maven-public/") // MythicMobs
     maven(url = "https://repo.opencollab.dev/main/") // GeyserMC
     maven(url = "https://repo.jeff-media.com/public/") // SpigotUpdateChecker
-    maven(url = "https://repo.dmulloy2.net/repository/public/")
+    maven(url = "https://repo.codemc.org/repository/maven-public/") // NBTAPI from CommandAPI
+    maven(url = "https://repo.codemc.io/repository/maven-releases/") // PacketEvents
 }
 
 dependencies {
@@ -28,7 +29,7 @@ java {
 tasks {
     compileJava {
         options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything
-        options.release.set(16)
+        options.release.set(21)
     }
     javadoc {
         options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything

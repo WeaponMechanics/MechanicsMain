@@ -1,12 +1,7 @@
 package me.deecaad.core;
 
-import me.deecaad.core.commands.Argument;
-import me.deecaad.core.commands.CommandBuilder;
-import me.deecaad.core.commands.CommandExecutor;
-import me.deecaad.core.commands.HelpCommandBuilder;
-import me.deecaad.core.commands.SuggestionsBuilder;
-import me.deecaad.core.commands.arguments.StringArgumentType;
-import me.deecaad.core.compatibility.CompatibilityAPI;
+import dev.jorel.commandapi.CommandAPICommand;
+import me.deecaad.core.commands.CommandHelpBuilder;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.core.utils.TableBuilder;
 import net.kyori.adventure.audience.Audience;
@@ -17,12 +12,10 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,12 +24,8 @@ import java.util.Locale;
 import static net.kyori.adventure.text.Component.empty;
 import static net.kyori.adventure.text.Component.newline;
 import static net.kyori.adventure.text.Component.text;
-import static org.bukkit.ChatColor.GOLD;
-import static org.bukkit.ChatColor.GRAY;
 
 public final class MechanicsCoreCommand {
-
-    public static char SYM = '\u27A2';
 
     /**
      * Don't let anyone instantiate this class
@@ -45,59 +34,29 @@ public final class MechanicsCoreCommand {
     }
 
     public static void build() {
-        CommandBuilder command = new CommandBuilder("mechanicscore")
+        CommandAPICommand command = new CommandAPICommand("mechanicscore")
             .withPermission("mechanicscore.admin")
-            .withDescription("MechanicsCore debug/test commands")
-
-            .withSubcommand(new CommandBuilder("table")
+            .withShortDescription("MechanicsCore debug/test commands")
+            .withSubcommand(new CommandAPICommand("table")
                 .withPermission("mechanicscore.commands.table")
-                .withDescription("Helpful tables that are used on the wiki")
-
-                .withSubcommand(new CommandBuilder("colors")
+                .withShortDescription("Helpful tables that are used on the wiki")
+                .withSubcommand(new CommandAPICommand("colors")
                     .withPermission("mechanicscore.commands.table.colors")
-                    .withDescription("Shows legacy color codes and the adventure version")
-                    .executes(CommandExecutor.any((sender, args) -> {
-                        tableColors(sender);
-                    }))))
+                    .withShortDescription("Shows legacy color codes and the adventure version")
+                    .executesPlayer((player, args) -> {
+                        tableColors(player);
+                    }))
+                .withSubcommand(new CommandAPICommand("plugins")
+                    .withPermission("mechanicscore.commands.plugins")
+                    .withShortDescription("Shows all plugins currently using MechanicsCore")
+                    .executesPlayer((player, args) -> {
+                        listPlugins(player);
+                    })));
 
-            .withSubcommand(new CommandBuilder("reloadcommands")
-                .withPermission("mechanicscore.commands.reloadcommands")
-                .withDescription("Resends command registry to all online players")
-                .executes(CommandExecutor.any((sender, args) -> {
-                    reloadCommands(sender);
-                })))
+        CommandHelpBuilder helpBuilder = new CommandHelpBuilder(Style.style(NamedTextColor.GOLD), Style.style(NamedTextColor.GRAY));
+        helpBuilder.register(command);
 
-            .withSubcommand(new CommandBuilder("printcommands")
-                .withPermission("mechanicscore.commands.printcommands")
-                .withDescription("Prints the server's entire command registry to json file")
-                .withArgument(new Argument<>("file", new StringArgumentType(), "commands").append(SuggestionsBuilder.from("file", "commands")))
-                .executes(CommandExecutor.any((sender, args) -> {
-                    printCommands(sender, (String) args[0]);
-                })))
-
-            .withSubcommand(new CommandBuilder("plugins")
-                .withPermission("mechanicscore.commands.plugins")
-                .withDescription("Shows all plugins currently using MechanicsCore")
-                .executes(CommandExecutor.any((sender, args) -> {
-                    listPlugins(sender);
-                })));
-
-        HelpCommandBuilder.register(command, HelpCommandBuilder.HelpColor.from(GOLD, GRAY, SYM));
         command.register();
-    }
-
-    public static void reloadCommands(CommandSender sender) {
-        Bukkit.getOnlinePlayers().forEach(CompatibilityAPI.getCommandCompatibility()::resendCommandRegistry);
-        sender.sendMessage(ChatColor.GREEN + "Resent commands");
-    }
-
-    public static void printCommands(CommandSender sender, String name) {
-        if (!name.endsWith(".json"))
-            name += ".json";
-
-        File output = new File(MechanicsCore.getPlugin().getDataFolder(), name);
-        CompatibilityAPI.getCommandCompatibility().generateFile(output);
-        sender.sendMessage(ChatColor.GREEN + "Wrote command registry to " + output);
     }
 
     public static void listPlugins(CommandSender sender) {

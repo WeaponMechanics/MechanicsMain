@@ -71,29 +71,16 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
 
     @Override
     public @NotNull ChangingSpread serialize(@NotNull SerializeData data) throws SerializerException {
-        ModifySpreadWhen increaseChangeWhen = (ModifySpreadWhen) data.of("Increase_Change_When").assertExists().serialize(new ModifySpreadWhen());
-        double startingAmount = data.of("Starting_Amount").getDouble(0.0) * 0.01;
-        int resetTime = data.of("Reset_Time").getInt(20) * 50; // Convert to millis
+        ModifySpreadWhen increaseChangeWhen = (ModifySpreadWhen) data.of("Increase_Change_When").assertExists().serialize(ModifySpreadWhen.class).get();
+        double startingAmount = data.of("Starting_Amount").getDouble().orElse(0.0) * 0.01;
+        int resetTime = data.of("Reset_Time").getInt().orElse(20) * 50; // Convert to millis
 
-        Bounds bounds = data.config.contains(data.key + ".Bounds") ? getBounds(data.move("Bounds")) : null;
+        Bounds bounds = data.of("Bounds").serialize(Bounds.class).orElse(null);
 
         return new ChangingSpread(startingAmount, resetTime, increaseChangeWhen, bounds);
     }
 
-    private Bounds getBounds(SerializeData data) throws SerializerException {
-        double min = data.of("Minimum").assertPositive().getDouble(0.0);
-        double max = data.of("Maximum").assertPositive().getDouble(15.0);
-
-        if (min > max) {
-            throw data.exception(null, "Found 'Changing_Spread' where 'Minimum > Maximum'",
-                "The 'Maximum' MUST be bigger then 'Minimum'");
-        }
-
-        boolean resetAfterReachingBound = data.of("Reset_After_Reaching_Bound").getBool(false);
-        return new Bounds(resetAfterReachingBound, min * 0.01, max * 0.01);
-    }
-
-    public record Bounds(boolean resetAfterReachingBound, double min, double max) {
+    public record Bounds(boolean resetAfterReachingBound, double min, double max) implements Serializer<Bounds> {
 
         /**
          * Checks bounds of spread
@@ -118,6 +105,15 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
                 return false;
             }
             return false;
+        }
+
+        @Override
+        public @NotNull Bounds serialize(@NotNull SerializeData data) throws SerializerException {
+            double min = data.of("Minimum").assertRange(0, null).getDouble().orElse(0.0);
+            double max = data.of("Maximum").assertRange(min, null).getDouble().orElse(15.0);
+
+            boolean resetAfterReachingBound = data.of("Reset_After_Reaching_Bound").getBool().orElse(false);
+            return new Bounds(resetAfterReachingBound, min * 0.01, max * 0.01);
         }
     }
 }

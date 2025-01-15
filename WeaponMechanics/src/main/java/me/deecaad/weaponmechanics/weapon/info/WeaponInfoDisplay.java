@@ -1,6 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
 import com.cjcrafter.foliascheduler.TaskImplementation;
+import com.cjcrafter.foliascheduler.util.ConstructorInvoker;
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
+import com.cjcrafter.foliascheduler.util.ReflectionUtil;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.SerializeData;
@@ -8,9 +11,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderMessage;
-import me.deecaad.core.utils.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.wrappers.MessageHelper;
@@ -26,19 +27,18 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MainHand;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Constructor;
-
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getWeaponHandler;
 
 public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
-    private static Constructor<?> packetPlayOutExperienceConstructor;
+    private static ConstructorInvoker<?> packetPlayOutExperienceConstructor;
 
     static {
         if (!MinecraftVersions.BUZZY_BEES.isAtLeast()) {
-            packetPlayOutExperienceConstructor = ReflectionUtil.getConstructor(ReflectionUtil.getPacketClass("PacketPlayOutExperience"), float.class, int.class, int.class);
+            Class<?> packetClass = ReflectionUtil.getMinecraftClass("network.protocol.game", "PacketPlayOutExperience");
+            packetPlayOutExperienceConstructor = ReflectionUtil.getConstructor(packetClass, float.class, int.class, int.class);
         }
     }
 
@@ -131,7 +131,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
         boolean hasInvertedMainHand = player.getMainHand() == MainHand.LEFT;
 
         boolean mainhand = slot == EquipmentSlot.HAND;
-        boolean isDualWielding = mainWeapon != null && offWeapon != null && mainStack != null && offStack != null;
+        boolean isDualWielding = mainWeapon != null && offWeapon != null;
 
         if (actionBar != null) {
             if (isDualWielding) {
@@ -231,26 +231,27 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
             ItemStack useStack = mainhand ? mainStack : offStack;
             String useWeapon = mainhand ? mainWeapon : offWeapon;
 
-            if (useStack == null || !useStack.hasItemMeta() || useWeapon == null)
+            if (useStack == null || !useStack.hasItemMeta())
                 return;
 
             if (magazineProgress == -1) {
                 magazineProgress = getMagazineProgress(useStack, useWeapon);
             }
 
-            TaskImplementation lastExpTask = messageHelper.getExpTask();
+            TaskImplementation<Void> lastExpTask = messageHelper.getExpTask();
             if (lastExpTask != null)
                 lastExpTask.cancel();
 
             if (!MinecraftVersions.BUZZY_BEES.isAtLeast()) {
                 CompatibilityAPI.getCompatibility().sendPackets(player,
-                    ReflectionUtil.newInstance(packetPlayOutExperienceConstructor, showAmmoInExpProgress
-                        ? (float) (magazineProgress != -1 ? magazineProgress : getMagazineProgress(useStack, useWeapon))
-                        : player.getExp(),
+                    packetPlayOutExperienceConstructor.newInstance(
+                        showAmmoInExpProgress
+                            ? (float) (magazineProgress != -1 ? magazineProgress : getMagazineProgress(useStack, useWeapon))
+                            : player.getExp(),
                         player.getTotalExperience(),
                         showAmmoInExpLevel ? getAmmoLeft(useStack, useWeapon) : player.getLevel()));
                 messageHelper.setExpTask(WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(() -> {
-                    Object packet = ReflectionUtil.newInstance(packetPlayOutExperienceConstructor, player.getExp(), player.getTotalExperience(), player.getLevel());
+                    Object packet = packetPlayOutExperienceConstructor.newInstance(player.getExp(), player.getTotalExperience(), player.getLevel());
                     CompatibilityAPI.getCompatibility().sendPackets(player, packet);
                     messageHelper.setExpTask(null);
                 }, 40));
@@ -344,25 +345,25 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     @NotNull public WeaponInfoDisplay serialize(@NotNull SerializeData data) throws SerializerException {
 
         // ACTION BAR
-        String actionBarMessage = data.of("Action_Bar.Message").getAdventure(null);
+        String actionBarMessage = data.of("Action_Bar.Message").getAdventure().orElse(null);
 
-        String bossBarMessage = data.of("Boss_Bar.Title").getAdventure(null);
+        String bossBarMessage = data.of("Boss_Bar.Title").getAdventure().orElse(null);
         BossBar.Color barColor = null;
         BossBar.Overlay barStyle = null;
         if (bossBarMessage != null) {
-            barColor = data.of("Boss_Bar.Bar_Color").getEnum(BossBar.Color.class, BossBar.Color.WHITE);
-            barStyle = data.of("Boss_Bar.Bar_Style").getEnum(BossBar.Overlay.class, BossBar.Overlay.NOTCHED_20);
+            barColor = data.of("Boss_Bar.Bar_Color").getEnum(BossBar.Color.class).orElse(BossBar.Color.WHITE);
+            barStyle = data.of("Boss_Bar.Bar_Style").getEnum(BossBar.Overlay.class).orElse(BossBar.Overlay.NOTCHED_20);
         }
 
-        boolean expLevel = data.of("Show_Ammo_In.Exp_Level").getBool(false);
-        boolean expProgress = data.of("Show_Ammo_In.Exp_Progress").getBool(false);
-        boolean bossBarProgress = data.of("Show_Ammo_In.Boss_Bar_Progress").getBool(false);
+        boolean expLevel = data.of("Show_Ammo_In.Exp_Level").getBool().orElse(false);
+        boolean expProgress = data.of("Show_Ammo_In.Exp_Progress").getBool().orElse(false);
+        boolean bossBarProgress = data.of("Show_Ammo_In.Boss_Bar_Progress").getBool().orElse(false);
 
-        String dualWieldMainActionBar = data.of("Action_Bar.Dual_Wield.Main_Hand").getAdventure(null);
-        String dualWieldMainBossBar = data.of("Boss_Bar.Dual_Wield.Main_Hand").getAdventure(null);
+        String dualWieldMainActionBar = data.of("Action_Bar.Dual_Wield.Main_Hand").getAdventure().orElse(null);
+        String dualWieldMainBossBar = data.of("Boss_Bar.Dual_Wield.Main_Hand").getAdventure().orElse(null);
 
-        String dualWieldOffActionBar = data.of("Action_Bar.Dual_Wield.Off_Hand").getAdventure(null);
-        String dualWieldOffBossBar = data.of("Boss_Bar.Dual_Wield.Off_Hand").getAdventure(null);
+        String dualWieldOffActionBar = data.of("Action_Bar.Dual_Wield.Off_Hand").getAdventure().orElse(null);
+        String dualWieldOffBossBar = data.of("Boss_Bar.Dual_Wield.Off_Hand").getAdventure().orElse(null);
 
         if (actionBarMessage == null && bossBarMessage == null && !expLevel && !expProgress) {
             throw data.exception(null, "Found an empty Weapon_Info_Display... Users won't be able to see any changes in their ammo!");

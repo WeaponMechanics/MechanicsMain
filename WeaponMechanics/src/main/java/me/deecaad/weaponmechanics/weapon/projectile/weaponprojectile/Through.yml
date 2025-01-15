@@ -1,5 +1,0 @@
-# me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Through
-Through:
-  Maximum_Through_Amount: <amount>
-  Blocks: <ListHolderSerializer>
-  Entities: <ListHolderSerializer>

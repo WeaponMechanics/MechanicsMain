@@ -52,7 +52,7 @@ public class LightningMechanic extends Mechanic {
 
     @NotNull @Override
     public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
-        boolean isEffect = data.of("Effect").getBool(false);
+        boolean isEffect = data.of("Effect").getBool().orElse(false);
 
         return applyParentArgs(data, new LightningMechanic(isEffect));
     }

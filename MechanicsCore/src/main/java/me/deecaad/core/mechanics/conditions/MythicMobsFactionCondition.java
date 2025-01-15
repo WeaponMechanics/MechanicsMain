@@ -63,7 +63,7 @@ public class MythicMobsFactionCondition extends Condition implements JarSearcher
 
     @NotNull @Override
     public Condition serialize(@NotNull SerializeData data) throws SerializerException {
-        String faction = data.of("Faction").assertType(String.class).get(null);
+        String faction = data.of("Faction").get(String.class).orElse(null);
 
         return applyParentArgs(data, new MythicMobsFactionCondition(faction));
     }

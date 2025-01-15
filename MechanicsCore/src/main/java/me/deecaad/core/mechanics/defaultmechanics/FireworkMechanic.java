@@ -1,5 +1,6 @@
 package me.deecaad.core.mechanics.defaultmechanics;
 
+import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
@@ -7,7 +8,7 @@ import me.deecaad.core.file.InlineSerializer;
 import me.deecaad.core.file.MapConfigLike;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerTypeException;
+import me.deecaad.core.file.SimpleSerializer;
 import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
@@ -16,7 +17,6 @@ import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.mechanics.targeters.WorldTargeter;
 import me.deecaad.core.utils.DistanceUtil;
-import me.deecaad.core.utils.MinecraftVersions;
 import org.bukkit.Color;
 import org.bukkit.EntityEffect;
 import org.bukkit.FireworkEffect;
@@ -62,49 +62,39 @@ public class FireworkMechanic extends PlayerEffectMechanic {
 
         @NotNull @Override
         public FireworkData serialize(@NotNull SerializeData data) throws SerializerException {
-            FireworkEffect.Type type = data.of("Shape").getEnum(FireworkEffect.Type.class, FireworkEffect.Type.BALL);
-            boolean trail = data.of("Trail").getBool(false);
-            boolean flicker = data.of("Flicker").getBool(false);
+            SimpleSerializer<Color> colorSerializer = new ColorSerializer();
+
+            FireworkEffect.Type type = data.of("Shape").getEnum(FireworkEffect.Type.class).orElse(FireworkEffect.Type.BALL);
+            boolean trail = data.of("Trail").getBool().orElse(false);
+            boolean flicker = data.of("Flicker").getBool().orElse(false);
 
             // We allow either one color format '#ffffff' or multi color
             // format '[#ffffff, #ffffff]'
             List<Color> colors = new ArrayList<>();
             List<Color> fadeColors = new ArrayList<>();
 
-            try {
-                List<MapConfigLike.Holder> temp = data.of("Color").assertExists().assertType(List.class).get();
-                for (MapConfigLike.Holder holder : temp)
-                    colors.add(ColorSerializer.fromString(data.move("Color"), holder.value().toString()));
-
-            } catch (SerializerTypeException ex) {
-                ColorSerializer color = data.of("Color").serialize(new ColorSerializer());
-                if (color == null)
-                    throw data.exception("Color", "Could not determine 'color'", "Try using 'color=RED' or 'color=[RED, GREEN]'");
-
-                // Using List.of() saves space vs. ArrayList
-                colors = List.of(color.getColor());
+            Object colorData = data.of("Color").assertExists().get(Object.class).get();
+            if (colorData instanceof List<?> temp) {
+                for (MapConfigLike.Holder holder : (List<MapConfigLike.Holder>) temp)
+                    colors.add(colorSerializer.deserialize(holder.value().toString(), data.of("Color").getLocation()));
+            } else {
+                Color color = colorSerializer.deserialize(colorData.toString(), data.of("Color").getLocation());
+                colors = List.of(color);
             }
 
-            try {
-                List<MapConfigLike.Holder> temp = data.of("Fade_Color").assertType(List.class).get(List.of());
-                for (MapConfigLike.Holder holder : temp)
-                    fadeColors.add(ColorSerializer.fromString(data.move("Fade_Color"), holder.value().toString()));
-
-            } catch (SerializerTypeException ex) {
-                ColorSerializer color = data.of("Fade_Color").serialize(new ColorSerializer());
-                if (color != null)
-                    fadeColors = List.of(color.getColor());
+            Object fadeData = data.of("Fade_Color").assertExists().get(Object.class).get();
+            if (fadeData instanceof List<?> temp) {
+                for (MapConfigLike.Holder holder : (List<MapConfigLike.Holder>) temp)
+                    fadeColors.add(colorSerializer.deserialize(holder.value().toString(), data.of("Fade_Color").getLocation()));
+            } else {
+                Color color = colorSerializer.deserialize(fadeData.toString(), data.of("Fade_Color").getLocation());
+                fadeColors = List.of(color);
             }
 
             FireworkEffect effect = FireworkEffect.builder().with(type).withColor(colors).trail(trail).flicker(flicker).withFade(fadeColors).build();
             return new FireworkData(effect);
         }
     }
-
-    /**
-     * In 1.20.5, Spigot changed their Material enum from 'FIREWORK' to 'FIREWORK_ROCKET'.
-     */
-    private static final EntityType FIREWORK_ENTITY = MinecraftVersions.TRAILS_AND_TAILS.get(5).isAtLeast() ? EntityType.FIREWORK_ROCKET : EntityType.valueOf("FIREWORK");
 
     private ItemStack fireworkItem;
     private int flightTime; // THIS IS A COPY OF THE VALUE IN 'fireworkItem'
@@ -195,12 +185,12 @@ public class FireworkMechanic extends PlayerEffectMechanic {
         ItemStack fireworkItem = new ItemStack(MinecraftVersions.UPDATE_AQUATIC.isAtLeast() ? Material.FIREWORK_ROCKET : Material.valueOf("FIREWORK"));
         FireworkMeta meta = (FireworkMeta) fireworkItem.getItemMeta();
         List<FireworkEffect> effects = data.of("Effects").getImpliedList(new FireworkData()).stream().map(FireworkData::getEffect).toList();
-        int flightTime = data.of("Flight_Time").getInt(0);
+        int flightTime = data.of("Flight_Time").getInt().orElse(1);
         meta.addEffects(effects);
         meta.setPower(flightTime);
         fireworkItem.setItemMeta(meta);
 
-        Targeter viewers = data.of("Viewers").getRegistry(Mechanics.TARGETERS, null);
+        Targeter viewers = data.of("Viewers").getRegistry(Mechanics.TARGETERS).orElse(null);
         List<Condition> viewerConditions = data.of("Viewer_Conditions").getRegistryList(Mechanics.CONDITIONS);
 
         // If the user wants to use listener conditions, be sure to use a
@@ -215,7 +205,7 @@ public class FireworkMechanic extends PlayerEffectMechanic {
     public void playFor(CastData cast, List<Player> viewers) {
 
         Location targetLoc = cast.getTargetLocation();
-        FakeEntity fakeEntity = CompatibilityAPI.getCompatibility().getEntityCompatibility().generateFakeEntity(targetLoc, FIREWORK_ENTITY, fireworkItem);
+        FakeEntity fakeEntity = CompatibilityAPI.getCompatibility().getEntityCompatibility().generateFakeEntity(targetLoc, EntityType.FIREWORK_ROCKET, fireworkItem);
         if (flightTime > 1)
             fakeEntity.setMotion(0.001, 0.3, -0.001);
 

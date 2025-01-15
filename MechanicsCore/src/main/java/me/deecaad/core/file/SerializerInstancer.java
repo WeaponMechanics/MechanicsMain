@@ -1,10 +1,10 @@
 package me.deecaad.core.file;
 
+import com.cjcrafter.foliascheduler.util.ConstructorInvoker;
 import me.deecaad.core.utils.LogLevel;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarFile;
@@ -39,21 +39,14 @@ public class SerializerInstancer extends JarSearcher {
                 continue;
             } catch (Throwable ex) {
                 // this exception occurs when dependencies like MythicMobs are not installed
-                // debug.log(LogLevel.ERROR, validClass + " serializer failed to load. Perhaps a version mismatch?",
-                // ex);
                 continue;
             }
 
-            try {
-                Serializer instance = emptyConstructor.newInstance();
-                if (instance.getKeyword() == null || instance instanceof InlineSerializer<?>)
-                    continue;
+            Serializer instance = new ConstructorInvoker<>(emptyConstructor).newInstance();
+            if (instance.getKeyword() == null || instance instanceof InlineSerializer<?>)
+                continue;
 
-                instances.add(instance);
-
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
+            instances.add(instance);
         }
 
         return instances;
