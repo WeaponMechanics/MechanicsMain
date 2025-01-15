@@ -705,7 +705,7 @@ class SerializeData {
                 }
 
             // Use assertExists for required keys
-            if (input.isNullOrBlank()) {
+            if (input == null) {
                 return Optional.empty()
             }
 
@@ -725,7 +725,7 @@ class SerializeData {
                 if (usingStep) pathToConfig!!.getString(getPath(relative)!!) else config.getString(getPath(relative))
 
             // Use assertExists for required keys
-            if (input.isNullOrBlank()) {
+            if (input == null) {
                 return Optional.empty()
             }
 
@@ -789,7 +789,7 @@ class SerializeData {
                 if (usingStep) pathToConfig!!.getString(getPath(relative)!!) else config.getString(getPath(relative))
 
             // Use assertExists for required keys
-            if (input.isNullOrBlank()) {
+            if (input == null) {
                 return Optional.empty()
             }
 
@@ -826,7 +826,7 @@ class SerializeData {
                 if (usingStep) pathToConfig!!.getString(getPath(relative)!!) else config.getString(getPath(relative))
 
             // Use assertExists for required keys
-            if (input.isNullOrBlank()) {
+            if (input == null) {
                 return Optional.empty()
             }
 
@@ -867,7 +867,7 @@ class SerializeData {
                 if (usingStep) pathToConfig!!.getString(getPath(relative)!!) else config.getString(getPath(relative))
 
             // Use assertExists for required keys
-            if (input.isNullOrBlank()) {
+            if (input == null) {
                 return Optional.empty()
             }
 
@@ -888,7 +888,7 @@ class SerializeData {
                 if (usingStep) pathToConfig!!.getString(getPath(relative)!!) else config.getString(getPath(relative))
 
             // Use assertExists for required keys
-            if (input.isNullOrBlank()) {
+            if (input == null) {
                 return Optional.empty()
             }
 
@@ -927,7 +927,7 @@ class SerializeData {
                 }
 
             // Use assertExists for required keys
-            if (value.isNullOrBlank()) {
+            if (value == null) {
                 return Optional.empty()
             }
 
