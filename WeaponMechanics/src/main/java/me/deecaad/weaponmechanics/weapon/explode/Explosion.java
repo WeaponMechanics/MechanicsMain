@@ -344,13 +344,6 @@ public class Explosion implements Serializer<Explosion> {
         for (int i = 0; i < size; i++) {
             Block block = blocks.get(i);
 
-            // Check WorldGuard to determine whether we can break blocks here
-            // Always use null for player. We could check if the projectile
-            // shooter owns the region, but it is best to simply deny for all
-            // players (Less confused people).
-            if (!CompatibilityAPI.getWorldGuardCompatibility().testFlag(block.getLocation(temp), null, "weapon-break-block"))
-                continue;
-
             // We need the BlockState for falling blocks. If we get the state
             // after breaking the block, we will get AIR (not good for visual
             // effects).
