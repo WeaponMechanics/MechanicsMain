@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.weapon.damage;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.block.BlockCompatibility;
 import me.deecaad.core.utils.DistanceUtil;
-import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Chunk;
@@ -232,7 +231,9 @@ public final class BlockDamageData {
 
             // Either break the block or send a crack packet
             if (isBreak && isBroken()) {
-                destroy(isRegenerate, mask);
+                // Check WorldGuard to determine whether we can break blocks here
+                if (CompatibilityAPI.getWorldGuardCompatibility().testFlag(block.getLocation(), null, "weapon-break-block"))
+                    destroy(isRegenerate, mask);
             } else {
                 sendCrackPacket();
             }
@@ -260,7 +261,7 @@ public final class BlockDamageData {
 
             // #212 - Try to copy the block data from the previous block.
             boolean attemptCopy = WeaponMechanics.getBasicConfigurations().getBoolean("Explosions.Attempt_Copy_Data", false);
-            if (attemptCopy && MinecraftVersions.UPDATE_AQUATIC.isAtLeast()) {
+            if (attemptCopy) {
                 BlockData oldData = block.getBlockData();
                 BlockData newData = mask.createBlockData();
 
