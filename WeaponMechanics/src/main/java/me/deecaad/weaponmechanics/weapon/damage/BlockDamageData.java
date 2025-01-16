@@ -234,6 +234,8 @@ public final class BlockDamageData {
                 // Check WorldGuard to determine whether we can break blocks here
                 if (CompatibilityAPI.getWorldGuardCompatibility().testFlag(block.getLocation(), null, "weapon-break-block"))
                     destroy(isRegenerate, mask);
+                else
+                    durability = 1.0;
             } else {
                 sendCrackPacket();
             }
