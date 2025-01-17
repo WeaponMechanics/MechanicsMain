@@ -1,7 +1,5 @@
 package me.deecaad.core.file.simple
 
-import com.github.retrooper.packetevents.protocol.entity.type.EntityType
-import com.github.retrooper.packetevents.protocol.item.type.ItemType
 import me.deecaad.core.file.SerializerException
 import me.deecaad.core.file.SimpleSerializer
 import org.bukkit.Bukkit
@@ -12,6 +10,8 @@ import org.bukkit.NamespacedKey
 import org.bukkit.Registry
 import org.bukkit.Tag
 import org.bukkit.block.BlockType
+import org.bukkit.entity.EntityType
+import org.bukkit.inventory.ItemType
 
 class RegistryValueSerializer<T : Keyed>
     @JvmOverloads
@@ -20,7 +20,7 @@ class RegistryValueSerializer<T : Keyed>
         val isAllowWildcard: Boolean,
         val registry: Registry<T> =
             Bukkit.getRegistry(clazz)
-                ?: throw IllegalArgumentException("Registry for ${clazz.simpleName} does not exist."),
+                ?: throw IllegalArgumentException("Registry for $clazz does not exist."),
     ) : SimpleSerializer<List<T>> {
         /**
          * The tag registry associated with the given class, if present.
