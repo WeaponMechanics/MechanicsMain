@@ -7,8 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Stores an arbitrary vector. If the vector is relative, it will be
- * transformed by the local transform.
+ * Stores an arbitrary vector. If the vector is relative, it will be transformed by the local
+ * transform.
  */
 public class AnyVectorProvider implements VectorProvider {
 

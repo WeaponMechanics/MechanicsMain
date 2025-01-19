@@ -62,7 +62,6 @@ public class VectorSerializer implements Serializer<VectorProvider> {
             return new RandomVectorProvider(randomLength, randomLength);
         }
 
-
         // When input starts with a '~', then the input is relative.
         // This means that instead of x-y-z, it is left-up-forward.
         boolean relative = input.startsWith("~");
