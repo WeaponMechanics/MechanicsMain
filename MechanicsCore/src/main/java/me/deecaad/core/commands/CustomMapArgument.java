@@ -43,7 +43,7 @@ import java.util.Set;
  *           // e.g. data.get("ammo") -> Integer
  *       })
  *       .register();
- * </pre>
+ * }</pre>
  *
  * <p>
  * This class automatically handles:
