@@ -79,8 +79,8 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
 
     /**
      * The projectile launched, or null if the weapon doesn't shoot any projectiles.
-     *
-     * <p>Consumables, like stims, don't shoot any projectiles.
+     * <p>
+     * Consumables, like stims, don't shoot any projectiles.
      *
      * @return The projectile, or null if the weapon doesn't shoot any projectiles.
      */
