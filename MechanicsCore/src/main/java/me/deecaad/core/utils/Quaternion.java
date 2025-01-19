@@ -114,30 +114,6 @@ public class Quaternion implements Cloneable {
         return this;
     }
 
-    /**
-     * Interpolates this quaternion with the given When t=0, this quaternion is returned. When t is 0,
-     * the given quaternion is returned. See {@link NumberUtil#lerp(double, double, double)} for more
-     * information on interpolation.
-     *
-     * @param other The other
-     * @param t A number, will be clamped 0..1
-     * @return A non-null reference to this (builder pattern).
-     */
-    public Quaternion lerp(Quaternion other, double t) {
-        t = NumberUtil.clamp01(t);
-
-        // If the 2 quaternions are equal, then don't do any math.
-        if (equals(other))
-            return this;
-
-        double dot = dot(other);
-
-        if (dot < 0.0) {
-            // todo math
-        }
-        return this;
-    }
-
     public Quaternion multiply(Quaternion other) {
         double a = x * other.w + y * other.z - z * other.y + w * other.x;
         double b = -x * other.z + y * other.w + z * other.x + w * other.y;

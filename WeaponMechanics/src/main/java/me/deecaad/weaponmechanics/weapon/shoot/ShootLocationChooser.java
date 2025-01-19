@@ -5,7 +5,10 @@ import com.cjcrafter.vivecraft.VivePlayer;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.serializers.VectorProvider;
 import me.deecaad.core.file.serializers.VectorSerializer;
+import me.deecaad.core.utils.EntityTransform;
+import me.deecaad.core.utils.Quaternion;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -23,6 +26,8 @@ import java.util.List;
  * People can choose where the bullet is offset from depending on VR/Scope.
  */
 public class ShootLocationChooser implements Serializer<ShootLocationChooser> {
+
+    private static final Vector UP = new Vector(0, 1, 0);
 
     private @NotNull ShootLocation def; // default
     private @Nullable ShootLocation vr; // When in VR
@@ -61,7 +66,6 @@ public class ShootLocationChooser implements Serializer<ShootLocationChooser> {
 
         // source=where the bullet is shot from, direction=where the bullet is shot to
         Location source = null;
-        Vector direction = null;
 
         // Check if this entity is a Vivecraft player
         if (shooter.getType() == EntityType.PLAYER && Bukkit.getPluginManager().getPlugin("VivecraftSpigot") != null) {
@@ -69,11 +73,12 @@ public class ShootLocationChooser implements Serializer<ShootLocationChooser> {
             if (vivePlayer != null && vivePlayer.isVR()) {
 
                 source = vivePlayer.getControllerPos(isMainHand ? 0 : 1);
-                direction = vivePlayer.getControllerDir(isMainHand ? 0 : 1);
-                source.setDirection(direction);
+                Vector forward = vivePlayer.getControllerDir(isMainHand ? 0 : 1);
+                source.setDirection(forward);
 
                 if (vr != null) {
-                    vr.offset(isMainHand, source, direction);
+                    Quaternion localRotation = Quaternion.lookAt(forward, UP);
+                    vr.offset(isMainHand, source, localRotation);
                     return source;
                 }
             }
@@ -82,17 +87,17 @@ public class ShootLocationChooser implements Serializer<ShootLocationChooser> {
         // Update source and direction if not already set
         if (source == null) {
             source = shooter.getEyeLocation();
-            direction = shooter.getEyeLocation().getDirection();
         }
 
         // Scoping
+        Quaternion localRotation = new EntityTransform(shooter).getLocalRotation();
         if (wrapper.getHandData(isMainHand).getZoomData().isZooming() && scope != null) {
-            scope.offset(isRightHand, source, direction);
+            scope.offset(isRightHand, source, localRotation);
             return source;
         }
 
         // Default
-        def.offset(isRightHand, source, direction);
+        def.offset(isRightHand, source, localRotation);
         return source;
     }
 
@@ -146,8 +151,8 @@ public class ShootLocationChooser implements Serializer<ShootLocationChooser> {
      */
     public static class ShootLocation implements Serializer<ShootLocation> {
 
-        private VectorSerializer left;
-        private VectorSerializer right;
+        private VectorProvider left;
+        private VectorProvider right;
 
         /**
          * Default constructor for serializer.
@@ -155,22 +160,22 @@ public class ShootLocationChooser implements Serializer<ShootLocationChooser> {
         public ShootLocation() {
         }
 
-        public ShootLocation(@NotNull VectorSerializer left, @NotNull VectorSerializer right) {
+        public ShootLocation(@NotNull VectorProvider left, @NotNull VectorProvider right) {
             this.left = left;
             this.right = right;
         }
 
-        public void offset(boolean isRightHand, @NotNull Location source, @Nullable Vector direction) {
+        public void offset(boolean isRightHand, @NotNull Location source, @Nullable Quaternion localRotation) {
             if (isRightHand) {
-                source.add(right.getVector(direction));
+                source.add(right.provide(localRotation));
             } else {
-                source.add(left.getVector(direction));
+                source.add(left.provide(localRotation));
             }
         }
 
         public @NotNull ShootLocation serialize(@NotNull SerializeData data) throws SerializerException {
-            VectorSerializer left = data.of("Left_Hand").assertExists().serialize(VectorSerializer.class).get();
-            VectorSerializer right = data.of("Right_Hand").assertExists().serialize(VectorSerializer.class).get();
+            VectorProvider left = data.of("Left_Hand").assertExists().serialize(VectorSerializer.class).get();
+            VectorProvider right = data.of("Right_Hand").assertExists().serialize(VectorSerializer.class).get();
             return new ShootLocation(left, right);
         }
     }

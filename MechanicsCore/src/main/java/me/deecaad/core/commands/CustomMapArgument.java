@@ -43,15 +43,15 @@ import java.util.Set;
  *           // e.g. data.get("ammo") -> Integer
  *       })
  *       .register();
- * </pre>
+ * }</pre>
  *
  * <p>
  * This class automatically handles:
  * <ul>
  * <li>Splitting the user input on commas (and optional braces '{' / '}')</li>
  * <li>Validating each key, using your {@link SimpleSerializer}</li>
- * <li>Providing tab-completions for keys and values, based on each serializer's {@link
- * SimpleSerializer#examples()}</li>
+ * <li>Providing tab-completions for keys and values, based on each serializer's
+ * {@link SimpleSerializer#examples()}</li>
  * </ul>
  * }
  *
