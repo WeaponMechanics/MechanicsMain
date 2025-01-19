@@ -51,6 +51,14 @@ public enum CustomTag {
     AMMO_MAGAZINE,
 
     /**
+     * Magazine size is stored as an int, and is used by WeaponMechanics to determine the maximum
+     * amount of ammo that can be held in the weapon's magazine. This is optionally stored in each
+     * weapon item (not always), and is used by WeaponMechanicsPlus to modify the amount of ammo
+     * that can be loaded into 1 weapon.
+     */
+    MAGAZINE_SIZE,
+
+    /**
      * Firearm action state is stored as an int, and is used by WeaponMechanics to check if the weapon
      * is open/closed. 0 = Ready, 1 = Open, 2 = Closed.
      *

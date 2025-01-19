@@ -107,7 +107,9 @@ public class ReloadHandler implements IValidator, TriggerListener {
         Configuration config = getConfigurations();
 
         int reloadDuration = config.getInt(weaponTitle + ".Reload.Reload_Duration");
-        int tempMagazineSize = config.getInt(weaponTitle + ".Reload.Magazine_Size");
+        int tempMagazineSize = CustomTag.MAGAZINE_SIZE.getInteger(weaponStack);
+        if (tempMagazineSize <= 0)
+            config.getInt(weaponTitle + ".Reload.Magazine_Size");
         if (tempMagazineSize <= 0 || reloadDuration <= 0) {
             // This ensures that non intended reloads doesn't occur from ShootHandler for example
             return false;
@@ -246,7 +248,6 @@ public class ReloadHandler implements IValidator, TriggerListener {
         // This is necessary for events to be used correctly
         handData.setReloadData(weaponTitle, weaponStack);
 
-        ItemStack oldWeaponStack = weaponStack.clone();
         ChainTask reloadTask = new ChainTask(reloadDuration) {
 
             private int unloadedAmount;
