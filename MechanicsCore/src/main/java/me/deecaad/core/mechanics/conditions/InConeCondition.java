@@ -2,8 +2,10 @@ package me.deecaad.core.mechanics.conditions;
 
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.serializers.VectorProvider;
 import me.deecaad.core.file.serializers.VectorSerializer;
 import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.utils.EntityTransform;
 import me.deecaad.core.utils.VectorUtil;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
@@ -12,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class InConeCondition extends Condition {
 
-    private VectorSerializer direction;
+    private VectorProvider direction;
     private double cosAngle; // Cosine of the angle
 
     /**
@@ -21,19 +23,20 @@ public class InConeCondition extends Condition {
     public InConeCondition() {
     }
 
-    public InConeCondition(VectorSerializer direction, double angle) {
+    public InConeCondition(@Nullable VectorProvider direction, double angle) {
         this.direction = direction;
         this.cosAngle = Math.cos(Math.toRadians(angle));
     }
 
     @Override
-    public boolean isAllowed0(CastData cast) {
+    public boolean isAllowed0(@NotNull CastData cast) {
         Location sourceLocation = cast.getSource().getEyeLocation();
         Vector source = sourceLocation.toVector();
         Vector direction;
         if (this.direction != null) {
             // might be normalized... normalize it
-            direction = this.direction.getVector(cast.getSource()).normalize();
+            EntityTransform localTransform = new EntityTransform(cast.getSource());
+            direction = this.direction.provide(localTransform.getLocalRotation()).normalize();
         } else {
             // this is always a normalized vector
             direction = sourceLocation.getDirection();
@@ -63,7 +66,7 @@ public class InConeCondition extends Condition {
     @Override
     public @NotNull Condition serialize(@NotNull SerializeData data) throws SerializerException {
         double angle = data.of("Angle").assertRange(0.0, 180.0).getDouble().orElse(30.0);
-        VectorSerializer direction = data.of("Direction").serialize(VectorSerializer.class).orElse(null);
+        VectorProvider direction = data.of("Direction").serialize(VectorSerializer.class).orElse(null);
         return applyParentArgs(data, new InConeCondition(direction, angle));
     }
 }

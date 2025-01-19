@@ -3,9 +3,14 @@ package me.deecaad.core.mechanics.targeters;
 import me.deecaad.core.file.InlineSerializer;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.serializers.AnyVectorProvider;
+import me.deecaad.core.file.serializers.VectorProvider;
 import me.deecaad.core.file.serializers.VectorSerializer;
 import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.utils.EntityTransform;
+import me.deecaad.core.utils.Quaternion;
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -17,7 +22,7 @@ import java.util.Iterator;
 public abstract class Targeter implements InlineSerializer<Targeter> {
 
     private boolean eye;
-    private VectorSerializer offset;
+    private VectorProvider offset;
 
     /**
      * Default constructor for serializers.
@@ -25,7 +30,7 @@ public abstract class Targeter implements InlineSerializer<Targeter> {
     public Targeter() {
     }
 
-    @Nullable @Override
+    @Override
     public String getWikiLink() {
         return "https://cjcrafter.gitbook.io/mechanics/#targeter";
     }
@@ -34,7 +39,7 @@ public abstract class Targeter implements InlineSerializer<Targeter> {
         return eye;
     }
 
-    @Nullable public VectorSerializer getOffset() {
+    public @Nullable VectorProvider getOffset() {
         return offset;
     }
 
@@ -57,7 +62,7 @@ public abstract class Targeter implements InlineSerializer<Targeter> {
      * @param cast The non-null origin of the cast.
      * @return The list of targets.
      */
-    public final Iterator<CastData> getTargets(CastData cast) {
+    public final @NotNull Iterator<CastData> getTargets(CastData cast) {
         Iterator<CastData> targets = getTargets0(cast);
 
         // Only modify if we need to
@@ -73,8 +78,11 @@ public abstract class Targeter implements InlineSerializer<Targeter> {
                     CastData target = targets.next();
 
                     Location origin = (eye && target.getTarget() != null) ? target.getTarget().getEyeLocation() : target.getTargetLocation();
-                    if (offset != null)
-                        origin.add(offset.getVector(target.getTarget()));
+                    if (offset != null) {
+                        EntityTransform localTransform = target.getTarget() == null ? null : new EntityTransform(target.getTarget());
+                        Quaternion localRotation = localTransform == null ? null : localTransform.getLocalRotation();
+                        origin.add(offset.provide(localRotation));
+                    }
 
                     target.setTargetLocation(origin);
                     return target;
@@ -88,8 +96,8 @@ public abstract class Targeter implements InlineSerializer<Targeter> {
     protected abstract Iterator<CastData> getTargets0(CastData cast);
 
     protected Targeter applyParentArgs(SerializeData data, Targeter targeter) throws SerializerException {
-        VectorSerializer offset = data.of("Offset").serialize(VectorSerializer.class).orElse(null);
-        if (!isEntity() && offset != null && offset.isRelative()) {
+        VectorProvider offset = data.of("Offset").serialize(VectorSerializer.class).orElse(null);
+        if (!isEntity() && offset instanceof AnyVectorProvider any && any.isRelative()) {
             throw data.exception("offset", "Did you try to use relative locations ('~') with '" + getInlineKeyword() + "'?",
                 getInlineKeyword() + " is a LOCATION targeter, so it cannot use relative locations.");
         }
