@@ -143,17 +143,6 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         int ammoPerReload = config.getInt(weaponTitle + ".Reload.Ammo_Per_Reload", -1);
 
-        // Check how much ammo should be added during this reload iteration
-        int tempAmmoToAdd;
-        if (ammoPerReload != -1) {
-            tempAmmoToAdd = ammoPerReload;
-            if (ammoLeft + tempAmmoToAdd > tempMagazineSize) {
-                tempAmmoToAdd = tempMagazineSize - ammoLeft;
-            }
-        } else {
-            tempAmmoToAdd = tempMagazineSize - ammoLeft;
-        }
-
         PlayerWrapper playerWrapper = shooter.getType() != EntityType.PLAYER ? null : (PlayerWrapper) entityWrapper;
         WeaponInfoDisplay weaponInfoDisplay = playerWrapper == null ? null : getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
 
@@ -192,7 +181,18 @@ public class ReloadHandler implements IValidator, TriggerListener {
             }
         }
 
-        if (ammoLeft >= tempMagazineSize || reloadDuration == 0) {
+        Mechanics reloadStartMechanics = config.getObject(weaponTitle + ".Reload.Start_Mechanics", Mechanics.class);
+        WeaponReloadEvent reloadEvent = new WeaponReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot,
+            ammoLeft, reloadDuration, ammoPerReload, tempMagazineSize, firearmOpenTime, firearmCloseTime, reloadStartMechanics);
+        Bukkit.getPluginManager().callEvent(reloadEvent);
+
+        reloadDuration = reloadEvent.getReloadTime();
+        ammoPerReload = reloadEvent.getAmmoPerReload();
+        tempMagazineSize = reloadEvent.getMagazineSize();
+        firearmOpenTime = reloadEvent.getFirearmOpenTime();
+        firearmCloseTime = reloadEvent.getFirearmCloseTime();
+
+        if (reloadEvent.isCancelled()) {
             // Don't try to reload if already full
             // Or reload duration is 0 because of firearm states
 
@@ -227,18 +227,18 @@ public class ReloadHandler implements IValidator, TriggerListener {
             }
         }
 
-        Mechanics reloadStartMechanics = config.getObject(weaponTitle + ".Reload.Start_Mechanics", Mechanics.class);
-        WeaponReloadEvent reloadEvent = new WeaponReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot,
-            reloadDuration, tempAmmoToAdd, tempMagazineSize, firearmOpenTime, firearmCloseTime, reloadStartMechanics);
-        Bukkit.getPluginManager().callEvent(reloadEvent);
-
-        reloadDuration = reloadEvent.getReloadTime();
-        tempAmmoToAdd = reloadEvent.getReloadAmount();
-        tempMagazineSize = reloadEvent.getMagazineSize();
-        firearmOpenTime = reloadEvent.getFirearmOpenTime();
-        firearmCloseTime = reloadEvent.getFirearmCloseTime();
-
-        final int finalAmmoToAdd = tempAmmoToAdd;
+        // Check how much ammo should be added during this reload iteration
+        int ammoToAdd;
+        if (ammoPerReload != -1) {
+            ammoToAdd = ammoPerReload;
+            if (ammoLeft + ammoToAdd > tempMagazineSize) {
+                ammoToAdd = tempMagazineSize - ammoLeft;
+            }
+        } else {
+            ammoToAdd = tempMagazineSize - ammoLeft;
+        }
+        final int finalAmmoToAdd = ammoToAdd;
+        final int finalAmmoPerReload = ammoPerReload;
         final int magazineSize = tempMagazineSize;
 
         boolean unloadAmmoOnReload = config.getBoolean(weaponTitle + ".Reload.Unload_Ammo_On_Reload");
@@ -246,7 +246,6 @@ public class ReloadHandler implements IValidator, TriggerListener {
         // This is necessary for events to be used correctly
         handData.setReloadData(weaponTitle, weaponStack);
 
-        ItemStack oldWeaponStack = weaponStack.clone();
         ChainTask reloadTask = new ChainTask(reloadDuration) {
 
             private int unloadedAmount;
@@ -299,7 +298,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
                 if (!hasNext())
                     finishReload(entityWrapper, weaponTitle, taskReference, handData, slot);
 
-                if (ammoPerReload != -1) {
+                if (finalAmmoPerReload != -1) {
                     // Start the loop
                     startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield, true);
                 } else if (!hasNext()) {

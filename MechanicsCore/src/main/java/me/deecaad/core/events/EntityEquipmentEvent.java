@@ -5,6 +5,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -90,13 +91,7 @@ public class EntityEquipmentEvent extends EntityEvent {
      * @see #getSlot()
      */
     public boolean isArmor() {
-
-        // While it would be better to check for offhand/mainhand only, that
-        // may throw errors in minecraft 1.8.8
-        return switch (slot) {
-            case HEAD, CHEST, LEGS, FEET -> true;
-            default -> false;
-        };
+        return EquipmentSlotGroup.ARMOR.test(slot);
     }
 
     @Override
