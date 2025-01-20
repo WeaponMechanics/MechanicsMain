@@ -16,6 +16,7 @@ public class WeaponReloadEvent extends WeaponEvent implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
+    private final int ammoLeft; // internal use
     private int reloadTime;
     private int ammoPerReload;
     private int magazineSize;
@@ -26,9 +27,10 @@ public class WeaponReloadEvent extends WeaponEvent implements Cancellable {
     private boolean cancelled;
 
     public WeaponReloadEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser, EquipmentSlot hand,
-        int reloadTime, int ammoPerReload, int magazineSize, int firearmOpenTime, int firearmCloseTime,
+        int ammoLeft, int reloadTime, int ammoPerReload, int magazineSize, int firearmOpenTime, int firearmCloseTime,
         Mechanics mechanics) {
         super(weaponTitle, weaponItem, weaponUser, hand);
+        this.ammoLeft = ammoLeft;
         this.reloadTime = reloadTime;
         this.ammoPerReload = ammoPerReload;
         this.magazineSize = magazineSize;
@@ -94,7 +96,7 @@ public class WeaponReloadEvent extends WeaponEvent implements Cancellable {
 
     @Override
     public boolean isCancelled() {
-        return cancelled;
+        return cancelled || ammoLeft >= magazineSize || reloadTime == 0;
     }
 
     @Override
@@ -103,11 +105,11 @@ public class WeaponReloadEvent extends WeaponEvent implements Cancellable {
     }
 
     @Override
-    @NotNull public HandlerList getHandlers() {
+    public @NotNull HandlerList getHandlers() {
         return HANDLERS;
     }
 
-    public static HandlerList getHandlerList() {
+    public static @NotNull HandlerList getHandlerList() {
         return HANDLERS;
     }
 }

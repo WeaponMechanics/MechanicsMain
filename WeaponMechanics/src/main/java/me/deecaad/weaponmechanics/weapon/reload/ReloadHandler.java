@@ -183,8 +183,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         Mechanics reloadStartMechanics = config.getObject(weaponTitle + ".Reload.Start_Mechanics", Mechanics.class);
         WeaponReloadEvent reloadEvent = new WeaponReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot,
-            reloadDuration, ammoPerReload, tempMagazineSize, firearmOpenTime, firearmCloseTime, reloadStartMechanics);
-        reloadEvent.setCancelled(ammoLeft >= tempMagazineSize || reloadDuration == 0);
+            ammoLeft, reloadDuration, ammoPerReload, tempMagazineSize, firearmOpenTime, firearmCloseTime, reloadStartMechanics);
         Bukkit.getPluginManager().callEvent(reloadEvent);
 
         reloadDuration = reloadEvent.getReloadTime();
@@ -193,7 +192,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
         firearmOpenTime = reloadEvent.getFirearmOpenTime();
         firearmCloseTime = reloadEvent.getFirearmCloseTime();
 
-        if (reloadEvent.isCancelled() || ammoLeft >= tempMagazineSize || reloadDuration == 0) {
+        if (reloadEvent.isCancelled()) {
             // Don't try to reload if already full
             // Or reload duration is 0 because of firearm states
 
