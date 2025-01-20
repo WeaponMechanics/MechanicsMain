@@ -105,6 +105,9 @@ public class WeaponListeners implements Listener {
                     holsterMechanics.use(new CastData(entity, dequippedWeapon, dequipped));
             }
 
+            // Make sure to cancel tasks for the dequipped weapon
+            handData.cancelTasks(false);
+
             weaponHandler.getSkinHandler().tryUse(entityWrapper, dequippedWeapon, dequipped, e.getSlot(), true);
         }
     }
