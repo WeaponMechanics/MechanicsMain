@@ -574,31 +574,34 @@ public class ShootHandler implements IValidator, TriggerListener {
             debug.error(weaponTitle + ".Shoot.Projectiles_Per_Shot should be at least 1, got " + prepareEvent.getProjectileAmount());
         }
 
-        for (int i = 0; i < prepareEvent.getProjectileAmount(); i++) {
+        // Consumables can have no projectile, so only try to fire bullets if there is a projectile
+        if (prepareEvent.getProjectile() != null) {
+            for (int i = 0; i < prepareEvent.getProjectileAmount(); i++) {
 
-            Location perProjectileShootLocation = shootLocation.clone();
+                Location perProjectileShootLocation = shootLocation.clone();
 
-            // i == prepareEvent.getProjectileAmount() - 1
-            // Change the spread after all pellets are shot
-            Vector motion;
-            if (prepareEvent.getSpread() != null) {
-                boolean updateSpread = i == prepareEvent.getProjectileAmount() - 1 && updateSpreadChange;
-                motion = prepareEvent.getSpread().getNormalizedSpreadDirection(entityWrapper, perProjectileShootLocation, mainHand, updateSpread, prepareEvent.getBaseSpread());
-            } else {
-                motion = perProjectileShootLocation.getDirection();
+                // i == prepareEvent.getProjectileAmount() - 1
+                // Change the spread after all pellets are shot
+                Vector motion;
+                if (prepareEvent.getSpread() != null) {
+                    boolean updateSpread = i == prepareEvent.getProjectileAmount() - 1 && updateSpreadChange;
+                    motion = prepareEvent.getSpread().getNormalizedSpreadDirection(entityWrapper, perProjectileShootLocation, mainHand, updateSpread, prepareEvent.getBaseSpread());
+                } else {
+                    motion = perProjectileShootLocation.getDirection();
+                }
+
+                motion.multiply(prepareEvent.getProjectileSpeed());
+
+                // Only create bullet first if WeaponShootEvent changes
+                WeaponProjectile bullet = prepareEvent.getProjectile().create(livingEntity, perProjectileShootLocation, motion, weaponStack, weaponTitle, slot);
+
+                WeaponShootEvent shootEvent = new WeaponShootEvent(bullet);
+                Bukkit.getPluginManager().callEvent(shootEvent);
+                bullet = shootEvent.getProjectile();
+
+                // Shoot the given bullet
+                prepareEvent.getProjectile().shoot(bullet, perProjectileShootLocation);
             }
-
-            motion.multiply(prepareEvent.getProjectileSpeed());
-
-            // Only create bullet first if WeaponShootEvent changes
-            WeaponProjectile bullet = prepareEvent.getProjectile().create(livingEntity, perProjectileShootLocation, motion, weaponStack, weaponTitle, slot);
-
-            WeaponShootEvent shootEvent = new WeaponShootEvent(bullet);
-            Bukkit.getPluginManager().callEvent(shootEvent);
-            bullet = shootEvent.getProjectile();
-
-            // Shoot the given bullet
-            prepareEvent.getProjectile().shoot(bullet, perProjectileShootLocation);
         }
 
         boolean unscopeAfterShot = config.getBoolean(weaponTitle + ".Scope.Unscope_After_Shot");
