@@ -22,7 +22,7 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
 
     private @Nullable Mechanics shootMechanics;
     private boolean resetFallDistance;
-    private @NotNull Projectile projectile;
+    private @Nullable Projectile projectile;
     private double projectileSpeed;
     private int projectileAmount;
     private @Nullable Spread spread;
@@ -40,7 +40,7 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
         @NotNull EquipmentSlot hand,
         @Nullable Mechanics shootMechanics,
         boolean resetFallDistance,
-        @NotNull Projectile projectile,
+        @Nullable Projectile projectile,
         double projectileSpeed,
         int projectileAmount,
         @Nullable Spread spread,
@@ -77,11 +77,18 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
         this.resetFallDistance = resetFallDistance;
     }
 
-    public @NotNull Projectile getProjectile() {
+    /**
+     * The projectile launched, or null if the weapon doesn't shoot any projectiles.
+     * <p>
+     * Consumables, like stims, don't shoot any projectiles.
+     *
+     * @return The projectile, or null if the weapon doesn't shoot any projectiles.
+     */
+    public @Nullable Projectile getProjectile() {
         return projectile;
     }
 
-    public void setProjectile(@NotNull Projectile projectile) {
+    public void setProjectile(@Nullable Projectile projectile) {
         this.projectile = projectile;
     }
 
