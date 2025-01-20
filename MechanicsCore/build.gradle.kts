@@ -26,6 +26,7 @@ dependencies {
     compileOnly(Dependencies.MYTHIC_MOBS)
 
     // Misc libs
+    compileOnly(Dependencies.BSTATS)
     compileOnly(Dependencies.JSON_SIMPLE)
     compileOnly(Dependencies.ADVENTURE_API)
     compileOnly(Dependencies.ADVENTURE_BUKKIT)
@@ -34,6 +35,7 @@ dependencies {
     compileOnly("com.zaxxer:HikariCP:5.1.0")
     compileOnly("org.slf4j:slf4j-nop:1.7.30")
     compileOnly("net.bytebuddy:byte-buddy:1.15.10")
+    compileOnly("com.jeff_media:SpigotUpdateChecker:3.0.4")
     compileOnly(Dependencies.X_SERIES)
     compileOnly(Dependencies.FOLIA_SCHEDULER)
     compileOnly(Dependencies.FAST_UTIL)

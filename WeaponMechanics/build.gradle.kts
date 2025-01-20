@@ -26,7 +26,7 @@ dependencies {
 
     // Misc libs
     compileOnly(Dependencies.BSTATS)
-    compileOnly("com.jeff_media:SpigotUpdateChecker:3.0.3")
+    compileOnly("com.jeff_media:SpigotUpdateChecker:3.0.4")
     compileOnly(Dependencies.GSON)
     adventureChatAPI()
     compileOnly(Dependencies.FAST_UTIL)

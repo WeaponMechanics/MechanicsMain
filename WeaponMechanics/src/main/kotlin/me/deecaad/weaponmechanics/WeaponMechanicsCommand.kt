@@ -152,9 +152,9 @@ object WeaponMechanicsCommand {
                     val targets = args["target"] as List<Entity>
                     val weaponTitle = args["weapon"] as String
                     val amount = args["amount"] as? Int ?: 1
-                    val data = mutableMapOf<String, Any>()
+                    val data = args["data"] as? Map<String, Any> ?: mutableMapOf()
 
-                    give(player, targets, weaponTitle, amount, data)
+                    give(player, targets, weaponTitle, amount, data.toMutableMap())
                 }
             }
 
