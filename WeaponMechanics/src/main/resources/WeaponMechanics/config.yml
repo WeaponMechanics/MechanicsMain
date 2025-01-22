@@ -108,6 +108,11 @@ Disable_Block_Break_Event: false
 # the suggested format. Disabling this makes it much easier for you to make mistakes.
 Strict_Relative_Skins: true
 
+# Enabling this will make it so that Legacy Minecraft clients (v1.21.3 and below)
+# will see the bobbing item fix applied. This should only be used if you intend
+# to support via-backwards for legacy clients.
+Fix_Bobbing_Legacy: false
+
 # These options define how "random" the explosions are. It doesn't effect block
 # regeneration. These effects don't look very pretty on larger explosions, but
 # they improve smaller ones.

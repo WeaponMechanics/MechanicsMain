@@ -45,6 +45,7 @@ import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListeners;
 import me.deecaad.weaponmechanics.packetlisteners.OutAbilitiesListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutEntityEffectListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutRemoveEntityEffectListener;
+import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotBobFix;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.AssistData;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
@@ -413,6 +414,8 @@ public class WeaponMechanics {
         em.registerListener(new OutAbilitiesListener(), PacketListenerPriority.NORMAL);
         em.registerListener(new OutEntityEffectListener(), PacketListenerPriority.NORMAL);
         em.registerListener(new OutRemoveEntityEffectListener(), PacketListenerPriority.NORMAL);
+        if (basicConfiguration.getBoolean("Fix_Bobbing_Legacy", false))
+            em.registerListener(new OutSetSlotBobFix(javaPlugin), PacketListenerPriority.NORMAL);
     }
 
     void registerCommands() {
