@@ -332,6 +332,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
             }
         }
 
+        itemStack.setItemMeta(itemMeta);
+
         // Add flags after attributes due to a bug introduced in Spigot 1.20.5, see
         // https://github.com/PaperMC/Paper/issues/10693
         boolean hideFlags = data.of("Hide_Flags").getBool().orElse(false);
