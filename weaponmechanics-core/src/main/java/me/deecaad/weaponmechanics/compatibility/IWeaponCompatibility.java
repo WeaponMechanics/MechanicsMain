@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.compatibility;
 
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
@@ -40,4 +41,20 @@ public interface IWeaponCompatibility {
      * @param killer The killer
      */
     void setKiller(LivingEntity victim, Player killer);
+
+    /**
+     * Triggers the vanilla attack cooldown animation (item drops down then rises back up) for the given
+     * player, with a duration matched to {@code durationTicks}. This is used to give visual feedback
+     * during ADS settling.
+     *
+     * <p>Internally this resets the NMS {@code attackStrengthTicker} to 0 and temporarily modifies the
+     * {@code ATTACK_SPEED} attribute so the animation completes in exactly {@code durationTicks} ticks.
+     *
+     * @param player       the player to show the animation to
+     * @param durationTicks how many ticks the animation should take to complete
+     * @return the scheduled task that will restore the attack speed attribute when the animation ends;
+     *     store this in {@link me.deecaad.weaponmechanics.wrappers.ZoomData#setAdsSettleTask} so it
+     *     can be cancelled if the player exits scope early
+     */
+    TaskImplementation<Void> playAdsSettleAnimation(Player player, int durationTicks);
 }

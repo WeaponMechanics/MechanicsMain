@@ -1,5 +1,8 @@
 package me.deecaad.weaponmechanics.compatibility;
 
+import com.cjcrafter.foliascheduler.TaskImplementation;
+import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.wrappers.ZoomData;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageSources;
@@ -7,10 +10,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.entity.Relative;
 import net.minecraft.world.phys.Vec3;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.craftbukkit.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -71,5 +78,40 @@ public class v1_21_R2 implements IWeaponCompatibility {
     @Override
     public void setKiller(org.bukkit.entity.LivingEntity victim, Player killer) {
         ((CraftLivingEntity) victim).getHandle().lastHurtByMob = ((CraftPlayer) killer).getHandle();
+    }
+
+    @Override
+    public TaskImplementation<Void> playAdsSettleAnimation(Player player, int durationTicks) {
+        // Reset the attack strength ticker to trigger the item-drop animation client-side
+        ((CraftPlayer) player).getHandle().attackStrengthTicker = 0;
+
+        // Temporarily set attack speed so the animation finishes in exactly durationTicks ticks.
+        // Formula: fullRaiseTicks = 1.0 / attackSpeed * 20  =>  attackSpeed = 20.0 / durationTicks
+        AttributeInstance attr = player.getAttribute(Attribute.ATTACK_SPEED);
+        if (attr != null) {
+            double requiredSpeed = 20.0 / Math.max(1, durationTicks);
+            double addValue = requiredSpeed - attr.getBaseValue();
+            // Remove any leftover modifier from a previous scope cycle first
+            for (AttributeModifier mod : new ArrayList<>(attr.getModifiers())) {
+                if (ZoomData.ADS_SPEED_MODIFIER_KEY.equals(mod.getKey())) {
+                    attr.removeModifier(mod);
+                    break;
+                }
+            }
+            attr.addModifier(new AttributeModifier(ZoomData.ADS_SPEED_MODIFIER_KEY, addValue, AttributeModifier.Operation.ADD_NUMBER));
+        }
+
+        // Schedule removal of the modifier once the animation is done
+        return WeaponMechanics.getInstance().getFoliaScheduler().entity(player).runDelayed(() -> {
+            AttributeInstance a = player.getAttribute(Attribute.ATTACK_SPEED);
+            if (a != null) {
+                for (AttributeModifier mod : new ArrayList<>(a.getModifiers())) {
+                    if (ZoomData.ADS_SPEED_MODIFIER_KEY.equals(mod.getKey())) {
+                        a.removeModifier(mod);
+                        break;
+                    }
+                }
+            }
+        }, (long) durationTicks);
     }
 }
