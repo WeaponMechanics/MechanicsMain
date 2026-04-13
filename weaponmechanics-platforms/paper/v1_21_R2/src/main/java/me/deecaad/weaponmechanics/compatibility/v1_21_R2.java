@@ -83,14 +83,19 @@ public class v1_21_R2 implements IWeaponCompatibility {
     @Override
     public TaskImplementation<Void> playAdsSettleAnimation(Player player, int durationTicks) {
         // Reset the attack strength ticker to trigger the item-drop animation client-side
-        ((CraftPlayer) player).getHandle().attackStrengthTicker = 0;
+        try {
+            java.lang.reflect.Field ticker = net.minecraft.world.entity.LivingEntity.class.getDeclaredField("attackStrengthTicker");
+            ticker.setAccessible(true);
+            ticker.set(((CraftPlayer) player).getHandle(), 0);
+        } catch (Exception ignored) {
+        }
 
         // Temporarily set attack speed so the animation finishes in exactly durationTicks ticks.
         // Formula: fullRaiseTicks = 1.0 / attackSpeed * 20  =>  attackSpeed = 20.0 / durationTicks
         AttributeInstance attr = player.getAttribute(Attribute.ATTACK_SPEED);
         if (attr != null) {
             double requiredSpeed = 20.0 / Math.max(1, durationTicks);
-            double addValue = requiredSpeed - attr.getBaseValue();
+            double addValue = requiredSpeed - attr.getValue();
             // Remove any leftover modifier from a previous scope cycle first
             for (AttributeModifier mod : new ArrayList<>(attr.getModifiers())) {
                 if (ZoomData.ADS_SPEED_MODIFIER_KEY.equals(mod.getKey())) {

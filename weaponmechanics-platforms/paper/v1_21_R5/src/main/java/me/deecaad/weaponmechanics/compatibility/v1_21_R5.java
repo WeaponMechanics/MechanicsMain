@@ -82,12 +82,17 @@ public class v1_21_R5 implements IWeaponCompatibility {
 
     @Override
     public TaskImplementation<Void> playAdsSettleAnimation(Player player, int durationTicks) {
-        ((CraftPlayer) player).getHandle().attackStrengthTicker = 0;
+        try {
+            java.lang.reflect.Field ticker = net.minecraft.world.entity.LivingEntity.class.getDeclaredField("attackStrengthTicker");
+            ticker.setAccessible(true);
+            ticker.set(((CraftPlayer) player).getHandle(), 0);
+        } catch (Exception ignored) {
+        }
 
         AttributeInstance attr = player.getAttribute(Attribute.ATTACK_SPEED);
         if (attr != null) {
             double requiredSpeed = 20.0 / Math.max(1, durationTicks);
-            double addValue = requiredSpeed - attr.getBaseValue();
+            double addValue = requiredSpeed - attr.getValue();
             for (AttributeModifier mod : new ArrayList<>(attr.getModifiers())) {
                 if (ZoomData.ADS_SPEED_MODIFIER_KEY.equals(mod.getKey())) {
                     attr.removeModifier(mod);

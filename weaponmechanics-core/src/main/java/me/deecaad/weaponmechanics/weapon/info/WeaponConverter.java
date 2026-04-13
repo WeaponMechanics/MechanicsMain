@@ -5,6 +5,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import com.cjcrafter.foliascheduler.util.MinecraftVersions;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -21,6 +22,7 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
     private boolean lore;
     private boolean enchantments;
     private boolean cmd;
+    private boolean itemModel;
 
     /**
      * Default constructor for serializer
@@ -28,12 +30,13 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
     public WeaponConverter() {
     }
 
-    public WeaponConverter(boolean type, boolean name, boolean lore, boolean enchantments, boolean cmd) {
+    public WeaponConverter(boolean type, boolean name, boolean lore, boolean enchantments, boolean cmd, boolean itemModel) {
         this.type = type;
         this.name = name;
         this.lore = lore;
         this.enchantments = enchantments;
         this.cmd = cmd;
+        this.itemModel = itemModel;
     }
 
     /**
@@ -73,6 +76,13 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
                 return false;
             }
             if (weaponMeta.hasCustomModelData() && weaponMeta.getCustomModelData() != otherMeta.getCustomModelData()) {
+                return false;
+            }
+        }
+        if (this.itemModel) {
+            NamespacedKey weaponItemModel = weaponMeta.hasItemModel() ? weaponMeta.getItemModel() : null;
+            NamespacedKey otherItemModel = otherMeta.hasItemModel() ? otherMeta.getItemModel() : null;
+            if (weaponItemModel == null ? otherItemModel != null : !weaponItemModel.equals(otherItemModel)) {
                 return false;
             }
         }
@@ -122,14 +132,15 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
         boolean lore = data.of("Lore").getBool().orElse(false);
         boolean enchantments = data.of("Enchantments").getBool().orElse(false);
         boolean cmd = data.of("Custom_Model_Data").getBool().orElse(false);
+        boolean itemModel = data.of("Item_Model").getBool().orElse(false);
 
-        if (!type && !name && !lore && !enchantments && !cmd) {
-            throw data.exception(null, "'Type', 'Name', 'Lore', 'Enchantments', 'Custom_Model_Data' are all 'false'",
+        if (!type && !name && !lore && !enchantments && !cmd && !itemModel) {
+            throw data.exception(null, "'Type', 'Name', 'Lore', 'Enchantments', 'Custom_Model_Data', 'Item_Model' are all 'false'",
                 "One of them should be 'true' to allow weapon conversion",
                 "If you want to remove the weapon conversion feature, remove the '" + getKeyword() + "' option from config");
         }
 
         WeaponMechanics.getInstance().getWeaponHandler().getInfoHandler().addWeaponWithConvert(data.getKey().split("\\.")[0]);
-        return new WeaponConverter(type, name, lore, enchantments, cmd);
+        return new WeaponConverter(type, name, lore, enchantments, cmd, itemModel);
     }
 }
