@@ -108,6 +108,14 @@ public class ReloadHandler implements IValidator, TriggerListener {
                 if (ammo.getOutOfAmmoMechanics() != null) {
                     ammo.getOutOfAmmoMechanics().use(new CastData(shooter, weaponTitle, weaponStack));
                 }
+                // Send a configurable "no ammo" message to the player
+                Player player = playerWrapper.getPlayer();
+                String noAmmoMessage = WeaponMechanics.getInstance().getConfiguration().getString("Messages.Reload.No_Ammo", "");
+                if (!noAmmoMessage.isEmpty()) {
+                    PlaceholderMessage message = new PlaceholderMessage(StringUtil.colorAdventure(noAmmoMessage));
+                    Component component = message.replaceAndDeserialize(PlaceholderData.of(player, weaponStack, weaponTitle, slot));
+                    player.sendMessage(component);
+                }
                 return false;
             }
         }
