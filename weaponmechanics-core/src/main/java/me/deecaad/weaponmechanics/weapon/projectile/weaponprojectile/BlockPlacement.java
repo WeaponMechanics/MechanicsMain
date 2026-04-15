@@ -1,0 +1,83 @@
+package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
+
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.utils.ray.BlockTraceResult;
+import me.deecaad.weaponmechanics.WeaponMechanics;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.jetbrains.annotations.NotNull;
+
+public class BlockPlacement implements Serializer<BlockPlacement> {
+
+    public enum PlacementMode {
+        PLACE_ADJACENT,
+        REPLACE,
+        REMOVE
+    }
+
+    private Material block;
+    private PlacementMode mode;
+    private int removeAfterTicks;
+
+    /**
+     * Default constructor for serializer
+     */
+    public BlockPlacement() {
+    }
+
+    public BlockPlacement(Material block, PlacementMode mode, int removeAfterTicks) {
+        this.block = block;
+        this.mode = mode;
+        this.removeAfterTicks = removeAfterTicks;
+    }
+
+    public void handleBlockPlacement(BlockTraceResult result, WeaponProjectile projectile) {
+        Block target;
+        if (mode == PlacementMode.PLACE_ADJACENT) {
+            target = result.getBlock().getRelative(result.getHitFace());
+            // Only place in air, liquids, or passable blocks (grass, flowers, etc.)
+            Material targetType = target.getType();
+            if (!targetType.isAir() && !target.isLiquid() && !target.isPassable()) {
+                return;
+            }
+        } else {
+            target = result.getBlock();
+        }
+
+        BlockState oldState = target.getState();
+        Material placeMaterial = (mode == PlacementMode.REMOVE) ? Material.AIR : block;
+        target.setType(placeMaterial);
+
+        if (removeAfterTicks > 0) {
+            WeaponMechanics.getInstance().getFoliaScheduler().global().runDelayed(() -> {
+                oldState.update(true, true);
+            }, (long) removeAfterTicks);
+        }
+    }
+
+    @Override
+    public String getKeyword() {
+        return "Block_Placement";
+    }
+
+    @Override
+    public @NotNull BlockPlacement serialize(@NotNull SerializeData data) throws SerializerException {
+        PlacementMode mode = data.of("Mode").getEnum(PlacementMode.class).orElse(PlacementMode.PLACE_ADJACENT);
+
+        Material block = null;
+        if (mode != PlacementMode.REMOVE) {
+            block = data.of("Block").assertExists().getEnum(Material.class).get();
+            if (!block.isBlock()) {
+                throw data.exception("Block", "'" + block.name() + "' is not a placeable block material",
+                    "Use a solid block like STONE, SPONGE, DIRT, etc.");
+            }
+        }
+
+        int removeAfterTicks = data.of("Remove_After_Ticks").getInt().orElse(-1);
+
+        return new BlockPlacement(block, mode, removeAfterTicks);
+    }
+}

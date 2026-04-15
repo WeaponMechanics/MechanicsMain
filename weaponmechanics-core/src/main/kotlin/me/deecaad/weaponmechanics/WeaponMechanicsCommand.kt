@@ -1395,7 +1395,7 @@ object WeaponMechanicsCommand {
                 gravity, false, -1.0, false,
                 -1.0, 0.99, 0.96, 0.98, false, 600, -1.0, 0.1,
             )
-        val projectile = Projectile(projectileSettings, null, null, null, null)
+        val projectile = Projectile(projectileSettings, null, null, null, null, null)
         projectile.shoot(sender, sender.eyeLocation, sender.location.direction.multiply(speed), null, null, null)
     }
 
