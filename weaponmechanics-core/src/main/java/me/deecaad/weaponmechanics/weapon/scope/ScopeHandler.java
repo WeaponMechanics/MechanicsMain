@@ -249,6 +249,10 @@ public class ScopeHandler implements IValidator, TriggerListener {
             TaskImplementation<Void> task = WeaponCompatibilityAPI.getWeaponCompatibility()
                 .playAdsSettleAnimation(player, adsSpeedTicks);
             zoomData.setAdsSettleTask(task);
+
+            if (config.getBoolean(weaponTitle + ".Scope.ADS_Show_Cooldown_Icon")) {
+                player.setCooldown(weaponStack.getType(), adsSpeedTicks);
+            }
         }
 
         return true;
@@ -265,6 +269,11 @@ public class ScopeHandler implements IValidator, TriggerListener {
 
         // Stop any active ADS settling when zooming out
         zoomData.stopSettling();
+
+        if (entity instanceof Player player
+            && WeaponMechanics.getInstance().getWeaponConfigurations().getBoolean(weaponTitle + ".Scope.ADS_Show_Cooldown_Icon")) {
+            player.setCooldown(weaponStack.getType(), 0);
+        }
 
         MechanicManager zoomOffMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Scope.Zoom_Off.Mechanics", MechanicManager.class);
 
