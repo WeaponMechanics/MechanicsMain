@@ -1002,7 +1002,7 @@ object WeaponMechanicsCommand {
                 val explosion =
                     Explosion(
                         shape, exposure, blockDamage, regeneration, null, 0.0, 1.0,
-                        null, null, Flashbang(10.0, null), null,
+                        null, null, Flashbang(10.0, null), null, null,
                     )
                 explosion.explode(cause, origin, null)
             },

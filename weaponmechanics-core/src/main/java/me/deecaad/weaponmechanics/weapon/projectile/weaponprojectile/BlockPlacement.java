@@ -10,11 +10,15 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BlockPlacement implements Serializer<BlockPlacement> {
 
     public enum PlacementMode {
         PLACE_ADJACENT,
         REPLACE,
+        REPLACE_AIR,
         REMOVE
     }
 
@@ -54,6 +58,44 @@ public class BlockPlacement implements Serializer<BlockPlacement> {
         if (removeAfterTicks > 0) {
             WeaponMechanics.getInstance().getFoliaScheduler().global().runDelayed(() -> {
                 oldState.update(true, true);
+            }, (long) removeAfterTicks);
+        }
+    }
+
+    /**
+     * Handles block placement for an explosion. Iterates all blocks in the explosion radius
+     * and places/replaces/removes blocks according to the configured mode.
+     *
+     * <ul>
+     *   <li>{@link PlacementMode#REPLACE} — replaces every block in the radius with the configured material.</li>
+     *   <li>{@link PlacementMode#REPLACE_AIR} — replaces only air/passable blocks (e.g. place fire in open space).</li>
+     *   <li>{@link PlacementMode#REMOVE} — sets every block in the radius to AIR.</li>
+     *   <li>{@link PlacementMode#PLACE_ADJACENT} — not applicable to explosions; call is ignored.</li>
+     * </ul>
+     *
+     * @param blocks the list of blocks inside the explosion radius
+     */
+    public void handleExplosionPlacement(List<Block> blocks) {
+        if (mode == PlacementMode.PLACE_ADJACENT)
+            return;
+
+        Material placeMaterial = (mode == PlacementMode.REMOVE) ? Material.AIR : block;
+        List<BlockState> oldStates = removeAfterTicks > 0 ? new ArrayList<>() : null;
+
+        for (Block b : blocks) {
+            if (mode == PlacementMode.REPLACE_AIR && !b.getType().isAir() && !b.isPassable())
+                continue;
+
+            if (oldStates != null)
+                oldStates.add(b.getState());
+
+            b.setType(placeMaterial);
+        }
+
+        if (oldStates != null && !oldStates.isEmpty()) {
+            WeaponMechanics.getInstance().getFoliaScheduler().global().runDelayed(() -> {
+                for (BlockState state : oldStates)
+                    state.update(true, true);
             }, (long) removeAfterTicks);
         }
     }
