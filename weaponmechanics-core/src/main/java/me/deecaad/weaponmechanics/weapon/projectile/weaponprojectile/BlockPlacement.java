@@ -5,10 +5,15 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.ray.BlockTraceResult;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
+import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +30,7 @@ public class BlockPlacement implements Serializer<BlockPlacement> {
     private Material block;
     private PlacementMode mode;
     private int removeAfterTicks;
+    private boolean lineOfSight;
 
     /**
      * Default constructor for serializer
@@ -32,10 +38,11 @@ public class BlockPlacement implements Serializer<BlockPlacement> {
     public BlockPlacement() {
     }
 
-    public BlockPlacement(Material block, PlacementMode mode, int removeAfterTicks) {
+    public BlockPlacement(Material block, PlacementMode mode, int removeAfterTicks, boolean lineOfSight) {
         this.block = block;
         this.mode = mode;
         this.removeAfterTicks = removeAfterTicks;
+        this.lineOfSight = lineOfSight;
     }
 
     public void handleBlockPlacement(BlockTraceResult result, WeaponProjectile projectile) {
@@ -73,9 +80,10 @@ public class BlockPlacement implements Serializer<BlockPlacement> {
      *   <li>{@link PlacementMode#PLACE_ADJACENT} — not applicable to explosions; call is ignored.</li>
      * </ul>
      *
+     * @param origin the explosion origin, used for line-of-sight checks when {@code lineOfSight} is enabled
      * @param blocks the list of blocks inside the explosion radius
      */
-    public void handleExplosionPlacement(List<Block> blocks) {
+    public void handleExplosionPlacement(@Nullable Location origin, List<Block> blocks) {
         if (mode == PlacementMode.PLACE_ADJACENT)
             return;
 
@@ -85,6 +93,14 @@ public class BlockPlacement implements Serializer<BlockPlacement> {
         for (Block b : blocks) {
             if (mode == PlacementMode.REPLACE_AIR && !b.getType().isAir() && !b.isPassable())
                 continue;
+
+            // Line-of-sight check: skip blocks that have a solid wall between them and the origin
+            if (lineOfSight && origin != null) {
+                Vector dir = b.getLocation().add(0.5, 0.5, 0.5).toVector().subtract(origin.toVector());
+                Ray ray = new Ray(origin, dir);
+                if (!ray.trace(TraceCollision.BLOCK, 0.3).isEmpty())
+                    continue;
+            }
 
             if (oldStates != null)
                 oldStates.add(b.getState());
@@ -119,7 +135,8 @@ public class BlockPlacement implements Serializer<BlockPlacement> {
         }
 
         int removeAfterTicks = data.of("Remove_After_Ticks").getInt().orElse(-1);
+        boolean lineOfSight = data.of("Line_Of_Sight").getBool().orElse(false);
 
-        return new BlockPlacement(block, mode, removeAfterTicks);
+        return new BlockPlacement(block, mode, removeAfterTicks, lineOfSight);
     }
 }

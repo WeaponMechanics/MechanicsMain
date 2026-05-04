@@ -296,7 +296,7 @@ public class Explosion implements Serializer<Explosion> {
 
         // Place/replace/remove blocks inside the explosion radius (e.g. fire bomb)
         if (blockPlacement != null) {
-            blockPlacement.handleExplosionPlacement(blocks);
+            blockPlacement.handleExplosionPlacement(origin, blocks);
         }
 
         if (projectile != null && projectile.getWeaponTitle() != null) {
