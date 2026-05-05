@@ -31,6 +31,7 @@ public class BlockPlacement implements Serializer<BlockPlacement> {
     private PlacementMode mode;
     private int removeAfterTicks;
     private boolean lineOfSight;
+    private double radius;
 
     /**
      * Default constructor for serializer
@@ -38,11 +39,12 @@ public class BlockPlacement implements Serializer<BlockPlacement> {
     public BlockPlacement() {
     }
 
-    public BlockPlacement(Material block, PlacementMode mode, int removeAfterTicks, boolean lineOfSight) {
+    public BlockPlacement(Material block, PlacementMode mode, int removeAfterTicks, boolean lineOfSight, double radius) {
         this.block = block;
         this.mode = mode;
         this.removeAfterTicks = removeAfterTicks;
         this.lineOfSight = lineOfSight;
+        this.radius = radius;
     }
 
     public void handleBlockPlacement(BlockTraceResult result, WeaponProjectile projectile) {
@@ -90,9 +92,19 @@ public class BlockPlacement implements Serializer<BlockPlacement> {
         Material placeMaterial = (mode == PlacementMode.REMOVE) ? Material.AIR : block;
         List<BlockState> oldStates = removeAfterTicks > 0 ? new ArrayList<>() : null;
 
+        double radiusSq = radius > 0 ? radius * radius : -1;
+        Vector originVec = origin != null ? origin.toVector() : null;
+
         for (Block b : blocks) {
             if (mode == PlacementMode.REPLACE_AIR && !b.getType().isAir() && !b.isPassable())
                 continue;
+
+            // Radius check: skip blocks outside the specified placement radius
+            if (radiusSq > 0 && originVec != null) {
+                Vector blockCenter = b.getLocation().add(0.5, 0.5, 0.5).toVector();
+                if (blockCenter.distanceSquared(originVec) > radiusSq)
+                    continue;
+            }
 
             // Line-of-sight check: skip blocks that have a solid wall between them and the origin
             if (lineOfSight && origin != null) {
@@ -136,7 +148,8 @@ public class BlockPlacement implements Serializer<BlockPlacement> {
 
         int removeAfterTicks = data.of("Remove_After_Ticks").getInt().orElse(-1);
         boolean lineOfSight = data.of("Line_Of_Sight").getBool().orElse(false);
+        double radius = data.of("Radius").getDouble().orElse(-1.0);
 
-        return new BlockPlacement(block, mode, removeAfterTicks, lineOfSight);
+        return new BlockPlacement(block, mode, removeAfterTicks, lineOfSight, radius);
     }
 }
