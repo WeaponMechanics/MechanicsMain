@@ -5,12 +5,12 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.ray.BlockTraceResult;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
-import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -106,12 +106,24 @@ public class BlockPlacement implements Serializer<BlockPlacement> {
                     continue;
             }
 
-            // Line-of-sight check: skip blocks that have a solid wall between them and the origin
+            // Line-of-sight check: skip blocks that have a solid wall between them and the origin.
+            // Uses Bukkit's DDA raytracer so diagonal block corners are handled correctly.
             if (lineOfSight && origin != null) {
-                Vector dir = b.getLocation().add(0.5, 0.5, 0.5).toVector().subtract(origin.toVector());
-                Ray ray = new Ray(origin, dir);
-                if (!ray.trace(TraceCollision.BLOCK, 0.3).isEmpty())
-                    continue;
+                Vector blockCenter = b.getLocation().add(0.5, 0.5, 0.5).toVector();
+                Vector dir = blockCenter.clone().subtract(origin.toVector());
+                double dist = dir.length();
+                if (dist > 0) {
+                    RayTraceResult hit = origin.getWorld().rayTraceBlocks(
+                        origin, dir.normalize(), dist, FluidCollisionMode.NEVER, true);
+                    if (hit != null) {
+                        // Something solid is in the way — allow only if the hit block IS the candidate
+                        // (relevant for REPLACE mode where the target itself is solid)
+                        Block hitBlock = hit.getHitBlock();
+                        if (hitBlock == null || hitBlock.getX() != b.getX()
+                            || hitBlock.getY() != b.getY() || hitBlock.getZ() != b.getZ())
+                            continue;
+                    }
+                }
             }
 
             if (oldStates != null)
