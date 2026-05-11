@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.stats;
 
 import me.deecaad.core.database.Database;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
@@ -27,12 +26,12 @@ public class StatsHandler {
      * @param playerWrapper the player wrapper
      */
     public void load(PlayerWrapper playerWrapper) {
-        Database database = WeaponMechanics.getInstance().getDatabase();
-        if (database.isClosed())
-            throw new IllegalArgumentException("Tried to load data when database was closed");
-
         StatsData statsData = playerWrapper.getStatsDataUnsafe();
         if (statsData == null)
+            return;
+
+        Database database = WeaponMechanics.getInstance().getDatabaseOrNull();
+        if (database == null || database.isClosed())
             return;
 
         if (statsData.isSync())
@@ -48,13 +47,13 @@ public class StatsHandler {
      * @param forceSync true means that saving is forced to be sync (used on disable)
      */
     public void save(PlayerWrapper playerWrapper, boolean forceSync) {
-        Database database = WeaponMechanics.getInstance().getDatabase();
-        if (database.isClosed())
-            throw new IllegalArgumentException("Tried to save data when database was closed");
-
         StatsData statsData = playerWrapper.getStatsData();
         // This might be null if sync didn't occur...
         if (statsData == null)
+            return;
+
+        Database database = WeaponMechanics.getInstance().getDatabaseOrNull();
+        if (database == null || database.isClosed())
             return;
 
         database.executeUpdate(forceSync, getSaveStrings(playerWrapper));

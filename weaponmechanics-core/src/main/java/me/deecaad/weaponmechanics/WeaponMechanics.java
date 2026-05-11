@@ -485,6 +485,10 @@ public class WeaponMechanics extends MechanicsPlugin {
         return database;
     }
 
+    public @Nullable Database getDatabaseOrNull() {
+        return database;
+    }
+
     public @NotNull ProjectileSpawner getProjectileSpawner() {
         if (projectileSpawner == null)
             throw new UninitializedPropertyAccessException();
