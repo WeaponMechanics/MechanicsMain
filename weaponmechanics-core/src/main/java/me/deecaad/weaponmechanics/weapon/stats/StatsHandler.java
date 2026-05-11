@@ -48,14 +48,14 @@ public class StatsHandler {
      * @param forceSync true means that saving is forced to be sync (used on disable)
      */
     public void save(PlayerWrapper playerWrapper, boolean forceSync) {
-        Database database = WeaponMechanics.getInstance().getDatabase();
-        if (database.isClosed())
-            throw new IllegalArgumentException("Tried to save data when database was closed");
-
         StatsData statsData = playerWrapper.getStatsData();
         // This might be null if sync didn't occur...
         if (statsData == null)
             return;
+
+        Database database = WeaponMechanics.getInstance().getDatabase();
+        if (database.isClosed())
+            throw new IllegalArgumentException("Tried to save data when database was closed");
 
         database.executeUpdate(forceSync, getSaveStrings(playerWrapper));
     }
