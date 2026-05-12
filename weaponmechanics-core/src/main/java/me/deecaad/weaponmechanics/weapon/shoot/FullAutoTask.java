@@ -175,7 +175,7 @@ public class FullAutoTask implements Consumer<TaskImplementation<Void>> {
             handData.setFullAutoTask(null, null);
 
             if (ammoLeft == 0) {
-                weaponHandler.getShootHandler().startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, dualWield, false);
+                weaponHandler.getShootHandler().startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, dualWield, false, false);
             } else {
                 weaponHandler.getShootHandler().doShootFirearmActions(entityWrapper, weaponTitle, taskReference, handData, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
             }

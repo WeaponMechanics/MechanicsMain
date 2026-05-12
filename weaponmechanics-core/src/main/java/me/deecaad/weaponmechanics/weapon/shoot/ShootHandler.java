@@ -260,7 +260,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         }
 
         if (reloadHandler.getAmmoLeft(weaponStack, weaponTitle) == 0) {
-            startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false);
+            startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false, false);
         } else {
             doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, slot);
         }
@@ -327,7 +327,7 @@ public class ShootHandler implements IValidator, TriggerListener {
                     scheduledTask.cancel();
 
                     if (reloadHandler.getAmmoLeft(taskReference, weaponTitle) == 0) {
-                        startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
+                        startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, slot, dualWield, false, false);
                     } else {
                         doShootFirearmActions(entityWrapper, weaponTitle, taskReference, handData, slot);
                     }
@@ -478,8 +478,20 @@ public class ShootHandler implements IValidator, TriggerListener {
     }
 
     public void startReloadIfBothWeaponsEmpty(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {
+        startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, weaponStack, slot, dualWield, isReloadLoop, true);
+    }
+
+    public void startReloadIfBothWeaponsEmpty(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield, boolean isReloadLoop, boolean triggerOutOfAmmoMechanics) {
         if (entityWrapper.isReloading())
             return;
+
+        Configuration config = WeaponMechanics.getInstance().getWeaponConfigurations();
+        if (!config.getBoolean(weaponTitle + ".Shoot.Auto_Reload", true)) {
+            if (triggerOutOfAmmoMechanics)
+                useOutOfAmmoMechanics(entityWrapper, weaponTitle, weaponStack);
+            weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
+            return;
+        }
 
         ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
 
@@ -508,6 +520,12 @@ public class ShootHandler implements IValidator, TriggerListener {
                 weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
             }
         }
+    }
+
+    private void useOutOfAmmoMechanics(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack) {
+        MechanicManager outOfAmmoMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Shoot.Out_Of_Ammo_Mechanics", MechanicManager.class);
+        if (outOfAmmoMechanics != null)
+            outOfAmmoMechanics.use(new CastData(entityWrapper.getEntity(), weaponTitle, weaponStack));
     }
 
     /**
@@ -807,6 +825,8 @@ public class ShootHandler implements IValidator, TriggerListener {
         }
 
         configuration.set(data.getKey() + ".Reset_Fall_Distance", data.of("Reset_Fall_Distance").getBool().orElse(false));
+        configuration.set(data.getKey() + ".Auto_Reload", data.of("Auto_Reload").getBool().orElse(true));
+        configuration.set(data.getKey() + ".Out_Of_Ammo_Mechanics", data.of("Out_Of_Ammo_Mechanics").serialize(MechanicManager.class).orElse(null));
 
         if (Bukkit.getPluginManager().getPlugin("Vivecraft_Spigot_Extensions") != null) {
             configuration.set(data.getKey() + ".Haptic", data.of("Haptic").serialize(HapticSerializer.class).orElse(null));
