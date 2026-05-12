@@ -19,6 +19,7 @@ public class ZoomData {
     private double zoomAmount;
     private int zoomStacks;
     private boolean zoomNightVision;
+    private Float originalWalkSpeed;
     private ItemStack scopeWeaponStack;
     private String scopeWeaponTitle;
 
@@ -100,6 +101,23 @@ public class ZoomData {
         this.zoomNightVision = zoomNightVision;
     }
 
+    public boolean hasOriginalWalkSpeed() {
+        return originalWalkSpeed != null;
+    }
+
+    public void setOriginalWalkSpeed(float originalWalkSpeed) {
+        this.originalWalkSpeed = originalWalkSpeed;
+    }
+
+    public float removeOriginalWalkSpeed() {
+        if (originalWalkSpeed == null)
+            return 0.2f;
+
+        float walkSpeed = originalWalkSpeed;
+        originalWalkSpeed = null;
+        return walkSpeed;
+    }
+
     public void ifZoomingForceZoomOut() {
         if (isZooming()) {
 
@@ -110,6 +128,7 @@ public class ZoomData {
             EntityWrapper entityWrapper = handData.getEntityWrapper();
 
             ScopeHandler scopeHandler = WeaponMechanics.getInstance().getWeaponHandler().getScopeHandler();
+            scopeHandler.restoreMovementSpeed(entityWrapper, this);
             scopeHandler.updateZoom(entityWrapper, this, 0);
             setZoomStacks(0);
             scopeHandler.useNightVision(entityWrapper, this, false);

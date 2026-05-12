@@ -38,6 +38,7 @@ import org.vivecraft.api.VRAPI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 @SearcherFilter(SearchMode.ON_DEMAND)
 public class ScopeHandler implements IValidator, TriggerListener {
@@ -184,6 +185,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
 
                 zoomData.setScopeData(weaponTitle, weaponStack);
 
+                useMovementSpeedModifier(weaponTitle, entityWrapper, zoomData);
                 updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
                 zoomData.setZoomStacks(zoomStack);
 
@@ -217,6 +219,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
         }
 
         zoomData.setScopeData(weaponTitle, weaponStack);
+        useMovementSpeedModifier(weaponTitle, entityWrapper, zoomData);
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
 
         if (weaponScopeEvent.getMechanics() != null)
@@ -251,6 +254,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
 
         zoomData.setScopeData(null, null);
 
+        restoreMovementSpeed(entityWrapper, zoomData);
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
         zoomData.setZoomStacks(0);
 
@@ -261,6 +265,51 @@ public class ScopeHandler implements IValidator, TriggerListener {
         useNightVision(entityWrapper, zoomData, false);
 
         return true;
+    }
+
+    private void useMovementSpeedModifier(String weaponTitle, EntityWrapper entityWrapper, ZoomData zoomData) {
+        if (!(entityWrapper.getEntity() instanceof Player player))
+            return;
+
+        OptionalDouble speedModifier = getMovementSpeedModifier(weaponTitle);
+        if (speedModifier.isEmpty())
+            return;
+
+        if (zoomData.hasOriginalWalkSpeed())
+            return;
+
+        zoomData.setOriginalWalkSpeed(player.getWalkSpeed());
+        float modifiedSpeed = (float) (player.getWalkSpeed() + speedModifier.getAsDouble());
+        player.setWalkSpeed(Math.max(-1.0f, Math.min(1.0f, modifiedSpeed)));
+    }
+
+    public void restoreMovementSpeed(EntityWrapper entityWrapper, ZoomData zoomData) {
+        if (!zoomData.hasOriginalWalkSpeed() || !(entityWrapper.getEntity() instanceof Player player))
+            return;
+
+        player.setWalkSpeed(zoomData.removeOriginalWalkSpeed());
+    }
+
+    private OptionalDouble getMovementSpeedModifier(String weaponTitle) {
+        List<?> attributes = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Scope.Attributes", List.class);
+        if (attributes == null)
+            return OptionalDouble.empty();
+
+        for (Object attribute : attributes) {
+            String[] split = splitAttribute(attribute);
+            if (split.length < 2)
+                continue;
+
+            if (!"movement_speed".equals(normalizeAttributeName(split[0])))
+                continue;
+
+            try {
+                return OptionalDouble.of(Double.parseDouble(split[1]));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        return OptionalDouble.empty();
     }
 
     /**
@@ -372,5 +421,42 @@ public class ScopeHandler implements IValidator, TriggerListener {
             // Convert to millis
             configuration.set(data.getKey() + ".Shoot_Delay_After_Scope", shootDelayAfterScope * 50);
         }
+
+        List<?> attributes = data.of("Attributes").get(List.class).orElse(null);
+        if (attributes != null) {
+            for (Object attribute : attributes) {
+                String[] split = splitAttribute(attribute);
+
+                if (split.length < 2)
+                    throw data.exception("Attributes", "Expected attributes to use the format '<attribute> <amount>'",
+                        "For example, 'movement_speed -0.1' slows the player while scoped.");
+
+                if (!"movement_speed".equals(normalizeAttributeName(split[0])))
+                    throw data.exception("Attributes", "Only movement_speed is supported for scope attributes.",
+                        "Use weapon item attributes for always-active item attribute modifiers.");
+
+                try {
+                    Double.parseDouble(split[1]);
+                } catch (NumberFormatException ex) {
+                    throw data.exception("Attributes", "Expected the movement_speed amount to be a number.",
+                        "For example, 'movement_speed -0.1' slows the player while scoped.");
+                }
+            }
+        }
+    }
+
+    private static String[] splitAttribute(Object attribute) {
+        return attribute.toString().trim()
+            .replaceFirst("--", " -")
+            .split("\\s+");
+    }
+
+    private static String normalizeAttributeName(String attributeName) {
+        return attributeName.toLowerCase()
+            .replace("minecraft:", "")
+            .replace("generic.", "")
+            .replace("generic_", "")
+            .replace('.', '_')
+            .replace('-', '_');
     }
 }
