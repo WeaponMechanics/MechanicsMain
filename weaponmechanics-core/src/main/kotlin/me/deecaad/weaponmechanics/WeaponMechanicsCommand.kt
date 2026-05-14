@@ -52,6 +52,7 @@ import me.deecaad.core.utils.StringUtil.colorBukkit
 import me.deecaad.core.utils.TableBuilder
 import me.deecaad.core.utils.Transform
 import me.deecaad.core.utils.ray.RayTrace
+import me.deecaad.weaponmechanics.commands.WeaponTitleArgument
 import me.deecaad.weaponmechanics.weapon.explode.BlockDamage
 import me.deecaad.weaponmechanics.weapon.explode.Explosion
 import me.deecaad.weaponmechanics.weapon.explode.Flashbang
@@ -133,20 +134,7 @@ object WeaponMechanicsCommand {
                 withShortDescription("Gives the target(s) requested weapon(s)")
 
                 entitySelectorArgumentManyPlayers("target")
-                stringArgument("weapon") {
-                    replaceSuggestions(
-                        ArgumentSuggestions.strings {
-                            (
-                                WeaponMechanics.getInstance().weaponHandler.infoHandler.sortedWeaponList +
-                                    listOf(
-                                        "*",
-                                        "**",
-                                        "*r",
-                                    )
-                            ).toTypedArray()
-                        },
-                    )
-                }
+                withArguments(weaponTitleArgument())
                 integerArgument("amount", 1, 64, optional = true)
                 withArguments(weaponDataMapArgument)
 
@@ -164,20 +152,7 @@ object WeaponMechanicsCommand {
                 withPermission("weaponmechanics.commands.get")
                 withShortDescription("Gives you the requested weapon(s)")
 
-                stringArgument("weapon") {
-                    replaceSuggestions(
-                        ArgumentSuggestions.strings {
-                            (
-                                WeaponMechanics.getInstance().weaponHandler.infoHandler.sortedWeaponList +
-                                    listOf(
-                                        "*",
-                                        "**",
-                                        "*r",
-                                    )
-                            ).toTypedArray()
-                        },
-                    )
-                }
+                withArguments(weaponTitleArgument())
                 integerArgument("amount", 1, 64, optional = true)
                 withArguments(weaponDataMapArgument)
 
@@ -577,6 +552,25 @@ object WeaponMechanicsCommand {
             val helpBuilder = CommandHelpBuilder(Style.style(NamedTextColor.GOLD), Style.style(NamedTextColor.GRAY))
             helpBuilder.register(this)
         }
+    }
+
+    // CommandAPI's StringArgument is backed by Brigadier's word() type, which rejects '*'. Use a
+    // custom token argument so the '*', '**', and '*r' weapon selectors can be typed.
+    private fun weaponTitleArgument(): Argument<String> {
+        val argument = WeaponTitleArgument("weapon")
+        argument.replaceSuggestions(
+            ArgumentSuggestions.strings {
+                (
+                    WeaponMechanics.getInstance().weaponHandler.infoHandler.sortedWeaponList +
+                        listOf(
+                            "*",
+                            "**",
+                            "*r",
+                        )
+                ).toTypedArray()
+            },
+        )
+        return argument
     }
 
     fun stats(
