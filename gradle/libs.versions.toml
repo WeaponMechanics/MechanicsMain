@@ -2,12 +2,12 @@
 # Core Minecraft dependencies
 brigadier = "1.3.10"
 paper = "1.21.11-R0.1-SNAPSHOT"
-packetEvents = "2.8.0"
+packetEvents = "2.9.1"
 
 # External "hooks" or plugins that we might interact with
 geyser = "2.7.2-SNAPSHOT"
 mechanicsCore = "4.2.0-SNAPSHOT"
-mythicMobs = "5.9.0"
+mythicMobs = "5.12.0"
 placeholderApi = "2.11.6"
 vault = "1.7.1"
 worldedit = "7.3.14"
