@@ -22,7 +22,10 @@ foliaScheduler = "0.7.5"
 gson = "2.13.1"
 hikariCp = "5.1.0"
 jsonSimple = "1.1.1"
+junitJupiter = "5.13.1"
+junitPlatform = "1.13.1"
 kotlin = "1.9.23"
+mockito = "5.18.0"
 xSeries = "13.6.0"
 
 
@@ -52,5 +55,8 @@ foliaScheduler           = { module = "com.cjcrafter:foliascheduler", version.re
 gson                     = { module = "com.google.code.gson:gson", version.ref = "gson" }
 hikariCp                 = { module = "com.zaxxer:HikariCP", version.ref = "hikariCp" }
 jsonSimple               = { module = "com.googlecode.json-simple:json-simple", version.ref = "jsonSimple" }
+junitJupiter             = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
+junitPlatformLauncher    = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junitPlatform" }
 kotlinStdlib             = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+mockitoCore              = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 xSeries                  = { module = "com.github.cryptomorin:XSeries", version.ref = "xSeries" }

@@ -6,18 +6,26 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import me.deecaad.weaponmechanics.wrappers.StatsData;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Supplier;
 
 public class StatsHandler {
 
     private WeaponHandler weaponHandler;
+    private final Supplier<Database> databaseSupplier;
     private StringBuilder generatedReplaceWeaponStats;
     private StringBuilder generatedReplacePlayerStats;
 
     public StatsHandler(WeaponHandler weaponHandler) {
+        this(weaponHandler, () -> WeaponMechanics.getInstance().getDatabaseOrNull());
+    }
+
+    StatsHandler(WeaponHandler weaponHandler, Supplier<Database> databaseSupplier) {
         this.weaponHandler = weaponHandler;
+        this.databaseSupplier = databaseSupplier;
         generateReplaces();
     }
 
@@ -27,16 +35,16 @@ public class StatsHandler {
      * @param playerWrapper the player wrapper
      */
     public void load(PlayerWrapper playerWrapper) {
-        Database database = WeaponMechanics.getInstance().getDatabase();
-        if (database.isClosed())
-            throw new IllegalArgumentException("Tried to load data when database was closed");
-
         StatsData statsData = playerWrapper.getStatsDataUnsafe();
         if (statsData == null)
             return;
 
         if (statsData.isSync())
             throw new IllegalArgumentException("Tried to load data to already synced stats data");
+
+        Database database = getOpenDatabase();
+        if (database == null)
+            return;
 
         fetchAndInsertPlayerStats(database, playerWrapper.getPlayer().getUniqueId(), statsData);
     }
@@ -48,16 +56,24 @@ public class StatsHandler {
      * @param forceSync true means that saving is forced to be sync (used on disable)
      */
     public void save(PlayerWrapper playerWrapper, boolean forceSync) {
-        Database database = WeaponMechanics.getInstance().getDatabase();
-        if (database.isClosed())
-            throw new IllegalArgumentException("Tried to save data when database was closed");
-
         StatsData statsData = playerWrapper.getStatsData();
         // This might be null if sync didn't occur...
         if (statsData == null)
             return;
 
+        Database database = getOpenDatabase();
+        if (database == null)
+            return;
+
         database.executeUpdate(forceSync, getSaveStrings(playerWrapper));
+    }
+
+    private @Nullable Database getOpenDatabase() {
+        Database database = databaseSupplier.get();
+        if (database == null || database.isClosed())
+            return null;
+
+        return database;
     }
 
     private String[] getSaveStrings(PlayerWrapper playerWrapper) {

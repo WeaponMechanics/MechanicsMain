@@ -32,8 +32,12 @@ dependencies {
 
     // Testing dependencies
     testImplementation(libs.paper)
+    testImplementation(libs.mechanicsCore)
     testImplementation(libs.annotations)
     testImplementation(libs.foliaScheduler)
+    testImplementation(libs.junitJupiter)
+    testImplementation(libs.mockitoCore)
+    testRuntimeOnly(libs.junitPlatformLauncher)
 }
 
 
