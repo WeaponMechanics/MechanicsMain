@@ -55,8 +55,11 @@ public class TriggerPlayerListeners implements Listener {
     public void quit(PlayerQuitEvent e) {
         // Remove EntityWrapper data and cancel move task
         Player player = e.getPlayer();
-        weaponHandler.getStatsHandler().save(WeaponMechanics.getInstance().getPlayerWrapper(player), false);
-        WeaponMechanics.getInstance().removeEntityWrapper(player);
+        try {
+            weaponHandler.getStatsHandler().save(WeaponMechanics.getInstance().getPlayerWrapper(player), false);
+        } finally {
+            WeaponMechanics.getInstance().removeEntityWrapper(player);
+        }
     }
 
     @EventHandler(ignoreCancelled = true)
