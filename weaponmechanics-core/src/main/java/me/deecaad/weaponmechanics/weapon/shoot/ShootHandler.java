@@ -733,10 +733,19 @@ public class ShootHandler implements IValidator, TriggerListener {
     @Override
     public void validate(Configuration configuration, SerializeData data) throws SerializerException {
         data.of("Trigger").assertExists();
-        double projectileSpeed = data.of("Projectile_Speed").assertRange(0.0001, null).getDouble().orElse(80.0);
+        double projectileSpeed = data.of("Projectile_Speed").getDouble().orElse(80.0);
+
+        if (Math.abs(projectileSpeed) < 1.0E-4) {
+            throw SerializerException.builder()
+                    .location(data.getFile(), data.getKey() + ".Projectile_Speed")
+                    .addMessage("Projectile_Speed cannot be 0.")
+                    .addMessage("Use a positive value for normal direction or a negative value to reverse it.")
+                    .example("Projectile_Speed: -80")
+                    .build();
+        }
 
         // Convert from more config friendly speed to normal
-        // E.g. 80 -> 4.0
+        // E.g. 80 -> 4.0, -80 -> -4.0
         configuration.set(data.getKey() + ".Projectile_Speed", projectileSpeed / 20);
 
         int delayBetweenShots = data.of("Delay_Between_Shots").assertRange(0, null).getInt().orElse(0);
