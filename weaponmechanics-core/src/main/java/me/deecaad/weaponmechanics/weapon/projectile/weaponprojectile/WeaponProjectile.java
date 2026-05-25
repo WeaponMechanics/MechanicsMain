@@ -48,6 +48,7 @@ public class WeaponProjectile extends AProjectile {
     private Location lastBlock;
     private int lastEntityUpdateTick;
     private int lastEntity = -1;
+    private boolean forceStop;
 
     private final RayTrace rayTrace;
 
@@ -393,7 +394,14 @@ public class WeaponProjectile extends AProjectile {
             }
 
             // Returned true and that most likely means that block hit was cancelled, skipping...
-            if (WeaponMechanics.getInstance().getWeaponHandler().getHitHandler().handleHit(hit, this))
+            boolean skipHit = WeaponMechanics.getInstance().getWeaponHandler().getHitHandler().handleHit(hit, this);
+
+            // Some hit logic, like shield blocking, may force this projectile to stop
+            // Respect that before Through, Sticky, or Bouncy can process the same hit
+            if (isForceStopped())
+                return true;
+
+            if (skipHit)
                 continue;
 
             // Through
@@ -482,6 +490,15 @@ public class WeaponProjectile extends AProjectile {
     private boolean equalToLastHit(LivingEntity entity) {
         return lastEntity != -1 && lastEntity == entity.getEntityId() // Check entity
             && getAliveTicks() <= lastEntityUpdateTick; // Check hit tick
+    }
+
+    public void forceStop() {
+        this.forceStop = true;
+        remove();
+    }
+
+    public boolean isForceStopped() {
+        return forceStop;
     }
 
     @Override

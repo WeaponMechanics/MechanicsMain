@@ -96,11 +96,44 @@ public class DamageHandler {
         fireTicks = damageEntityEvent.getFireTicks();
         double finalDamage = damageEntityEvent.getFinalDamage();
 
+        ShieldBlocking shieldBlocking = damageEntityEvent.getShieldBlocking();
+        boolean shieldBlocked = damageEntityEvent.wasShieldBlocked();
+
+        boolean shieldBlockedProjectile = shieldBlocking != null && shieldBlocked && source instanceof ProjectileDamageSource;
+
+        boolean shouldStopBlockedProjectile = shieldBlockedProjectile && shieldBlocking.shouldStopProjectileWhenBlocked();
+
         if (DamageUtil.apply(source, victim, finalDamage)) {
+            if (shouldStopBlockedProjectile) {
+                if (victim instanceof Player player) {
+                    shieldBlocking.damageShield(player, true);
+                }
+
+                // Stop the projectile itself so Through cannot continue through the shield
+                stopProjectile(source);
+
+                // Damage was cancelled/fully blocked, but the projectile collision
+                // should still count as consumed
+                return true;
+            }
+
             WeaponMechanics.getInstance().debugger.fine("Damage was cancelled");
 
-            // Damage was cancelled
+            if (shieldBlocking != null && shieldBlocked && victim instanceof Player player) {
+                shieldBlocking.damageShield(player, false);
+            }
+
             return false;
+        }
+
+        if (shieldBlocking != null && shieldBlocked && victim instanceof Player player) {
+            shieldBlocking.damageShield(player, true);
+        }
+
+        if (shouldStopBlockedProjectile) {
+            // Even if damage was not fully zero, a successful shield block should stop
+            // the projectile when Stop_Projectile_When_Blocked is enabled
+            stopProjectile(source);
         }
 
         // Don't do WM armor damage when using vanilla damaging
@@ -267,5 +300,11 @@ public class DamageHandler {
         exposures.forEach((entity, exposure) -> {
             tryUse(source, entity, finalDamage * exposure, projectile.getHand());
         });
+    }
+
+    private void stopProjectile(@NotNull WeaponDamageSource source) {
+        if (source instanceof ProjectileDamageSource projectileSource) {
+            projectileSource.getProjectile().forceStop();
+        }
     }
 }

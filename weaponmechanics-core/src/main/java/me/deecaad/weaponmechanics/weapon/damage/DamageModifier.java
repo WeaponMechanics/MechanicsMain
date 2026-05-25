@@ -247,7 +247,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
      * @param isBackStab If the hit came from behind.
      * @return The clamped rate to multiply damage by. Defaults to 1.0.
      */
-    public double getRate(@NotNull EntityWrapper wrapper, @Nullable DamagePoint point, boolean isBackStab) {
+    public double getRate(@NotNull EntityWrapper wrapper, @Nullable DamagePoint point, boolean isBackStab, boolean applyShieldModifier) {
         LivingEntity victim = wrapper.getEntity();
         double rate = 1.0;
 
@@ -306,11 +306,6 @@ public class DamageModifier implements Serializer<DamageModifier> {
         if (wrapper.isInMidair())
             rate += inMidairModifier;
 
-        // For the shield modifier, the player must be blocking with a shield
-        // and be facing the bullet.
-        if (!isBackStab && wrapper.getEntity() instanceof Player player && player.isBlocking())
-            rate += shieldModifier;
-
         // Do double damage to zombies, half damage to players (PVE scenario), for example
         if (entityTypeModifiers != null) {
             rate += entityTypeModifiers.getDouble(victim.getType());
@@ -324,8 +319,16 @@ public class DamageModifier implements Serializer<DamageModifier> {
             }
         }
 
+        if (applyShieldModifier)
+            rate += shieldModifier;
+
         // Clamp the rate within bounds
         return NumberUtil.clamp(rate, min, max);
+    }
+
+    public double getRate(@NotNull EntityWrapper wrapper, @Nullable DamagePoint point, boolean isBackStab) {
+        boolean legacyShielding = !isBackStab && wrapper.getEntity() instanceof Player player && player.isBlocking() && DamageUtil.getShieldSlot(player) != null;
+        return getRate(wrapper, point, isBackStab, legacyShielding);
     }
 
     /**
@@ -340,7 +343,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
     /**
      * Applies all rates from this damage modifier to the given damage. This is equivalent to
-     * multiplying the damage by {@link #getRate(EntityWrapper, DamagePoint, boolean)}.
+     * multiplying the damage by {@link #getRate(EntityWrapper, DamagePoint, boolean, boolean)}.
      *
      * @param damage The damage to apply rates to.
      * @param wrapper The victim being damaged.
@@ -350,6 +353,10 @@ public class DamageModifier implements Serializer<DamageModifier> {
      */
     public double applyRates(double damage, EntityWrapper wrapper, DamagePoint point, boolean isBackStab) {
         return damage * getRate(wrapper, point, isBackStab);
+    }
+
+    public double applyRates(double damage, EntityWrapper wrapper, DamagePoint point, boolean isBackStab, boolean applyShieldModifier) {
+        return damage * getRate(wrapper, point, isBackStab, applyShieldModifier);
     }
 
     @Override
