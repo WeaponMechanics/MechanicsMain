@@ -303,9 +303,6 @@ public class DamageUtil {
         if (shield == null || shield.getType() != Material.SHIELD)
             return;
 
-        if (shield.getType().getMaxDurability() <= 0)
-            return;
-
         ItemMeta meta = shield.getItemMeta();
 
         if (meta == null)
@@ -323,12 +320,26 @@ public class DamageUtil {
         if (!(meta instanceof Damageable damageable))
             return;
 
-        damageable.setDamage(damageable.getDamage() + amount);
-        shield.setItemMeta(meta);
+        int maxDurability = damageable.hasMaxDamage()
+                ? damageable.getMaxDamage()
+                : shield.getType().getMaxDurability();
 
-        if (damageable.getDamage() >= shield.getType().getMaxDurability()) {
-            shield.setAmount(0);
+        if (maxDurability <= 0)
+            return;
+
+        int newDamage = damageable.getDamage() + amount;
+
+        if (newDamage >= maxDurability) {
+            if (slot == EquipmentSlot.HAND) {
+                equipment.setItemInMainHand(null);
+            } else {
+                equipment.setItemInOffHand(null);
+            }
+            return;
         }
+
+        damageable.setDamage(newDamage);
+        shield.setItemMeta(meta);
 
         if (slot == EquipmentSlot.HAND) {
             equipment.setItemInMainHand(shield);
