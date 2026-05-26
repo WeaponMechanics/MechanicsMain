@@ -631,10 +631,15 @@ public class ShootHandler implements IValidator, TriggerListener {
         // Apply custom durability
         ItemMeta meta = weaponStack.getItemMeta();
         if (meta instanceof Damageable damageable && damageable.hasMaxDamage()) {
-            damageable.setDamage(damageable.getDamage() + 1);
+            int durabilityPerShot = config.getInt(weaponTitle + ".Shoot.Durability_Per_Shot", 1);
+            if (durabilityPerShot < 1) {
+                durabilityPerShot = 1;
+            }
 
-            // When the weapon is broken... break it
-            if (damageable.getDamage() >= damageable.getMaxDamage()) {
+            int maxDamage = damageable.getMaxDamage();
+            int newDamage = Math.min(maxDamage, damageable.getDamage() + durabilityPerShot);
+            damageable.setDamage(newDamage);
+            if (newDamage >= maxDamage) {
                 MechanicManager breakMechanics = config.getObject(weaponTitle + ".Info.Weapon_Break_Mechanics", MechanicManager.class);
                 if (breakMechanics != null)
                     breakMechanics.use(new CastData(livingEntity, weaponTitle, weaponStack));
@@ -751,6 +756,9 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         int projectilesPerShot = data.of("Projectiles_Per_Shot").assertRange(1, 100).getInt().orElse(1);
         configuration.set(data.getKey() + ".Projectiles_Per_Shot", projectilesPerShot);
+
+        int durabilityPerShot = data.of("Durability_Per_Shot").assertRange(1, null).getInt().orElse(1);
+        configuration.set(data.getKey() + ".Durability_Per_Shot", durabilityPerShot);
 
         boolean hasBurst = false;
         boolean hasAuto = false;
