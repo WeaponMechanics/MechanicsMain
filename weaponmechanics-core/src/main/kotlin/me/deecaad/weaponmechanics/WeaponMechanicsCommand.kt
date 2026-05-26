@@ -62,6 +62,7 @@ import me.deecaad.weaponmechanics.weapon.explode.shapes.CubeExplosion
 import me.deecaad.weaponmechanics.weapon.explode.shapes.DefaultExplosion
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ParabolaExplosion
+import me.deecaad.weaponmechanics.weapon.explode.shapes.ShrinkingRingExplosion
 import me.deecaad.weaponmechanics.weapon.explode.shapes.SphereExplosion
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ProjectileSettings
@@ -367,6 +368,31 @@ object WeaponMechanicsCommand {
                             val regen = args["regen"] as? Int ?: 200
 
                             val shape = DefaultExplosion(yield, rays)
+                            explode(player as LivingEntity, shape, origin, exposure, breakBlocks, blackList, regen)
+                        }
+                    }
+
+                    subcommand("shrinking_ring") {
+                        doubleArgument("initial-radius", optional = true)
+                        doubleArgument("shrink-per-step", optional = true)
+                        doubleArgument("step-distance", optional = true)
+                        integerArgument("ray-count", 1, optional = true)
+                        booleanArgument("auto-orient", optional = true)
+                        withOptionalArguments(commonExplosionArguments)
+
+                        playerExecutor { player, args ->
+                            val origin = args["origin"] as? Location ?: player.location
+                            val initialRadius = args["initial-radius"] as? Double ?: 5.0
+                            val shrinkPerStep = args["shrink-per-step"] as? Double ?: 0.6
+                            val stepDistance = args["step-distance"] as? Double ?: initialRadius
+                            val rayCount = args["ray-count"] as? Int ?: 24
+                            val autoOrient = args["auto-orient"] as? Boolean ?: true
+                            val exposure = args["exposure"] as? String ?: "default"
+                            val breakBlocks = args["break-blocks"] as? Boolean ?: true
+                            val blackList = args["blacklist"] as? Predicate<Block> ?: Predicate { false }
+                            val regen = args["regen"] as? Int ?: 200
+
+                            val shape = ShrinkingRingExplosion(initialRadius, shrinkPerStep, stepDistance, rayCount, autoOrient)
                             explode(player as LivingEntity, shape, origin, exposure, breakBlocks, blackList, regen)
                         }
                     }
@@ -994,7 +1020,11 @@ object WeaponMechanicsCommand {
                 val blockDamage =
                     object : BlockDamage(0.0, 1, 1, Material.AIR, BreakMode.BREAK, mapOf()) {
                         override fun getBreakMode(block: Block): BreakMode {
-                            return if (blackList.test(block)) BreakMode.BREAK else BreakMode.CRACK
+                            return when {
+                                blackList.test(block) -> BreakMode.CANCEL
+                                isBreakBlocks -> BreakMode.BREAK
+                                else -> BreakMode.CRACK
+                            }
                         }
                     }
 
