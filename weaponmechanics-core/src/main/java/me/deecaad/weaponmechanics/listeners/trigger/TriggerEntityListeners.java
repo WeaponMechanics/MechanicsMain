@@ -103,12 +103,7 @@ public class TriggerEntityListeners implements Listener {
         if (mainWeapon != null) {
             // Cancel vanilla melee and also zero the damage in case another plugin uncancels later
             e.setCancelled(true);
-
-            try {
-                e.setDamage(0.0);
-            } catch (UnsupportedOperationException ignored) {
-                // Some custom damage events may not support modifying damage
-            }
+            e.setDamage(0.0);
         }
 
         // When sweep hit we don't want to do actual melee casts
