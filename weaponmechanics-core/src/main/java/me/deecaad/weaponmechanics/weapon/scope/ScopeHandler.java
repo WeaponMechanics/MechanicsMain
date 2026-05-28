@@ -6,7 +6,10 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEn
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerAbilities;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerRemoveEntityEffect;
 import me.deecaad.core.file.*;
+import me.deecaad.core.file.simple.ByNameSerializer;
 import me.deecaad.core.file.simple.DoubleSerializer;
+import me.deecaad.core.file.simple.EnumValueSerializer;
+import me.deecaad.core.file.simple.RegistryValueSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.MechanicManager;
 import me.deecaad.core.placeholder.PlaceholderData;
@@ -25,22 +28,43 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
 import org.vivecraft.api.VRAPI;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @SearcherFilter(SearchMode.ON_DEMAND)
 public class ScopeHandler implements IValidator, TriggerListener {
+
+    private static final Map<String, EquipmentSlotGroup> SLOT_GROUPS_BY_NAME = Map.ofEntries(
+        Map.entry("any", EquipmentSlotGroup.ANY),
+        Map.entry("mainhand", EquipmentSlotGroup.MAINHAND),
+        Map.entry("offhand", EquipmentSlotGroup.OFFHAND),
+        Map.entry("hand", EquipmentSlotGroup.HAND),
+        Map.entry("head", EquipmentSlotGroup.HEAD),
+        Map.entry("chest", EquipmentSlotGroup.CHEST),
+        Map.entry("legs", EquipmentSlotGroup.LEGS),
+        Map.entry("feet", EquipmentSlotGroup.FEET),
+        Map.entry("armor", EquipmentSlotGroup.ARMOR),
+        Map.entry("body", EquipmentSlotGroup.BODY),
+        Map.entry("saddle", EquipmentSlotGroup.SADDLE)
+    );
 
     private WeaponHandler weaponHandler;
 
@@ -249,9 +273,8 @@ public class ScopeHandler implements IValidator, TriggerListener {
             return false;
         }
 
-        zoomData.setScopeData(null, null);
-
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
+        zoomData.setScopeData(null, null);
         zoomData.setZoomStacks(0);
 
         if (weaponScopeEvent.getMechanics() != null)
@@ -267,6 +290,8 @@ public class ScopeHandler implements IValidator, TriggerListener {
      * Updates the zoom amount of entity.
      */
     public void updateZoom(EntityWrapper entityWrapper, ZoomData zoomData, double newZoomAmount) {
+        updateScopeAttributes(entityWrapper, zoomData, newZoomAmount != 0);
+
         if (entityWrapper.getEntity().getType() != EntityType.PLAYER) {
             // Not player so no need for FOV changes
             zoomData.setZoomAmount(newZoomAmount);
@@ -288,6 +313,33 @@ public class ScopeHandler implements IValidator, TriggerListener {
         );
 
         PacketEvents.getAPI().getPlayerManager().sendPacket(player, abilities);
+    }
+
+    private void updateScopeAttributes(EntityWrapper entityWrapper, ZoomData zoomData, boolean apply) {
+        String weaponTitle = zoomData.getScopeWeaponTitle();
+        if (weaponTitle == null)
+            return;
+
+        List<ScopeAttribute> attributes = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Scope.Attributes", List.class);
+        if (attributes == null || attributes.isEmpty())
+            return;
+
+        EquipmentSlot scopeSlot = zoomData.getHandData().isMainhand() ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND;
+        for (ScopeAttribute attribute : attributes) {
+            if (!attribute.slotGroup().test(scopeSlot))
+                continue;
+
+            AttributeInstance instance = entityWrapper.getEntity().getAttribute(attribute.attribute());
+            if (instance == null)
+                continue;
+
+            NamespacedKey key = attribute.getKey(weaponTitle);
+            if (instance.getModifier(key) != null)
+                instance.removeModifier(key);
+
+            if (apply)
+                instance.addTransientModifier(attribute.createModifier(weaponTitle));
+        }
     }
 
     /**
@@ -371,6 +423,56 @@ public class ScopeHandler implements IValidator, TriggerListener {
         if (shootDelayAfterScope != 0) {
             // Convert to millis
             configuration.set(data.getKey() + ".Shoot_Delay_After_Scope", shootDelayAfterScope * 50);
+        }
+
+        List<ScopeAttribute> attributes = serializeAttributes(data);
+        if (!attributes.isEmpty())
+            configuration.set(data.getKey() + ".Attributes", attributes);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<ScopeAttribute> serializeAttributes(SerializeData data) throws SerializerException {
+        List<List<Optional<Object>>> splitAttributes = data.ofList("Attributes")
+            .addArgument(new RegistryValueSerializer<>(Attribute.class, true))
+            .addArgument(new DoubleSerializer())
+            .requireAllPreviousArgs()
+            .addArgument(new ByNameSerializer<>(EquipmentSlotGroup.class, SLOT_GROUPS_BY_NAME))
+            .addArgument(new EnumValueSerializer<>(AttributeModifier.Operation.class, false))
+            .assertList();
+
+        List<ScopeAttribute> attributes = new ArrayList<>();
+        int index = 0;
+        for (List<Optional<Object>> splitAttribute : splitAttributes) {
+            List<Attribute> parsedAttributes = (List<Attribute>) splitAttribute.get(0).get();
+            double amount = (double) splitAttribute.get(1).get();
+            EquipmentSlotGroup slotGroup = (EquipmentSlotGroup) splitAttribute.get(2).orElse(EquipmentSlotGroup.ANY);
+            List<AttributeModifier.Operation> operations = (List<AttributeModifier.Operation>) splitAttribute.get(3)
+                .orElse(List.of(AttributeModifier.Operation.ADD_NUMBER));
+            AttributeModifier.Operation operation = operations.getFirst();
+
+            for (Attribute attribute : parsedAttributes) {
+                attributes.add(new ScopeAttribute(index++, attribute, amount, slotGroup, operation));
+            }
+        }
+
+        return attributes;
+    }
+
+    private record ScopeAttribute(
+        int index,
+        Attribute attribute,
+        double amount,
+        EquipmentSlotGroup slotGroup,
+        AttributeModifier.Operation operation
+    ) {
+
+        private NamespacedKey getKey(String weaponTitle) {
+            String key = attribute.getKey().asString() + ":" + slotGroup + ":" + operation + ":" + weaponTitle + ":" + index;
+            return new NamespacedKey(WeaponMechanics.getInstance(), "scope_attribute_" + Integer.toHexString(key.hashCode()));
+        }
+
+        private AttributeModifier createModifier(String weaponTitle) {
+            return new AttributeModifier(getKey(weaponTitle), amount, operation, slotGroup);
         }
     }
 }

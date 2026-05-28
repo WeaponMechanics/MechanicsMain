@@ -134,4 +134,8 @@ public class ZoomData {
         this.scopeWeaponTitle = weaponTitle;
         this.scopeWeaponStack = weaponStack;
     }
+
+    public String getScopeWeaponTitle() {
+        return scopeWeaponTitle;
+    }
 }
