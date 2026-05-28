@@ -10,6 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Objects;
 
@@ -104,6 +106,7 @@ public class ItemAmmo implements IAmmoType {
         PlayerInventory inventory = wrapper.getPlayer().getInventory();
         int magazineSlot = -1;
         int total = 0;
+        int weaponAmmo = CustomTag.AMMO_LEFT.hasInteger(weapon) ? CustomTag.AMMO_LEFT.getInteger(weapon) : 0;
 
         for (int i = 0; i < 36; i++) {
 
@@ -128,10 +131,18 @@ public class ItemAmmo implements IAmmoType {
             boolean canUseMag = total == 0 && (bulletItem == null || amount >= maximumMagSize);
 
             if (isMagazine) {
+                int magazineAmmo = getMagazineAmmo(potentialAmmo, maximumMagSize);
+                if (magazineAmmo <= 0 || (weaponAmmo > 0 && magazineAmmo < maximumMagSize))
+                    continue;
+
                 magazineSlot = i;
                 if (canUseMag) {
                     consumeItem(inventory, i, potentialAmmo, 1);
-                    return amount;
+
+                    if (weaponAmmo > 0)
+                        giveOrDrop(wrapper.getPlayer(), createMagazine(weaponAmmo, maximumMagSize), 1);
+
+                    return Math.min(amount, magazineAmmo);
                 }
             } else if (bulletItem != null) {
 
@@ -156,9 +167,17 @@ public class ItemAmmo implements IAmmoType {
         // and magazines in the inventory. So this reload was probably manually
         // triggered by the player, so we should use the magazines in the inventory.
         if (total == 0 && magazineSlot != -1) {
-            consumeItem(inventory, magazineSlot, inventory.getItem(magazineSlot), 1);
-            return amount;
-            // TODO refund individual bullets?
+            ItemStack magazine = inventory.getItem(magazineSlot);
+            int magazineAmmo = getMagazineAmmo(magazine, maximumMagSize);
+            if (magazineAmmo <= 0)
+                return 0;
+
+            consumeItem(inventory, magazineSlot, magazine, 1);
+
+            if (weaponAmmo > 0)
+                giveOrDrop(wrapper.getPlayer(), createMagazine(weaponAmmo, maximumMagSize), 1);
+
+            return Math.min(amount, magazineAmmo);
         }
 
         return total;
@@ -181,14 +200,16 @@ public class ItemAmmo implements IAmmoType {
         if (magazineItem != null) {
             int magazinesGiveAmount = amount / maximumMagazineSize;
             if (magazinesGiveAmount > 0) {
-                giveOrDrop(player, magazineItem.clone(), magazinesGiveAmount);
+                giveOrDrop(player, createMagazine(maximumMagazineSize, maximumMagazineSize), magazinesGiveAmount);
             }
 
             // Give rest of the ammo as bullet items back if defined
-            if (bulletItem != null) {
-                int remainder = amount % maximumMagazineSize;
-                if (remainder > 0) {
+            int remainder = amount % maximumMagazineSize;
+            if (remainder > 0) {
+                if (bulletItem != null) {
                     giveOrDrop(player, bulletItem.clone(), remainder);
+                } else {
+                    giveOrDrop(player, createMagazine(remainder, maximumMagazineSize), 1);
                 }
             }
             return;
@@ -221,12 +242,39 @@ public class ItemAmmo implements IAmmoType {
 
             // Now we know it's actually an ammo item
             if (CustomTag.AMMO_MAGAZINE.getInteger(potentialAmmo) == 1) {
-                amount += (potentialAmmo.getAmount() * maximumMagazineSize);
+                amount += (potentialAmmo.getAmount() * getMagazineAmmo(potentialAmmo, maximumMagazineSize));
             } else {
                 amount += potentialAmmo.getAmount();
             }
         }
         return amount;
+    }
+
+    private ItemStack createMagazine(int ammo, int maximumMagazineSize) {
+        ItemStack magazine = magazineItem.clone();
+        setMagazineAmmo(magazine, ammo, maximumMagazineSize);
+        return magazine;
+    }
+
+    private int getMagazineAmmo(ItemStack itemStack, int maximumMagazineSize) {
+        ItemMeta meta = itemStack.getItemMeta();
+        if (meta instanceof Damageable damageable && damageable.hasMaxDamage()) {
+            int ammo = damageable.getMaxDamage() - damageable.getDamage();
+            return Math.max(0, Math.min(ammo, maximumMagazineSize));
+        }
+
+        return maximumMagazineSize;
+    }
+
+    private void setMagazineAmmo(ItemStack itemStack, int ammo, int maximumMagazineSize) {
+        ItemMeta meta = itemStack.getItemMeta();
+        if (!(meta instanceof Damageable damageable))
+            return;
+
+        int clampedAmmo = Math.max(0, Math.min(ammo, maximumMagazineSize));
+        damageable.setMaxDamage(maximumMagazineSize);
+        damageable.setDamage(maximumMagazineSize - clampedAmmo);
+        itemStack.setItemMeta(meta);
     }
 
     private void giveOrDrop(Player player, ItemStack itemStack, int amount) {
