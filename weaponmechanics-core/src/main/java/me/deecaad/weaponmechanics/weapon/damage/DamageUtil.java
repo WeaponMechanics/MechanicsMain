@@ -292,32 +292,42 @@ public class DamageUtil {
             default -> null;
         };
 
-        // All items implement Damageable (since Spigot is stupid). We use this check
-        // to see if an item is *actually* damageable.
-        if (armor == null || "AIR".equals(armor.getType().name()) || armor.getType().getMaxDurability() == 0)
+        if (armor == null || armor.getType().isAir())
             return;
 
         ItemMeta meta = armor.getItemMeta();
-        if (meta == null)
+        if (!(meta instanceof Damageable damageable))
             return;
 
         // Do not attempt to damage armor that is unbreakable
         if (meta.isUnbreakable())
             return;
 
-        // Formula taken from Unbreaking enchant code
-        int level = meta.getEnchantLevel(Enchantment.UNBREAKING);
-        boolean skipDamage = !RandomUtil.chance(0.6 + 0.4 / (level + 1));
-        if (skipDamage)
+        int maxDurability = damageable.hasMaxDamage() ? damageable.getMaxDamage() : armor.getType().getMaxDurability();
+
+        if (maxDurability <= 0)
             return;
 
-        if (meta instanceof Damageable damageable) {
-            damageable.setDamage(damageable.getDamage() + amount);
-            armor.setItemMeta(meta);
+        int unbreaking = meta.getEnchantLevel(Enchantment.UNBREAKING);
+        boolean shouldTakeDamage = RandomUtil.chance(0.6 + 0.4 / (unbreaking + 1));
 
-            if (damageable.getDamage() >= armor.getType().getMaxDurability())
-                armor.setAmount(0);
+        if (!shouldTakeDamage)
+            return;
+
+        int newDamage = damageable.getDamage() + amount;
+
+        if (newDamage >= maxDurability) {
+            switch (slot) {
+                case HEAD -> equipment.setHelmet(null);
+                case CHEST -> equipment.setChestplate(null);
+                case LEGS -> equipment.setLeggings(null);
+                case FEET -> equipment.setBoots(null);
+            }
+            return;
         }
+
+        damageable.setDamage(newDamage);
+        armor.setItemMeta(meta);
 
         // Getting an ItemStack from an EntityEquipment copies the item... we
         // need to set the item.

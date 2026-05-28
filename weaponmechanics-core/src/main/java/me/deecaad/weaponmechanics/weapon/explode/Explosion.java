@@ -193,6 +193,14 @@ public class Explosion implements Serializer<Explosion> {
                 projectile.remove();
             }
         }, currentDetonation.getDelay());
+
+        CastData impactCast = new CastData(cause, projectile.getWeaponTitle(), projectile.getWeaponStack());
+        if (origin != null)
+            impactCast.setTargetLocation(origin);
+        else
+            impactCast.setTargetLocation(projectile.getBukkitLocation());
+
+        currentDetonation.getImpactMechanics().use(impactCast);
     }
 
     public void explode(LivingEntity cause, Location origin, WeaponProjectile projectile) {

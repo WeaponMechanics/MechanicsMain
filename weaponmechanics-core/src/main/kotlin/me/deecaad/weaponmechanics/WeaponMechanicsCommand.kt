@@ -95,6 +95,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.FireworkMeta
 import org.bukkit.util.Vector
+import org.joml.Vector3d
 import java.util.Random
 import java.util.function.Consumer
 import java.util.function.Predicate
@@ -1477,30 +1478,25 @@ object WeaponMechanicsCommand {
             .runAtFixedRate(
                 object : Consumer<TaskImplementation<Void>> {
                     var ticks: Int = 0
+                    val euler: Vector3d = Vector3d()
 
                     override fun accept(task: TaskImplementation<Void>) {
-                        if (particles) parent.parent.debug(sender.world)
-
                         val deltaTime = 1.0 / 20.0
                         val rotationSpeed = ticks * speed / time * deltaTime
                         val spin = Quaternion.angleAxis(rotationSpeed, parent.up)
-                        // parent.setForward(loc.getDirection());
-                        parent.applyRotation(spin)
+                        parent.applyRotation(spin.toJoml())
 
                         for (i in 0..<children) {
-                            val transform = parent.getChild(i)
-
-                            if (particles) transform.debug(sender.world)
+                            val transform = parent.getChild(i).transform
 
                             for (j in 0..<children / 2) {
-                                val local = transform.getChild(j)
-                                if (particles) local.debug(sender.world)
+                                val local = transform.getChild(j).transform
 
                                 val position = local.position
-                                val rotation = local.rotation.eulerAngles
+                                local.rotation.getEulerAnglesXYZ(euler)
 
                                 val entity = entities[i * children / 2 + j]
-                                entity.setPosition(position, rotation.x.toFloat(), rotation.y.toFloat())
+                                entity.setPosition(position, euler.x.toFloat(), euler.y.toFloat())
                             }
                         }
 

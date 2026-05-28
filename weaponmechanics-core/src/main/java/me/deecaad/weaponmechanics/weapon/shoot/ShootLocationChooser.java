@@ -6,7 +6,7 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.VectorProvider;
 import me.deecaad.core.file.serializers.VectorSerializer;
 import me.deecaad.core.utils.EntityTransform;
-import me.deecaad.core.utils.Quaternion;
+import me.deecaad.core.utils.Transform;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -18,6 +18,7 @@ import org.bukkit.inventory.MainHand;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaterniond;
 import org.vivecraft.api.VRAPI;
 import org.vivecraft.api.data.VRBodyPartData;
 import org.vivecraft.api.data.VRPose;
@@ -79,7 +80,7 @@ public class ShootLocationChooser implements Serializer<ShootLocationChooser> {
                 source.setDirection(forward);
 
                 if (vr != null) {
-                    Quaternion localRotation = Quaternion.lookAt(forward, UP);
+                    Quaterniond localRotation = Transform.lookAt(forward, UP);
                     vr.offset(isMainHand, source, localRotation);
                     return source;
                 }
@@ -92,7 +93,7 @@ public class ShootLocationChooser implements Serializer<ShootLocationChooser> {
         }
 
         // Scoping
-        Quaternion localRotation = new EntityTransform(shooter).getLocalRotation();
+        Quaterniond localRotation = Transform.fromYawPitch(shooter.getYaw(), shooter.getPitch());
         if (wrapper.getHandData(isMainHand).getZoomData().isZooming() && scope != null) {
             scope.offset(isRightHand, source, localRotation);
             return source;
@@ -168,7 +169,7 @@ public class ShootLocationChooser implements Serializer<ShootLocationChooser> {
             this.right = right;
         }
 
-        public void offset(boolean isRightHand, @NotNull Location source, @Nullable Quaternion localRotation) {
+        public void offset(boolean isRightHand, @NotNull Location source, @Nullable Quaterniond localRotation) {
             if (isRightHand) {
                 source.add(right.provide(localRotation));
             } else {

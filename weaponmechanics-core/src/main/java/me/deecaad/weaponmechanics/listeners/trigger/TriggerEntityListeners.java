@@ -48,7 +48,7 @@ public class TriggerEntityListeners implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void damage(EntityDamageByEntityEvent e) {
         Entity victim = e.getEntity();
 
@@ -77,11 +77,12 @@ public class TriggerEntityListeners implements Listener {
         if (!damager.getType().isAlive() || !victim.getType().isAlive())
             return;
 
-        EntityWrapper entityWrapper = WeaponMechanics.getInstance().getEntityWrapper((LivingEntity) damager, true);
-        if (entityWrapper == null)
+        if (!(damager instanceof LivingEntity livingEntity) || !(victim instanceof LivingEntity livingVictim))
             return;
 
-        LivingEntity livingEntity = entityWrapper.getEntity();
+        EntityWrapper entityWrapper = WeaponMechanics.getInstance().getEntityWrapper(livingEntity, true);
+        if (entityWrapper == null)
+            return;
 
         EntityEquipment entityEquipment = livingEntity.getEquipment();
         if (entityEquipment == null)
@@ -96,24 +97,67 @@ public class TriggerEntityListeners implements Listener {
         if (mainWeapon == null && offWeapon == null)
             return;
 
+        boolean dualWield = mainWeapon != null && offWeapon != null;
+        boolean mainHasMelee = hasMelee(mainWeapon);
+
         if (mainWeapon != null) {
-            // Cancel melee with weapons by default
+            // Cancel vanilla melee and also zero the damage in case another plugin uncancels later
             e.setCancelled(true);
+            e.setDamage(0.0);
         }
 
         // When sweep hit we don't want to do actual melee casts
         if (isSweep)
             return;
 
-        if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.MELEE,
-            livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon))
+        if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.MELEE, livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon)) {
+            return;
+        }
+
+        if (mainWeapon == null || mainStack.getAmount() == 0)
             return;
 
-        if (mainStack.getAmount() != 0) {
-            weaponHandler.tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.LEFT_CLICK, mainWeapon != null && offWeapon != null, (LivingEntity) victim);
+        if (mainHasMelee) {
+            final String weaponTitle = mainWeapon;
+            final boolean wasDualWielding = dualWield;
 
-            weaponHandler.tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.MELEE, mainWeapon != null && offWeapon != null, (LivingEntity) victim);
+            // Don't apply melee damage inside the vanilla Player.attack(...) stack
+            // just let vanilla finish processing the cancelled hit first
+            WeaponMechanics.getInstance().getFoliaScheduler().entity(livingVictim).runDelayed(() -> {
+                if (!livingEntity.isValid() || livingEntity.isDead())
+                    return;
+
+                if (!livingVictim.isValid() || livingVictim.isDead())
+                    return;
+
+                EntityEquipment currentEquipment = livingEntity.getEquipment();
+                if (currentEquipment == null)
+                    return;
+
+                ItemStack currentMainStack = currentEquipment.getItemInMainHand();
+                String currentMainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(currentMainStack, false);
+
+                if (!weaponTitle.equals(currentMainWeapon))
+                    return;
+
+                EntityWrapper currentWrapper = WeaponMechanics.getInstance().getEntityWrapper(livingEntity, true);
+                if (currentWrapper == null)
+                    return;
+
+                weaponHandler.tryUses(currentWrapper, weaponTitle, currentMainStack, EquipmentSlot.HAND, TriggerType.MELEE, wasDualWielding, livingVictim);
+            }, 1);
+
+            return;
         }
+        weaponHandler.tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.LEFT_CLICK, dualWield, livingVictim);
+    }
+
+    private boolean hasMelee(String weaponTitle) {
+        if (weaponTitle == null)
+            return false;
+
+        return WeaponMechanics.getInstance().getWeaponConfigurations().getBoolean(weaponTitle + ".Melee.Enable_Melee")
+                || WeaponMechanics.getInstance().getWeaponConfigurations().getString(weaponTitle + ".Melee.Melee_Attachment") != null;
     }
 
     @EventHandler
