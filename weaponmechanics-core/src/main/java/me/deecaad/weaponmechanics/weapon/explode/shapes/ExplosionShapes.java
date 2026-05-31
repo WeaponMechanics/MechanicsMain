@@ -16,6 +16,7 @@ public final class ExplosionShapes {
     public static final @NotNull ExplosionShape CUBE = register(new CubeExplosion());
     public static final @NotNull ExplosionShape DEFAULT = register(new DefaultExplosion());
     public static final @NotNull ExplosionShape PARABOLA = register(new ParabolaExplosion());
+    public static final @NotNull ExplosionShape SHRINKING_RING = register(new ShrinkingRingExplosion());
     public static final @NotNull ExplosionShape SPHERE = register(new SphereExplosion());
 
     // Don't let anyone instantiate this class
