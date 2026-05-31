@@ -1,7 +1,7 @@
 [versions]
 # Core Minecraft dependencies
 brigadier = "1.3.10"
-paper = "1.21.11-R0.1-SNAPSHOT"
+paper = "26.1.2.build.66-stable"
 packetEvents = "2.9.1"
 
 # External "hooks" or plugins that we might interact with
