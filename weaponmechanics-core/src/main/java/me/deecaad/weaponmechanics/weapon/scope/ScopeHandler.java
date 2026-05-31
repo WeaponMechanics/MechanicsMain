@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.scope;
 
+import com.cjcrafter.foliascheduler.TaskImplementation;
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.protocol.potion.PotionTypes;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityEffect;
@@ -13,6 +14,7 @@ import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderMessage;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerListener;
@@ -193,6 +195,17 @@ public class ScopeHandler implements IValidator, TriggerListener {
                 if (weaponScopeEvent.getMechanics() != null)
                     weaponScopeEvent.getMechanics().use(new CastData(entity, weaponTitle, weaponStack));
 
+                // Restart ADS settling on each zoom stack (player is re-adjusting their aim)
+                int adsSpeedMillis = config.getInt(weaponTitle + ".Scope.ADS_Speed");
+                if (adsSpeedMillis > 0 && entity instanceof Player player) {
+                    int adsSpeedTicks = adsSpeedMillis / 50;
+                    zoomData.stopSettling(); // cancel previous settling first
+                    zoomData.startSettling(adsSpeedMillis);
+                    TaskImplementation<Void> task = WeaponCompatibilityAPI.getWeaponCompatibility()
+                        .playAdsSettleAnimation(player, adsSpeedTicks);
+                    zoomData.setAdsSettleTask(task);
+                }
+
                 return true;
             } else {
                 WeaponMechanics.getInstance().getDebugger().warning("For some reason zoom in was called on entity when it shouldn't have.",
@@ -228,6 +241,20 @@ public class ScopeHandler implements IValidator, TriggerListener {
         HandData handData = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
         handData.setLastScopeTime(System.currentTimeMillis());
 
+        // ADS settling: temporarily keep hipfire accuracy until the timer expires
+        int adsSpeedMillis = config.getInt(weaponTitle + ".Scope.ADS_Speed");
+        if (adsSpeedMillis > 0 && entity instanceof Player player) {
+            int adsSpeedTicks = adsSpeedMillis / 50;
+            zoomData.startSettling(adsSpeedMillis);
+            TaskImplementation<Void> task = WeaponCompatibilityAPI.getWeaponCompatibility()
+                .playAdsSettleAnimation(player, adsSpeedTicks);
+            zoomData.setAdsSettleTask(task);
+
+            if (config.getBoolean(weaponTitle + ".Scope.ADS_Show_Cooldown_Icon")) {
+                player.setCooldown(weaponStack.getType(), adsSpeedTicks);
+            }
+        }
+
         return true;
     }
 
@@ -239,6 +266,14 @@ public class ScopeHandler implements IValidator, TriggerListener {
         if (!zoomData.isZooming())
             return false;
         LivingEntity entity = entityWrapper.getEntity();
+
+        // Stop any active ADS settling when zooming out
+        zoomData.stopSettling();
+
+        if (entity instanceof Player player
+            && WeaponMechanics.getInstance().getWeaponConfigurations().getBoolean(weaponTitle + ".Scope.ADS_Show_Cooldown_Icon")) {
+            player.setCooldown(weaponStack.getType(), 0);
+        }
 
         MechanicManager zoomOffMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Scope.Zoom_Off.Mechanics", MechanicManager.class);
 
@@ -371,6 +406,12 @@ public class ScopeHandler implements IValidator, TriggerListener {
         if (shootDelayAfterScope != 0) {
             // Convert to millis
             configuration.set(data.getKey() + ".Shoot_Delay_After_Scope", shootDelayAfterScope * 50);
+        }
+
+        int adsSpeed = data.of("ADS_Speed").getInt().orElse(0);
+        if (adsSpeed != 0) {
+            // Convert to millis (same pattern as Shoot_Delay_After_Scope)
+            configuration.set(data.getKey() + ".ADS_Speed", adsSpeed * 50);
         }
     }
 }
