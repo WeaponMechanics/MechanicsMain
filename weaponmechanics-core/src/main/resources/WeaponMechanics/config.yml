@@ -227,6 +227,16 @@ Damage:
     Potions: []
       #- weakness +10%
 
+  Shield_Blocking:
+    Stop_Projectile_When_Blocked: true
+
+    Front_Only: false
+    Block_Angle: 120.0
+
+    Durability:
+      Damage: 0
+      Only_When_Projectile_Stopped: true
+
   Explosion:
     Damage_Modifiers:
       Min: 5%   # Explosions will always do at least 5% of their base damage

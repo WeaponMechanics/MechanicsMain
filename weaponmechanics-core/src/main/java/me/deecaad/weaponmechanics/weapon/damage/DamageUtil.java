@@ -37,6 +37,7 @@ import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
 
 import com.google.common.base.Function;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Set;
@@ -281,6 +282,87 @@ public class DamageUtil {
                 damage(equipment, slot, amount);
             }
         }
+    }
+
+    public static void damageShield(@NotNull Player player, int amount) {
+        if (amount <= 0)
+            return;
+
+        EntityEquipment equipment = player.getEquipment();
+
+        if (equipment == null)
+            return;
+
+        EquipmentSlot slot = getShieldSlot(player);
+
+        if (slot == null)
+            return;
+
+        ItemStack shield = slot == EquipmentSlot.HAND ? equipment.getItemInMainHand() : equipment.getItemInOffHand();
+
+        if (shield == null || shield.getType() != Material.SHIELD)
+            return;
+
+        ItemMeta meta = shield.getItemMeta();
+
+        if (meta == null)
+            return;
+
+        if (meta.isUnbreakable())
+            return;
+
+        int level = meta.getEnchantLevel(Enchantment.UNBREAKING);
+        boolean skipDamage = !RandomUtil.chance(0.6 + 0.4 / (level + 1));
+
+        if (skipDamage)
+            return;
+
+        if (!(meta instanceof Damageable damageable))
+            return;
+
+        int maxDurability = damageable.hasMaxDamage()
+                ? damageable.getMaxDamage()
+                : shield.getType().getMaxDurability();
+
+        if (maxDurability <= 0)
+            return;
+
+        int newDamage = damageable.getDamage() + amount;
+
+        if (newDamage >= maxDurability) {
+            if (slot == EquipmentSlot.HAND) {
+                equipment.setItemInMainHand(null);
+            } else {
+                equipment.setItemInOffHand(null);
+            }
+            return;
+        }
+
+        damageable.setDamage(newDamage);
+        shield.setItemMeta(meta);
+
+        if (slot == EquipmentSlot.HAND) {
+            equipment.setItemInMainHand(shield);
+        } else {
+            equipment.setItemInOffHand(shield);
+        }
+    }
+
+    public static @Nullable EquipmentSlot getShieldSlot(@NotNull Player player) {
+        EntityEquipment equipment = player.getEquipment();
+
+        if (equipment == null)
+            return null;
+
+        ItemStack mainHand = equipment.getItemInMainHand();
+        if (mainHand != null && mainHand.getType() == Material.SHIELD)
+            return EquipmentSlot.HAND;
+
+        ItemStack offHand = equipment.getItemInOffHand();
+        if (offHand != null && offHand.getType() == Material.SHIELD)
+            return EquipmentSlot.OFF_HAND;
+
+        return null;
     }
 
     private static void damage(EntityEquipment equipment, EquipmentSlot slot, int amount) {

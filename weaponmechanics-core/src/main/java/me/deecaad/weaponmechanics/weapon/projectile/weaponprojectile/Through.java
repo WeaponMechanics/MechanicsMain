@@ -45,6 +45,11 @@ public class Through implements Serializer<Through>, Cloneable {
      */
     public boolean handleThrough(WeaponProjectile projectile, RayTraceResult hit) {
 
+        // Some systems, like shield blocking, may force the projectile to stop
+        // This must override Through
+        if (projectile.isForceStopped())
+            return false;
+
         Double speedModifier;
         if (hit instanceof BlockTraceResult blockHit) {
             speedModifier = blocks != null ? blocks.isValid(blockHit.getBlockState().getType().asBlockType()) : null;

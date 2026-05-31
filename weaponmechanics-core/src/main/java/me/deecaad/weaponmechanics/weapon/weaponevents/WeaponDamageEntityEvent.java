@@ -11,6 +11,7 @@ import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.damage.MeleeDamageSource;
 import me.deecaad.weaponmechanics.weapon.damage.ProjectileDamageSource;
 import me.deecaad.weaponmechanics.weapon.damage.WeaponDamageSource;
+import me.deecaad.weaponmechanics.weapon.damage.ShieldBlocking;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
@@ -40,6 +41,8 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     private int armorDamage;
     private int fireTicks;
     private DamageDropoff dropoff;
+    private ShieldBlocking shieldBlocking;
+    private boolean shieldBlocked;
     private final List<DamageModifier> damageModifiers;
 
     private MechanicManager damageMechanics;
@@ -73,7 +76,15 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
         this.armorDamage = armorDamage;
         this.fireTicks = fireTicks;
         this.dropoff = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Damage.Dropoff", DamageDropoff.class);
+        this.shieldBlocking = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Damage.Shield_Blocking", ShieldBlocking.class);
 
+        if (this.shieldBlocking == null) {
+            this.shieldBlocking = WeaponMechanics.getInstance().getConfiguration().getObject("Damage.Shield_Blocking", ShieldBlocking.class);
+        }
+        if (this.shieldBlocking == null) {
+            this.shieldBlocking = ShieldBlocking.DEFAULT;
+        }
+        this.shieldBlocked = this.shieldBlocking.isBlocking(source, victim);
         this.damageMechanics = damageMechanics;
         this.killMechanics = killMechanics;
         this.backstabMechanics = backstabMechanics;
@@ -151,8 +162,11 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
 
             double rate = 1.0;
             boolean isBackStab = source instanceof MeleeDamageSource meleeSource && meleeSource.isBackStab();
+
+            shieldBlocked = shieldBlocking != null && shieldBlocking.isBlocking(source, victim);
+
             for (DamageModifier modifier : damageModifiers) {
-                rate += modifier.getRate(victimWrapper, getPoint(), isBackStab) - 1;
+                rate += modifier.getRate(victimWrapper, getPoint(), isBackStab, shieldBlocked) - 1;
             }
 
             // Clamping to the base damage
@@ -262,6 +276,19 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     }
 
     /**
+     * Returns true if the last damage applied was blocked by a shield.
+     *
+     * @return true if this was blocked by a shield.
+     */
+    public boolean wasShieldBlocked() {
+        return shieldBlocked;
+    }
+
+    public ShieldBlocking getShieldBlocking() {
+        return shieldBlocking;
+    }
+
+    /**
      * Sets the number of ticks the victim should be lit on fire for.
      *
      * @param fireTicks The fire ticks.
@@ -280,7 +307,8 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     }
 
     public void addDamageModifier(@Nullable DamageModifier modifier) {
-        damageModifiers.add(modifier);
+        if (modifier != null) // null guard
+            damageModifiers.add(modifier);
     }
 
     public @NotNull List<DamageModifier> getDamageModifiers() {
