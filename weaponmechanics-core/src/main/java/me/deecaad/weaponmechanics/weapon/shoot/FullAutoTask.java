@@ -186,6 +186,11 @@ public class FullAutoTask implements Consumer<TaskImplementation<Void>> {
         // Determine if we should shoot on this tick. The AUTO array is a table of basically true/false
         // values.
         int shootAmount = perShot + AUTO[rate][currentTick];
+        if (shootAmount > 0 && weaponHandler.getShootHandler().tryJam(entityWrapper, weaponTitle, taskReference, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND)) {
+            task.cancel();
+            handData.setFullAutoTask(null, null);
+            return;
+        }
 
         // START RELOAD STUFF
         if (ammoLeft != -1) {

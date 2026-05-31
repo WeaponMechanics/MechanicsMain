@@ -6,12 +6,14 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.file.*;
+import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.MechanicManager;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderMessage;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -42,6 +44,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -55,6 +58,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 
 @SearcherFilter(SearchMode.ON_DEMAND)
@@ -244,6 +249,9 @@ public class ShootHandler implements IValidator, TriggerListener {
         boolean consumeItemOnShoot = config.getBoolean(weaponTitle + ".Shoot.Consume_Item_On_Shoot");
         int ammoPerShot = config.getInt(weaponTitle + ".Shoot.Ammo_Per_Shot", 1);
 
+        if (!isMelee && tryJam(entityWrapper, weaponTitle, weaponStack, slot))
+            return false;
+
         // START RELOAD STUFF
 
         ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
@@ -304,6 +312,12 @@ public class ShootHandler implements IValidator, TriggerListener {
                     return;
                 }
 
+                if (tryJam(entityWrapper, weaponTitle, taskReference, slot)) {
+                    handData.setBurstTask(null);
+                    scheduledTask.cancel();
+                    return;
+                }
+
                 if (!reloadHandler.consumeAmmo(taskReference, weaponTitle, ammoPerShot)) {
                     handData.setBurstTask(null);
                     scheduledTask.cancel();
@@ -356,6 +370,31 @@ public class ShootHandler implements IValidator, TriggerListener {
         FullAutoTask fullAutoTask = new FullAutoTask(weaponHandler, entityWrapper, weaponTitle, weaponStack, mainhand, triggerType, dualWield, event.getShotsPerSecond());
         TaskImplementation<Void> task = WeaponMechanics.getInstance().getFoliaScheduler().entity(entityWrapper.getEntity()).runAtFixedRate(fullAutoTask, 1, 1);
         handData.setFullAutoTask(fullAutoTask, task);
+        return true;
+    }
+
+    public boolean tryJam(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot) {
+        Configuration config = WeaponMechanics.getInstance().getWeaponConfigurations();
+        TreeMap<Integer, Double> jamChances = config.getObject(weaponTitle + ".Shoot.Durability_Jam_Chance", TreeMap.class);
+        if (jamChances == null || jamChances.isEmpty())
+            return false;
+
+        ItemMeta meta = weaponStack.getItemMeta();
+        if (!(meta instanceof Damageable damageable) || !damageable.hasMaxDamage())
+            return false;
+
+        int durability = damageable.getMaxDamage() - damageable.getDamage();
+        Map.Entry<Integer, Double> entry = jamChances.ceilingEntry(durability);
+        if (entry == null || entry.getValue() <= 0.0)
+            return false;
+
+        if (!RandomUtil.chance(entry.getValue()))
+            return false;
+
+        MechanicManager jamMechanics = config.getObject(weaponTitle + ".Shoot.Jam_Mechanics", MechanicManager.class);
+        if (jamMechanics != null)
+            jamMechanics.use(new CastData(entityWrapper.getEntity(), weaponTitle, weaponStack));
+
         return true;
     }
 
@@ -768,6 +807,42 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         int durabilityPerShot = data.of("Durability_Per_Shot").assertRange(0, null).getInt().orElse(1);
         configuration.set(data.getKey() + ".Durability_Per_Shot", durabilityPerShot);
+
+        if (data.has("Durability_Jam_Chance")) {
+            ConfigurationSection section = data.of("Durability_Jam_Chance").assertExists().get(ConfigurationSection.class).orElse(null);
+            if (section == null || section.getKeys(false).isEmpty()) {
+                throw data.exception("Durability_Jam_Chance", "Durability_Jam_Chance must be a map of durability thresholds to chances.",
+                    "Example:",
+                    "Durability_Jam_Chance:",
+                    "  240: 5%",
+                    "  10: 50%");
+            }
+
+            TreeMap<Integer, Double> jamChances = new TreeMap<>();
+            for (String durabilityString : section.getKeys(false)) {
+                int durability;
+                try {
+                    durability = Integer.parseInt(durabilityString);
+                } catch (NumberFormatException ex) {
+                    throw data.exception("Durability_Jam_Chance." + durabilityString, "Durability thresholds must be whole numbers.",
+                        "Found: " + durabilityString,
+                        "Example: 240: 5%");
+                }
+
+                if (durability < 0) {
+                    throw data.exception("Durability_Jam_Chance." + durabilityString, "Durability thresholds cannot be negative.",
+                        "Found: " + durability);
+                }
+
+                double chance = data.of("Durability_Jam_Chance." + durabilityString).serialize(ChanceSerializer.class).orElse(0.0);
+                jamChances.put(durability, chance);
+            }
+
+            configuration.set(data.getKey() + ".Durability_Jam_Chance", jamChances);
+        }
+
+        data.of("Jam_Mechanics").serialize(MechanicManager.class)
+            .ifPresent(mechanics -> configuration.set(data.getKey() + ".Jam_Mechanics", mechanics));
 
         boolean hasBurst = false;
         boolean hasAuto = false;
