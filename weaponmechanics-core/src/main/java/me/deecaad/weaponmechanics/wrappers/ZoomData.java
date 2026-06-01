@@ -6,12 +6,19 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponScopeEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.vivecraft.api.VRAPI;
 import org.vivecraft.api.data.VRBodyPartData;
 import org.vivecraft.api.data.VRPose;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ZoomData {
 
@@ -21,9 +28,11 @@ public class ZoomData {
     private boolean zoomNightVision;
     private ItemStack scopeWeaponStack;
     private String scopeWeaponTitle;
+    private final Map<Attribute, List<AttributeModifier>> scopeAttributeModifiers;
 
     public ZoomData(HandData handData) {
         this.handData = handData;
+        this.scopeAttributeModifiers = new HashMap<>();
     }
 
     public HandData getHandData() {
@@ -110,6 +119,7 @@ public class ZoomData {
             EntityWrapper entityWrapper = handData.getEntityWrapper();
 
             ScopeHandler scopeHandler = WeaponMechanics.getInstance().getWeaponHandler().getScopeHandler();
+            scopeHandler.removeScopeAttributes(entityWrapper, this);
             scopeHandler.updateZoom(entityWrapper, this, 0);
             setZoomStacks(0);
             scopeHandler.useNightVision(entityWrapper, this, false);
@@ -133,5 +143,17 @@ public class ZoomData {
     public void setScopeData(String weaponTitle, ItemStack weaponStack) {
         this.scopeWeaponTitle = weaponTitle;
         this.scopeWeaponStack = weaponStack;
+    }
+
+    public void addScopeAttributeModifier(Attribute attribute, AttributeModifier modifier) {
+        this.scopeAttributeModifiers.computeIfAbsent(attribute, temp -> new ArrayList<>()).add(modifier);
+    }
+
+    public Map<Attribute, List<AttributeModifier>> getScopeAttributeModifiers() {
+        return scopeAttributeModifiers;
+    }
+
+    public void clearScopeAttributeModifiers() {
+        this.scopeAttributeModifiers.clear();
     }
 }

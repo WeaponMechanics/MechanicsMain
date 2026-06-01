@@ -25,6 +25,11 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -35,12 +40,19 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
 import org.vivecraft.api.VRAPI;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @SearcherFilter(SearchMode.ON_DEMAND)
 public class ScopeHandler implements IValidator, TriggerListener {
+
+    private static final Pattern COMPACT_ATTRIBUTE = Pattern.compile("^(.+?)([-+]\\d+(?:\\.\\d+)?)$");
 
     private WeaponHandler weaponHandler;
 
@@ -218,6 +230,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
 
         zoomData.setScopeData(weaponTitle, weaponStack);
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
+        applyScopeAttributes(entityWrapper, zoomData, weaponTitle);
 
         if (weaponScopeEvent.getMechanics() != null)
             weaponScopeEvent.getMechanics().use(new CastData(entity, weaponTitle, weaponStack));
@@ -251,6 +264,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
 
         zoomData.setScopeData(null, null);
 
+        removeScopeAttributes(entityWrapper, zoomData);
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
         zoomData.setZoomStacks(0);
 
@@ -261,6 +275,56 @@ public class ScopeHandler implements IValidator, TriggerListener {
         useNightVision(entityWrapper, zoomData, false);
 
         return true;
+    }
+
+    private void applyScopeAttributes(EntityWrapper entityWrapper, ZoomData zoomData, String weaponTitle) {
+        removeScopeAttributes(entityWrapper, zoomData);
+
+        Configuration config = WeaponMechanics.getInstance().getWeaponConfigurations();
+        List<?> attributes = config.getObject(weaponTitle + ".Scope.Attributes", List.class);
+        if (attributes == null || attributes.isEmpty())
+            return;
+
+        LivingEntity entity = entityWrapper.getEntity();
+        for (int i = 0; i < attributes.size(); i++) {
+            ScopeAttribute scopeAttribute = parseScopeAttribute(attributes.get(i).toString());
+            if (scopeAttribute == null)
+                continue;
+
+            AttributeInstance instance = entity.getAttribute(scopeAttribute.attribute());
+            if (instance == null)
+                continue;
+
+            NamespacedKey key = new NamespacedKey(WeaponMechanics.getInstance(), "scope_" + sanitize(weaponTitle) + "_" + i);
+            removeModifier(instance, key);
+
+            AttributeModifier modifier = new AttributeModifier(key, scopeAttribute.amount(), scopeAttribute.operation());
+            instance.addTransientModifier(modifier);
+            zoomData.addScopeAttributeModifier(scopeAttribute.attribute(), modifier);
+        }
+    }
+
+    public void removeScopeAttributes(EntityWrapper entityWrapper, ZoomData zoomData) {
+        if (zoomData.getScopeAttributeModifiers().isEmpty())
+            return;
+
+        LivingEntity entity = entityWrapper.getEntity();
+        for (Map.Entry<Attribute, List<AttributeModifier>> entry : zoomData.getScopeAttributeModifiers().entrySet()) {
+            AttributeInstance instance = entity.getAttribute(entry.getKey());
+            if (instance != null) {
+                for (AttributeModifier modifier : entry.getValue()) {
+                    instance.removeModifier(modifier);
+                }
+            }
+        }
+        zoomData.clearScopeAttributeModifiers();
+    }
+
+    private void removeModifier(AttributeInstance instance, NamespacedKey key) {
+        for (AttributeModifier modifier : new ArrayList<>(instance.getModifiers())) {
+            if (modifier.getKey().equals(key))
+                instance.removeModifier(modifier);
+        }
     }
 
     /**
@@ -372,5 +436,86 @@ public class ScopeHandler implements IValidator, TriggerListener {
             // Convert to millis
             configuration.set(data.getKey() + ".Shoot_Delay_After_Scope", shootDelayAfterScope * 50);
         }
+
+        List<?> attributes = data.of("Attributes").get(List.class).orElse(List.of());
+        for (Object rawAttribute : attributes) {
+            if (parseScopeAttribute(rawAttribute.toString()) == null) {
+                throw data.exception("Attributes",
+                    "Expected attributes in the format '<attribute> <amount>'",
+                    "For example, 'movement_speed -0.1' or 'GENERIC_MOVEMENT_SPEED--0.1'");
+            }
+        }
+    }
+
+    private ScopeAttribute parseScopeAttribute(String raw) {
+        if (raw == null || raw.isBlank())
+            return null;
+
+        String[] split = raw.trim().split("\\s+");
+        String attributeName;
+        String amountText;
+        AttributeModifier.Operation operation = AttributeModifier.Operation.ADD_NUMBER;
+
+        if (split.length >= 2) {
+            attributeName = split[0];
+            amountText = split[1];
+            if (split.length >= 3) {
+                operation = parseOperation(split[2]);
+                if (operation == null)
+                    return null;
+            }
+        } else {
+            int negativeSeparator = raw.lastIndexOf("--");
+            if (negativeSeparator > 0) {
+                attributeName = raw.substring(0, negativeSeparator);
+                amountText = "-" + raw.substring(negativeSeparator + 2);
+            } else {
+                Matcher matcher = COMPACT_ATTRIBUTE.matcher(raw.trim());
+                if (!matcher.matches())
+                    return null;
+
+                attributeName = matcher.group(1);
+                amountText = matcher.group(2);
+            }
+        }
+
+        Attribute attribute = parseAttribute(attributeName);
+        if (attribute == null)
+            return null;
+
+        try {
+            return new ScopeAttribute(attribute, Double.parseDouble(amountText), operation);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    private Attribute parseAttribute(String attributeName) {
+        String normalized = attributeName.toLowerCase(Locale.ROOT)
+            .replace("minecraft:", "")
+            .replace("generic_", "")
+            .replace("generic.", "");
+
+        Attribute attribute = Registry.ATTRIBUTE.get(NamespacedKey.minecraft(normalized));
+        if (attribute != null)
+            return attribute;
+
+        return null;
+    }
+
+    private AttributeModifier.Operation parseOperation(String operation) {
+        return switch (operation.toUpperCase(Locale.ROOT)) {
+            case "ADD", "ADD_NUMBER" -> AttributeModifier.Operation.ADD_NUMBER;
+            case "ADD_SCALAR", "ADD_PERCENTAGE" -> AttributeModifier.Operation.ADD_SCALAR;
+            case "MULTIPLY", "MULTIPLY_SCALAR_1", "MULTIPLY_PERCENTAGE" -> AttributeModifier.Operation.MULTIPLY_SCALAR_1;
+            default -> null;
+        };
+    }
+
+    private String sanitize(String value) {
+        return value.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9._/-]", "_");
+    }
+
+    private record ScopeAttribute(Attribute attribute, double amount, AttributeModifier.Operation operation) {
     }
 }
