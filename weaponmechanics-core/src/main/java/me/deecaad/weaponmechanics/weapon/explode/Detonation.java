@@ -3,7 +3,8 @@ package me.deecaad.weaponmechanics.weapon.explode;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.mechanics.MechanicManager;
+import me.deecaad.core.mechanics.program.Program;
+import me.deecaad.core.mechanics.program.MechanicSerializer;
 import me.deecaad.core.utils.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,7 +17,7 @@ public class Detonation implements Serializer<Detonation> {
     private Set<ExplosionTrigger> triggers;
     private int delay;
     private boolean removeProjectileOnDetonation;
-    private MechanicManager impactMechanics;
+    private Program impactMechanics;
 
     /**
      * Default constructor for serializer
@@ -24,7 +25,7 @@ public class Detonation implements Serializer<Detonation> {
     public Detonation() {
     }
 
-    public Detonation(Set<ExplosionTrigger> triggers, int delay, boolean removeProjectileOnDetonation, MechanicManager impactMechanics) {
+    public Detonation(Set<ExplosionTrigger> triggers, int delay, boolean removeProjectileOnDetonation, Program impactMechanics) {
         this.triggers = triggers;
         this.delay = delay;
         this.removeProjectileOnDetonation = removeProjectileOnDetonation;
@@ -43,7 +44,7 @@ public class Detonation implements Serializer<Detonation> {
         return removeProjectileOnDetonation;
     }
 
-    public MechanicManager getImpactMechanics() {
+    public Program getImpactMechanics() {
         return impactMechanics;
     }
 
@@ -64,7 +65,7 @@ public class Detonation implements Serializer<Detonation> {
         boolean removeProjectileOnDetonation = data.of("Remove_Projectile_On_Detonation").getBool().orElse(true);
 
         // Impact mechanics
-        MechanicManager impactMechanics = data.of("Impact_Mechanics").serialize(MechanicManager.class).orElse(null);
+        Program impactMechanics = data.of("Impact_Mechanics").serialize(MechanicSerializer.class).orElse(null);
 
         return new Detonation(triggers, delay, removeProjectileOnDetonation, impactMechanics);
     }

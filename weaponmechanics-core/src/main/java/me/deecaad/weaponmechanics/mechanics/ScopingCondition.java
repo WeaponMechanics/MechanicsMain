@@ -2,7 +2,8 @@ package me.deecaad.weaponmechanics.mechanics;
 
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.core.mechanics.scope.Target;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
@@ -19,8 +20,8 @@ public class ScopingCondition extends Condition {
     }
 
     @Override
-    protected boolean isAllowed0(CastData cast) {
-        return cast.getTarget() != null && WeaponMechanicsAPI.isScoping(cast.getTarget());
+    protected boolean isAllowed0(CastScope scope, Target subject) {
+        return subject != null && subject.entity() != null && WeaponMechanicsAPI.isScoping(subject.entity());
     }
 
     @Override

@@ -2,8 +2,10 @@ package me.deecaad.weaponmechanics.weapon.damage;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.core.mechanics.scope.Context;
+import me.deecaad.core.mechanics.scope.Target;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
@@ -76,15 +78,15 @@ public class DamageHandler {
         }
 
         // Get Mechanics so attachments can modify them in the damage event
-        MechanicManager damageMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Mechanics", MechanicManager.class);
-        MechanicManager killMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Kill.Mechanics", MechanicManager.class);
-        MechanicManager backstabMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Backstab.Mechanics", MechanicManager.class);
-        MechanicManager criticalHitMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Critical_Hit.Mechanics", MechanicManager.class);
-        MechanicManager headMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Head.Mechanics", MechanicManager.class);
-        MechanicManager bodyMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Body.Mechanics", MechanicManager.class);
-        MechanicManager armsMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Arms.Mechanics", MechanicManager.class);
-        MechanicManager legsMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Legs.Mechanics", MechanicManager.class);
-        MechanicManager feetMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Feet.Mechanics", MechanicManager.class);
+        Program damageMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Mechanics", Program.class);
+        Program killMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Kill.Mechanics", Program.class);
+        Program backstabMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Backstab.Mechanics", Program.class);
+        Program criticalHitMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Critical_Hit.Mechanics", Program.class);
+        Program headMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Head.Mechanics", Program.class);
+        Program bodyMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Body.Mechanics", Program.class);
+        Program armsMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Arms.Mechanics", Program.class);
+        Program legsMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Legs.Mechanics", Program.class);
+        Program feetMechanics = config.getObject(source.getWeaponTitle() + ".Damage.Feet.Mechanics", Program.class);
 
         WeaponDamageEntityEvent damageEntityEvent = new WeaponDamageEntityEvent(source, slot, victim, damage,
             critChance, armorDamage, fireTicks, damageModifier, damageMechanics, killMechanics, backstabMechanics,
@@ -113,9 +115,9 @@ public class DamageHandler {
             victim.setFireTicks(fireTicks);
         }
 
-        CastData cast = source.getShooter() == null ? null : new CastData(source.getShooter(), source.getWeaponTitle(), source.getWeaponStack());
+        CastScope cast = source.getShooter() == null ? null : CastScope.builder(source.getShooter()).itemTitle(source.getWeaponTitle()).item(source.getWeaponStack()).build();
         if (cast != null) {
-            cast.setTargetEntity(victim);
+            cast.setContext(CastScope.TARGET, Context.of(Target.of(victim)));
         }
 
         boolean isShooterPlayer = source.getShooter() != null && source.getShooter().getType() == EntityType.PLAYER;
@@ -126,7 +128,7 @@ public class DamageHandler {
 
         // On all damage
         if (damageEntityEvent.getDamageMechanics() != null)
-            damageEntityEvent.getDamageMechanics().use(cast);
+            damageEntityEvent.getDamageMechanics().run(cast);
         if (shooterData != null) {
             shooterData.add(source.getWeaponTitle(), WeaponStat.TOTAL_DAMAGE, (float) finalDamage);
 
@@ -146,7 +148,7 @@ public class DamageHandler {
             Bukkit.getPluginManager().callEvent(weaponKillEvent);
 
             if (damageEntityEvent.getKillMechanics() != null)
-                damageEntityEvent.getKillMechanics().use(cast);
+                damageEntityEvent.getKillMechanics().run(cast);
 
             if (victimData != null)
                 victimData.add(PlayerStat.WEAPON_DEATHS, 1);
@@ -180,7 +182,7 @@ public class DamageHandler {
         // On backstab
         if (source instanceof MeleeDamageSource meleeSource && meleeSource.isBackStab()) {
             if (damageEntityEvent.getBackstabMechanics() != null)
-                damageEntityEvent.getBackstabMechanics().use(cast);
+                damageEntityEvent.getBackstabMechanics().run(cast);
 
             if (shooterData != null) {
                 shooterData.add(source.getWeaponTitle(), WeaponStat.BACKSTABS, 1);
@@ -192,7 +194,7 @@ public class DamageHandler {
         // On critical
         if (damageEntityEvent.wasCritical()) {
             if (damageEntityEvent.getCriticalHitMechanics() != null)
-                damageEntityEvent.getCriticalHitMechanics().use(cast);
+                damageEntityEvent.getCriticalHitMechanics().run(cast);
 
             if (shooterData != null) {
                 shooterData.add(source.getWeaponTitle(), WeaponStat.CRITICAL_HITS, 1);
@@ -203,7 +205,7 @@ public class DamageHandler {
 
         // On point
         if (source.getDamagePoint() != null) {
-            MechanicManager mechanics = switch (source.getDamagePoint()) {
+            Program mechanics = switch (source.getDamagePoint()) {
                 case HEAD -> damageEntityEvent.getHeadMechanics();
                 case BODY -> damageEntityEvent.getBodyMechanics();
                 case ARMS -> damageEntityEvent.getArmsMechanics();
@@ -211,7 +213,7 @@ public class DamageHandler {
                 case FEET -> damageEntityEvent.getFeetMechanics();
             };
             if (mechanics != null)
-                mechanics.use(cast);
+                mechanics.run(cast);
 
             if (shooterData != null) {
                 switch (source.getDamagePoint()) {

@@ -6,8 +6,8 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderMessage;
@@ -113,7 +113,7 @@ public class MeleeHandler implements IValidator {
         }
 
         boolean consumeOnMiss = config.getBoolean(weaponTitle + ".Melee.Melee_Miss.Consume_On_Miss");
-        MechanicManager missMechanics = config.getObject(weaponTitle + ".Melee.Melee_Miss.Mechanics", MechanicManager.class);
+        Program missMechanics = config.getObject(weaponTitle + ".Melee.Melee_Miss.Mechanics", Program.class);
 
         WeaponMeleeMissEvent event = new WeaponMeleeMissEvent(weaponTitle, weaponStack, shooter, slot, meleeMissDelay / 50, missMechanics, consumeOnMiss);
         Bukkit.getPluginManager().callEvent(event);
@@ -127,7 +127,7 @@ public class MeleeHandler implements IValidator {
         }
 
         if (event.getMechanics() != null) {
-            event.getMechanics().use(new CastData(shooter, weaponTitle, weaponStack));
+            event.getMechanics().run(CastScope.builder(shooter).itemTitle(weaponTitle).item(weaponStack).build());
         }
 
         if (event.getMeleeMissDelay() != 0) {

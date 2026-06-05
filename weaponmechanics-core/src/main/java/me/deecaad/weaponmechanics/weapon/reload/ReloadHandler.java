@@ -4,9 +4,9 @@ import com.cjcrafter.foliascheduler.EntitySchedulerImplementation;
 import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.*;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
-import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.core.mechanics.program.Program;
+import me.deecaad.core.mechanics.program.MechanicSerializer;
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderMessage;
 import me.deecaad.core.utils.StringUtil;
@@ -177,7 +177,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
             }
         }
 
-        MechanicManager reloadStartMechanics = config.getObject(weaponTitle + ".Reload.Start_Mechanics", MechanicManager.class);
+        Program reloadStartMechanics = config.getObject(weaponTitle + ".Reload.Start_Mechanics", Program.class);
         WeaponReloadEvent reloadEvent = new WeaponReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot,
             ammoLeft, reloadDuration, ammoPerReload, tempMagazineSize, firearmOpenTime, firearmCloseTime, reloadStartMechanics);
         Bukkit.getPluginManager().callEvent(reloadEvent);
@@ -218,7 +218,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
             // Creative mode bypass... #176
             if (playerWrapper.getPlayer().getGameMode() != GameMode.CREATIVE || !WeaponMechanics.getInstance().getConfiguration().getBoolean("Creative_Mode_Bypass_Ammo")) {
                 if (ammo.getOutOfAmmoMechanics() != null)
-                    ammo.getOutOfAmmoMechanics().use(new CastData(shooter, weaponTitle, weaponStack));
+                    ammo.getOutOfAmmoMechanics().run(CastScope.builder(shooter).itemTitle(weaponTitle).item(weaponStack).build());
                 return false;
             }
         }
@@ -269,7 +269,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
                     // state
                     if (removedAmount <= 0) {
                         if (ammo.getOutOfAmmoMechanics() != null)
-                            ammo.getOutOfAmmoMechanics().use(new CastData(shooter, weaponTitle, taskReference));
+                            ammo.getOutOfAmmoMechanics().run(CastScope.builder(shooter).itemTitle(weaponTitle).item(taskReference).build());
 
                         // Remove next task as reload can't be finished
                         setNextTask(null);
@@ -324,7 +324,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
                 }
 
                 if (reloadEvent.getMechanics() != null)
-                    reloadEvent.getMechanics().use(new CastData(shooter, weaponTitle, weaponStack, handData::addReloadTask));
+                    reloadEvent.getMechanics().run(CastScope.builder(shooter).itemTitle(weaponTitle).item(weaponStack).taskConsumer(handData::addReloadTask).build());
 
                 if (weaponInfoDisplay != null)
                     weaponInfoDisplay.send(playerWrapper, slot);
@@ -399,7 +399,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
                 firearmAction.changeState(weaponStack, FirearmState.OPEN);
 
-                event.useMechanics(new CastData(shooter, weaponTitle, weaponStack, handData::addReloadTask), true);
+                event.useMechanics(CastScope.builder(shooter).itemTitle(weaponTitle).item(weaponStack).taskConsumer(handData::addReloadTask).build(), true);
 
                 if (entityWrapper instanceof PlayerWrapper) {
                     WeaponInfoDisplay weaponInfoDisplay = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
@@ -444,7 +444,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
                 firearmAction.changeState(weaponStack, FirearmState.CLOSE);
 
-                event.useMechanics(new CastData(shooter, weaponTitle, weaponStack, handData::addReloadTask), false);
+                event.useMechanics(CastScope.builder(shooter).itemTitle(weaponTitle).item(weaponStack).taskConsumer(handData::addReloadTask).build(), false);
 
                 if (entityWrapper instanceof PlayerWrapper) {
                     WeaponInfoDisplay weaponInfoDisplay = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
@@ -465,9 +465,9 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         handData.finishReload();
 
-        MechanicManager reloadFinishMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Reload.Finish_Mechanics", MechanicManager.class);
+        Program reloadFinishMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Reload.Finish_Mechanics", Program.class);
         if (reloadFinishMechanics != null)
-            reloadFinishMechanics.use(new CastData(entityWrapper.getEntity(), weaponTitle, weaponStack));
+            reloadFinishMechanics.run(CastScope.builder(entityWrapper.getEntity()).itemTitle(weaponTitle).item(weaponStack).build());
 
         if (entityWrapper instanceof PlayerWrapper) {
             WeaponInfoDisplay weaponInfoDisplay = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
@@ -624,9 +624,9 @@ public class ReloadHandler implements IValidator, TriggerListener {
                 "https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/reload/ammo");
         }
 
-        data.of("Start_Mechanics").serialize(MechanicManager.class)
+        data.of("Start_Mechanics").serialize(MechanicSerializer.class)
                 .ifPresent(mechanics -> configuration.set(data.getKey() + ".Start_Mechanics", mechanics));
-        data.of("Finish_Mechanics").serialize(MechanicManager.class)
+        data.of("Finish_Mechanics").serialize(MechanicSerializer.class)
                 .ifPresent(mechanics -> configuration.set(data.getKey() + ".Finish_Mechanics", mechanics));
 
     }

@@ -3,12 +3,12 @@ package me.deecaad.weaponmechanics.weapon.skin;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -92,8 +92,8 @@ public class BaseSkinSelector implements SkinSelector, Serializer<SkinSelector> 
         // Extra check to make sure the user has a default skin
         data.of(SkinAction.DEFAULT.getKey()).assertExists();
 
-        ConfigurationSection section = data.of().assertExists().get(ConfigurationSection.class).get();
-        Set<String> keys = section.getKeys(false);
+        data.of().assertExists();
+        Collection<String> keys = data.getConfig().getKeys(data.getKey(), false);
         for (String key : keys) {
             SkinAction action = SkinAction.fromString(key);
 
@@ -116,7 +116,7 @@ public class BaseSkinSelector implements SkinSelector, Serializer<SkinSelector> 
 
                 // This is either an error, or the admin is trying to use
                 // relative skins. Assume relative skins, let it handle any error.
-                if (!data.of(key).is(ConfigurationSection.class)) {
+                if (!data.of(key).is(Map.class)) {
                     return new RelativeSkinSelector().serialize(data);
                 }
 
@@ -143,8 +143,8 @@ public class BaseSkinSelector implements SkinSelector, Serializer<SkinSelector> 
         // Extra check to make sure the user has a default skin
         data.of(SkinAction.DEFAULT.getKey()).assertExists();
 
-        ConfigurationSection section = data.of().assertExists().get(ConfigurationSection.class).get();
-        Set<String> keys = section.getKeys(false);
+        data.of().assertExists();
+        Collection<String> keys = data.getConfig().getKeys(data.getKey(), false);
         for (String key : keys) {
             SkinAction action = SkinAction.fromString(key);
 

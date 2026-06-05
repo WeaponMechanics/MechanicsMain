@@ -6,8 +6,8 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.file.*;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderMessage;
@@ -394,7 +394,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         };
 
         // Init cast data
-        CastData castData = new CastData(shooter, weaponTitle, weaponStack, handData::addFirearmActionTask);
+        CastScope castData = CastScope.builder(shooter).itemTitle(weaponTitle).item(weaponStack).taskConsumer(handData::addFirearmActionTask).build();
 
         // Check if OPEN state was already completed
         if (state == FirearmState.CLOSE) {
@@ -445,7 +445,7 @@ public class ShootHandler implements IValidator, TriggerListener {
             WeaponFirearmEvent nestedEvent = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, state);
             Bukkit.getPluginManager().callEvent(nestedEvent);
 
-            nestedEvent.useMechanics(new CastData(shooter, weaponTitle, taskReference, handData::addFirearmActionTask), false);
+            nestedEvent.useMechanics(CastScope.builder(shooter).itemTitle(weaponTitle).item(taskReference).taskConsumer(handData::addFirearmActionTask).build(), false);
 
             if (weaponInfoDisplay != null)
                 weaponInfoDisplay.send(playerWrapper, slot);
@@ -522,7 +522,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         LivingEntity livingEntity = entityWrapper.getEntity();
         EquipmentSlot slot = mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND;
 
-        MechanicManager shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", MechanicManager.class);
+        Program shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", Program.class);
         boolean resetFallDistance = config.getBoolean(weaponTitle + ".Shoot.Reset_Fall_Distance");
         Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);
         double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed");
@@ -544,7 +544,7 @@ public class ShootHandler implements IValidator, TriggerListener {
             return;
 
         if (prepareEvent.getShootMechanics() != null)
-            prepareEvent.getShootMechanics().use(new CastData(livingEntity, weaponTitle, weaponStack));
+            prepareEvent.getShootMechanics().run(CastScope.builder(livingEntity).itemTitle(weaponTitle).item(weaponStack).build());
 
         // Reset fall distance for #134
         if (prepareEvent.isResetFallDistance())
@@ -639,9 +639,9 @@ public class ShootHandler implements IValidator, TriggerListener {
                 damageable.setDamage(newDamage);
 
                 if (newDamage >= maxDamage) {
-                    MechanicManager breakMechanics = config.getObject(weaponTitle + ".Info.Weapon_Break_Mechanics", MechanicManager.class);
+                    Program breakMechanics = config.getObject(weaponTitle + ".Info.Weapon_Break_Mechanics", Program.class);
                     if (breakMechanics != null)
-                        breakMechanics.use(new CastData(livingEntity, weaponTitle, weaponStack));
+                        breakMechanics.run(CastScope.builder(livingEntity).itemTitle(weaponTitle).item(weaponStack).build());
 
                     weaponStack.setAmount(weaponStack.getAmount() - 1);
                 }
@@ -658,9 +658,9 @@ public class ShootHandler implements IValidator, TriggerListener {
     public void shoot(LivingEntity livingEntity, String weaponTitle, Vector normalizedDirection) {
         Configuration config = WeaponMechanics.getInstance().getWeaponConfigurations();
 
-        MechanicManager shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", MechanicManager.class);
+        Program shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", Program.class);
         if (shootMechanics != null)
-            shootMechanics.use(new CastData(livingEntity, weaponTitle, null));
+            shootMechanics.run(CastScope.builder(livingEntity).itemTitle(weaponTitle).item(null).build());
 
         Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);
         if (projectile == null)

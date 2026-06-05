@@ -2,8 +2,9 @@ package me.deecaad.weaponmechanics.weapon.info;
 
 import me.deecaad.core.file.*;
 import me.deecaad.core.file.simple.StringSerializer;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.core.mechanics.program.Program;
+import me.deecaad.core.mechanics.program.MechanicSerializer;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
@@ -20,7 +21,7 @@ public class DualWield implements Serializer<DualWield> {
 
     private boolean whitelist;
     private Set<String> weapons;
-    private MechanicManager mechanics;
+    private Program mechanics;
 
     /**
      * Default constructor for serializer
@@ -28,7 +29,7 @@ public class DualWield implements Serializer<DualWield> {
     public DualWield() {
     }
 
-    public DualWield(boolean whitelist, Set<String> weapons, MechanicManager mechanics) {
+    public DualWield(boolean whitelist, Set<String> weapons, Program mechanics) {
         this.whitelist = whitelist;
         this.weapons = weapons;
         this.mechanics = mechanics;
@@ -67,7 +68,7 @@ public class DualWield implements Serializer<DualWield> {
                 if (trigger != null && (trigger.getMainhand() == checkCause || trigger.getOffhand() == checkCause)) {
 
                     if (mechanics != null)
-                        mechanics.use(new CastData(player, weaponTitle, null));
+                        mechanics.run(CastScope.builder(player).itemTitle(weaponTitle).item(null).build());
 
                     break;
                 }
@@ -93,7 +94,7 @@ public class DualWield implements Serializer<DualWield> {
 
         // Saves weapons in lower case
         boolean whitelist = data.of("Whitelist").getBool().orElse(false);
-        MechanicManager mechanics = data.of("Mechanics_On_Deny").serialize(MechanicManager.class).orElse(null);
+        Program mechanics = data.of("Mechanics_On_Deny").serialize(MechanicSerializer.class).orElse(null);
         return new DualWield(whitelist, weapons, mechanics);
     }
 }

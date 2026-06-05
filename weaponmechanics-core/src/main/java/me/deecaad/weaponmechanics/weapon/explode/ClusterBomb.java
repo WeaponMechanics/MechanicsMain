@@ -3,8 +3,11 @@ package me.deecaad.weaponmechanics.weapon.explode;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.core.mechanics.scope.Context;
+import me.deecaad.core.mechanics.scope.Target;
+import me.deecaad.core.mechanics.program.Program;
+import me.deecaad.core.mechanics.program.MechanicSerializer;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -22,7 +25,7 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
     private int splits;
     private int bombs;
     private Detonation detonation;
-    private MechanicManager mechanics;
+    private Program mechanics;
 
     /**
      * Default constructor for serializer
@@ -30,7 +33,7 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
     public ClusterBomb() {
     }
 
-    public ClusterBomb(Projectile projectile, double speed, int splits, int bombs, Detonation detonation, MechanicManager mechanics) {
+    public ClusterBomb(Projectile projectile, double speed, int splits, int bombs, Detonation detonation, Program mechanics) {
         this.projectile = projectile;
         this.speed = speed;
         this.splits = splits;
@@ -68,9 +71,9 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
             return;
 
         if (mechanics != null) {
-            CastData cast = new CastData(shooter, projectile.getWeaponTitle(), projectile.getWeaponStack());
-            cast.setTargetLocation(projectile.getLocation().toLocation(projectile.getWorld()));
-            mechanics.use(cast);
+            CastScope cast = CastScope.builder(shooter).itemTitle(projectile.getWeaponTitle()).item(projectile.getWeaponStack()).build();
+            cast.setContext(CastScope.TARGET, Context.of(Target.of(projectile.getLocation().toLocation(projectile.getWorld()))));
+            mechanics.run(cast);
         }
 
         for (int i = 0; i < bombs; i++) {
@@ -101,7 +104,7 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
         double speed = data.of("Projectile_Speed").assertRange(0.0, null).getDouble().orElse(30.0) / 20.0;
         int splits = data.of("Number_Of_Splits").assertRange(1, null).getInt().orElse(1);
         Detonation detonation = data.of("Detonation").serialize(Detonation.class).orElse(null);
-        MechanicManager mechanics = data.of("Mechanics").serialize(MechanicManager.class).orElse(null);
+        Program mechanics = data.of("Mechanics").serialize(MechanicSerializer.class).orElse(null);
 
         return new ClusterBomb(projectileSettings, speed, splits, bombs, detonation, mechanics);
     }

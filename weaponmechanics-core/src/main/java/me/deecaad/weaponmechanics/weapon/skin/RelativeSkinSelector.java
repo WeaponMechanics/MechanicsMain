@@ -4,12 +4,12 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -139,8 +139,8 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
 
         // Now everything else is expected to be a relative skin. Anything else
         // is an error.
-        ConfigurationSection section = data.of().assertExists().get(ConfigurationSection.class).get();
-        Set<String> keys = section.getKeys(false);
+        data.of().assertExists();
+        Collection<String> keys = data.getConfig().getKeys(data.getKey(), false);
         for (String key : keys) {
 
             // Attachments -> it is handled later
@@ -164,9 +164,9 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
         }
 
         // Check for attachments
-        Set<String> attachmentKeys = data.of("Attachments").get(ConfigurationSection.class)
-            .map(attachmentSection -> attachmentSection.getKeys(false))
-            .orElse(null);
+        Collection<String> attachmentKeys = data.has("Attachments")
+            ? data.getConfig().getKeys(data.getKey() + ".Attachments", false)
+            : null;
 
         if (attachmentKeys != null) {
             for (String attachment : attachmentKeys) {

@@ -7,8 +7,12 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.VectorSerializer;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.core.mechanics.scope.Context;
+import me.deecaad.core.mechanics.scope.Target;
+import me.deecaad.core.mechanics.scope.PointTarget;
+import me.deecaad.core.mechanics.program.Program;
+import me.deecaad.core.mechanics.program.MechanicSerializer;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
@@ -31,7 +35,7 @@ public class Projectile implements Serializer<Projectile> {
     private Sticky sticky;
     private Through through;
     private Bouncy bouncy;
-    private MechanicManager mechanics;
+    private Program mechanics;
 
     /**
      * Empty constructor to be used as serializer
@@ -39,7 +43,7 @@ public class Projectile implements Serializer<Projectile> {
     public Projectile() {
     }
 
-    public Projectile(ProjectileSettings projectileSettings, Sticky sticky, Through through, Bouncy bouncy, MechanicManager mechanics) {
+    public Projectile(ProjectileSettings projectileSettings, Sticky sticky, Through through, Bouncy bouncy, Program mechanics) {
         this.projectileSettings = projectileSettings;
         this.sticky = sticky;
         this.through = through;
@@ -71,9 +75,9 @@ public class Projectile implements Serializer<Projectile> {
         ItemStack weaponStack = projectile.getWeaponStack();
         
         if (mechanics != null && weaponTitle != null) {
-            CastData cast = new CastData(projectile.getShooter(), weaponTitle, weaponStack);
-            cast.setTargetLocation(() -> projectile.getLocation().toLocation(projectile.getWorld()));
-            mechanics.use(cast);
+            CastScope cast = CastScope.builder(projectile.getShooter()).itemTitle(weaponTitle).item(weaponStack).build();
+            cast.setContext(CastScope.TARGET, Context.of(new PointTarget(() -> projectile.getLocation().toLocation(projectile.getWorld()))));
+            mechanics.run(cast);
         }
 
         ProjectileSettings settings = projectile.getProjectileSettings();
@@ -148,11 +152,6 @@ public class Projectile implements Serializer<Projectile> {
     }
 
     @Override
-    public boolean canUsePathTo() {
-        return false;
-    }
-
-    @Override
     public @NotNull Projectile serialize(@NotNull SerializeData data) throws SerializerException {
         // Most people will probably use default projectiles
         if (data.of().is(String.class)) {
@@ -177,7 +176,7 @@ public class Projectile implements Serializer<Projectile> {
         Sticky sticky = data.of("Sticky").serialize(Sticky.class).orElse(null);
         Through through = data.of("Through").serialize(Through.class).orElse(null);
         Bouncy bouncy = data.of("Bouncy").serialize(Bouncy.class).orElse(null);
-        MechanicManager mechanics = data.of("Mechanics").serialize(MechanicManager.class).orElse(null);
+        Program mechanics = data.of("Mechanics").serialize(MechanicSerializer.class).orElse(null);
         return new Projectile(projectileSettings, sticky, through, bouncy, mechanics);
     }
 }

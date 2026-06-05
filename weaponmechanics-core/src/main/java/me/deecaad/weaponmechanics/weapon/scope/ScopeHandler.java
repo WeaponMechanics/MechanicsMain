@@ -7,8 +7,8 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPl
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerRemoveEntityEffect;
 import me.deecaad.core.file.*;
 import me.deecaad.core.file.simple.DoubleSerializer;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderMessage;
 import me.deecaad.core.utils.NumberUtil;
@@ -174,7 +174,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
                 int currentStacks = zoomData.getZoomStacks();
                 double zoomAmount = Double.parseDouble(zoomStacks.get(currentStacks).toString());
                 int zoomStack = currentStacks + 1;
-                MechanicManager zoomStackingMechanics = config.getObject(weaponTitle + ".Scope.Zoom_Stacking.Mechanics", MechanicManager.class);
+                Program zoomStackingMechanics = config.getObject(weaponTitle + ".Scope.Zoom_Stacking.Mechanics", Program.class);
 
                 WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, slot, WeaponScopeEvent.ScopeType.STACK, zoomAmount, zoomStack, zoomStackingMechanics);
                 Bukkit.getPluginManager().callEvent(weaponScopeEvent);
@@ -191,7 +191,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
                 useNightVision(entityWrapper, zoomData, weaponScopeEvent.isNightVision());
 
                 if (weaponScopeEvent.getMechanics() != null)
-                    weaponScopeEvent.getMechanics().use(new CastData(entity, weaponTitle, weaponStack));
+                    weaponScopeEvent.getMechanics().run(CastScope.builder(entity).itemTitle(weaponTitle).item(weaponStack).build());
 
                 return true;
             } else {
@@ -207,7 +207,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
         if (zoomAmount == 0)
             return false;
 
-        MechanicManager scopeMechanics = config.getObject(weaponTitle + ".Scope.Mechanics", MechanicManager.class);
+        Program scopeMechanics = config.getObject(weaponTitle + ".Scope.Mechanics", Program.class);
 
         // zoom stack = 0, because its not used OR this is first zoom in
         WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, slot, WeaponScopeEvent.ScopeType.IN, zoomAmount, 0, scopeMechanics);
@@ -220,7 +220,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
 
         if (weaponScopeEvent.getMechanics() != null)
-            weaponScopeEvent.getMechanics().use(new CastData(entity, weaponTitle, weaponStack));
+            weaponScopeEvent.getMechanics().run(CastScope.builder(entity).itemTitle(weaponTitle).item(weaponStack).build());
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
         useNightVision(entityWrapper, zoomData, weaponScopeEvent.isNightVision());
@@ -240,7 +240,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
             return false;
         LivingEntity entity = entityWrapper.getEntity();
 
-        MechanicManager zoomOffMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Scope.Zoom_Off.Mechanics", MechanicManager.class);
+        Program zoomOffMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Scope.Zoom_Off.Mechanics", Program.class);
 
         // Zoom amount and stack 0 because zooming out
         WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, slot, WeaponScopeEvent.ScopeType.OUT, 0, 0, zoomOffMechanics);
@@ -255,7 +255,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
         zoomData.setZoomStacks(0);
 
         if (weaponScopeEvent.getMechanics() != null)
-            weaponScopeEvent.getMechanics().use(new CastData(entity, weaponTitle, weaponStack));
+            weaponScopeEvent.getMechanics().run(CastScope.builder(entity).itemTitle(weaponTitle).item(weaponStack).build());
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
         useNightVision(entityWrapper, zoomData, false);

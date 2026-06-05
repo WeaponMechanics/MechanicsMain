@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
-import me.deecaad.core.mechanics.MechanicManager;
-import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.program.Program;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
@@ -24,12 +23,12 @@ public class WeaponReloadEvent extends WeaponEvent implements Cancellable {
     private int firearmOpenTime;
     private int firearmCloseTime;
 
-    private MechanicManager mechanics;
+    private Program mechanics;
     private boolean cancelled;
 
     public WeaponReloadEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser, EquipmentSlot hand,
         int ammoLeft, int reloadTime, int ammoPerReload, int magazineSize, int firearmOpenTime, int firearmCloseTime,
-        MechanicManager mechanics) {
+        Program mechanics) {
         super(weaponTitle, weaponItem, weaponUser, hand);
         this.ammoLeft = ammoLeft;
         this.reloadTime = reloadTime;
@@ -85,13 +84,11 @@ public class WeaponReloadEvent extends WeaponEvent implements Cancellable {
         return firearmOpenTime + reloadTime + firearmCloseTime;
     }
 
-    public MechanicManager getMechanics() {
+    public Program getMechanics() {
         return mechanics;
     }
 
-    public void setMechanics(MechanicManager mechanics) {
-        if (this.mechanics != null)
-            this.mechanics.clearDirty(); // clear any modifications
+    public void setMechanics(Program mechanics) {
         this.mechanics = mechanics;
     }
 

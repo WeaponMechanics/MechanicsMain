@@ -1,8 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.trigger;
 
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
@@ -54,9 +54,9 @@ public class SelectiveFireTriggerListener implements TriggerListener {
         entityWrapper.getMainHandData().cancelTasks();
         entityWrapper.getOffHandData().cancelTasks();
 
-        MechanicManager selectiveFireMechanics = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Mechanics", MechanicManager.class);
+        Program selectiveFireMechanics = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Mechanics", Program.class);
         if (selectiveFireMechanics != null)
-            selectiveFireMechanics.use(new CastData(entityWrapper.getEntity(), weaponTitle, weaponStack));
+            selectiveFireMechanics.run(CastScope.builder(entityWrapper.getEntity()).itemTitle(weaponTitle).item(weaponStack).build());
 
         WeaponInfoDisplay weaponInfoDisplay = config.getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
         if (weaponInfoDisplay != null)

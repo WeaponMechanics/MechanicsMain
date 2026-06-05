@@ -1,8 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
-import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmType;
@@ -21,7 +20,7 @@ public class WeaponFirearmEvent extends WeaponEvent {
 
     private final FirearmAction action;
     private final FirearmState state;
-    private MechanicManager mechanics;
+    private Program mechanics;
     private int time;
 
     public WeaponFirearmEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand, FirearmAction action, FirearmState state) {
@@ -64,7 +63,7 @@ public class WeaponFirearmEvent extends WeaponEvent {
      *
      * @return The mechanics that will be played after the event.
      */
-    public MechanicManager getMechanics() {
+    public Program getMechanics() {
         if (mechanics == null)
             return state == FirearmState.CLOSE ? action.getClose() : action.getOpen();
 
@@ -76,7 +75,7 @@ public class WeaponFirearmEvent extends WeaponEvent {
      *
      * @param mechanics The mechanics that will be played after the event.
      */
-    public void setMechanics(MechanicManager mechanics) {
+    public void setMechanics(Program mechanics) {
         this.mechanics = mechanics;
     }
 
@@ -101,17 +100,17 @@ public class WeaponFirearmEvent extends WeaponEvent {
         this.time = time;
     }
 
-    public void useMechanics(CastData castData, boolean isOpen) {
+    public void useMechanics(CastScope castData, boolean isOpen) {
         if (isOpen) {
             if (mechanics != null)
-                mechanics.use(castData);
+                mechanics.run(castData);
             else if (action.getOpen() != null)
-                action.getOpen().use(castData);
+                action.getOpen().run(castData);
         } else {
             if (mechanics != null)
-                mechanics.use(castData);
+                mechanics.run(castData);
             else if (action.getClose() != null)
-                action.getClose().use(castData);
+                action.getClose().run(castData);
         }
     }
 

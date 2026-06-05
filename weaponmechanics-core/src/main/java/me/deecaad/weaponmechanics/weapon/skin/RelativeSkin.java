@@ -5,9 +5,10 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 public class RelativeSkin implements Skin, Serializer<RelativeSkin> {
 
@@ -36,7 +37,7 @@ public class RelativeSkin implements Skin, Serializer<RelativeSkin> {
     @NotNull @Override
     public RelativeSkin serialize(@NotNull SerializeData data) throws SerializerException {
 
-        if (data.of().is(ConfigurationSection.class)) {
+        if (data.of().is(Map.class)) {
             throw data.exception(null, "Tried to override a 'Relative Skin' with 'Normal Skin'",
                 "When using the '+10' feature of skins, ALL of your skins on this weapon must use the + feature");
         }
