@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
 import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.ErrorLocation;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
@@ -75,7 +76,7 @@ public class WeaponItemSerializer extends ItemSerializer {
                 CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, state.ordinal());
             } catch (IllegalArgumentException e) {
                 throw SerializerException.builder()
-                    .location(data.getFile(), weaponTitle + ".Shoot.Selective_Fire.Default", null)
+                    .located(new ErrorLocation(data.getFile(), weaponTitle + ".Shoot.Selective_Fire.Default"))
                     .buildInvalidEnumOption(defaultSelectiveFire, SelectiveFireState.class);
             }
         }

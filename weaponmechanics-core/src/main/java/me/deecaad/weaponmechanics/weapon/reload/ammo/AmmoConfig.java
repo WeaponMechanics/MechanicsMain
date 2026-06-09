@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
+import me.deecaad.core.file.ErrorLocation;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
@@ -154,8 +155,9 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
                         .filter(entry -> entry.getValue() instanceof Ammo)
                         .map(Map.Entry::getKey)
                         .toList();
+                ErrorLocation ammosLocation = data.of("Ammos").errorLocation();
                 throw SerializerException.builder()
-                    .locationRaw(data.ofList("Ammos").getLocation(i))
+                    .located(new ErrorLocation(ammosLocation.file(), ammosLocation.path(), i))
                     .addMessage("Ammo '" + ammoTitle + "' does not exist in the ammo registry.")
                     .buildInvalidOption(ammoTitle, ammos);
             }

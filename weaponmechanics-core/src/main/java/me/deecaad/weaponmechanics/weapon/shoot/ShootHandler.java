@@ -746,7 +746,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         if (Math.abs(projectileSpeed) < 1.0E-4) {
             throw SerializerException.builder()
-                    .location(data.getFile(), data.getKey() + ".Projectile_Speed")
+                    .located(data.of("Projectile_Speed").errorLocation())
                     .addMessage("Projectile_Speed cannot be 0.")
                     .addMessage("Use a positive value for normal direction or a negative value to reverse it.")
                     .example("Projectile_Speed: -80")
@@ -814,7 +814,7 @@ public class ShootHandler implements IValidator, TriggerListener {
                 && !defaultSelectiveFire.equalsIgnoreCase("AUTO")) {
 
                 throw SerializerException.builder()
-                    .locationRaw(data.of("Selective_Fire.Default").getLocation())
+                    .located(data.of("Selective_Fire.Default").errorLocation())
                     .buildInvalidOption(defaultSelectiveFire, Arrays.asList("SINGLE", "BURST", "AUTO"));
 
             }

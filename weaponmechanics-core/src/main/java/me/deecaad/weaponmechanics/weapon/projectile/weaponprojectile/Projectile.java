@@ -167,7 +167,7 @@ public class Projectile implements Serializer<Projectile> {
                     .toList();
 
             throw SerializerException.builder()
-                    .location(data.getFile(), data.getKey())
+                    .located(data.of().errorLocation())
                     .buildInvalidOption(projectileTitle, projectiles);
         }
 

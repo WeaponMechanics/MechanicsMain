@@ -75,7 +75,7 @@ public class Circumstance implements Serializer<Circumstance> {
                 circumstances.add(new CircumstanceData(CircumstanceType.valueOf(typeToUpper), value.equalsIgnoreCase("REQUIRED")));
             } catch (IllegalArgumentException e) {
                 throw SerializerException.builder()
-                    .locationRaw(data.of(type).getLocation())
+                    .located(data.of(type).errorLocation())
                     .buildInvalidEnumOption(type, CircumstanceType.class);
             }
         }

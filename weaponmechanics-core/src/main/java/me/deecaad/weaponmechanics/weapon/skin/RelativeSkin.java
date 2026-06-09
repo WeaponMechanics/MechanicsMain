@@ -54,7 +54,7 @@ public class RelativeSkin implements Skin, Serializer<RelativeSkin> {
             cmd = Integer.parseInt(str);
         } catch (NumberFormatException ex) {
             throw SerializerException.builder()
-                .locationRaw(data.of().getLocation())
+                .located(data.of().errorLocation())
                 .addMessage("Invalid number format for relative skin")
                 .buildInvalidType("Integer", str);
         }
