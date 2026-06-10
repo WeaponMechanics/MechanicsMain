@@ -336,6 +336,8 @@ public class InfoHandler implements IValidator {
             configuration.set(data.getKey() + ".Weapon_Equip_Delay", weaponEquipDelay * 50);
         }
 
+        configuration.set(data.getKey() + ".No_Fall_Damage", data.of("No_Fall_Damage").getBool().orElse(false));
+
         data.of("Weapon_Get_Mechanics").serialize(MechanicManager.class)
                 .ifPresent(mechanics -> configuration.set(data.getKey() + ".Weapon_Get_Mechanics", mechanics));
         data.of("Weapon_Equip_Mechanics").serialize(MechanicManager.class)
