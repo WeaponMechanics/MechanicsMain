@@ -23,7 +23,9 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -121,6 +123,32 @@ public class WeaponListeners implements Listener {
         if (entityEquipment.getItemInOffHand().getType() != Material.AIR && nextSlot != null && nextSlot.getType() != Material.AIR) {
             entityWrapper.getOffHandData().cancelTasks(true);
         }
+    }
+    
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void fallDamage(EntityDamageEvent event) {
+
+        if (event.getCause() != EntityDamageEvent.DamageCause.FALL || !(event.getEntity() instanceof Player player)) {
+            return;
+        }
+
+        PlayerWrapper wrapper = WeaponMechanics.getInstance().getPlayerWrapper(player);
+
+        String mainWeapon = wrapper.getMainHandData().getCurrentWeaponTitle();
+        String offWeapon = wrapper.getOffHandData().getCurrentWeaponTitle();
+
+        if (negatesFallDamage(mainWeapon) || negatesFallDamage(offWeapon)) {
+            event.setCancelled(true);
+        }
+    }
+
+    private boolean negatesFallDamage(String weaponTitle) {
+
+        if (weaponTitle == null) {
+            return false;
+        }
+
+        return WeaponMechanics.getInstance().getWeaponConfigurations().getBoolean(weaponTitle + ".Info.No_Fall_Damage", false);
     }
 
     @EventHandler
