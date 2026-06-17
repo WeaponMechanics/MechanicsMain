@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.listeners;
 
 import me.deecaad.core.events.EntityEquipmentEvent;
-import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
@@ -78,7 +78,7 @@ public class WeaponListeners implements Listener {
 
             Program equipMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Info.Weapon_Equip_Mechanics", Program.class);
             if (equipMechanics != null) {
-                equipMechanics.run(CastScope.builder(entity).itemTitle(weaponTitle).item(weaponStack).build());
+                equipMechanics.run(new WeaponCastData(entityWrapper, e.getSlot(), weaponTitle, weaponStack).scope().build());
                 alreadyUsedEquipMechanics = true;
             }
 
@@ -98,7 +98,7 @@ public class WeaponListeners implements Listener {
             if (!alreadyUsedEquipMechanics) {
                 Program holsterMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(dequippedWeapon + ".Info.Weapon_Holster_Mechanics", Program.class);
                 if (holsterMechanics != null)
-                    holsterMechanics.run(CastScope.builder(entity).itemTitle(dequippedWeapon).item(dequipped).build());
+                    holsterMechanics.run(new WeaponCastData(entityWrapper, e.getSlot(), dequippedWeapon, dequipped).scope().build());
             }
 
             // Make sure to cancel tasks for the dequipped weapon

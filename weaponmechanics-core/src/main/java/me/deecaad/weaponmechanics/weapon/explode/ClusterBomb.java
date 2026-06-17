@@ -4,10 +4,12 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.core.mechanics.scope.Context;
 import me.deecaad.core.mechanics.scope.Target;
-import me.deecaad.core.mechanics.program.Program;
+import me.deecaad.core.mechanics.scope.Value;
 import me.deecaad.core.mechanics.program.MechanicSerializer;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -71,7 +73,12 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
             return;
 
         if (mechanics != null) {
-            CastScope cast = CastScope.builder(shooter).itemTitle(projectile.getWeaponTitle()).item(projectile.getWeaponStack()).build();
+            CastScope cast = new WeaponCastData(shooter, null, projectile.getWeaponTitle(), projectile.getWeaponStack())
+                .scope()
+                .context("SplitLocation", Context.of(Target.of(splitLocation)))
+                .variable("split_level", Value.of(currentDepth))
+                .variable("bomb_count", Value.of(bombs))
+                .build();
             cast.setContext(CastScope.TARGET, Context.of(Target.of(projectile.getLocation().toLocation(projectile.getWorld()))));
             mechanics.run(cast);
         }
@@ -104,7 +111,10 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
         double speed = data.of("Projectile_Speed").assertRange(0.0, null).getDouble().orElse(30.0) / 20.0;
         int splits = data.of("Number_Of_Splits").assertRange(1, null).getInt().orElse(1);
         Detonation detonation = data.of("Detonation").serialize(Detonation.class).orElse(null);
-        Program mechanics = data.of("Mechanics").serialize(MechanicSerializer.class).orElse(null);
+        Program mechanics = data.of("Mechanics").serialize(MechanicSerializer.builder()
+            .context("SplitLocation")
+            .variables("split_level", "bomb_count")
+            .build()).orElse(null);
 
         return new ClusterBomb(projectileSettings, speed, splits, bombs, detonation, mechanics);
     }

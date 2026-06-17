@@ -4,13 +4,14 @@ import com.cjcrafter.foliascheduler.EntitySchedulerImplementation;
 import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.*;
-import me.deecaad.core.mechanics.scope.CastScope;
-import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.program.MechanicSerializer;
+import me.deecaad.core.mechanics.program.Program;
+import me.deecaad.core.mechanics.scope.Value;
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderMessage;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
@@ -69,7 +70,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
         if (trigger == null || !trigger.check(triggerType, slot, entityWrapper))
             return false;
 
-        return startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false);
+        return startReloadWithoutTrigger(new WeaponCastData(entityWrapper, slot, weaponTitle, weaponStack), dualWield, false);
     }
 
     /**
@@ -84,8 +85,11 @@ public class ReloadHandler implements IValidator, TriggerListener {
      * @param isReloadLoop whether this is reloading loop
      * @return true if was able to start reloading
      */
-    public boolean startReloadWithoutTrigger(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack,
-        EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {
+    public boolean startReloadWithoutTrigger(WeaponCastData cast, boolean dualWield, boolean isReloadLoop) {
+        EntityWrapper entityWrapper = cast.entityWrapper();
+        String weaponTitle = cast.weaponTitle();
+        ItemStack weaponStack = cast.weaponStack();
+        EquipmentSlot slot = cast.slot();
 
         // Don't try to reload if either one of the hands is already reloading / full autoing
         HandData mainHandData = entityWrapper.getMainHandData();
@@ -204,7 +208,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
                 }
 
                 // Simply CLOSE weapon or OPEN CLOSE if pump
-                weaponHandler.getShootHandler().doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, slot);
+                weaponHandler.getShootHandler().doShootFirearmActions(cast);
 
                 // Here true because firearm actions started
                 return true;
@@ -218,7 +222,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
             // Creative mode bypass... #176
             if (playerWrapper.getPlayer().getGameMode() != GameMode.CREATIVE || !WeaponMechanics.getInstance().getConfiguration().getBoolean("Creative_Mode_Bypass_Ammo")) {
                 if (ammo.getOutOfAmmoMechanics() != null)
-                    ammo.getOutOfAmmoMechanics().run(CastScope.builder(shooter).itemTitle(weaponTitle).item(weaponStack).build());
+                    ammo.getOutOfAmmoMechanics().run(cast.scope().build());
                 return false;
             }
         }
@@ -269,7 +273,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
                     // state
                     if (removedAmount <= 0) {
                         if (ammo.getOutOfAmmoMechanics() != null)
-                            ammo.getOutOfAmmoMechanics().run(CastScope.builder(shooter).itemTitle(weaponTitle).item(taskReference).build());
+                            ammo.getOutOfAmmoMechanics().run(cast.withStack(taskReference).scope().build());
 
                         // Remove next task as reload can't be finished
                         setNextTask(null);
@@ -292,11 +296,11 @@ public class ReloadHandler implements IValidator, TriggerListener {
                 // If there is still close task coming, don't call finish reload
                 // Close task will always call it anyway
                 if (!hasNext())
-                    finishReload(entityWrapper, weaponTitle, taskReference, handData, slot);
+                    finishReload(cast.withStack(taskReference));
 
                 if (finalAmmoPerReload != -1) {
                     // Start the loop
-                    startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield, true);
+                    startReloadWithoutTrigger(cast.withStack(taskReference), dualWield, true);
                 } else if (!hasNext()) {
                     // If there isn't close task, try to start reload
                     // on other hand also IF the weapon is empty
@@ -324,7 +328,12 @@ public class ReloadHandler implements IValidator, TriggerListener {
                 }
 
                 if (reloadEvent.getMechanics() != null)
-                    reloadEvent.getMechanics().run(CastScope.builder(shooter).itemTitle(weaponTitle).item(weaponStack).taskConsumer(handData::addReloadTask).build());
+                    reloadEvent.getMechanics().run(cast.scope()
+                        .variable("ammo_left", Value.of(CustomTag.AMMO_LEFT.getInteger(weaponStack)))
+                        .variable("magazine_size", Value.of(magazineSize))
+                        .variable("ammo_to_add", Value.of(finalAmmoToAdd))
+                        .variable("reload_amount", Value.of(finalAmmoPerReload))
+                        .taskConsumer(handData::addReloadTask).build());
 
                 if (weaponInfoDisplay != null)
                     weaponInfoDisplay.send(playerWrapper, slot);
@@ -344,14 +353,14 @@ public class ReloadHandler implements IValidator, TriggerListener {
             return true;
         }
 
-        ChainTask closeTask = getCloseTask(firearmCloseTime, firearmAction, weaponStack, handData, entityWrapper, weaponTitle, mainhand, slot, dualWield);
+        ChainTask closeTask = getCloseTask(cast, firearmCloseTime, firearmAction, dualWield);
 
         if (state == FirearmState.CLOSE) {
             closeTask.startChain(scheduler);
             return true;
         }
 
-        ChainTask openTask = getOpenTask(firearmOpenTime, firearmAction, weaponStack, handData, entityWrapper, weaponTitle, mainhand, slot);
+        ChainTask openTask = getOpenTask(cast, firearmOpenTime, firearmAction);
 
         if (isPump) {
             firearmAction.changeState(weaponStack, FirearmState.OPEN);
@@ -374,8 +383,13 @@ public class ReloadHandler implements IValidator, TriggerListener {
         return true;
     }
 
-    private ChainTask getOpenTask(int firearmOpenTime, FirearmAction firearmAction, ItemStack weaponStack, HandData handData,
-        EntityWrapper entityWrapper, String weaponTitle, boolean mainhand, EquipmentSlot slot) {
+    private ChainTask getOpenTask(WeaponCastData cast, int firearmOpenTime, FirearmAction firearmAction) {
+        EntityWrapper entityWrapper = cast.entityWrapper();
+        String weaponTitle = cast.weaponTitle();
+        ItemStack weaponStack = cast.weaponStack();
+        EquipmentSlot slot = cast.slot();
+        HandData handData = cast.handData();
+        boolean mainhand = slot != EquipmentSlot.OFF_HAND;
 
         LivingEntity shooter = entityWrapper.getEntity();
         WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, FirearmState.OPEN);
@@ -399,7 +413,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
                 firearmAction.changeState(weaponStack, FirearmState.OPEN);
 
-                event.useMechanics(CastScope.builder(shooter).itemTitle(weaponTitle).item(weaponStack).taskConsumer(handData::addReloadTask).build(), true);
+                event.useMechanics(cast.scope().taskConsumer(handData::addReloadTask).build(), true);
 
                 if (entityWrapper instanceof PlayerWrapper) {
                     WeaponInfoDisplay weaponInfoDisplay = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
@@ -412,8 +426,13 @@ public class ReloadHandler implements IValidator, TriggerListener {
         };
     }
 
-    private ChainTask getCloseTask(int firearmCloseTime, FirearmAction firearmAction, ItemStack weaponStack, HandData handData, EntityWrapper entityWrapper,
-        String weaponTitle, boolean mainhand, EquipmentSlot slot, boolean dualWield) {
+    private ChainTask getCloseTask(WeaponCastData cast, int firearmCloseTime, FirearmAction firearmAction, boolean dualWield) {
+        EntityWrapper entityWrapper = cast.entityWrapper();
+        String weaponTitle = cast.weaponTitle();
+        ItemStack weaponStack = cast.weaponStack();
+        EquipmentSlot slot = cast.slot();
+        HandData handData = cast.handData();
+        boolean mainhand = slot != EquipmentSlot.OFF_HAND;
 
         LivingEntity shooter = entityWrapper.getEntity();
         WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, FirearmState.CLOSE);
@@ -432,7 +451,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
                 handData.setReloadData(weaponTitle, taskReference);
 
                 firearmAction.changeState(taskReference, FirearmState.READY);
-                finishReload(entityWrapper, weaponTitle, taskReference, handData, slot);
+                finishReload(cast.withStack(taskReference));
 
                 // Try to start reload on other hand also IF the weapon is empty
                 tryReloadInOtherHandIfEmpty(entityWrapper, entityWrapper.getEntity(), mainhand, dualWield);
@@ -444,7 +463,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
                 firearmAction.changeState(weaponStack, FirearmState.CLOSE);
 
-                event.useMechanics(CastScope.builder(shooter).itemTitle(weaponTitle).item(weaponStack).taskConsumer(handData::addReloadTask).build(), false);
+                event.useMechanics(cast.scope().taskConsumer(handData::addReloadTask).build(), false);
 
                 if (entityWrapper instanceof PlayerWrapper) {
                     WeaponInfoDisplay weaponInfoDisplay = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
@@ -457,7 +476,12 @@ public class ReloadHandler implements IValidator, TriggerListener {
         };
     }
 
-    public void finishReload(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot) {
+    public void finishReload(WeaponCastData cast) {
+        EntityWrapper entityWrapper = cast.entityWrapper();
+        String weaponTitle = cast.weaponTitle();
+        ItemStack weaponStack = cast.weaponStack();
+        EquipmentSlot slot = cast.slot();
+        HandData handData = cast.handData();
         if (!weaponStack.hasItemMeta()) {
             handData.stopReloadingTasks();
             return;
@@ -467,7 +491,10 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         Program reloadFinishMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Reload.Finish_Mechanics", Program.class);
         if (reloadFinishMechanics != null)
-            reloadFinishMechanics.run(CastScope.builder(entityWrapper.getEntity()).itemTitle(weaponTitle).item(weaponStack).build());
+            reloadFinishMechanics.run(cast.scope()
+                .variable("ammo_left", Value.of(CustomTag.AMMO_LEFT.getInteger(weaponStack)))
+                .variable("magazine_size", Value.of(WeaponMechanics.getInstance().getWeaponConfigurations().getInt(weaponTitle + ".Reload.Magazine_Size")))
+                .build());
 
         if (entityWrapper instanceof PlayerWrapper) {
             WeaponInfoDisplay weaponInfoDisplay = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
@@ -573,8 +600,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
         if (getAmmoLeft(otherStack, otherWeapon) != 0)
             return;
 
-        startReloadWithoutTrigger(entityWrapper, otherWeapon, otherStack,
-            mainhand ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND, true, false);
+        startReloadWithoutTrigger(new WeaponCastData(entityWrapper, mainhand ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND, otherWeapon, otherStack), true, false);
     }
 
     @Override
@@ -624,9 +650,13 @@ public class ReloadHandler implements IValidator, TriggerListener {
                 "https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/reload/ammo");
         }
 
-        data.of("Start_Mechanics").serialize(MechanicSerializer.class)
+        data.of("Start_Mechanics").serialize(MechanicSerializer.builder()
+                .variables("ammo_left", "magazine_size", "ammo_to_add", "reload_amount")
+                .build())
                 .ifPresent(mechanics -> configuration.set(data.getKey() + ".Start_Mechanics", mechanics));
-        data.of("Finish_Mechanics").serialize(MechanicSerializer.class)
+        data.of("Finish_Mechanics").serialize(MechanicSerializer.builder()
+                .variables("ammo_left", "magazine_size")
+                .build())
                 .ifPresent(mechanics -> configuration.set(data.getKey() + ".Finish_Mechanics", mechanics));
 
     }

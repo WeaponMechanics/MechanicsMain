@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.core.mechanics.scope.Value;
 import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
@@ -101,6 +102,9 @@ public class WeaponFirearmEvent extends WeaponEvent {
     }
 
     public void useMechanics(CastScope castData, boolean isOpen) {
+        castData.setVariable("firearm_state", Value.of(isOpen ? "OPEN" : "CLOSE"));
+        if (getType() != null)
+            castData.setVariable("firearm_action", Value.of(getType().name()));
         if (isOpen) {
             if (mechanics != null)
                 mechanics.run(castData);

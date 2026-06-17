@@ -4,7 +4,7 @@ import me.deecaad.core.file.ErrorLocation;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.program.MechanicSerializer;
 import me.deecaad.core.utils.NumberUtil;
@@ -103,7 +103,7 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
 
             setCurrentAmmoIndex(weapon, i);
             if (switchMechanics != null)
-                switchMechanics.run(CastScope.builder(player.getPlayer()).itemTitle(weaponTitle).item(weapon).build());
+                switchMechanics.run(new WeaponCastData(player, null, weaponTitle, weapon).scope().build());
             return true;
         }
 

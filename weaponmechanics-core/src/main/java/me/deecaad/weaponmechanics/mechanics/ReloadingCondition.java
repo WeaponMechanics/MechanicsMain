@@ -21,6 +21,13 @@ public class ReloadingCondition extends Condition {
 
     @Override
     protected boolean isAllowed0(CastScope scope, Target subject) {
+        // Inside a WM cast, check the shooter's firing-hand reload state (live, not a snapshot). This
+        // is hand-aware: reloading the off hand does not satisfy a main-hand cast.
+        WeaponCastData data = scope.getAttachment(WeaponCastData.class);
+        if (data != null)
+            return data.handData().isReloading();
+
+        // Outside a WM cast, fall back to the subject entity's reload state on either hand.
         return subject != null && subject.entity() != null && WeaponMechanicsAPI.isReloading(subject.entity());
     }
 

@@ -4,6 +4,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.program.MechanicSerializer;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -43,7 +44,7 @@ public class Circumstance implements Serializer<Circumstance> {
         for (CircumstanceData circumstance : this.circumstances) {
             if (circumstance.deny(entityWrapper)) {
                 if (denyMechanics != null) {
-                    CastScope cast = CastScope.builder(entityWrapper.getEntity()).itemTitle(null).item(null).build();
+                    CastScope cast = new WeaponCastData(entityWrapper, null, null, null).scope().build();
                     cast.placeholders().put("deny_reason", circumstance.circumstanceType.getHumanName());
                     denyMechanics.run(cast);
                 }

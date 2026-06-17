@@ -5,9 +5,11 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.mechanics.scope.CastScope;
 import me.deecaad.core.mechanics.scope.Context;
 import me.deecaad.core.mechanics.scope.Target;
+import me.deecaad.core.mechanics.scope.Value;
 import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
@@ -42,6 +44,15 @@ public class DamageHandler {
      * @return false if damaging was cancelled
      */
     public boolean tryUse(@NotNull WeaponDamageSource source, @NotNull LivingEntity victim, double damage, @NotNull EquipmentSlot slot) {
+        return tryUse(source, victim, damage, slot, Double.NaN);
+    }
+
+    /**
+     * @param explosionExposure this victim's 0..1 explosion exposure, seeded as {@code $exposure}, or
+     *                          {@code NaN} for non-explosion damage (then {@code $exposure} is unset).
+     * @return false if damaging was cancelled
+     */
+    public boolean tryUse(@NotNull WeaponDamageSource source, @NotNull LivingEntity victim, double damage, @NotNull EquipmentSlot slot, double explosionExposure) {
         Configuration config = WeaponMechanics.getInstance().getWeaponConfigurations();
 
         if (source.getShooter() != null && !DamageUtil.canHarmScoreboardTeams(source.getShooter(), victim) && !config.getBoolean(source.getWeaponTitle() + ".Damage.Ignore_Teams"))
@@ -115,8 +126,21 @@ public class DamageHandler {
             victim.setFireTicks(fireTicks);
         }
 
-        CastScope cast = source.getShooter() == null ? null : CastScope.builder(source.getShooter()).itemTitle(source.getWeaponTitle()).item(source.getWeaponStack()).build();
-        if (cast != null) {
+        CastScope cast = null;
+        if (source.getShooter() != null) {
+            CastScope.Builder builder = new WeaponCastData(source.getShooter(), slot, source.getWeaponTitle(), source.getWeaponStack())
+                .scope()
+                .context("Victim", Context.of(Target.of(victim)))
+                .variable("damage", Value.of(finalDamage))
+                .variable("armor_damage", Value.of(damageEntityEvent.getArmorDamage()))
+                .variable("fire_ticks", Value.of(fireTicks))
+                .variable("is_critical", Value.of(damageEntityEvent.wasCritical()))
+                .variable("is_backstab", Value.of(source instanceof MeleeDamageSource ms && ms.isBackStab()))
+                .variable("damage_point", Value.of(source.getDamagePoint() == null ? "" : source.getDamagePoint().name()))
+                .variable("distance", Value.of(source instanceof ProjectileDamageSource ps ? ps.getProjectile().getDistanceTravelled() : 0.0));
+            if (!Double.isNaN(explosionExposure))
+                builder.variable("exposure", Value.of(explosionExposure));
+            cast = builder.build();
             cast.setContext(CastScope.TARGET, Context.of(Target.of(victim)));
         }
 
@@ -267,7 +291,7 @@ public class DamageHandler {
 
         final double finalDamage = damage;
         exposures.forEach((entity, exposure) -> {
-            tryUse(source, entity, finalDamage * exposure, projectile.getHand());
+            tryUse(source, entity, finalDamage * exposure, projectile.getHand(), exposure);
         });
     }
 }

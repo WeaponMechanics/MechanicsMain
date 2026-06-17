@@ -6,9 +6,12 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.core.mechanics.program.MechanicSerializer;
 import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.scope.Context;
+import me.deecaad.core.mechanics.scope.Target;
+import me.deecaad.core.mechanics.scope.Value;
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderMessage;
 import me.deecaad.core.utils.NumberUtil;
@@ -17,6 +20,7 @@ import me.deecaad.core.utils.ray.EntityTraceResult;
 import me.deecaad.core.utils.ray.RayTrace;
 import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
@@ -93,7 +97,7 @@ public class MeleeHandler implements IValidator {
         EntityTraceResult hit = getHit(shooter, eyeLocation, direction, meleeRange, knownVictim);
 
         if (hit != null) {
-            boolean result = weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
+            boolean result = weaponHandler.getShootHandler().shootWithoutTrigger(new WeaponCastData(entityWrapper, slot, weaponTitle, weaponStack), triggerType, dualWield);
             if (result) {
                 weaponHandler.getHitHandler().handleMeleeHit(hit, shooter, direction, weaponTitle, weaponStack, slot);
             }
@@ -123,11 +127,15 @@ public class MeleeHandler implements IValidator {
 
         // Handle miss
         if (event.isConsume()) {
-            weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
+            weaponHandler.getShootHandler().shootWithoutTrigger(new WeaponCastData(entityWrapper, slot, weaponTitle, weaponStack), triggerType, dualWield);
         }
 
         if (event.getMechanics() != null) {
-            event.getMechanics().run(CastScope.builder(shooter).itemTitle(weaponTitle).item(weaponStack).build());
+            event.getMechanics().run(new WeaponCastData(entityWrapper, slot, weaponTitle, weaponStack)
+                .scope()
+                .context("MissLocation", Context.of(Target.of(shooter.getEyeLocation())))
+                .variable("range", Value.of(meleeRange))
+                .build());
         }
 
         if (event.getMeleeMissDelay() != 0) {
@@ -207,5 +215,14 @@ public class MeleeHandler implements IValidator {
             // Convert to millis
             configuration.set(data.getKey() + ".Melee_Miss.Melee_Miss_Delay", meleeMissDelay * 50);
         }
+
+        // Compile the melee-miss mechanics explicitly so they can resolve @MissLocation/$range.
+        // WeaponMechanics strips the keyword-auto Mechanics serializer, so this is the only compile.
+        // Melee_Miss cast: where the swing landed (@MissLocation) + its reach ($range).
+        data.of("Melee_Miss.Mechanics").serialize(MechanicSerializer.builder()
+                .context("MissLocation")
+                .variable("range")
+                .build())
+            .ifPresent(mechanics -> configuration.set(data.getKey() + ".Melee_Miss.Mechanics", mechanics));
     }
 }

@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
 import me.deecaad.core.file.*;
-import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.program.MechanicSerializer;
 import me.deecaad.core.utils.AdventureUtil;
@@ -271,7 +271,7 @@ public class InfoHandler implements IValidator {
 
         Program weaponGetMechanics = config.getObject(weaponTitle + ".Info.Weapon_Get_Mechanics", Program.class);
         if (weaponGetMechanics != null)
-            weaponGetMechanics.run(CastScope.builder(entity).itemTitle(weaponTitle).item(weaponStack).build());
+            weaponGetMechanics.run(new WeaponCastData(entity, null, weaponTitle, weaponStack).scope().build());
 
         return true;
     }

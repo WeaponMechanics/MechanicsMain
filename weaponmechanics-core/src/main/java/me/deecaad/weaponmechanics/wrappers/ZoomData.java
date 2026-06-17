@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
@@ -123,7 +123,7 @@ public class ZoomData {
 
             // Get Mechanics from event, so we can let plugins modify them.
             if (weaponScopeEvent.getMechanics() != null)
-                weaponScopeEvent.getMechanics().run(CastScope.builder(entityWrapper.getEntity()).itemTitle(this.scopeWeaponTitle).item(this.scopeWeaponStack).build());
+                weaponScopeEvent.getMechanics().run(new WeaponCastData(entityWrapper, getHandData().isMainhand() ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, this.scopeWeaponTitle, this.scopeWeaponStack).scope().build());
         }
 
         // This just ensures that these are set to null

@@ -4,8 +4,8 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.scope.CastScope;
-import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.program.MechanicSerializer;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -109,8 +109,11 @@ public class FirearmAction implements Serializer<FirearmAction> {
         int openTime = data.of("Open.Time").assertRange(1, null).getInt().orElse(1);
         int closeTime = data.of("Close.Time").assertRange(1, null).getInt().orElse(1);
 
-        Program open = data.of("Open.Mechanics").serialize(MechanicSerializer.class).orElse(null);
-        Program close = data.of("Close.Mechanics").serialize(MechanicSerializer.class).orElse(null);
+        MechanicSerializer firearmMechanics = MechanicSerializer.builder()
+            .variables("firearm_state", "firearm_action")
+            .build();
+        Program open = data.of("Open.Mechanics").serialize(firearmMechanics).orElse(null);
+        Program close = data.of("Close.Mechanics").serialize(firearmMechanics).orElse(null);
 
         return new FirearmAction(type, firearmActionFrequency, openTime, closeTime, open, close);
     }

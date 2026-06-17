@@ -5,10 +5,12 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.core.mechanics.scope.Context;
 import me.deecaad.core.mechanics.scope.Target;
-import me.deecaad.core.mechanics.program.Program;
+import me.deecaad.core.mechanics.scope.Value;
 import me.deecaad.core.mechanics.program.MechanicSerializer;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -157,7 +159,13 @@ public class AirStrike implements Serializer<AirStrike> {
 
     public void trigger(Location flareLocation, LivingEntity shooter, WeaponProjectile projectile) {
         if (mechanics != null) {
-            CastScope cast = CastScope.builder(shooter).itemTitle(projectile.getWeaponTitle()).item(projectile.getWeaponStack()).build();
+            CastScope cast = new WeaponCastData(shooter, null, projectile.getWeaponTitle(), projectile.getWeaponStack())
+                .scope()
+                .context("FlareLocation", Context.of(Target.of(flareLocation)))
+                .variable("height", Value.of(height))
+                .variable("radius", Value.of(radius))
+                .variable("layers", Value.of(loops))
+                .build();
             cast.setContext(CastScope.TARGET, Context.of(Target.of(flareLocation)));
             mechanics.run(cast);
         }
@@ -229,7 +237,10 @@ public class AirStrike implements Serializer<AirStrike> {
         int interval = data.of("Delay_Between_Layers").assertRange(1, null).getInt().orElse(40);
 
         Detonation detonation = data.of("Detonation").serialize(Detonation.class).orElse(null);
-        Program mechanics = data.of("Mechanics").serialize(MechanicSerializer.class).orElse(null);
+        Program mechanics = data.of("Mechanics").serialize(MechanicSerializer.builder()
+            .context("FlareLocation")
+            .variables("height", "radius", "layers")
+            .build()).orElse(null);
 
         return new AirStrike(projectile, min, max, yOffset, yNoise, separation, range, layers, interval, detonation, mechanics);
     }

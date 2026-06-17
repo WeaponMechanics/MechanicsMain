@@ -8,11 +8,13 @@ import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.file.*;
 import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.core.mechanics.scope.Context;
 import me.deecaad.core.mechanics.scope.Target;
 import me.deecaad.core.mechanics.scope.PointTarget;
-import me.deecaad.core.mechanics.program.Program;
+import me.deecaad.core.mechanics.scope.Value;
 import me.deecaad.core.mechanics.program.MechanicSerializer;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.core.utils.VectorUtil;
@@ -200,11 +202,12 @@ public class Explosion implements Serializer<Explosion> {
 
         Program impactMechanics = currentDetonation.getImpactMechanics();
         if (impactMechanics != null) {
-            CastScope impactCast = CastScope.builder(cause).itemTitle(projectile.getWeaponTitle()).item(projectile.getWeaponStack()).build();
+            CastScope impactCast = new WeaponCastData(cause, null, projectile.getWeaponTitle(), projectile.getWeaponStack()).scope().build();
             if (origin != null)
                 impactCast.setContext(CastScope.TARGET, Context.of(Target.of(origin)));
             else
                 impactCast.setContext(CastScope.TARGET, Context.of(new PointTarget(projectile::getBukkitLocation)));
+            impactMechanics.run(impactCast);
         }
     }
 
@@ -337,7 +340,13 @@ public class Explosion implements Serializer<Explosion> {
         if (flashbang != null)
             flashbang.trigger(exposure, projectile, origin);
         if (mechanics != null) { // NOT this.mechanics for event
-            CastScope cast = CastScope.builder(cause).itemTitle(projectile == null ? null : projectile.getWeaponTitle()).item(projectile == null ? null : projectile.getWeaponStack()).build();
+            CastScope cast = new WeaponCastData(cause, null, projectile == null ? null : projectile.getWeaponTitle(), projectile == null ? null : projectile.getWeaponStack())
+                .scope()
+                .context("Origin", Context.of(Target.of(origin)))
+                .context("EntitiesInExplosion", Context.ofEntities(entities.keySet()))
+                .variable("entity_count", Value.of(entities.size()))
+                .variable("block_count", Value.of(blocks.size()))
+                .build();
             cast.setContext(CastScope.TARGET, Context.of(Target.of(origin)));
             mechanics.run(cast);
         }
@@ -485,7 +494,10 @@ public class Explosion implements Serializer<Explosion> {
         ClusterBomb clusterBomb = data.of("Cluster_Bomb").serialize(ClusterBomb.class).orElse(null);
         AirStrike airStrike = data.of("Airstrike").serialize(AirStrike.class).orElse(null);
         Flashbang flashbang = data.of("Flashbang").serialize(Flashbang.class).orElse(null);
-        Program mechanics = data.of("Mechanics").serialize(MechanicSerializer.class).orElse(null);
+        Program mechanics = data.of("Mechanics").serialize(MechanicSerializer.builder()
+            .contexts("Origin", "EntitiesInExplosion")
+            .variables("entity_count", "block_count")
+            .build()).orElse(null);
 
         return new Explosion(shape, exposure, blockDamage, regeneration, detonation, blockChance,
             knockbackRate, clusterBomb, airStrike, flashbang, mechanics);

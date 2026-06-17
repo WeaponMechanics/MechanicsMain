@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.info;
 
 import me.deecaad.core.file.*;
 import me.deecaad.core.file.simple.StringSerializer;
-import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.program.MechanicSerializer;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -68,7 +68,7 @@ public class DualWield implements Serializer<DualWield> {
                 if (trigger != null && (trigger.getMainhand() == checkCause || trigger.getOffhand() == checkCause)) {
 
                     if (mechanics != null)
-                        mechanics.run(CastScope.builder(player).itemTitle(weaponTitle).item(null).build());
+                        mechanics.run(new WeaponCastData(player, null, weaponTitle, null).scope().build());
 
                     break;
                 }

@@ -4,10 +4,12 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.core.mechanics.scope.Context;
 import me.deecaad.core.mechanics.scope.Target;
-import me.deecaad.core.mechanics.program.Program;
+import me.deecaad.core.mechanics.scope.Value;
 import me.deecaad.core.mechanics.program.MechanicSerializer;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
@@ -94,7 +96,12 @@ public class Flashbang implements Serializer<Flashbang> {
 
     public void effect(WeaponProjectile projectile, LivingEntity entity, Location origin) {
         if (mechanics != null) {
-            CastScope cast = CastScope.builder(entity).itemTitle(projectile.getWeaponTitle()).item(projectile.getWeaponStack()).build();
+            CastScope cast = new WeaponCastData(entity, null, projectile.getWeaponTitle(), projectile.getWeaponStack())
+                .scope()
+                .context("Victim", Context.of(Target.of(entity)))
+                .context("Origin", Context.of(Target.of(origin)))
+                .variable("distance", Value.of(entity.getEyeLocation().distance(origin)))
+                .build();
             cast.setContext(CastScope.TARGET, Context.of(Target.of(entity)));
             mechanics.run(cast);
         }
@@ -103,7 +110,10 @@ public class Flashbang implements Serializer<Flashbang> {
     @Override
     @NotNull public Flashbang serialize(@NotNull SerializeData data) throws SerializerException {
         double distance = data.of("Effect_Distance").assertExists().assertRange(0.0, null).getDouble().getAsDouble();
-        Program mechanics = data.of("Mechanics").assertExists().serialize(MechanicSerializer.class).orElse(null);
+        Program mechanics = data.of("Mechanics").assertExists().serialize(MechanicSerializer.builder()
+            .contexts("Victim", "Origin")
+            .variable("distance")
+            .build()).orElse(null);
 
         return new Flashbang(distance, mechanics);
     }

@@ -4,6 +4,7 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.ICompatibility;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
@@ -348,10 +349,10 @@ public final class WeaponMechanicsAPI {
         // Try to reload in both hands
         boolean isNowReloading = false;
         if (mainWeapon != null) {
-            isNowReloading = reloadHandler.startReloadWithoutTrigger(wrapper, mainWeapon, mainHand, EquipmentSlot.HAND, dualWield, false);
+            isNowReloading = reloadHandler.startReloadWithoutTrigger(new WeaponCastData(wrapper, EquipmentSlot.HAND, mainWeapon, mainHand), dualWield, false);
         }
         if (offWeapon != null) {
-            isNowReloading |= reloadHandler.startReloadWithoutTrigger(wrapper, offWeapon, offHand, EquipmentSlot.OFF_HAND, dualWield, false);
+            isNowReloading |= reloadHandler.startReloadWithoutTrigger(new WeaponCastData(wrapper, EquipmentSlot.OFF_HAND, offWeapon, offHand), dualWield, false);
         }
 
         return isNowReloading;

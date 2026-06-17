@@ -8,11 +8,13 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.VectorSerializer;
 import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.core.mechanics.scope.Context;
 import me.deecaad.core.mechanics.scope.Target;
 import me.deecaad.core.mechanics.scope.PointTarget;
-import me.deecaad.core.mechanics.program.Program;
+import me.deecaad.core.mechanics.scope.Value;
 import me.deecaad.core.mechanics.program.MechanicSerializer;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
@@ -75,7 +77,11 @@ public class Projectile implements Serializer<Projectile> {
         ItemStack weaponStack = projectile.getWeaponStack();
         
         if (mechanics != null && weaponTitle != null) {
-            CastScope cast = CastScope.builder(projectile.getShooter()).itemTitle(weaponTitle).item(weaponStack).build();
+            CastScope cast = new WeaponCastData(projectile.getShooter(), null, weaponTitle, weaponStack)
+                .scope()
+                .context("ProjectileLocation", Context.of(new PointTarget(() -> projectile.getLocation().toLocation(projectile.getWorld()))))
+                .variable("projectile_speed", Value.of(projectile.getMotionLength()))
+                .build();
             cast.setContext(CastScope.TARGET, Context.of(new PointTarget(() -> projectile.getLocation().toLocation(projectile.getWorld()))));
             mechanics.run(cast);
         }
@@ -176,7 +182,10 @@ public class Projectile implements Serializer<Projectile> {
         Sticky sticky = data.of("Sticky").serialize(Sticky.class).orElse(null);
         Through through = data.of("Through").serialize(Through.class).orElse(null);
         Bouncy bouncy = data.of("Bouncy").serialize(Bouncy.class).orElse(null);
-        Program mechanics = data.of("Mechanics").serialize(MechanicSerializer.class).orElse(null);
+        Program mechanics = data.of("Mechanics").serialize(MechanicSerializer.builder()
+            .context("ProjectileLocation")
+            .variable("projectile_speed")
+            .build()).orElse(null);
         return new Projectile(projectileSettings, sticky, through, bouncy, mechanics);
     }
 }

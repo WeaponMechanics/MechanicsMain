@@ -21,6 +21,13 @@ public class ScopingCondition extends Condition {
 
     @Override
     protected boolean isAllowed0(CastScope scope, Target subject) {
+        // Inside a WM cast, check the shooter's firing-hand zoom (live, not a snapshot). This is
+        // hand-aware: the off hand scoping does not satisfy a main-hand cast.
+        WeaponCastData data = scope.getAttachment(WeaponCastData.class);
+        if (data != null)
+            return data.handData().getZoomData().isZooming();
+
+        // Outside a WM cast, fall back to the subject entity's scope state on either hand.
         return subject != null && subject.entity() != null && WeaponMechanicsAPI.isScoping(subject.entity());
     }
 
