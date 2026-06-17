@@ -4,7 +4,9 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
+import me.deecaad.core.file.verify.ConfigSchema;
 import me.deecaad.weaponmechanics.utils.CustomTag;
+import me.deecaad.weaponmechanics.weapon.WeaponSchema;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -133,5 +135,10 @@ public class Ammo implements Serializer<Ammo> {
     @Override
     public int hashCode() {
         return ammoTitle.hashCode();
+    }
+
+    @Override
+    public @Nullable ConfigSchema schema() {
+        return WeaponSchema.ammoObject();
     }
 }

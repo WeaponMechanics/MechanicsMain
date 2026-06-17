@@ -3,9 +3,11 @@ package me.deecaad.weaponmechanics.weapon;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.verify.ConfigSchema;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Pattern;
 
@@ -32,5 +34,10 @@ public class WeaponSerializer implements Serializer<WeaponSerializer> {
 
         // return null since this is a dummy serializer
         return new WeaponSerializer();
+    }
+
+    @Override
+    public @Nullable ConfigSchema schema() {
+        return WeaponSchema.weapon();
     }
 }

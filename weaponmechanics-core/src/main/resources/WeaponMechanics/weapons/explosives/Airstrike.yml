@@ -70,7 +70,7 @@ Airstrike:
       Dropped_Projectile:
         Projectile_Settings:
           Type: "PRIMED_TNT"
-        Disable_Entity_Collisions: true
+          Disable_Entity_Collisions: true
       Minimum_Bombs: 8
       Maximum_Bombs: 10
       Height: 90

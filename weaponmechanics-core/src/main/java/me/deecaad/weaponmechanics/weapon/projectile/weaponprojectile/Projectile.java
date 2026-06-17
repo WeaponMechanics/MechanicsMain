@@ -7,6 +7,8 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.VectorSerializer;
+import me.deecaad.core.file.verify.ConfigSchema;
+import me.deecaad.weaponmechanics.weapon.WeaponSchema;
 import me.deecaad.core.mechanics.scope.CastScope;
 import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.core.mechanics.scope.Context;
@@ -155,6 +157,11 @@ public class Projectile implements Serializer<Projectile> {
     @Override
     public @Nullable String getKeyword() {
         return "Projectile";
+    }
+
+    @Override
+    public @Nullable ConfigSchema schema() {
+        return WeaponSchema.projectileObject();
     }
 
     @Override
