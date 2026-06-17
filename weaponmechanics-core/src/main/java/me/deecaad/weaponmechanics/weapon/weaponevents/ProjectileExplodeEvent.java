@@ -1,8 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
-import me.deecaad.core.mechanics.MechanicManager;
-import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.BlockRegenSorter;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.block.Block;
@@ -27,12 +26,12 @@ public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellab
     private BlockRegenSorter sorter;
     private Object2DoubleMap<LivingEntity> entities;
 
-    private MechanicManager mechanics;
+    private Program mechanics;
 
     private boolean isCancelled;
 
     public ProjectileExplodeEvent(WeaponProjectile projectile, List<Block> blocks, BlockRegenSorter sorter,
-        Object2DoubleMap<LivingEntity> entities, MechanicManager mechanics) {
+        Object2DoubleMap<LivingEntity> entities, Program mechanics) {
         super(projectile);
 
         this.blocks = blocks;
@@ -103,13 +102,11 @@ public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellab
         this.entities = entities;
     }
 
-    public MechanicManager getMechanics() {
+    public Program getMechanics() {
         return mechanics;
     }
 
-    public void setMechanics(MechanicManager mechanics) {
-        if (this.mechanics != null)
-            this.mechanics.clearDirty(); // clear any modifications
+    public void setMechanics(Program mechanics) {
         this.mechanics = mechanics;
     }
 

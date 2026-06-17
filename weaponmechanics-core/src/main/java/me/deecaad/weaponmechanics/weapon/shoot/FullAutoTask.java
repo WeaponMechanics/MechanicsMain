@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.shoot;
 
 import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
@@ -78,6 +79,7 @@ public class FullAutoTask implements Consumer<TaskImplementation<Void>> {
     };
 
     private final WeaponHandler weaponHandler;
+    private final WeaponCastData cast;
     private final EntityWrapper entityWrapper;
     private final boolean mainHand;
     private final TriggerType triggerType;
@@ -96,16 +98,17 @@ public class FullAutoTask implements Consumer<TaskImplementation<Void>> {
     // Updated in the run() method
     private int currentTick;
 
-    public FullAutoTask(WeaponHandler weaponHandler, EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, boolean mainHand, TriggerType triggerType, boolean dualWield,
+    public FullAutoTask(WeaponHandler weaponHandler, WeaponCastData cast, TriggerType triggerType, boolean dualWield,
         int shotsPerSecond) {
         this.weaponHandler = weaponHandler;
-        this.entityWrapper = entityWrapper;
-        this.mainHand = mainHand;
+        this.cast = cast;
+        this.entityWrapper = cast.entityWrapper();
+        this.mainHand = cast.slot() != EquipmentSlot.OFF_HAND;
         this.triggerType = triggerType;
         this.dualWield = dualWield;
-        this.handData = entityWrapper.getHandData(mainHand);
-        this.weaponTitle = weaponTitle;
-        this.weaponStack = weaponStack;
+        this.handData = cast.handData();
+        this.weaponTitle = cast.weaponTitle();
+        this.weaponStack = cast.weaponStack();
 
         this.rate = shotsPerSecond % 20;
         this.perShot = shotsPerSecond / 20;
@@ -175,9 +178,9 @@ public class FullAutoTask implements Consumer<TaskImplementation<Void>> {
             handData.setFullAutoTask(null, null);
 
             if (ammoLeft == 0) {
-                weaponHandler.getShootHandler().startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, dualWield, false);
+                weaponHandler.getShootHandler().startReloadIfBothWeaponsEmpty(cast.withStack(taskReference), dualWield, false);
             } else {
-                weaponHandler.getShootHandler().doShootFirearmActions(entityWrapper, weaponTitle, taskReference, handData, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+                weaponHandler.getShootHandler().doShootFirearmActions(cast.withStack(taskReference));
             }
 
             return;
@@ -199,7 +202,7 @@ public class FullAutoTask implements Consumer<TaskImplementation<Void>> {
                 task.cancel();
                 handData.setFullAutoTask(null, null);
 
-                weaponHandler.getShootHandler().startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, dualWield, false);
+                weaponHandler.getShootHandler().startReloadIfBothWeaponsEmpty(cast.withStack(taskReference), dualWield, false);
                 return;
             }
         }
@@ -208,7 +211,7 @@ public class FullAutoTask implements Consumer<TaskImplementation<Void>> {
         boolean destroyWhenEmpty = WeaponMechanics.getInstance().getWeaponConfigurations().getBoolean(weaponTitle + ".Shoot.Destroy_When_Empty");
         for (int i = 0; i < shootAmount; ++i) {
             Location shootLocation = weaponHandler.getShootHandler().getShootLocation(entityWrapper, weaponTitle, mainHand);
-            weaponHandler.getShootHandler().shoot(entityWrapper, weaponTitle, taskReference, shootLocation, mainHand, true, false);
+            weaponHandler.getShootHandler().shoot(cast.withStack(taskReference), shootLocation, true, false);
             boolean consumeEmpty = destroyWhenEmpty && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0;
             if ((consumeEmpty || consumeItemOnShoot) && weaponHandler.getShootHandler().handleConsumeItemOnShoot(weaponStack, handData)) {
                 return;

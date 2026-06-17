@@ -1,8 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.mechanics.MechanicManager;
-import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageDropoff;
@@ -42,25 +41,25 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     private DamageDropoff dropoff;
     private final List<DamageModifier> damageModifiers;
 
-    private MechanicManager damageMechanics;
-    private MechanicManager killMechanics;
-    private MechanicManager backstabMechanics;
-    private MechanicManager criticalHitMechanics;
-    private MechanicManager headMechanics;
-    private MechanicManager bodyMechanics;
-    private MechanicManager armsMechanics;
-    private MechanicManager legsMechanics;
-    private MechanicManager feetMechanics;
+    private Program damageMechanics;
+    private Program killMechanics;
+    private Program backstabMechanics;
+    private Program criticalHitMechanics;
+    private Program headMechanics;
+    private Program bodyMechanics;
+    private Program armsMechanics;
+    private Program legsMechanics;
+    private Program feetMechanics;
 
     private boolean wasCritical;
     private boolean isCancelled;
 
     public WeaponDamageEntityEvent(WeaponDamageSource source, EquipmentSlot hand, LivingEntity victim,
         double baseDamage, double critChance, int armorDamage, int fireTicks,
-        DamageModifier damageModifier, MechanicManager damageMechanics,
-        MechanicManager killMechanics, MechanicManager backstabMechanics, MechanicManager criticalHitMechanics,
-        MechanicManager headMechanics, MechanicManager bodyMechanics, MechanicManager armsMechanics,
-        MechanicManager legsMechanics, MechanicManager feetMechanics) {
+        DamageModifier damageModifier, Program damageMechanics,
+        Program killMechanics, Program backstabMechanics, Program criticalHitMechanics,
+        Program headMechanics, Program bodyMechanics, Program armsMechanics,
+        Program legsMechanics, Program feetMechanics) {
 
         super(source.getWeaponTitle(), source.getWeaponStack(), source.getShooter(), hand);
 
@@ -287,93 +286,75 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
         return damageModifiers;
     }
 
-    public @Nullable MechanicManager getDamageMechanics() {
+    public @Nullable Program getDamageMechanics() {
         return damageMechanics;
     }
 
-    public void setDamageMechanics(@Nullable MechanicManager damageMechanics) {
-        if (this.damageMechanics != null)
-            this.damageMechanics.clearDirty(); // clear any modifications
+    public void setDamageMechanics(@Nullable Program damageMechanics) {
         this.damageMechanics = damageMechanics;
     }
 
-    public MechanicManager getKillMechanics() {
+    public Program getKillMechanics() {
         return killMechanics;
     }
 
-    public void setKillMechanics(@Nullable MechanicManager killMechanics) {
-        if (this.killMechanics != null)
-            this.killMechanics.clearDirty(); // clear any modifications
+    public void setKillMechanics(@Nullable Program killMechanics) {
         this.killMechanics = killMechanics;
     }
 
-    public @Nullable MechanicManager getBackstabMechanics() {
+    public @Nullable Program getBackstabMechanics() {
         return backstabMechanics;
     }
 
-    public void setBackstabMechanics(@Nullable MechanicManager backstabMechanics) {
-        if (this.backstabMechanics != null)
-            this.backstabMechanics.clearDirty(); // clear any modifications
+    public void setBackstabMechanics(@Nullable Program backstabMechanics) {
         this.backstabMechanics = backstabMechanics;
     }
 
-    public @Nullable MechanicManager getCriticalHitMechanics() {
+    public @Nullable Program getCriticalHitMechanics() {
         return criticalHitMechanics;
     }
 
-    public void setCriticalHitMechanics(@Nullable MechanicManager criticalHitMechanics) {
-        if (this.criticalHitMechanics != null)
-            this.criticalHitMechanics.clearDirty(); // clear any modifications
+    public void setCriticalHitMechanics(@Nullable Program criticalHitMechanics) {
         this.criticalHitMechanics = criticalHitMechanics;
     }
 
-    public @Nullable MechanicManager getHeadMechanics() {
+    public @Nullable Program getHeadMechanics() {
         return headMechanics;
     }
 
-    public void setHeadMechanics(@Nullable MechanicManager headMechanics) {
-        if (this.headMechanics != null)
-            this.headMechanics.clearDirty(); // clear any modifications
+    public void setHeadMechanics(@Nullable Program headMechanics) {
         this.headMechanics = headMechanics;
     }
 
-    public @Nullable MechanicManager getBodyMechanics() {
+    public @Nullable Program getBodyMechanics() {
         return bodyMechanics;
     }
 
-    public void setBodyMechanics(@Nullable MechanicManager bodyMechanics) {
-        if (this.bodyMechanics != null)
-            this.bodyMechanics.clearDirty(); // clear any modifications
+    public void setBodyMechanics(@Nullable Program bodyMechanics) {
         this.bodyMechanics = bodyMechanics;
     }
 
-    public @Nullable MechanicManager getArmsMechanics() {
+    public @Nullable Program getArmsMechanics() {
         return armsMechanics;
     }
 
-    public void setArmsMechanics(@Nullable MechanicManager armsMechanics) {
-        if (this.armsMechanics != null)
-            this.armsMechanics.clearDirty(); // clear any modifications
+    public void setArmsMechanics(@Nullable Program armsMechanics) {
         this.armsMechanics = armsMechanics;
     }
 
-    public @Nullable MechanicManager getLegsMechanics() {
+    public @Nullable Program getLegsMechanics() {
         return legsMechanics;
     }
 
-    public void setLegsMechanics(@Nullable MechanicManager legsMechanics) {
-        if (this.legsMechanics != null)
-            this.legsMechanics.clearDirty(); // clear any modifications
+    public void setLegsMechanics(@Nullable Program legsMechanics) {
         this.legsMechanics = legsMechanics;
     }
 
-    public @Nullable MechanicManager getFeetMechanics() {
+    public @Nullable Program getFeetMechanics() {
         return feetMechanics;
     }
 
-    public void setFeetMechanics(@Nullable MechanicManager feetMechanics) {
-        if (this.feetMechanics != null)
-            this.feetMechanics.clearDirty(); // clear any modifications
+    public void setFeetMechanics(@Nullable Program feetMechanics) {
         this.feetMechanics = feetMechanics;
     }
 

@@ -1,9 +1,8 @@
 package me.deecaad.weaponmechanics.listeners;
 
 import me.deecaad.core.events.EntityEquipmentEvent;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
-import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
@@ -77,9 +76,9 @@ public class WeaponListeners implements Listener {
 
             weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, e.getSlot());
 
-            MechanicManager equipMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Info.Weapon_Equip_Mechanics", MechanicManager.class);
+            Program equipMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Info.Weapon_Equip_Mechanics", Program.class);
             if (equipMechanics != null) {
-                equipMechanics.use(new CastData(entity, weaponTitle, weaponStack));
+                equipMechanics.run(new WeaponCastData(entityWrapper, e.getSlot(), weaponTitle, weaponStack).scope().build());
                 alreadyUsedEquipMechanics = true;
             }
 
@@ -97,9 +96,9 @@ public class WeaponListeners implements Listener {
 
             // Don't use holster mechanics is equip mechanics were already used
             if (!alreadyUsedEquipMechanics) {
-                MechanicManager holsterMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(dequippedWeapon + ".Info.Weapon_Holster_Mechanics", MechanicManager.class);
+                Program holsterMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(dequippedWeapon + ".Info.Weapon_Holster_Mechanics", Program.class);
                 if (holsterMechanics != null)
-                    holsterMechanics.use(new CastData(entity, dequippedWeapon, dequipped));
+                    holsterMechanics.run(new WeaponCastData(entityWrapper, e.getSlot(), dequippedWeapon, dequipped).scope().build());
             }
 
             // Make sure to cancel tasks for the dequipped weapon

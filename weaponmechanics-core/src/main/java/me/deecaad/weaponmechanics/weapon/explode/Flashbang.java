@@ -3,8 +3,13 @@ package me.deecaad.weaponmechanics.weapon.explode;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
+import me.deecaad.core.mechanics.scope.Context;
+import me.deecaad.core.mechanics.scope.Target;
+import me.deecaad.core.mechanics.scope.Value;
+import me.deecaad.core.mechanics.program.MechanicSerializer;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
@@ -20,12 +25,12 @@ public class Flashbang implements Serializer<Flashbang> {
 
     private double distance;
     private double distanceSquared;
-    private MechanicManager mechanics;
+    private Program mechanics;
 
     public Flashbang() {
     }
 
-    public Flashbang(double distance, MechanicManager mechanics) {
+    public Flashbang(double distance, Program mechanics) {
         this.distance = distance;
         this.distanceSquared = distance * distance;
         this.mechanics = mechanics;
@@ -40,11 +45,11 @@ public class Flashbang implements Serializer<Flashbang> {
         this.distanceSquared = distance * distance;
     }
 
-    public MechanicManager getMechanics() {
+    public Program getMechanics() {
         return mechanics;
     }
 
-    public void setMechanics(MechanicManager mechanics) {
+    public void setMechanics(Program mechanics) {
         this.mechanics = mechanics;
     }
 
@@ -91,17 +96,24 @@ public class Flashbang implements Serializer<Flashbang> {
 
     public void effect(WeaponProjectile projectile, LivingEntity entity, Location origin) {
         if (mechanics != null) {
-            CastData cast = new CastData(entity, projectile.getWeaponTitle(), projectile.getWeaponStack());
-            cast.setTargetLocation(origin);
-            cast.setTargetEntity(entity);
-            mechanics.use(cast);
+            CastScope cast = new WeaponCastData(entity, null, projectile.getWeaponTitle(), projectile.getWeaponStack())
+                .scope()
+                .context("Victim", Context.of(Target.of(entity)))
+                .context("Origin", Context.of(Target.of(origin)))
+                .variable("distance", Value.of(entity.getEyeLocation().distance(origin)))
+                .build();
+            cast.setContext(CastScope.TARGET, Context.of(Target.of(entity)));
+            mechanics.run(cast);
         }
     }
 
     @Override
     @NotNull public Flashbang serialize(@NotNull SerializeData data) throws SerializerException {
         double distance = data.of("Effect_Distance").assertExists().assertRange(0.0, null).getDouble().getAsDouble();
-        MechanicManager mechanics = data.of("Mechanics").assertExists().serialize(MechanicManager.class).orElse(null);
+        Program mechanics = data.of("Mechanics").assertExists().serialize(MechanicSerializer.builder()
+            .contexts("Victim", "Origin")
+            .variable("distance")
+            .build()).orElse(null);
 
         return new Flashbang(distance, mechanics);
     }

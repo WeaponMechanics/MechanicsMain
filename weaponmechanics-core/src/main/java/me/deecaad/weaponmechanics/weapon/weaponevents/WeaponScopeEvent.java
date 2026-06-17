@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
-import me.deecaad.core.mechanics.MechanicManager;
-import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
@@ -23,12 +22,12 @@ public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
     private boolean isNightVision;
     private boolean isPumpkinOverlay;
 
-    private MechanicManager mechanics;
+    private Program mechanics;
 
     private boolean isCancelled;
 
     public WeaponScopeEvent(String weaponTitle, ItemStack weaponStack, LivingEntity livingEntity, EquipmentSlot hand,
-        ScopeType scopeType, double zoomAmount, int zoomStack, MechanicManager mechanics) {
+        ScopeType scopeType, double zoomAmount, int zoomStack, Program mechanics) {
         super(weaponTitle, weaponStack, livingEntity, hand);
 
         this.scopeType = scopeType;
@@ -116,13 +115,11 @@ public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
         this.isPumpkinOverlay = isPumpkinOverlay;
     }
 
-    public MechanicManager getMechanics() {
+    public Program getMechanics() {
         return mechanics;
     }
 
-    public void setMechanics(MechanicManager mechanics) {
-        if (this.mechanics != null)
-            this.mechanics.clearDirty(); // clear any modifications
+    public void setMechanics(Program mechanics) {
         this.mechanics = mechanics;
     }
 

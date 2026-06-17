@@ -3,11 +3,11 @@ package me.deecaad.weaponmechanics.weapon.trigger;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
-import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
+import me.deecaad.core.mechanics.program.Program;
+import me.deecaad.core.mechanics.program.MechanicSerializer;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
-import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +18,7 @@ import java.util.Locale;
 public class Circumstance implements Serializer<Circumstance> {
 
     private List<CircumstanceData> circumstances;
-    private MechanicManager denyMechanics;
+    private Program denyMechanics;
 
     /**
      * Default constructor for serializer
@@ -26,7 +26,7 @@ public class Circumstance implements Serializer<Circumstance> {
     public Circumstance() {
     }
 
-    public Circumstance(List<CircumstanceData> circumstances, MechanicManager denyMechanics) {
+    public Circumstance(List<CircumstanceData> circumstances, Program denyMechanics) {
         this.circumstances = circumstances;
         this.denyMechanics = denyMechanics;
     }
@@ -44,9 +44,9 @@ public class Circumstance implements Serializer<Circumstance> {
         for (CircumstanceData circumstance : this.circumstances) {
             if (circumstance.deny(entityWrapper)) {
                 if (denyMechanics != null) {
-                    CastData cast = new CastData(entityWrapper.getEntity(), null, null);
+                    CastScope cast = new WeaponCastData(entityWrapper, null, null, null).scope().build();
                     cast.placeholders().put("deny_reason", circumstance.circumstanceType.getHumanName());
-                    denyMechanics.use(cast);
+                    denyMechanics.run(cast);
                 }
                 return true;
             }
@@ -56,11 +56,11 @@ public class Circumstance implements Serializer<Circumstance> {
 
     @NotNull @Override
     public Circumstance serialize(@NotNull SerializeData data) throws SerializerException {
-        ConfigurationSection circumstanceSection = data.of().assertExists().get(ConfigurationSection.class).get();
+        data.of().assertExists();
         List<CircumstanceData> circumstances = new ArrayList<>(1);
-        MechanicManager denyMechanics = data.of("Deny_Mechanics").serialize(MechanicManager.class).orElse(null);
+        Program denyMechanics = data.of("Deny_Mechanics").serialize(MechanicSerializer.class).orElse(null);
 
-        for (String type : circumstanceSection.getKeys(false)) {
+        for (String type : data.getConfig().getKeys(data.getKey(), false)) {
             if (type.equals("Deny_Mechanics"))
                 continue;
 
@@ -76,7 +76,7 @@ public class Circumstance implements Serializer<Circumstance> {
                 circumstances.add(new CircumstanceData(CircumstanceType.valueOf(typeToUpper), value.equalsIgnoreCase("REQUIRED")));
             } catch (IllegalArgumentException e) {
                 throw SerializerException.builder()
-                    .locationRaw(data.of(type).getLocation())
+                    .located(data.of(type).errorLocation())
                     .buildInvalidEnumOption(type, CircumstanceType.class);
             }
         }

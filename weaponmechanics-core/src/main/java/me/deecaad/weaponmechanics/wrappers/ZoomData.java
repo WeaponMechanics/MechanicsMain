@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponScopeEvent;
@@ -114,7 +114,7 @@ public class ZoomData {
             setZoomStacks(0);
             scopeHandler.useNightVision(entityWrapper, this, false);
 
-            MechanicManager zoomOffMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(this.scopeWeaponTitle + ".Scope.Zoom_Off.Mechanics", MechanicManager.class);
+            Program zoomOffMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(this.scopeWeaponTitle + ".Scope.Zoom_Off.Mechanics", Program.class);
 
             WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(this.scopeWeaponTitle, this.scopeWeaponStack,
                 entityWrapper.getEntity(), getHandData().isMainhand() ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND,
@@ -123,7 +123,7 @@ public class ZoomData {
 
             // Get Mechanics from event, so we can let plugins modify them.
             if (weaponScopeEvent.getMechanics() != null)
-                weaponScopeEvent.getMechanics().use(new CastData(entityWrapper.getEntity(), this.scopeWeaponTitle, this.scopeWeaponStack));
+                weaponScopeEvent.getMechanics().run(new WeaponCastData(entityWrapper, getHandData().isMainhand() ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, this.scopeWeaponTitle, this.scopeWeaponStack).scope().build());
         }
 
         // This just ensures that these are set to null

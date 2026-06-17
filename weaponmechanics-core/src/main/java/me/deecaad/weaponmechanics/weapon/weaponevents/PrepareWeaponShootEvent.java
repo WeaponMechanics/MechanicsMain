@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
-import me.deecaad.core.mechanics.MechanicManager;
-import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilProfile;
 import me.deecaad.weaponmechanics.weapon.shoot.spread.Spread;
@@ -21,7 +20,7 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
 
     private static final HandlerList HANDLERS = new HandlerList();
 
-    private @Nullable MechanicManager shootMechanics;
+    private @Nullable Program shootMechanics;
     private boolean resetFallDistance;
     private @Nullable Projectile projectile;
     private double projectileSpeed;
@@ -39,7 +38,7 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
         @NotNull ItemStack weaponStack,
         @NotNull LivingEntity shooter,
         @NotNull EquipmentSlot hand,
-        @Nullable MechanicManager shootMechanics,
+        @Nullable Program shootMechanics,
         boolean resetFallDistance,
         @Nullable Projectile projectile,
         double projectileSpeed,
@@ -60,13 +59,11 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
         this.recoilPitch = 0;
     }
 
-    public @Nullable MechanicManager getShootMechanics() {
+    public @Nullable Program getShootMechanics() {
         return shootMechanics;
     }
 
-    public void setShootMechanics(@Nullable MechanicManager shootMechanics) {
-        if (this.shootMechanics != null)
-            this.shootMechanics.clearDirty(); // clear any modifications
+    public void setShootMechanics(@Nullable Program shootMechanics) {
         this.shootMechanics = shootMechanics;
     }
 

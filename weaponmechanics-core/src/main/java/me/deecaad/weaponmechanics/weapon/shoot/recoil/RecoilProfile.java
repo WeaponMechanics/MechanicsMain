@@ -104,7 +104,7 @@ public class RecoilProfile implements Serializer<RecoilProfile> {
         for (String key : oldKeys) {
             if (data.has(key)) {
                 throw SerializerException.builder()
-                    .locationRaw(data.of(key).getLocation())
+                    .located(data.of(key).errorLocation())
                     .addMessage("Old configs detected. In 4.0.0, WeaponMechanics' Recoil system has been rewritten.")
                     .addMessage("Please visit: https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/shoot/recoil")
                     .build();

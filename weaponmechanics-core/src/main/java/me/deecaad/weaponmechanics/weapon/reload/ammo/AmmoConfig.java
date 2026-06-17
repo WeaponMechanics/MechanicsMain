@@ -1,11 +1,12 @@
 package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
+import me.deecaad.core.file.ErrorLocation;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
-import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
+import me.deecaad.core.mechanics.program.Program;
+import me.deecaad.core.mechanics.program.MechanicSerializer;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -22,9 +23,9 @@ import java.util.stream.Collectors;
 
 public class AmmoConfig implements Serializer<AmmoConfig> {
 
-    private MechanicManager outOfAmmoMechanics;
+    private Program outOfAmmoMechanics;
     private Trigger switchTrigger;
-    private MechanicManager switchMechanics;
+    private Program switchMechanics;
     private List<Ammo> ammunitions;
 
     /**
@@ -33,14 +34,14 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
     public AmmoConfig() {
     }
 
-    public AmmoConfig(MechanicManager outOfAmmoMechanics, Trigger switchTrigger, MechanicManager switchMechanics, List<Ammo> ammunitions) {
+    public AmmoConfig(Program outOfAmmoMechanics, Trigger switchTrigger, Program switchMechanics, List<Ammo> ammunitions) {
         this.outOfAmmoMechanics = outOfAmmoMechanics;
         this.switchTrigger = switchTrigger;
         this.switchMechanics = switchMechanics;
         this.ammunitions = ammunitions;
     }
 
-    public MechanicManager getOutOfAmmoMechanics() {
+    public Program getOutOfAmmoMechanics() {
         return outOfAmmoMechanics;
     }
 
@@ -48,7 +49,7 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
         return switchTrigger;
     }
 
-    public MechanicManager getSwitchMechanics() {
+    public Program getSwitchMechanics() {
         return switchMechanics;
     }
 
@@ -102,7 +103,7 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
 
             setCurrentAmmoIndex(weapon, i);
             if (switchMechanics != null)
-                switchMechanics.use(new CastData(player.getPlayer(), weaponTitle, weapon));
+                switchMechanics.run(new WeaponCastData(player, null, weaponTitle, weapon).scope().build());
             return true;
         }
 
@@ -137,9 +138,9 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
 
     @NotNull @Override
     public AmmoConfig serialize(@NotNull SerializeData data) throws SerializerException {
-        MechanicManager mechanics = data.of("Out_Of_Ammo_Mechanics").serialize(MechanicManager.class).orElse(null);
+        Program mechanics = data.of("Out_Of_Ammo_Mechanics").serialize(MechanicSerializer.class).orElse(null);
         Trigger switchTrigger = data.of("Ammo_Switch_Trigger").serialize(Trigger.class).orElse(null);
-        MechanicManager switchMechanics = data.of("Ammo_Switch_Mechanics").serialize(MechanicManager.class).orElse(null);
+        Program switchMechanics = data.of("Ammo_Switch_Mechanics").serialize(MechanicSerializer.class).orElse(null);
         List<String> ammunitionStrings = data.of("Ammos").assertExists().get(List.class).get();
 
         List<Ammo> ammunitions = new ArrayList<>(ammunitionStrings.size());
@@ -154,8 +155,9 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
                         .filter(entry -> entry.getValue() instanceof Ammo)
                         .map(Map.Entry::getKey)
                         .toList();
+                ErrorLocation ammosLocation = data.of("Ammos").errorLocation();
                 throw SerializerException.builder()
-                    .locationRaw(data.ofList("Ammos").getLocation(i))
+                    .located(new ErrorLocation(ammosLocation.file(), ammosLocation.path(), i))
                     .addMessage("Ammo '" + ammoTitle + "' does not exist in the ammo registry.")
                     .buildInvalidOption(ammoTitle, ammos);
             }

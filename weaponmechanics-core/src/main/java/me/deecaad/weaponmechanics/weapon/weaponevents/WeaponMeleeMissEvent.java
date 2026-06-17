@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
-import me.deecaad.core.mechanics.MechanicManager;
-import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.program.Program;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
@@ -17,12 +16,12 @@ public class WeaponMeleeMissEvent extends WeaponEvent implements Cancellable {
     private static final HandlerList HANDLERS = new HandlerList();
 
     private int meleeMissDelay;
-    private MechanicManager mechanics;
+    private Program mechanics;
     private boolean consume;
     private boolean isCancelled;
 
     public WeaponMeleeMissEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand,
-        int meleeMissDelay, MechanicManager mechanics, boolean consume) {
+        int meleeMissDelay, Program mechanics, boolean consume) {
 
         super(weaponTitle, weaponStack, shooter, hand);
 
@@ -39,11 +38,11 @@ public class WeaponMeleeMissEvent extends WeaponEvent implements Cancellable {
         this.meleeMissDelay = meleeMissDelay;
     }
 
-    public MechanicManager getMechanics() {
+    public Program getMechanics() {
         return mechanics;
     }
 
-    public void setMechanics(MechanicManager mechanics) {
+    public void setMechanics(Program mechanics) {
         this.mechanics = mechanics;
     }
 

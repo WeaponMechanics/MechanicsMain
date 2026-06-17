@@ -127,7 +127,7 @@ public class SpreadImage implements Serializer<SpreadImage> {
 
         if (!spriteFile.exists()) {
             throw SerializerException.builder()
-                .locationRaw(data.of("Name").getLocation())
+                .located(data.of("Name").errorLocation())
                 .buildInvalidOption(imageName, Arrays.asList(spritesFolder.list()));
         }
 

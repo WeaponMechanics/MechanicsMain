@@ -13,6 +13,7 @@ plugins {
 dependencyResolutionManagement {
     //repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        mavenLocal { content { includeGroup("com.cjcrafter") } } // TEMP: local MechanicsCore 26.1.0 schema API until published to remote
         mavenCentral()
         maven(url = "https://central.sonatype.com/repository/maven-snapshots/") // FoliaScheduler Snapshots
         maven(url = "https://repo.papermc.io/repository/maven-public/") // Paper

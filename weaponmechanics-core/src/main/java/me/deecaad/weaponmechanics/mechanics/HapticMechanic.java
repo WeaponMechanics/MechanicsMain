@@ -2,8 +2,9 @@ package me.deecaad.weaponmechanics.mechanics;
 
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.core.mechanics.scope.Target;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.HapticSerializer;
 import org.bukkit.NamespacedKey;
@@ -26,11 +27,11 @@ public class HapticMechanic extends Mechanic {
     }
 
     @Override
-    protected void use0(CastData cast) {
-        if (!(cast.getTarget() instanceof Player player))
+    public void use0(CastScope scope, Target subject) {
+        if (subject == null || !(subject.entity() instanceof Player player))
             return;
 
-        haptic.sendHapticPulse(cast.itemTitle(), cast.item(), player, null);
+        haptic.sendHapticPulse(scope.itemTitle(), scope.item(), player, null);
     }
 
     @Override

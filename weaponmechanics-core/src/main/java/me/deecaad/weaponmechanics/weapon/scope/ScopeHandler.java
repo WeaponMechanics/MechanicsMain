@@ -7,8 +7,10 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPl
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerRemoveEntityEffect;
 import me.deecaad.core.file.*;
 import me.deecaad.core.file.simple.DoubleSerializer;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
+import me.deecaad.core.mechanics.program.MechanicSerializer;
+import me.deecaad.core.mechanics.program.Program;
+import me.deecaad.core.mechanics.scope.Value;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderMessage;
 import me.deecaad.core.utils.NumberUtil;
@@ -88,6 +90,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
             return false;
 
         LivingEntity shooter = entityWrapper.getEntity();
+        WeaponCastData cast = new WeaponCastData(entityWrapper, slot, weaponTitle, weaponStack);
 
         // Handle permissions
         boolean hasPermission = weaponHandler.getInfoHandler().hasPermission(shooter, weaponTitle);
@@ -98,7 +101,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
             Trigger offTrigger = config.getObject(weaponTitle + ".Scope.Zoom_Off.Trigger", Trigger.class);
             // If off trigger is valid -> zoom out even if stacking hasn't reached maximum stacks
             if (offTrigger != null && offTrigger.check(triggerType, slot, entityWrapper)) {
-                return zoomOut(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
+                return zoomOut(cast, zoomData);
             }
 
             // If trigger is valid zoom in or out depending on situation
@@ -118,7 +121,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
                 List<?> zoomStacks = config.getObject(weaponTitle + ".Scope.Zoom_Stacking.Stacks", List.class);
                 if (zoomStacks == null) { // meaning that zoom stacking is not used
                     // Should turn off
-                    return zoomOut(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
+                    return zoomOut(cast, zoomData);
                 }
 
                 // E.g. when there is 2 defined values in stacks:
@@ -128,10 +131,10 @@ public class ScopeHandler implements IValidator, TriggerListener {
 
                 if (zoomData.getZoomStacks() < zoomStacks.size()) { // meaning that zoom stacks have NOT reached maximum stacks
                     // Should not turn off and stack instead
-                    return zoomIn(weaponStack, weaponTitle, entityWrapper, zoomData, slot); // Zoom in handles stacking on its own
+                    return zoomIn(cast, zoomData); // Zoom in handles stacking on its own
                 }
                 // Should turn off (because zoom stacks have reached maximum stacks)
-                return zoomOut(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
+                return zoomOut(cast, zoomData);
             }
         } else if (trigger.check(triggerType, slot, entityWrapper)) {
 
@@ -147,7 +150,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
             }
 
             // Try zooming in since entity is not zooming
-            return zoomIn(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
+            return zoomIn(cast, zoomData);
         }
         return false;
     }
@@ -155,7 +158,11 @@ public class ScopeHandler implements IValidator, TriggerListener {
     /**
      * @return true if successfully zoomed in or stacked
      */
-    private boolean zoomIn(ItemStack weaponStack, String weaponTitle, EntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
+    private boolean zoomIn(WeaponCastData cast, ZoomData zoomData) {
+        EntityWrapper entityWrapper = cast.entityWrapper();
+        String weaponTitle = cast.weaponTitle();
+        ItemStack weaponStack = cast.weaponStack();
+        EquipmentSlot slot = cast.slot();
         Configuration config = WeaponMechanics.getInstance().getWeaponConfigurations();
         LivingEntity entity = entityWrapper.getEntity();
 
@@ -174,7 +181,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
                 int currentStacks = zoomData.getZoomStacks();
                 double zoomAmount = Double.parseDouble(zoomStacks.get(currentStacks).toString());
                 int zoomStack = currentStacks + 1;
-                MechanicManager zoomStackingMechanics = config.getObject(weaponTitle + ".Scope.Zoom_Stacking.Mechanics", MechanicManager.class);
+                Program zoomStackingMechanics = config.getObject(weaponTitle + ".Scope.Zoom_Stacking.Mechanics", Program.class);
 
                 WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, slot, WeaponScopeEvent.ScopeType.STACK, zoomAmount, zoomStack, zoomStackingMechanics);
                 Bukkit.getPluginManager().callEvent(weaponScopeEvent);
@@ -191,7 +198,10 @@ public class ScopeHandler implements IValidator, TriggerListener {
                 useNightVision(entityWrapper, zoomData, weaponScopeEvent.isNightVision());
 
                 if (weaponScopeEvent.getMechanics() != null)
-                    weaponScopeEvent.getMechanics().use(new CastData(entity, weaponTitle, weaponStack));
+                    weaponScopeEvent.getMechanics().run(cast.scope()
+                    .variable("zoom_amount", Value.of(weaponScopeEvent.getZoomAmount()))
+                    .variable("zoom_stacks", Value.of(zoomData.getZoomStacks()))
+                    .build());
 
                 return true;
             } else {
@@ -207,7 +217,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
         if (zoomAmount == 0)
             return false;
 
-        MechanicManager scopeMechanics = config.getObject(weaponTitle + ".Scope.Mechanics", MechanicManager.class);
+        Program scopeMechanics = config.getObject(weaponTitle + ".Scope.Mechanics", Program.class);
 
         // zoom stack = 0, because its not used OR this is first zoom in
         WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, slot, WeaponScopeEvent.ScopeType.IN, zoomAmount, 0, scopeMechanics);
@@ -220,7 +230,10 @@ public class ScopeHandler implements IValidator, TriggerListener {
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
 
         if (weaponScopeEvent.getMechanics() != null)
-            weaponScopeEvent.getMechanics().use(new CastData(entity, weaponTitle, weaponStack));
+            weaponScopeEvent.getMechanics().run(cast.scope()
+                .variable("zoom_amount", Value.of(weaponScopeEvent.getZoomAmount()))
+                .variable("zoom_stacks", Value.of(zoomData.getZoomStacks()))
+                .build());
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
         useNightVision(entityWrapper, zoomData, weaponScopeEvent.isNightVision());
@@ -234,13 +247,17 @@ public class ScopeHandler implements IValidator, TriggerListener {
     /**
      * @return true if successfully zoomed out
      */
-    private boolean zoomOut(ItemStack weaponStack, String weaponTitle, EntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
+    private boolean zoomOut(WeaponCastData cast, ZoomData zoomData) {
+        EntityWrapper entityWrapper = cast.entityWrapper();
+        String weaponTitle = cast.weaponTitle();
+        ItemStack weaponStack = cast.weaponStack();
+        EquipmentSlot slot = cast.slot();
 
         if (!zoomData.isZooming())
             return false;
         LivingEntity entity = entityWrapper.getEntity();
 
-        MechanicManager zoomOffMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Scope.Zoom_Off.Mechanics", MechanicManager.class);
+        Program zoomOffMechanics = WeaponMechanics.getInstance().getWeaponConfigurations().getObject(weaponTitle + ".Scope.Zoom_Off.Mechanics", Program.class);
 
         // Zoom amount and stack 0 because zooming out
         WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, slot, WeaponScopeEvent.ScopeType.OUT, 0, 0, zoomOffMechanics);
@@ -255,7 +272,10 @@ public class ScopeHandler implements IValidator, TriggerListener {
         zoomData.setZoomStacks(0);
 
         if (weaponScopeEvent.getMechanics() != null)
-            weaponScopeEvent.getMechanics().use(new CastData(entity, weaponTitle, weaponStack));
+            weaponScopeEvent.getMechanics().run(cast.scope()
+                .variable("zoom_amount", Value.of(weaponScopeEvent.getZoomAmount()))
+                .variable("zoom_stacks", Value.of(zoomData.getZoomStacks()))
+                .build());
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
         useNightVision(entityWrapper, zoomData, false);
@@ -372,5 +392,15 @@ public class ScopeHandler implements IValidator, TriggerListener {
             // Convert to millis
             configuration.set(data.getKey() + ".Shoot_Delay_After_Scope", shootDelayAfterScope * 50);
         }
+
+        MechanicSerializer scopeMechanics = MechanicSerializer.builder()
+            .variables("zoom_amount", "zoom_stacks")
+            .build();
+        data.of("Mechanics").serialize(scopeMechanics)
+            .ifPresent(mechanics -> configuration.set(data.getKey() + ".Mechanics", mechanics));
+        data.of("Zoom_Stacking.Mechanics").serialize(scopeMechanics)
+            .ifPresent(mechanics -> configuration.set(data.getKey() + ".Zoom_Stacking.Mechanics", mechanics));
+        data.of("Zoom_Off.Mechanics").serialize(scopeMechanics)
+            .ifPresent(mechanics -> configuration.set(data.getKey() + ".Zoom_Off.Mechanics", mechanics));
     }
 }

@@ -34,6 +34,28 @@ dependencies {
     testImplementation(libs.paper)
     testImplementation(libs.annotations)
     testImplementation(libs.foliaScheduler)
+
+    // Spike: run config serializers under a mocked server (no real Bukkit server).
+    // MechanicsCore is the real impl here (not compileOnly) so its serializers/registries load.
+    testImplementation(libs.mechanicsCore)
+    testImplementation(libs.xSeries)
+    testImplementation(libs.fastUtil)
+    testImplementation(libs.packetEvents)
+    testImplementation(libs.commandApiShade)
+    testImplementation(libs.commandApiKotlin)
+    testImplementation(libs.bstats)
+    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.110.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.named<Test>("test") {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
 }
 
 

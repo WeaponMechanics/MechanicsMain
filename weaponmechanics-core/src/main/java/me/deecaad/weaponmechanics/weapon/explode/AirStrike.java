@@ -4,8 +4,13 @@ import com.cjcrafter.foliascheduler.TaskImplementation;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
+import me.deecaad.core.mechanics.scope.Context;
+import me.deecaad.core.mechanics.scope.Target;
+import me.deecaad.core.mechanics.scope.Value;
+import me.deecaad.core.mechanics.program.MechanicSerializer;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -34,7 +39,7 @@ public class AirStrike implements Serializer<AirStrike> {
     private int loops;
     private int delay;
     private Detonation detonation;
-    private MechanicManager mechanics;
+    private Program mechanics;
 
     /**
      * Default constructor for serializer
@@ -57,7 +62,7 @@ public class AirStrike implements Serializer<AirStrike> {
      * @param delay The amount of time (in ticks) between each layer of bombs.
      */
     public AirStrike(Projectile projectile, int min, int max, double height, double yVariation,
-        double distance, double radius, int loops, int delay, Detonation detonation, MechanicManager mechanics) {
+        double distance, double radius, int loops, int delay, Detonation detonation, Program mechanics) {
 
         this.projectile = projectile;
         this.min = min;
@@ -154,9 +159,15 @@ public class AirStrike implements Serializer<AirStrike> {
 
     public void trigger(Location flareLocation, LivingEntity shooter, WeaponProjectile projectile) {
         if (mechanics != null) {
-            CastData cast = new CastData(shooter, projectile.getWeaponTitle(), projectile.getWeaponStack());
-            cast.setTargetLocation(flareLocation);
-            mechanics.use(cast);
+            CastScope cast = new WeaponCastData(shooter, null, projectile.getWeaponTitle(), projectile.getWeaponStack())
+                .scope()
+                .context("FlareLocation", Context.of(Target.of(flareLocation)))
+                .variable("height", Value.of(height))
+                .variable("radius", Value.of(radius))
+                .variable("layers", Value.of(loops))
+                .build();
+            cast.setContext(CastScope.TARGET, Context.of(Target.of(flareLocation)));
+            mechanics.run(cast);
         }
 
         WeaponMechanics.getInstance().getFoliaScheduler().region(flareLocation).runAtFixedRate(new Consumer<>() {
@@ -226,7 +237,10 @@ public class AirStrike implements Serializer<AirStrike> {
         int interval = data.of("Delay_Between_Layers").assertRange(1, null).getInt().orElse(40);
 
         Detonation detonation = data.of("Detonation").serialize(Detonation.class).orElse(null);
-        MechanicManager mechanics = data.of("Mechanics").serialize(MechanicManager.class).orElse(null);
+        Program mechanics = data.of("Mechanics").serialize(MechanicSerializer.builder()
+            .context("FlareLocation")
+            .variables("height", "radius", "layers")
+            .build()).orElse(null);
 
         return new AirStrike(projectile, min, max, yOffset, yNoise, separation, range, layers, interval, detonation, mechanics);
     }

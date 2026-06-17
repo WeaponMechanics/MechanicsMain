@@ -3,8 +3,9 @@ package me.deecaad.weaponmechanics.weapon.firearm;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.core.mechanics.program.MechanicSerializer;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -17,8 +18,8 @@ public class FirearmAction implements Serializer<FirearmAction> {
     private int firearmActionFrequency;
     private int openTime;
     private int closeTime;
-    private MechanicManager open;
-    private MechanicManager close;
+    private Program open;
+    private Program close;
 
     /**
      * Default constructor for serializer
@@ -26,7 +27,7 @@ public class FirearmAction implements Serializer<FirearmAction> {
     public FirearmAction() {
     }
 
-    public FirearmAction(FirearmType firearmType, int firearmActionFrequency, int openTime, int closeTime, MechanicManager open, MechanicManager close) {
+    public FirearmAction(FirearmType firearmType, int firearmActionFrequency, int openTime, int closeTime, Program open, Program close) {
         this.firearmType = firearmType;
         this.firearmActionFrequency = firearmActionFrequency;
         this.openTime = openTime;
@@ -35,14 +36,14 @@ public class FirearmAction implements Serializer<FirearmAction> {
         this.close = close;
     }
 
-    public void useMechanics(CastData castData, boolean isOpen) {
+    public void useMechanics(CastScope castData, boolean isOpen) {
         if (isOpen) {
             if (open != null)
-                open.use(castData);
+                open.run(castData);
             return;
         }
         if (close != null)
-            close.use(castData);
+            close.run(castData);
     }
 
     public FirearmState getState(ItemStack weaponStack) {
@@ -70,11 +71,11 @@ public class FirearmAction implements Serializer<FirearmAction> {
         return closeTime;
     }
 
-    public MechanicManager getOpen() {
+    public Program getOpen() {
         return open;
     }
 
-    public MechanicManager getClose() {
+    public Program getClose() {
         return close;
     }
 
@@ -108,8 +109,11 @@ public class FirearmAction implements Serializer<FirearmAction> {
         int openTime = data.of("Open.Time").assertRange(1, null).getInt().orElse(1);
         int closeTime = data.of("Close.Time").assertRange(1, null).getInt().orElse(1);
 
-        MechanicManager open = data.of("Open.Mechanics").serialize(MechanicManager.class).orElse(null);
-        MechanicManager close = data.of("Close.Mechanics").serialize(MechanicManager.class).orElse(null);
+        MechanicSerializer firearmMechanics = MechanicSerializer.builder()
+            .variables("firearm_state", "firearm_action")
+            .build();
+        Program open = data.of("Open.Mechanics").serialize(firearmMechanics).orElse(null);
+        Program close = data.of("Close.Mechanics").serialize(firearmMechanics).orElse(null);
 
         return new FirearmAction(type, firearmActionFrequency, openTime, closeTime, open, close);
     }

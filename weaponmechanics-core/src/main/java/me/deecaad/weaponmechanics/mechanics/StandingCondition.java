@@ -2,7 +2,8 @@ package me.deecaad.weaponmechanics.mechanics;
 
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.core.mechanics.scope.Target;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -19,10 +20,10 @@ public class StandingCondition extends Condition {
     }
 
     @Override
-    protected boolean isAllowed0(CastData cast) {
-        if (cast.getTarget() == null)
+    protected boolean isAllowed0(CastScope scope, Target subject) {
+        if (subject == null || subject.entity() == null)
             return false;
-        EntityWrapper wrapper = WeaponMechanics.getInstance().getEntityWrapper(cast.getTarget(), true);
+        EntityWrapper wrapper = WeaponMechanics.getInstance().getEntityWrapper(subject.entity(), true);
 
         return wrapper != null && wrapper.isStanding();
     }

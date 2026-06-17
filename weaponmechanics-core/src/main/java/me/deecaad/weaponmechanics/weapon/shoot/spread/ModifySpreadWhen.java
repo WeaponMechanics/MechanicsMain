@@ -70,7 +70,7 @@ public class ModifySpreadWhen extends AModifyWhen {
             return new NumberModifier(number, percentage);
         } catch (NumberFormatException e) {
             throw SerializerException.builder()
-                .locationRaw(data.getLocation())
+                .located(data.errorLocation())
                 .addMessage("Remember that you can use percentages like '10%' to add 10% more recoil")
                 .build();
         }

@@ -1,9 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
 import me.deecaad.core.file.*;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
-import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
+import me.deecaad.core.mechanics.program.Program;
+import me.deecaad.core.mechanics.program.MechanicSerializer;
 import me.deecaad.core.utils.AdventureUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -269,9 +269,9 @@ public class InfoHandler implements IValidator {
         } else
             return false;
 
-        MechanicManager weaponGetMechanics = config.getObject(weaponTitle + ".Info.Weapon_Get_Mechanics", MechanicManager.class);
+        Program weaponGetMechanics = config.getObject(weaponTitle + ".Info.Weapon_Get_Mechanics", Program.class);
         if (weaponGetMechanics != null)
-            weaponGetMechanics.use(new CastData(entity, weaponTitle, weaponStack));
+            weaponGetMechanics.run(new WeaponCastData(entity, null, weaponTitle, weaponStack).scope().build());
 
         return true;
     }
@@ -336,13 +336,13 @@ public class InfoHandler implements IValidator {
             configuration.set(data.getKey() + ".Weapon_Equip_Delay", weaponEquipDelay * 50);
         }
 
-        data.of("Weapon_Get_Mechanics").serialize(MechanicManager.class)
+        data.of("Weapon_Get_Mechanics").serialize(MechanicSerializer.class)
                 .ifPresent(mechanics -> configuration.set(data.getKey() + ".Weapon_Get_Mechanics", mechanics));
-        data.of("Weapon_Equip_Mechanics").serialize(MechanicManager.class)
+        data.of("Weapon_Equip_Mechanics").serialize(MechanicSerializer.class)
                 .ifPresent(mechanics -> configuration.set(data.getKey() + ".Weapon_Equip_Mechanics", mechanics));
-        data.of("Weapon_Break_Mechanics").serialize(MechanicManager.class)
+        data.of("Weapon_Break_Mechanics").serialize(MechanicSerializer.class)
                 .ifPresent(mechanics -> configuration.set(data.getKey() + ".Weapon_Break_Mechanics", mechanics));
-        data.of("Weapon_Holster_Mechanics").serialize(MechanicManager.class)
+        data.of("Weapon_Holster_Mechanics").serialize(MechanicSerializer.class)
                 .ifPresent(mechanics -> configuration.set(data.getKey() + ".Weapon_Holster_Mechanics", mechanics));
     }
 }

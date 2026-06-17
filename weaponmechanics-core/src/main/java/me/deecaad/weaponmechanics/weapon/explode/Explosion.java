@@ -7,8 +7,14 @@ import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.file.*;
 import me.deecaad.core.file.serializers.ChanceSerializer;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.MechanicManager;
+import me.deecaad.core.mechanics.scope.CastScope;
+import me.deecaad.weaponmechanics.mechanics.WeaponCastData;
+import me.deecaad.core.mechanics.scope.Context;
+import me.deecaad.core.mechanics.scope.Target;
+import me.deecaad.core.mechanics.scope.PointTarget;
+import me.deecaad.core.mechanics.scope.Value;
+import me.deecaad.core.mechanics.program.MechanicSerializer;
+import me.deecaad.core.mechanics.program.Program;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.core.utils.VectorUtil;
@@ -63,7 +69,7 @@ public class Explosion implements Serializer<Explosion> {
     private ClusterBomb cluster;
     private AirStrike airStrike;
     private Flashbang flashbang;
-    private MechanicManager mechanics;
+    private Program mechanics;
 
     /**
      * Default constructor for serializer.
@@ -92,7 +98,7 @@ public class Explosion implements Serializer<Explosion> {
      */
     public Explosion(ExplosionShape shape, ExplosionExposure exposure, BlockDamage blockDamage,
         RegenerationData regeneration, Detonation detonation, double blockChance, double knockbackRate,
-        ClusterBomb clusterBomb, AirStrike airStrike, Flashbang flashbang, MechanicManager mechanics) {
+        ClusterBomb clusterBomb, AirStrike airStrike, Flashbang flashbang, Program mechanics) {
 
         this.shape = shape;
         this.exposure = exposure;
@@ -151,7 +157,7 @@ public class Explosion implements Serializer<Explosion> {
         return flashbang;
     }
 
-    public MechanicManager getMechanics() {
+    public Program getMechanics() {
         return mechanics;
     }
 
@@ -194,13 +200,14 @@ public class Explosion implements Serializer<Explosion> {
             }
         }, currentDetonation.getDelay());
 
-        MechanicManager impactMechanics = currentDetonation.getImpactMechanics();
+        Program impactMechanics = currentDetonation.getImpactMechanics();
         if (impactMechanics != null) {
-            CastData impactCast = new CastData(cause, projectile.getWeaponTitle(), projectile.getWeaponStack());
+            CastScope impactCast = new WeaponCastData(cause, null, projectile.getWeaponTitle(), projectile.getWeaponStack()).scope().build();
             if (origin != null)
-                impactCast.setTargetLocation(origin);
+                impactCast.setContext(CastScope.TARGET, Context.of(Target.of(origin)));
             else
-                impactCast.setTargetLocation(projectile::getBukkitLocation);
+                impactCast.setContext(CastScope.TARGET, Context.of(new PointTarget(projectile::getBukkitLocation)));
+            impactMechanics.run(impactCast);
         }
     }
 
@@ -239,7 +246,7 @@ public class Explosion implements Serializer<Explosion> {
         List<Block> blocks = shape.getBlocks(origin);
         BlockRegenSorter sorter = new LayerDistanceSorter(origin, this);
         Object2DoubleMap<LivingEntity> entities = exposure.mapExposures(origin, shape);
-        MechanicManager mechanics = this.mechanics;
+        Program mechanics = this.mechanics;
         if (projectile != null) {
             // This event is not cancellable. If developers want to cancel
             // explosions, they should use ProjectilePreExplodeEvent
@@ -333,9 +340,15 @@ public class Explosion implements Serializer<Explosion> {
         if (flashbang != null)
             flashbang.trigger(exposure, projectile, origin);
         if (mechanics != null) { // NOT this.mechanics for event
-            CastData cast = new CastData(cause, projectile == null ? null : projectile.getWeaponTitle(), projectile == null ? null : projectile.getWeaponStack());
-            cast.setTargetLocation(origin);
-            mechanics.use(cast);
+            CastScope cast = new WeaponCastData(cause, null, projectile == null ? null : projectile.getWeaponTitle(), projectile == null ? null : projectile.getWeaponStack())
+                .scope()
+                .context("Origin", Context.of(Target.of(origin)))
+                .context("EntitiesInExplosion", Context.ofEntities(entities.keySet()))
+                .variable("entity_count", Value.of(entities.size()))
+                .variable("block_count", Value.of(blocks.size()))
+                .build();
+            cast.setContext(CastScope.TARGET, Context.of(Target.of(origin)));
+            mechanics.run(cast);
         }
     }
 
@@ -473,7 +486,7 @@ public class Explosion implements Serializer<Explosion> {
         // explosion should explode (onEntityHit, onBlockHit, after delay, etc.)
         Detonation detonation = data.of("Detonation").assertExists().serialize(Detonation.class).get();
 
-        double blockChance = data.step(new BlockDamage()).of("Spawn_Falling_Block_Chance").serialize(new ChanceSerializer()).orElse(0.0);
+        double blockChance = data.move("Block_Damage").of("Spawn_Falling_Block_Chance").serialize(new ChanceSerializer()).orElse(0.0);
         double knockbackRate = data.of("Knockback_Multiplier").getDouble().orElse(1.0);
 
         // These 4 options are all nullable and not required for an explosion
@@ -481,7 +494,10 @@ public class Explosion implements Serializer<Explosion> {
         ClusterBomb clusterBomb = data.of("Cluster_Bomb").serialize(ClusterBomb.class).orElse(null);
         AirStrike airStrike = data.of("Airstrike").serialize(AirStrike.class).orElse(null);
         Flashbang flashbang = data.of("Flashbang").serialize(Flashbang.class).orElse(null);
-        MechanicManager mechanics = data.of("Mechanics").serialize(MechanicManager.class).orElse(null);
+        Program mechanics = data.of("Mechanics").serialize(MechanicSerializer.builder()
+            .contexts("Origin", "EntitiesInExplosion")
+            .variables("entity_count", "block_count")
+            .build()).orElse(null);
 
         return new Explosion(shape, exposure, blockDamage, regeneration, detonation, blockChance,
             knockbackRate, clusterBomb, airStrike, flashbang, mechanics);
