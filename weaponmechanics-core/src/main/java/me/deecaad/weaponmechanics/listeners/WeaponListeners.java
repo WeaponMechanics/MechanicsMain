@@ -23,8 +23,10 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -36,6 +38,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Iterator;
 import java.util.Map;
 
 public class WeaponListeners implements Listener {
@@ -145,6 +148,35 @@ public class WeaponListeners implements Listener {
             }
 
             MetadataKey.ASSIST_DATA.remove(entity);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void keepDeathNoDropWeapons(PlayerDeathEvent event) {
+        // Vanilla / gamerule keepInventory already retains everything
+        if (event.getKeepInventory()) {
+            return;
+        }
+
+        Iterator<ItemStack> iterator = event.getDrops().iterator();
+
+        while (iterator.hasNext()) {
+            ItemStack drop = iterator.next();
+
+            // false because we don't want to convert ordinary items into weapons during death
+            String weaponTitle = weaponHandler.getInfoHandler().getWeaponTitle(drop, false);
+            if (weaponTitle == null) {
+                continue;
+            }
+
+            boolean deathNoDrop = WeaponMechanics.getInstance().getWeaponConfigurations().getBoolean(weaponTitle + ".Info.Death_No_Drop", false);
+
+            if (!deathNoDrop) {
+                continue;
+            }
+
+            iterator.remove();
+            event.getItemsToKeep().add(drop);
         }
     }
 
