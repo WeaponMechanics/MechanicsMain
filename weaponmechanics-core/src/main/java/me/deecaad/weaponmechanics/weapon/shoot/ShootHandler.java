@@ -14,6 +14,7 @@ import me.deecaad.core.placeholder.PlaceholderMessage;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.compatibility.VivecraftCompatibility;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.HapticSerializer;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
@@ -575,7 +576,7 @@ public class ShootHandler implements IValidator, TriggerListener {
             WeaponMechanics.getInstance().debugger.severe(weaponTitle + ".Shoot.Projectiles_Per_Shot should be at least 1, got " + prepareEvent.getProjectileAmount());
         }
 
-        if (Bukkit.getPluginManager().getPlugin("Vivecraft_Spigot_Extensions") != null) {
+        if (VivecraftCompatibility.isAvailable()) {
             HapticSerializer haptic = config.getObject(weaponTitle + ".Shoot.Haptic", HapticSerializer.class);
             if (haptic != null) {
                 haptic.sendHapticPulse(weaponTitle, weaponStack, livingEntity, slot);
@@ -829,10 +830,10 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         configuration.set(data.getKey() + ".Reset_Fall_Distance", data.of("Reset_Fall_Distance").getBool().orElse(false));
 
-        if (Bukkit.getPluginManager().getPlugin("Vivecraft_Spigot_Extensions") != null) {
+        if (VivecraftCompatibility.isAvailable()) {
             configuration.set(data.getKey() + ".Haptic", data.of("Haptic").serialize(HapticSerializer.class).orElse(null));
         } else if (data.has("Haptic")) {
-            throw data.exception("Haptic", "Tried to use haptics when Vivecraft_Spigot_Extensions was not installed",
+            throw data.exception("Haptic", "Tried to use haptics when " + VivecraftCompatibility.PLUGIN_NAME + " was not installed",
                 "Install here: https://www.spigotmc.org/resources/33166/");
         }
     }

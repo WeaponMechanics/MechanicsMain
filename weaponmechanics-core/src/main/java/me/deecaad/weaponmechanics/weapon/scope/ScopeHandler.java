@@ -13,6 +13,7 @@ import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderMessage;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.compatibility.VivecraftCompatibility;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerListener;
@@ -63,7 +64,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
     public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
         Configuration config = WeaponMechanics.getInstance().getWeaponConfigurations();
 
-        if (Bukkit.getPluginManager().getPlugin("Vivecraft_Spigot_Extensions") != null
+        if (!VivecraftCompatibility.isAvailable()
             && entityWrapper.isPlayer() && VRAPI.instance().isVRPlayer((Player) entityWrapper.getEntity())) {
             // Don't try to use scope this way when player is in VR
             return false;

@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.weaponmechanics.compatibility.VivecraftCompatibility;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponHapticEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
@@ -105,7 +106,7 @@ public class HapticSerializer implements Serializer<HapticSerializer> {
         try {
             Class.forName("org.vivecraft.api.data.VRBodyPart");
         } catch (ClassNotFoundException e) {
-            throw data.exception("Part", "Tried to use haptics when Vivecraft_Spigot_Extensions was not installed",
+            throw data.exception("Part", "Tried to use haptics when " + VivecraftCompatibility.PLUGIN_NAME + " was not installed",
                     "Install here: https://www.spigotmc.org/resources/33166/");
         }
 

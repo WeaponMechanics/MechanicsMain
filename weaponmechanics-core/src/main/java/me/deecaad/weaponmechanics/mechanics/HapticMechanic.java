@@ -5,6 +5,7 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.compatibility.VivecraftCompatibility;
 import me.deecaad.weaponmechanics.weapon.HapticSerializer;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -43,7 +44,7 @@ public class HapticMechanic extends Mechanic {
         try {
             Class.forName("org.vivecraft.api.data.VRBodyPart");
         } catch (ClassNotFoundException e) {
-            throw data.exception("Part", "Tried to use haptics when Vivecraft_Spigot_Extensions was not installed",
+            throw data.exception("Part", "Tried to use haptics when " + VivecraftCompatibility.PLUGIN_NAME + " was not installed",
                     "Install here: https://www.spigotmc.org/resources/33166/");
         }
 

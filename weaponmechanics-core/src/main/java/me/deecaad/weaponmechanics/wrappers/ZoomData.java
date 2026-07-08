@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.wrappers;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.MechanicManager;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.compatibility.VivecraftCompatibility;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponScopeEvent;
 import org.bukkit.Bukkit;
@@ -35,7 +36,7 @@ public class ZoomData {
      */
     public boolean isZooming() {
         EntityWrapper entityWrapper = handData.getEntityWrapper();
-        if (Bukkit.getPluginManager().getPlugin("Vivecraft_Spigot_Extensions") != null) {
+        if (VivecraftCompatibility.isAvailable()) {
             if (entityWrapper.getEntity() instanceof Player player) {
                 VRPose pose = VRAPI.instance().getVRPose(player);
                 if (pose != null) {
