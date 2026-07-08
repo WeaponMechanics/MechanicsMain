@@ -7,6 +7,7 @@ import me.deecaad.core.file.serializers.VectorProvider;
 import me.deecaad.core.file.serializers.VectorSerializer;
 import me.deecaad.core.utils.EntityTransform;
 import me.deecaad.core.utils.Transform;
+import me.deecaad.weaponmechanics.compatibility.VivecraftCompatibility;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -71,7 +72,7 @@ public class ShootLocationChooser implements Serializer<ShootLocationChooser> {
         Location source = null;
 
         // Check if this entity is a Vivecraft player
-        if (shooter instanceof Player player && Bukkit.getPluginManager().getPlugin("Vivecraft_Spigot_Extensions") != null) {
+        if (shooter instanceof Player player && VivecraftCompatibility.isAvailable()) {
             VRPose pose = VRAPI.instance().getVRPose(player);
             if (pose != null) {
                 VRBodyPartData controller = isMainHand ? pose.getMainHand() : pose.getOffHand();
@@ -137,7 +138,7 @@ public class ShootLocationChooser implements Serializer<ShootLocationChooser> {
      * @return The controller position, or <code>null</code>
      */
     public static @Nullable Location getControllerPos(@NotNull LivingEntity entity, boolean isMainHand) {
-        if (entity instanceof Player player && Bukkit.getPluginManager().getPlugin("Vivecraft_Spigot_Extensions") != null) {
+        if (entity instanceof Player player && VivecraftCompatibility.isAvailable()) {
             VRPose pose = VRAPI.instance().getVRPose(player);
             if (pose != null) {
                 VRBodyPartData controller = isMainHand ? pose.getMainHand() : pose.getOffHand();
