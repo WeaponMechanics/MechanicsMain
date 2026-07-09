@@ -264,8 +264,12 @@ public class DamageHandler {
         }
 
         final double finalDamage = damage;
-        exposures.forEach((entity, exposure) -> {
+
+        for (Object2DoubleMap.Entry<LivingEntity> entry : exposures.object2DoubleEntrySet()) {
+            LivingEntity entity = entry.getKey();
+            double exposure = entry.getDoubleValue();
+
             tryUse(source, entity, finalDamage * exposure, projectile.getHand());
-        });
+        }
     }
 }
