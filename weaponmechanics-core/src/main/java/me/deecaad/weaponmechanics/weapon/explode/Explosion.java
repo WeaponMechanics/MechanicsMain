@@ -306,15 +306,16 @@ public class Explosion implements Serializer<Explosion> {
             // higher your exposure, the greater the knockback.
             if (isKnockback()) {
                 Vector originVector = origin.toVector();
-                entities.forEach((entity, exposure) -> {
-                    exposure *= knockbackRate;
+                for (Object2DoubleMap.Entry<LivingEntity> entry : entities.object2DoubleEntrySet()) {
+                    LivingEntity entity = entry.getKey();
+                    double exposure = entry.getDoubleValue() * knockbackRate;
 
                     // Normalized vector between the explosion and entity involved
                     Vector between = VectorUtil.setLength(entity.getLocation().toVector().subtract(originVector), exposure);
                     Vector motion = entity.getVelocity().add(between);
 
                     entity.setVelocity(motion);
-                });
+                }
             }
 
             if (cluster != null)
@@ -325,9 +326,12 @@ public class Explosion implements Serializer<Explosion> {
             // This occurs because of the command /wm test
             // Useful for debugging, and can help users decide which
             // size explosion they may want
-            entities.forEach((entity, impact) -> {
+            for (Object2DoubleMap.Entry<LivingEntity> entry : entities.object2DoubleEntrySet()) {
+                LivingEntity entity = entry.getKey();
+                double impact = entry.getDoubleValue();
+
                 entity.sendMessage(ChatColor.RED + "You suffered " + impact * 100 + "% of the impact");
-            });
+            }
         }
 
         if (flashbang != null)
