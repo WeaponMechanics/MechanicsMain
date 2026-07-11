@@ -334,70 +334,86 @@ public class TriggerPlayerListeners implements Listener {
         }
     }
 
-    // Event priority LOW to ensure that this is ran before.
-    // Weapon listeners PlayerSwapHandItemsEvent is ran.
-    // Basically lower priority means that it will be one of the first EventHandlers to run.
+    // Event priority LOW to ensure this runs early.
+    // Lower priority = runs before NORMAL/HIGH/etc.
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void swapHandItems(PlayerSwapHandItemsEvent e) {
         if (WeaponMechanics.getInstance().getConfiguration().getBoolean("Disabled_Trigger_Checks.Swap_Main_And_Hand_Items"))
             return;
 
         Player player = e.getPlayer();
-        EntityEquipment playerEquipment = player.getEquipment();
+        EntityEquipment equipment = player.getEquipment();
 
-        if (player.getGameMode() == GameMode.SPECTATOR || playerEquipment == null)
+        if (player.getGameMode() == GameMode.SPECTATOR || equipment == null)
             return;
 
         PlayerWrapper playerWrapper = WeaponMechanics.getInstance().getPlayerWrapper(player);
 
+        // These are the items that will end up in each hand after the swap
+        // toMain came from the off hand, and toOff came from the main hand
         ItemStack toMain = e.getMainHandItem();
-        String toMainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(toMain, false);
-
         ItemStack toOff = e.getOffHandItem();
+        String toMainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(toMain, false);
         String toOffWeapon = weaponHandler.getInfoHandler().getWeaponTitle(toOff, false);
         if (toMainWeapon == null && toOffWeapon == null)
             return;
 
-        if ((toMainWeapon != null && WeaponMechanics.getInstance().getWeaponConfigurations().getBoolean(toMainWeapon + ".Info.Cancel.Swap_Hands"))
-            || (toOffWeapon != null && WeaponMechanics.getInstance().getWeaponConfigurations().getBoolean(toOffWeapon + ".Info.Cancel.Swap_Hands"))) {
+        boolean cancelSwap = (toMainWeapon != null && WeaponMechanics.getInstance().getWeaponConfigurations().getBoolean(toMainWeapon + ".Info.Cancel.Swap_Hands"))
+                          || (toOffWeapon != null && WeaponMechanics.getInstance().getWeaponConfigurations().getBoolean(toOffWeapon + ".Info.Cancel.Swap_Hands"));
 
+        if (cancelSwap) {
             e.setCancelled(true);
 
-            toOff = playerEquipment.getItemInMainHand();
-            toMain = playerEquipment.getItemInOffHand();
-        } else {
-            playerWrapper.getMainHandData().cancelTasks();
-            playerWrapper.getOffHandData().cancelTasks();
+            // Since the swap is cancelled, use the player's current hand items
+            ItemStack main = equipment.getItemInMainHand();
+            ItemStack off = equipment.getItemInOffHand();
+
+            String mainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(main, false);
+            String offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(off, false);
+
+            if (mainWeapon == null && offWeapon == null)
+                return;
+
+            boolean dualWield = mainWeapon != null && offWeapon != null;
+
+            if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.SWAP_HANDS, player, mainWeapon, offWeapon)) {
+                return;
+            }
+
+            if (mainWeapon != null && isValid(main)) {
+                weaponHandler.tryUses(playerWrapper, mainWeapon, main, EquipmentSlot.HAND, TriggerType.SWAP_HANDS, dualWield, null);
+            }
+
+            if (offWeapon != null && isValid(off)) {
+                weaponHandler.tryUses(playerWrapper, offWeapon, off, EquipmentSlot.OFF_HAND, TriggerType.SWAP_HANDS, dualWield, null);
+            }
+
+            return;
         }
+
+        // The swap is allowed, so cancel hand tasks before running the trigger
+        playerWrapper.getMainHandData().cancelTasks();
+        playerWrapper.getOffHandData().cancelTasks();
 
         boolean dualWield = toMainWeapon != null && toOffWeapon != null;
 
-        if (isValid(toMain)) {
-            // SWAP_TO_MAIN_HAND
-            if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.SWAP_HANDS, player, toMainWeapon, toOffWeapon))
-                return;
-
-            // Only check off hand going to main hand
-            if (toMainWeapon != null) {
-                final ItemStack finalToMain = toMain;
-                WeaponMechanics.getInstance().getFoliaScheduler().entity(player).run(() -> {
-                    weaponHandler.tryUses(playerWrapper, toMainWeapon, finalToMain, EquipmentSlot.OFF_HAND, TriggerType.SWAP_HANDS, dualWield, null);
-                });
-            }
+        if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.SWAP_HANDS, player, toMainWeapon, toOffWeapon)) {
+            return;
         }
-        if (isValid(toOff)) {
-            // SWAP_TO_OFF_HAND
-            if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.SWAP_HANDS, player, toMainWeapon, toOffWeapon))
-                return;
 
-            // Only check main hand going to off hand
-            if (toOffWeapon != null) {
-                final ItemStack finalToOff = toOff;
-                WeaponMechanics.getInstance().getFoliaScheduler().entity(player).run(() -> {
-                    weaponHandler.tryUses(playerWrapper, toOffWeapon, finalToOff, EquipmentSlot.HAND, TriggerType.SWAP_HANDS, dualWield, null);
-                });
-            }
+        if (toMainWeapon != null && isValid(toMain)) {
+            // toMain came from the off hand, so keep the old OFF_HAND trigger behavior
+            weaponHandler.tryUses(playerWrapper, toMainWeapon, toMain, EquipmentSlot.OFF_HAND, TriggerType.SWAP_HANDS, dualWield, null);
         }
+
+        if (toOffWeapon != null && isValid(toOff)) {
+            // toOff came from the main hand, so keep the old HAND trigger behavior
+            weaponHandler.tryUses(playerWrapper, toOffWeapon, toOff, EquipmentSlot.HAND, TriggerType.SWAP_HANDS, dualWield, null);
+        }
+
+        // Save any changes made by tryUses back into the swap event
+        e.setMainHandItem(toMain);
+        e.setOffHandItem(toOff);
     }
 
     @EventHandler(ignoreCancelled = true)
