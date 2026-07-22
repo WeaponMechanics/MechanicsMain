@@ -201,6 +201,8 @@ public class Explosion implements Serializer<Explosion> {
                 impactCast.setTargetLocation(origin);
             else
                 impactCast.setTargetLocation(projectile::getBukkitLocation);
+
+            impactMechanics.use(impactCast);
         }
     }
 
