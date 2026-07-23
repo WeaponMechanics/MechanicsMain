@@ -182,9 +182,8 @@ public class TriggerPlayerListeners implements Listener {
         boolean rightClick = action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK;
         if (rightClick) {
             playerWrapper.rightClicked();
-        } else if (MinecraftVersions.BUZZY_BEES.isAtLeast() && !NumberUtil.hasMillisPassed(playerWrapper.getLastDropWeaponTime(), 25)) {
-            // Fixes bug in 1.15+ where item dropping causes player to left click
-            // Basically checks if less than 25 millis has passed since weapon item drop
+        } else if (didRecentlyDropItem(playerWrapper)) {
+            // Fixes bug in 1.15+ where dropping an item can cause a left click
             return;
         }
 
@@ -255,7 +254,7 @@ public class TriggerPlayerListeners implements Listener {
 
         // In 1.15+, there is a "feature" where item dropping causes player to left-click
         PlayerWrapper playerWrapper = WeaponMechanics.getInstance().getPlayerWrapper(player);
-        if (MinecraftVersions.BUZZY_BEES.isAtLeast() && !NumberUtil.hasMillisPassed(playerWrapper.getLastDropWeaponTime(), 25)) {
+        if (didRecentlyDropItem(playerWrapper)) {
             e.setCancelled(true);
             return;
         }
@@ -417,6 +416,16 @@ public class TriggerPlayerListeners implements Listener {
 
             event.setCancelled(true);
         }
+    }
+
+    private boolean didRecentlyDropItem(PlayerWrapper playerWrapper) {
+        if (!MinecraftVersions.BUZZY_BEES.isAtLeast()) {
+            return false;
+        }
+        boolean droppedWeaponRecently = !NumberUtil.hasMillisPassed(playerWrapper.getLastDropWeaponTime(), 25);
+        boolean droppedInventoryItemRecently = !NumberUtil.hasMillisPassed(playerWrapper.getLastInventoryDropTime(), 50);
+
+        return droppedWeaponRecently || droppedInventoryItemRecently;
     }
 
     private boolean isValid(ItemStack itemStack) {
