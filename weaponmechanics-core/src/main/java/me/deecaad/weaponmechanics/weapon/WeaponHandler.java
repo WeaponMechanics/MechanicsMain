@@ -4,9 +4,11 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListeners;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
+import me.deecaad.weaponmechanics.weapon.durability.DurabilityHandler;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.melee.MeleeHandler;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
+import me.deecaad.weaponmechanics.weapon.repair.RepairHandler;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.weapon.skin.SkinHandler;
@@ -41,6 +43,8 @@ public class WeaponHandler {
     private final ReloadHandler reloadHandler;
     private final ScopeHandler scopeHandler;
     private final DamageHandler damageHandler;
+    private final DurabilityHandler durabilityHandler;
+    private final RepairHandler repairHandler;
     private final SkinHandler skinHandler;
     private final MeleeHandler meleeHandler;
     private final StatsHandler statsHandler;
@@ -53,6 +57,8 @@ public class WeaponHandler {
         reloadHandler = new ReloadHandler(this);
         scopeHandler = new ScopeHandler(this);
         damageHandler = new DamageHandler(this);
+        durabilityHandler = new DurabilityHandler();
+        repairHandler = new RepairHandler(this);
         skinHandler = new SkinHandler(this);
         meleeHandler = new MeleeHandler(this);
         statsHandler = new StatsHandler(this);
@@ -206,6 +212,20 @@ public class WeaponHandler {
      */
     public DamageHandler getDamageHandler() {
         return damageHandler;
+    }
+
+    /**
+     * @return the durability handler
+     */
+    public DurabilityHandler getDurabilityHandler() {
+        return durabilityHandler;
+    }
+
+    /**
+     * @return the repair handler
+     */
+    public RepairHandler getRepairHandler() {
+        return repairHandler;
     }
 
     /**

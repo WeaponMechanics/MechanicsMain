@@ -9,6 +9,7 @@ import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
+import me.deecaad.weaponmechanics.weapon.durability.DepletedMode;
 import me.deecaad.weaponmechanics.weapon.skin.SkinSelector;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponGenerateEvent;
@@ -330,6 +331,9 @@ public class InfoHandler implements IValidator {
 
     @Override
     public void validate(Configuration configuration, SerializeData data) throws SerializerException {
+        DepletedMode depletedMode = data.of("Durability.On_Depleted").getEnum(DepletedMode.class).orElse(DepletedMode.BREAK);
+        configuration.set(data.getKey() + ".Durability.On_Depleted", depletedMode);
+
         int weaponEquipDelay = data.of("Weapon_Equip_Delay").assertRange(0, null).getInt().orElse(0);
         if (weaponEquipDelay != 0) {
             // Convert to millis
@@ -342,6 +346,8 @@ public class InfoHandler implements IValidator {
                 .ifPresent(mechanics -> configuration.set(data.getKey() + ".Weapon_Equip_Mechanics", mechanics));
         data.of("Weapon_Break_Mechanics").serialize(MechanicManager.class)
                 .ifPresent(mechanics -> configuration.set(data.getKey() + ".Weapon_Break_Mechanics", mechanics));
+        data.of("Weapon_Depleted_Mechanics").serialize(MechanicManager.class)
+                .ifPresent(mechanics -> configuration.set(data.getKey() + ".Weapon_Depleted_Mechanics", mechanics));
         data.of("Weapon_Holster_Mechanics").serialize(MechanicManager.class)
                 .ifPresent(mechanics -> configuration.set(data.getKey() + ".Weapon_Holster_Mechanics", mechanics));
     }
