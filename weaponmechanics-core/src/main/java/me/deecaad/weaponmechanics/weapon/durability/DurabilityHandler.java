@@ -49,7 +49,7 @@ public class DurabilityHandler {
      */
     public void applyShotDurability(LivingEntity livingEntity, String weaponTitle, ItemStack weaponStack) {
         Configuration config = WeaponMechanics.getInstance().getWeaponConfigurations();
-        int durabilityPerShot = config.getInt(weaponTitle + ".Shoot.Durability_Per_Shot", 1);
+        int durabilityPerShot = config.getInt(weaponTitle + ".Shoot.Durability_Per_Shot", 0);
         applyDurability(livingEntity, weaponTitle, weaponStack, durabilityPerShot);
     }
 

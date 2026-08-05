@@ -756,7 +756,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         int projectilesPerShot = data.of("Projectiles_Per_Shot").assertRange(1, 100).getInt().orElse(1);
         configuration.set(data.getKey() + ".Projectiles_Per_Shot", projectilesPerShot);
 
-        int durabilityPerShot = data.of("Durability_Per_Shot").assertRange(0, null).getInt().orElse(1);
+        int durabilityPerShot = data.of("Durability_Per_Shot").assertRange(0, null).getInt().orElse(0);
         configuration.set(data.getKey() + ".Durability_Per_Shot", durabilityPerShot);
 
         boolean hasBurst = false;
