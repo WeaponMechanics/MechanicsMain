@@ -408,15 +408,17 @@ public class TriggerPlayerListeners implements Listener {
         ItemStack weapon = player.getInventory().getItemInMainHand();
         String weaponTitle = !isValid(weapon) ? null : weaponHandler.getInfoHandler().getWeaponTitle(weapon, false);
 
-        if (weaponTitle != null && WeaponMechanics.getInstance().getWeaponConfigurations().getBoolean(weaponTitle + ".Info.Cancel.Break_Blocks")) {
+        if (weaponTitle == null)
+            return;
 
-            // WeaponMechanicsCosmetics calls the BlockBreakEvent for block
-            // damage, so we need to make sure that this doesn't interfere.
-            if ("WeaponMechanicsBlockDamage".equals(event.getEventName()))
-                return;
+        // WeaponMechanicsCosmetics calls the BlockBreakEvent for block damage, so we need to make
+        // sure that this doesn't interfere with either break cancellation or depleted weapons.
+        if ("WeaponMechanicsBlockDamage".equals(event.getEventName()))
+            return;
 
+        boolean cancelBreak = WeaponMechanics.getInstance().getWeaponConfigurations().getBoolean(weaponTitle + ".Info.Cancel.Break_Blocks");
+        if (cancelBreak || weaponHandler.getDurabilityHandler().isDepleted(weapon))
             event.setCancelled(true);
-        }
     }
 
     private boolean isValid(ItemStack itemStack) {

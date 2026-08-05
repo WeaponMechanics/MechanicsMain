@@ -51,6 +51,12 @@ public enum CustomTag {
     AMMO_MAGAZINE,
 
     /**
+     * Repair kit title is stored as a string, and is used to identify repair-kit items configured in
+     * WeaponMechanics/config.yml.
+     */
+    REPAIR_KIT,
+
+    /**
      * Firearm action state is stored as an int, and is used by WeaponMechanics to check if the weapon
      * is open/closed. 0 = Ready, 1 = Open, 2 = Closed.
      *

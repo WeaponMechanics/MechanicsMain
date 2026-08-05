@@ -156,7 +156,7 @@ public class FullAutoTask implements Consumer<TaskImplementation<Void>> {
     @Override
     public void accept(@NotNull TaskImplementation task) {
         ItemStack taskReference = mainHand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
-        if (!taskReference.hasItemMeta()) {
+        if (!taskReference.hasItemMeta() || weaponHandler.getDurabilityHandler().isDepleted(taskReference)) {
             task.cancel();
             handData.setFullAutoTask(null, null);
             return;
@@ -184,8 +184,17 @@ public class FullAutoTask implements Consumer<TaskImplementation<Void>> {
         }
 
         // Determine if we should shoot on this tick. The AUTO array is a table of basically true/false
-        // values.
+        // values. Limit the batch to the number of durability uses remaining so we do not consume
+        // ammunition for queued shots which cannot actually fire.
         int shootAmount = perShot + AUTO[rate][currentTick];
+        int durabilityPerShot = WeaponMechanics.getInstance().getWeaponConfigurations().getInt(weaponTitle + ".Shoot.Durability_Per_Shot", 1);
+        shootAmount = Math.min(shootAmount, weaponHandler.getDurabilityHandler().getRemainingUses(taskReference, durabilityPerShot));
+
+        if (shootAmount <= 0) {
+            task.cancel();
+            handData.setFullAutoTask(null, null);
+            return;
+        }
 
         // START RELOAD STUFF
         if (ammoLeft != -1) {
@@ -209,6 +218,13 @@ public class FullAutoTask implements Consumer<TaskImplementation<Void>> {
         for (int i = 0; i < shootAmount; ++i) {
             Location shootLocation = weaponHandler.getShootHandler().getShootLocation(entityWrapper, weaponTitle, mainHand);
             weaponHandler.getShootHandler().shoot(entityWrapper, weaponTitle, taskReference, shootLocation, mainHand, true, false);
+
+            if (weaponHandler.getDurabilityHandler().isDepleted(taskReference)) {
+                task.cancel();
+                handData.setFullAutoTask(null, null);
+                return;
+            }
+
             boolean consumeEmpty = destroyWhenEmpty && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0;
             if ((consumeEmpty || consumeItemOnShoot) && weaponHandler.getShootHandler().handleConsumeItemOnShoot(weaponStack, handData)) {
                 return;

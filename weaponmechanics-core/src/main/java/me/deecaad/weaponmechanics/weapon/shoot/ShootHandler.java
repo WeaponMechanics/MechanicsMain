@@ -47,8 +47,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
@@ -95,6 +93,11 @@ public class ShootHandler implements IValidator, TriggerListener {
      */
     public boolean shootWithoutTrigger(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
         HandData handData = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
+
+        // DISABLE keeps the weapon item, so explicitly prevent depleted weapons from shooting. This
+        // also protects malformed/generated BREAK weapons which already start at maximum damage.
+        if (weaponHandler.getDurabilityHandler().isDepleted(weaponStack))
+            return false;
 
         // Don't even try if slot is already being used for full auto or burst
         if (handData.isUsingFullAuto() || handData.isUsingBurst())
@@ -288,7 +291,7 @@ public class ShootHandler implements IValidator, TriggerListener {
             @Override
             public void accept(TaskImplementation<Void> scheduledTask) {
                 ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
-                if (!taskReference.hasItemMeta()) {
+                if (!taskReference.hasItemMeta() || weaponHandler.getDurabilityHandler().isDepleted(taskReference)) {
                     handData.setBurstTask(null);
                     scheduledTask.cancel();
                     return;
@@ -316,6 +319,12 @@ public class ShootHandler implements IValidator, TriggerListener {
 
                 // Only make the first projectile of burst modify spread change if its used
                 shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper, weaponTitle, mainhand), mainhand, shots == 0, false);
+
+                if (weaponHandler.getDurabilityHandler().isDepleted(taskReference)) {
+                    handData.setBurstTask(null);
+                    scheduledTask.cancel();
+                    return;
+                }
 
                 boolean consumeEmpty = config.getBoolean(weaponTitle + ".Shoot.Destroy_When_Empty") && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0;
                 if ((consumeEmpty || consumeItemOnShoot) && handleConsumeItemOnShoot(weaponStack, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
@@ -628,27 +637,8 @@ public class ShootHandler implements IValidator, TriggerListener {
         handData.setLastShotTime(System.currentTimeMillis());
         handData.setLastWeaponShot(weaponTitle, weaponStack);
 
-        // Apply custom durability
-        ItemMeta meta = weaponStack.getItemMeta();
-        if (meta instanceof Damageable damageable && damageable.hasMaxDamage()) {
-            int durabilityPerShot = config.getInt(weaponTitle + ".Shoot.Durability_Per_Shot", 1);
-
-            if (durabilityPerShot > 0) {
-                int maxDamage = damageable.getMaxDamage();
-                int newDamage = Math.min(maxDamage, damageable.getDamage() + durabilityPerShot);
-                damageable.setDamage(newDamage);
-
-                if (newDamage >= maxDamage) {
-                    MechanicManager breakMechanics = config.getObject(weaponTitle + ".Info.Weapon_Break_Mechanics", MechanicManager.class);
-                    if (breakMechanics != null)
-                        breakMechanics.use(new CastData(livingEntity, weaponTitle, weaponStack));
-
-                    weaponStack.setAmount(weaponStack.getAmount() - 1);
-                }
-
-                weaponStack.setItemMeta(meta);
-            }
-        }
+        // Apply custom durability only after a successful shot.
+        weaponHandler.getDurabilityHandler().applyShotDurability(livingEntity, weaponTitle, weaponStack);
     }
 
     /**
@@ -766,7 +756,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         int projectilesPerShot = data.of("Projectiles_Per_Shot").assertRange(1, 100).getInt().orElse(1);
         configuration.set(data.getKey() + ".Projectiles_Per_Shot", projectilesPerShot);
 
-        int durabilityPerShot = data.of("Durability_Per_Shot").assertRange(0, null).getInt().orElse(1);
+        int durabilityPerShot = data.of("Durability_Per_Shot").assertRange(0, null).getInt().orElse(0);
         configuration.set(data.getKey() + ".Durability_Per_Shot", durabilityPerShot);
 
         boolean hasBurst = false;

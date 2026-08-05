@@ -28,6 +28,23 @@ Database:
   SQLite:
     Absolute_Path: "plugins/WeaponMechanics/weaponmechanics.db"
 
+# Global repair-kit definitions. To repair a weapon, pick up a configured repair kit with
+# the inventory cursor and click it onto an allowed damaged weapon in the player's inventory.
+Repair:
+  Enabled: false
+
+  # Add reusable repair-kit definitions here. Concrete kits are intentionally not included in the
+  # defaults so removing a custom kit does not cause WeaponMechanics to regenerate it on reload.
+  Kits: {}
+
+  Allow_Repair_While_Full: false
+  Allow_Repair_While_Reloading: false
+  Allow_Repair_While_Shooting: false
+
+  # When false, a kit cannot be used if its full Repair_Amount would exceed the
+  # weapon's missing durability.
+  Excess_Repair_Is_Wasted: true
+
 # Used to keep track of weapon assists
 Assists_Event:
   Enable: true

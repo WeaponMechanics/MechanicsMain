@@ -66,6 +66,7 @@ import me.deecaad.weaponmechanics.weapon.explode.shapes.SphereExplosion
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ProjectileSettings
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoConfig
+import me.deecaad.weaponmechanics.weapon.repair.RepairConfig
 import me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilProfile
 import net.kyori.adventure.text.Component
@@ -219,6 +220,31 @@ object WeaponMechanicsCommand {
                     val amount = args["amount"] as? Int ?: 64
 
                     giveAmmo(sender, target, ammoType, magazine, amount)
+                }
+            }
+
+            subcommand("repairkit") {
+                withPermission("weaponmechanics.commands.repairkit")
+                withShortDescription("Gives a configured weapon repair kit")
+
+                entitySelectorArgumentManyPlayers("target")
+                stringArgument("kit") {
+                    replaceSuggestions(
+                        ArgumentSuggestions.strings {
+                            val repair = WeaponMechanics.getInstance().configuration
+                                .getObject("Repair", RepairConfig::class.java)
+                            repair?.kits?.keys?.toTypedArray() ?: emptyArray<String>()
+                        },
+                    )
+                }
+                integerArgument("amount", 1, 64, optional = true)
+
+                anyExecutor { sender, args ->
+                    val targets = args["target"] as List<Player>
+                    val kitName = args["kit"] as String
+                    val amount = args["amount"] as? Int ?: 1
+
+                    giveRepairKit(sender, targets, kitName, amount)
                 }
             }
 
@@ -773,6 +799,48 @@ object WeaponMechanicsCommand {
         } else {
             sender.sendMessage(ChatColor.GREEN.toString() + player.name + " recieved " + amount + " " + ammoName)
         }
+    }
+
+    fun giveRepairKit(
+        sender: CommandSender,
+        targets: List<Player>,
+        kitName: String,
+        amount: Int,
+    ) {
+        val repairConfig = WeaponMechanics.getInstance().configuration
+            .getObject("Repair", RepairConfig::class.java)
+        val kit = repairConfig?.getKit(kitName)
+
+        if (kit == null) {
+            sender.sendMessage(ChatColor.RED.toString() + "Unknown repair kit: " + kitName)
+            return
+        }
+
+        if (targets.isEmpty()) {
+            sender.sendMessage(ChatColor.RED.toString() + "No players were found")
+            return
+        }
+
+        var successful = 0
+        for (target in targets) {
+            val item = kit.item
+            item.amount = amount
+
+            val overflow = target.inventory.addItem(item)
+            if (overflow.isEmpty()) {
+                successful++
+            } else {
+                for (remaining in overflow.values) {
+                    target.world.dropItemNaturally(target.location, remaining)
+                }
+                successful++
+            }
+        }
+
+        sender.sendMessage(
+            ChatColor.GREEN.toString() + "Gave " + amount + " " + kitName +
+                " to " + successful + " player" + (if (successful == 1) "" else "s"),
+        )
     }
 
     enum class RepairMode {
