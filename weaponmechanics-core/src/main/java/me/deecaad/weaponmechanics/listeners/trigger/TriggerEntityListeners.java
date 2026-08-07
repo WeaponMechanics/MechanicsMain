@@ -117,39 +117,37 @@ public class TriggerEntityListeners implements Listener {
         if (mainWeapon == null || mainStack.getAmount() == 0)
             return;
 
-        if (mainHasMelee) {
-            final String weaponTitle = mainWeapon;
-            final boolean wasDualWielding = dualWield;
+        // Don't apply weapon damage inside the vanilla Player.attack(...) stack.
+        // Direct hitbox attacks (melee or point-blank LEFT_CLICK firearms) can kill via
+        // setHealth(0) while Minecraft is still processing the attack, causing duplicate
+        // PlayerDeathEvent for players (and Citizens NPCs too).
+        final String weaponTitle = mainWeapon;
+        final boolean wasDualWielding = dualWield;
+        final TriggerType triggerType = mainHasMelee ? TriggerType.MELEE : TriggerType.LEFT_CLICK;
 
-            // Don't apply melee damage inside the vanilla Player.attack(...) stack
-            // just let vanilla finish processing the cancelled hit first
-            WeaponMechanics.getInstance().getFoliaScheduler().entity(livingVictim).runDelayed(() -> {
-                if (!livingEntity.isValid() || livingEntity.isDead())
-                    return;
+        WeaponMechanics.getInstance().getFoliaScheduler().entity(livingVictim).runDelayed(() -> {
+            if (!livingEntity.isValid() || livingEntity.isDead())
+                return;
 
-                if (!livingVictim.isValid() || livingVictim.isDead())
-                    return;
+            if (!livingVictim.isValid() || livingVictim.isDead())
+                return;
 
-                EntityEquipment currentEquipment = livingEntity.getEquipment();
-                if (currentEquipment == null)
-                    return;
+            EntityEquipment currentEquipment = livingEntity.getEquipment();
+            if (currentEquipment == null)
+                return;
 
-                ItemStack currentMainStack = currentEquipment.getItemInMainHand();
-                String currentMainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(currentMainStack, false);
+            ItemStack currentMainStack = currentEquipment.getItemInMainHand();
+            String currentMainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(currentMainStack, false);
 
-                if (!weaponTitle.equals(currentMainWeapon))
-                    return;
+            if (!weaponTitle.equals(currentMainWeapon))
+                return;
 
-                EntityWrapper currentWrapper = WeaponMechanics.getInstance().getEntityWrapper(livingEntity, true);
-                if (currentWrapper == null)
-                    return;
+            EntityWrapper currentWrapper = WeaponMechanics.getInstance().getEntityWrapper(livingEntity, true);
+            if (currentWrapper == null)
+                return;
 
-                weaponHandler.tryUses(currentWrapper, weaponTitle, currentMainStack, EquipmentSlot.HAND, TriggerType.MELEE, wasDualWielding, livingVictim);
-            }, 1);
-
-            return;
-        }
-        weaponHandler.tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.LEFT_CLICK, dualWield, livingVictim);
+            weaponHandler.tryUses(currentWrapper, weaponTitle, currentMainStack, EquipmentSlot.HAND, triggerType, wasDualWielding, livingVictim);
+        }, 1);
     }
 
     private boolean hasMelee(String weaponTitle) {
