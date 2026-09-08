@@ -72,20 +72,28 @@ public class ItemAmmo implements IAmmoType {
 
             // Determine if this item matches the bullet template, or the
             // magazine template (or neither).
-            ItemStack ammoTemplate = null;
-            if (bulletItem != null && ammoConverter.isMatch(potentialAmmo, bulletItem))
-                ammoTemplate = bulletItem.clone();
-            if (magazineItem != null && ammoConverter.isMatch(potentialAmmo, magazineItem))
-                ammoTemplate = magazineItem.clone();
+            boolean matchesBullet = bulletItem != null && ammoConverter.isMatch(potentialAmmo, bulletItem);
+            boolean matchesMagazine = !matchesBullet && magazineItem != null && ammoConverter.isMatch(potentialAmmo, magazineItem);
 
             // Item did not match either of the ammo templates, skip it.
-            if (ammoTemplate == null)
+            if (!matchesBullet && !matchesMagazine)
                 continue;
 
-            // Handle conversion
-            potentialAmmo.setType(ammoTemplate.getType());
-            potentialAmmo.setItemMeta(ammoTemplate.getItemMeta());
-            AdventureUtil.updatePlaceholders(wrapper.getPlayer(), potentialAmmo);
+            if (ammoConverter.isPreserveItem()) {
+                // Only tag the item as ammo, keeping its original type/meta (name, lore,
+                // custom model data, other plugins' NBT, etc.) completely untouched. This
+                // allows custom items (e.g. from item plugins like Nexo) to be used as
+                // ammo directly, without being replaced by the configured template item.
+                CustomTag.AMMO_TITLE.setString(potentialAmmo, ammoTitle);
+                if (matchesMagazine)
+                    CustomTag.AMMO_MAGAZINE.setInteger(potentialAmmo, 1);
+            } else {
+                // Handle conversion
+                ItemStack ammoTemplate = matchesMagazine ? magazineItem.clone() : bulletItem.clone();
+                potentialAmmo.setType(ammoTemplate.getType());
+                potentialAmmo.setItemMeta(ammoTemplate.getItemMeta());
+                AdventureUtil.updatePlaceholders(wrapper.getPlayer(), potentialAmmo);
+            }
 
             inventory.setItem(i, potentialAmmo);
             hasAmmo = true;
