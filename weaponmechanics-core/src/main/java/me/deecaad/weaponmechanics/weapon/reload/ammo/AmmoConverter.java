@@ -21,12 +21,6 @@ public class AmmoConverter extends WeaponConverter {
         this.preserveItem = preserveItem;
     }
 
-    /**
-     * When <code>true</code>, matching items are tagged as ammo in-place (only the ammo NBT is added)
-     * instead of having their type/meta overwritten with the configured Bullet_Item/Magazine_Item
-     * template. Use this to allow custom items (e.g. from other plugins) to be used as ammo directly,
-     * without WeaponMechanics stripping their custom appearance/data.
-     */
     public boolean isPreserveItem() {
         return preserveItem;
     }

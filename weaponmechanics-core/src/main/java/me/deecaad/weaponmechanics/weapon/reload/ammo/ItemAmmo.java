@@ -80,10 +80,6 @@ public class ItemAmmo implements IAmmoType {
                 continue;
 
             if (ammoConverter.isPreserveItem()) {
-                // Only tag the item as ammo, keeping its original type/meta (name, lore,
-                // custom model data, other plugins' NBT, etc.) completely untouched. This
-                // allows custom items (e.g. from item plugins like Nexo) to be used as
-                // ammo directly, without being replaced by the configured template item.
                 CustomTag.AMMO_TITLE.setString(potentialAmmo, ammoTitle);
                 if (matchesMagazine)
                     CustomTag.AMMO_MAGAZINE.setInteger(potentialAmmo, 1);
